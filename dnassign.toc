@@ -1,0 +1,8 @@
+## Interface: 11305
+## Title: Destructive Nature Assignment
+## Notes: Destructive Nature Assignment
+## Author: Porthios of Myzrael (aka CDawg)
+## SavedVariables:DNA
+## OptionalDeps: Blizzard_RaidUI, Blizzard_CompactRaidFrames
+
+dnassign.lua
