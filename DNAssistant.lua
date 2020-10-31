@@ -58,13 +58,11 @@ end
 
 function reindexArray(input, remove)
   local n=#input
-
   for i=1,n do
     if remove[input[i]] then
       input[i]=nil
     end
   end
-
   local j=0
   for i=1,n do
     if input[i]~=nil then
@@ -94,6 +92,12 @@ function table.merge(t1, t2)
     table.insert(t1, v)
  end
   return t1
+end
+
+function removeValueFromArray(array, value)
+  remove_key = singleKeyFromValue(array, value)
+  array[remove_key] = nil
+  reindexArray(array, array)
 end
 
 local function sendPacket(bridge, packet)
@@ -1469,22 +1473,21 @@ local function buildRaidAssignments(packet, source)
     text[12] = "-- MELEE HEALERS --"
     local firemaw_heals = {}
     table.merge(firemaw_heals, healer.all)
-     --remove the assigned healers
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.paladin[1])
-    firemaw_heals[remove_healer] = nil
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.paladin[2])
-    firemaw_heals[remove_healer] = nil
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.paladin[3])
-    firemaw_heals[remove_healer] = nil
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.priest[1])
-    firemaw_heals[remove_healer] = nil
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.priest[2])
-    firemaw_heals[remove_healer] = nil
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.priest[3])
-    firemaw_heals[remove_healer] = nil
-    remove_healer = singleKeyFromValue(firemaw_heals, healer.priest[4])
-    firemaw_heals[remove_healer] = nil
-    reindexArray(firemaw_heals, firemaw_heals) -- reindex the array with missing keys
+    for i=1, table.getn(firemaw_heals) do
+      print("before :" .. i .. firemaw_heals[i])
+    end
+    --remove the assigned healers
+    removeValueFromArray(firemaw_heals, healer.paladin[1])
+    removeValueFromArray(firemaw_heals, healer.paladin[2])
+    removeValueFromArray(firemaw_heals, healer.paladin[3])
+    removeValueFromArray(firemaw_heals, healer.priest[1])
+    removeValueFromArray(firemaw_heals, healer.priest[2])
+    removeValueFromArray(firemaw_heals, healer.priest[3])
+    removeValueFromArray(firemaw_heals, healer.priest[4])
+
+    for i=1, table.getn(firemaw_heals) do
+      print("after :" .. i .. firemaw_heals[i])
+    end
     for i=1, table.getn(firemaw_heals) do
       if (firemaw_heals[i]) then
         text[i+12] = firemaw_heals[i]
