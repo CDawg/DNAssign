@@ -5,4 +5,9 @@
 ## SavedVariables:DNA
 ## OptionalDeps: Blizzard_RaidUI, Blizzard_CompactRaidFrames
 
+DNAGlobal.lua
 DNAssistant.lua
+raids/DNA-MC.lua
+raids/DNA-BWL.lua
+raids/DNA-AQ40.lua
+raids/DNA-NAXX.lua

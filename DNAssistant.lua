@@ -19,94 +19,10 @@ All of this is because Blizz uses LUA which is a fucking piece of shit garbage c
 hooksecurefunc
 ]==]--
 
-local DNAGlobal = {}
-DNAGlobal.name    = "Destructive Nature Assistant"
-DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 15
-DNAGlobal.width   = 980
-DNAGlobal.height  = 550
-DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
---DNAGlobal.font    = "Fonts/ARIALN.TTF"
---DNAGlobal.font    = "Interface/Addons/DNAssistant/Fonts/cooline.ttf"
-DNAGlobal.packet  = "dnassist"
-DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
-DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
-
---DNAssign = LibStub("AceAddon-3.0"):NewAddon("DNAssign", "AceConsole-3.0", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
---local LSM3 = LibStub("LibSharedMedia-3.0")
-
 local DEBUG = true
 
 local function globalNotification(msg)
   print("|cffe36c00" .. DNAGlobal.name .. "|r " .. msg)
-end
-
---single array
-local function singleKeyFromValue(_array, value)
-  for k,v in pairs(_array) do
-    if v==value then return k end
-  end
-  return nil
-end
---matrix array
-local function multiKeyFromValue(_array, value)
-  for k,v in pairs(_array) do
-    if v[1]==value then return k end
-  end
-  return nil
-end
-
-function reindexArray(input, remove)
-  local n=#input
-  for i=1,n do
-    if remove[input[i]] then
-      input[i]=nil
-    end
-  end
-  local j=0
-  for i=1,n do
-    if input[i]~=nil then
-      j=j+1
-      input[j]=input[i]
-    end
-  end
-  for i=j+1,n do
-    input[i]=nil
-  end
-end
-
-function split(s, delimiter)
-  result = {};
-  for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-    table.insert(result, match);
-  end
-  return result;
-end
-
-local function isempty(s)
-  return s == nil or s == ''
-end
-
-function table.merge(t1, t2)
- for k,v in ipairs(t2) do
-    table.insert(t1, v)
- end
-  return t1
-end
-
-function removeValueFromArray(array, value)
-  remove_key = singleKeyFromValue(array, value)
-  array[remove_key] = nil
-  reindexArray(array, array)
-end
-
-local function sendPacket(bridge, packet)
-  filteredPacket = nil
-  if (bridge == "send") then
-    filteredPacket = packet:gsub("%s+", "") --filter spaces
-    C_ChatInfo.SendAddonMessage("dnassist", filteredPacket, "RAID")
-  end
-  --C_ChatInfo.SendAddonMessage("dnassist", player.combine, "WHISPER", "bankhoe")
 end
 
 local packet = {}
@@ -884,7 +800,7 @@ DNAFrameAssignNotReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignNotReady:SetScript("OnClick", function()
   ConfirmReadyCheck()
-  sendPacket("send", "!" .. player.name)
+  DNASendPacket("send", "!" .. player.name)
   DNAFrameAssignNotReady:SetBackdropColor(0.2, 0.1, 0.1, 0.4)
 end)
 local DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
@@ -911,7 +827,7 @@ DNAFrameAssignReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignReady:SetScript("OnClick", function()
   ConfirmReadyCheck(1)
-  sendPacket("send", "+" .. player.name)
+  DNASendPacket("send", "+" .. player.name)
   DNAFrameAssign:Hide()
 end)
 
@@ -2000,7 +1916,7 @@ btnPostDKP.text:SetPoint("CENTER", btnPostDKP)
 btnPostDKP:SetScript("OnClick", function()
   if (UnitIsGroupLeader(player.name)) then
     if (pageDKPEdit:GetText()) then
-      sendPacket("send", "@" .. pageDKPEdit:GetText())
+      DNASendPacket("send", "@" .. pageDKPEdit:GetText())
     end
   end
 end)
@@ -2107,8 +2023,8 @@ local function updateSlotPos(role, i, name)
       --SetPartyAssignment("MAINTANK", name) --security issue has been disabled in LUA
       ]==]--
     end
-    sendPacket("send", role .. i .. "," .. name)
-    sendPacket("send", "#" .. DNAGlobal.version)
+    DNASendPacket("send", role .. i .. "," .. name)
+    DNASendPacket("send", "#" .. DNAGlobal.version)
   else
     topNotification("You are not in a raid or lack raid permission to modify assignments. [E1]", true)
   end
@@ -2548,7 +2464,7 @@ local function raidPush()
       largePacket = largePacket .. "tank" .. i .. "," .. tankSlot[i].text:GetText() .. "}"
     end
   end
-  sendPacket("send", largePacket)
+  DNASendPacket("send", largePacket)
 
   largePacket = "{" --beginning key
   for i = 1, healSlots do
@@ -2556,7 +2472,7 @@ local function raidPush()
       largePacket = largePacket .. "heal" .. i .. "," .. healSlot[i].text:GetText() .. "}"
     end
   end
-  sendPacket("send", largePacket)
+  DNASendPacket("send", largePacket)
 end
 
 local btnShare_w = 160
@@ -2604,7 +2520,7 @@ btnPostRaid:SetScript("OnClick", function()
   if (raidSelection == nil) then
     DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
   else
-    sendPacket("send", "&" .. raidSelection) --openassignments
+    DNASendPacket("send", "&" .. raidSelection) --openassignments
     --DoReadyCheck()
   end
 end)
