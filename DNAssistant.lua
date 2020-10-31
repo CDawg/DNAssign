@@ -757,18 +757,18 @@ end)
 for i = 1, viewFrameLines do
   DNAFrameAssignScrollChild_mark[i] = DNAFrameAssignScrollChild:CreateTexture(nil, "ARTWORK")
   DNAFrameAssignScrollChild_mark[i]:SetSize(16, 16)
-  DNAFrameAssignScrollChild_mark[i]:SetPoint("TOPLEFT", 20, (-i*18)+17)
+  DNAFrameAssignScrollChild_mark[i]:SetPoint("TOPLEFT", 20, (-i*18)+22)
   DNAFrameAssignScrollChild_mark[i]:SetTexture("")
 
   DNAFrameAssignScrollChild_tank[i] = DNAFrameAssignScrollChild:CreateFontString(nil, "ARTWORK")
   DNAFrameAssignScrollChild_tank[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   DNAFrameAssignScrollChild_tank[i]:SetText("")
-  DNAFrameAssignScrollChild_tank[i]:SetPoint("TOPLEFT", 45, (-i*18)+15)
+  DNAFrameAssignScrollChild_tank[i]:SetPoint("TOPLEFT", 45, (-i*18)+20)
 
   DNAFrameAssignScrollChild_heal[i] = DNAFrameAssignScrollChild:CreateFontString(nil, "ARTWORK")
   DNAFrameAssignScrollChild_heal[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   DNAFrameAssignScrollChild_heal[i]:SetText("")
-  DNAFrameAssignScrollChild_heal[i]:SetPoint("TOPLEFT", 145, (-i*18)+15)
+  DNAFrameAssignScrollChild_heal[i]:SetPoint("TOPLEFT", 145, (-i*18)+20)
 end
 local DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
 DNAFrameAssignReady:SetWidth(120)
@@ -829,7 +829,7 @@ end)
 DNAFrameAssignAuthor = DNAFrameAssign:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignAuthor:SetFont(DNAGlobal.font, 12, "OUTLINE")
 DNAFrameAssignAuthor:SetText("")
-DNAFrameAssignAuthor:SetPoint("CENTER", 0, -200)
+DNAFrameAssignAuthor:SetPoint("CENTER", 0, -205)
 DNAFrameAssignAuthor:SetTextColor(0.8, 0.8, 0.8)
 
 local DNAFrameAssignTab={}
@@ -967,7 +967,7 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Magmadar"
     mark[1] = boss_icon
     text[1] = tank.all[1]
-    heal[1] = healer.all[1]
+    heal[1] = healer.all[1] .. "," .. healer.all[2]
     --fear warders
     for i=1, healSlots do
       if ((raidClass[healer.all[i]] == "Priest") and (raidRace[healer.all[i]] == "Dwarf")) then
@@ -975,9 +975,17 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
       end
     end
     for k,v in pairs(fear_ward) do
-      text[3] = "Fear Ward: "
+      mark[3] = "Interface/Icons/spell_holy_excorcism"
+      text[3] = "Fear Ward"
       heal[3] = v
     end
+
+    for i=1, table.getn(raid.hunter) do
+      mark[i+4] = "Interface/Icons/spell_nature_drowsy"
+      text[i+4] = "Tranq Shot"
+      heal[i+4] = raid.hunter[i]
+    end
+
   end
 
   if (isItem(assign, "Garr")) then
@@ -1078,7 +1086,7 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
 
   if (isItem(assign, "Majordomo Executus")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Majordomo Executus"
-    for i=1, 6 do
+    for i=1, 5 do
       mark[i] = markers[i][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
@@ -1086,6 +1094,7 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
 
     mark[1] = boss_icon
 
+    mark[6] = icon_square
     if (raid.mage[1]) then
       text[6] = raid.mage[1]
     else
@@ -1341,6 +1350,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Suppression Room")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Flamebender Kagraz"
+    NUM_ADDS = 3
     text[1] = "No AOE Tank assigned!" --default message
     for i=1, tankSlots do
       if ((raidClass[tank.main[i]] == "Paladin") or (raidClass[tank.main[i]] == "Druid")) then
@@ -1348,9 +1358,14 @@ local function buildRaidAssignments(packet, author, source)
         heal[1] = tank.main[i]
       end
     end
+    for i=1, NUM_ADDS do
+      mark[i+1] = markers[i+1][2]
+      text[i+1] = tank.all[i]
+      heal[i+1] = healer.all[i]
+    end
     for i=1, total.rogues do
-      text[i+2] = "Device"
-      heal[i+2] = raid.rogue[i]
+      text[i+NUM_ADDS*2] = "Device"
+      heal[i+NUM_ADDS*2] = raid.rogue[i]
     end
   end
 
@@ -1833,11 +1848,11 @@ page[pages[1][1]]:SetWidth(DNAGlobal.width)
 page[pages[1][1]]:SetHeight(DNAGlobal.height)
 page[pages[1][1]]:SetPoint("TOPLEFT", 0, 0)
 
+--[==[
 local pageAssignLeftDiv = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
 pageAssignLeftDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
 pageAssignLeftDiv:SetSize(12, DNAGlobal.height-28)
 pageAssignLeftDiv:SetPoint("TOPLEFT", 196, -21)
---[==[
 local pageAssignLeftBG = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -6)
 pageAssignLeftBG:SetSize(400, DNAGlobal.height-35)
 pageAssignLeftBG:SetPoint("TOPLEFT", 200, -28)
@@ -1907,7 +1922,7 @@ DNAFrameMainNotif:SetBackdropBorderColor(1, 0, 0)
 DNAFrameMainNotif:SetBackdropColor(1, 0.2, 0.2, 1)
 DNAFrameMainNotif:Hide()
 
-page[pages[2][1]]= CreateFrame("Frame", nil, DNAFrameMain)
+page[pages[2][1]] = CreateFrame("Frame", nil, DNAFrameMain)
 page[pages[2][1]]:SetWidth(DNAGlobal.width)
 page[pages[2][1]]:SetHeight(DNAGlobal.height)
 page[pages[2][1]]:SetPoint("TOPLEFT", 0, 0)
@@ -1928,7 +1943,7 @@ function checkBox(checkID, checkName, parentFrame, posX, posY)
   check_static:SetPoint("TOPLEFT", posX, -posY-40)
   check_static.text = check_static:CreateFontString(nil,"ARTWORK")
   check_static.text:SetFont("Fonts\\ARIALN.ttf", 14, "OUTLINE")
-  check_static.text:SetPoint("TOPLEFT", check_static, "TOPLEFT", 20, -5)
+  check_static.text:SetPoint("TOPLEFT", check_static, "TOPLEFT", 25, -5)
   check_static.text:SetText(checkName)
   --check_static.tooltip = checkName
   check_static:SetScript("OnClick", function()
@@ -1944,7 +1959,7 @@ function checkBox(checkID, checkName, parentFrame, posX, posY)
 end
 
 checkBox("AUTOPROMOTE", "Auto Promote Guild Officers On Raid Invite", page[pages[4][1]], 10, 0)
-checkBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[4][1]], 10, 200)
+checkBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[4][1]], 10, 20)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page[pages[3][1]])
 pageDKPEdit:SetWidth(200)
@@ -1980,6 +1995,11 @@ btnPostDKP:SetScript("OnClick", function()
   end
 end)
 btnPostDKP:Hide()
+
+local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page[pages[2][1]], "InsetFrameTemplate")
+DNAFrameRaidDetailsBG:SetSize(194, DNAGlobal.height-5)
+DNAFrameRaidDetailsBG:SetPoint("TOPLEFT", 6, 0)
+DNAFrameRaidDetailsBG:SetFrameLevel(2)
 
 for i = 1, 50 do
   pageRaidDetailsColOne[i] = page[pages[2][1]]:CreateFontString(nil, "ARTWORK")
@@ -2089,9 +2109,14 @@ local function updateSlotPos(role, i, name)
   end
 end
 
-DNAFrameMain:Hide();
+DNAFrameMain:Hide()
 page[pages[3][1]]:Hide()
 page[pages[2][1]]:Hide()
+
+local DNAFrameInstanceBG = CreateFrame("Frame", nil, page[pages[1][1]], "InsetFrameTemplate")
+DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-5)
+DNAFrameInstanceBG:SetPoint("TOPLEFT", 6, 0)
+DNAFrameInstanceBG:SetFrameLevel(2)
 
 local function instanceButton(name, pos_y, longtext, icon)
   DNAFrameInstance[name] = CreateFrame("Frame", nil, page[pages[1][1]])
