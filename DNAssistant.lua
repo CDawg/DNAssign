@@ -26,9 +26,13 @@ local function globalNotification(msg)
 end
 
 local packet = {}
-packet.role = nil
-packet.slot = nil
-packet.name = nil
+--packet.role = nil
+--packet.slot = nil
+--packet.name = nil
+
+--removing/decreasing slots could cause LUA errors with nil entries
+local tankSlots = 6
+local healSlots = 12
 
 local player = {}
 player.name = UnitName("player")
@@ -36,18 +40,14 @@ player.realm = GetRealmName()
 player.combine=player.name .. "-" .. player.realm
 
 local getsave = {}
-getsave.role = nil
-getsave.slot = nil
-getsave.name = nil
+
 local lastSelection = nil
 
 local raidSlot = {}
 local raidSlot_h = 20
 
-local tankSlots = 6
 local tankSlot = {}
 
-local healSlots = 12
 local healSlot = {}
 
 local raidMember = {}
@@ -93,14 +93,17 @@ local page={}
 local pageBanner = {}
 local pageBossIcon = {}
 
+local DNAMiniMap={}
+
 local DNAFrameViewScrollChild_tank = {}
 local DNAFrameViewScrollChild_mark = {}
 local DNAFrameViewScrollChild_heal = {}
 local DNAFrameAssignScrollChild_tank = {}
 local DNAFrameAssignScrollChild_mark = {}
 local DNAFrameAssignScrollChild_heal = {}
-local DNAFrameAssignIcon = {}
-local DNAFrameAssignText = {}
+local DNAFrameAssignBossIcon = {}
+local DNAFrameAssignBossText = {}
+local DNAFrameAssignAuthor = {}
 
 local pageDKPView={}
 local pageDKPViewScrollChild_colOne = {}
@@ -115,7 +118,7 @@ local function isItem(compare, item) --dropdown packets that are filtered from s
   --(lava pack)
   filteredItem = item:gsub("%s+", "")
   if ((compare == item) or (compare == filteredItem)) then
-    DNAFrameAssignText:SetText(item)
+    DNAFrameAssignBossText:SetText(item)
     return true
   else
     return false
@@ -140,7 +143,7 @@ local instance={
   },
   {
     "AQ40", --key
-    "Ahn'Qiraj",
+    "Temple of Ahn'Qiraj",
     "Interface/GLUES/LoadingScreens/LoadScreenAhnQiraj40man",
     "Interface/EncounterJournal/UI-EJ-BOSS-CThun",
     "Interface/EncounterJournal/UI-EJ-LOREBG-TempleofAhnQiraj"
@@ -403,28 +406,19 @@ local function classColorAppend(name, class)
   return "|cff" .. rgb .. name .. "|r"
 end
 
---local DNAFrameOpen = CreateFrame("Button", nil, UIParent, "UIPanelButtonTemplate")
-local DNAFrameOpen = CreateFrame("Button", nil, UIParent)
-DNAFrameOpen:SetWidth(80)
-DNAFrameOpen:SetHeight(40)
-DNAFrameOpen:SetPoint("TOPLEFT", 220, 0)
-local DNAFrameOpenBG = DNAFrameOpen:CreateTexture(nil, "ARTWORK")
-DNAFrameOpenBG:SetTexture("Interface/ExtraButton/GarrZoneAbility-MageTower")
-DNAFrameOpenBG:SetSize(80, 40)
-DNAFrameOpenBG:SetPoint("TOPLEFT", -5, 0)
-local DNAFrameOpenIcon = DNAFrameOpen:CreateTexture(nil, "ARTWORK", DNAFrameOpenBG, -4)
-DNAFrameOpenIcon:SetTexture("Interface/Icons/Spell_Nature_Lightning")
-DNAFrameOpenIcon:SetSize(18, 18)
-DNAFrameOpenIcon:SetPoint("TOPLEFT", 26, -10)
-
---[==[
-DNAFrameOpen:SetScript('OnEnter', function()
-  DNAFrameOpenBG:SetTexture("Interface/ExtraButton/GarrZoneAbility-MageTower")
-end)
-DNAFrameOpen:SetScript('OnLeave', function()
-  DNAFrameOpenBG:SetTexture("Interface/ExtraButton/SoulSwap")
-end)
-]==]--
+--local DNAFrameMainOpen = CreateFrame("Button", nil, UIParent, "UIPanelButtonTemplate")
+local DNAFrameMainOpen = CreateFrame("Button", nil, UIParent)
+DNAFrameMainOpen:SetWidth(80)
+DNAFrameMainOpen:SetHeight(40)
+DNAFrameMainOpen:SetPoint("TOPLEFT", 220, 10)
+local DNAFrameMainOpenBG = DNAFrameMainOpen:CreateTexture(nil, "ARTWORK")
+DNAFrameMainOpenBG:SetTexture("Interface/ExtraButton/GarrZoneAbility-MageTower")
+DNAFrameMainOpenBG:SetSize(80, 40)
+DNAFrameMainOpenBG:SetPoint("TOPLEFT", -5, 0)
+local DNAFrameMainOpenIcon = DNAFrameMainOpen:CreateTexture(nil, "ARTWORK", DNAFrameMainOpenBG, -4)
+DNAFrameMainOpenIcon:SetTexture("Interface/Icons/Spell_Nature_Lightning")
+DNAFrameMainOpenIcon:SetSize(18, 18)
+DNAFrameMainOpenIcon:SetPoint("TOPLEFT", 26, -10)
 
 local DNAFrameAssignNotReady={}
 
@@ -438,7 +432,7 @@ function raidReadyClear()
   for i=1, healSlots do
     healSlot[i].ready:SetTexture("")
   end
-  DNAFrameAssignNotReady:SetBackdropColor(0.6, 0.5, 0.5, 1)
+  --DNAFrameAssignNotReady:SetBackdropColor(0.6, 0.5, 0.5, 1)
 end
 
 function raidReadyMember(member, isReady)
@@ -563,9 +557,9 @@ local function updateRaidRoster()
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
 
-  DNAFrameOpen:Hide()
+  DNAFrameMainOpen:Hide()
   if ((IsInRaid()) or (IsInGroup)) then
-    DNAFrameOpen:Show()
+    DNAFrameMainOpen:Show()
   end
 
   if (DEBUG) then
@@ -720,14 +714,14 @@ DNAFrameAssignPage["map"]:SetWidth(DNAFrameAssign_w)
 DNAFrameAssignPage["map"]:SetHeight(DNAFrameAssign_h)
 DNAFrameAssignPage["map"]:SetPoint("TOPLEFT", 0, 0)
 
-DNAFrameAssignText = DNAFrameAssignPage["assign"]:CreateFontString(nil, "ARTWORK")
-DNAFrameAssignText:SetFont("Fonts/MORPHEUS.ttf", 18, "OUTLINE")
-DNAFrameAssignText:SetPoint("TOPLEFT", DNAFrameAssignPage["assign"], "TOPLEFT", 120, -40)
-DNAFrameAssignText:SetText("Empty")
-DNAFrameAssignIcon = DNAFrameAssignPage["assign"]:CreateTexture(nil, "OVERLAY", nil, 2)
-DNAFrameAssignIcon:SetSize(90, 50)
-DNAFrameAssignIcon:SetPoint("TOPLEFT", 25, -20)
-DNAFrameAssignIcon:SetTexture("")
+DNAFrameAssignBossText = DNAFrameAssignPage["assign"]:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignBossText:SetFont("Fonts/MORPHEUS.ttf", 18, "OUTLINE")
+DNAFrameAssignBossText:SetPoint("TOPLEFT", DNAFrameAssignPage["assign"], "TOPLEFT", 120, -40)
+DNAFrameAssignBossText:SetText("Empty")
+DNAFrameAssignBossIcon = DNAFrameAssignPage["assign"]:CreateTexture(nil, "OVERLAY", nil, 2)
+DNAFrameAssignBossIcon:SetSize(90, 50)
+DNAFrameAssignBossIcon:SetPoint("TOPLEFT", 25, -20)
+DNAFrameAssignBossIcon:SetTexture("")
 DNAFrameAssign:SetBackdrop({
   bgFile = DNAGlobal.background,
   edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
@@ -776,37 +770,10 @@ for i = 1, viewFrameLines do
   DNAFrameAssignScrollChild_heal[i]:SetText("")
   DNAFrameAssignScrollChild_heal[i]:SetPoint("TOPLEFT", 145, (-i*18)+15)
 end
-DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
-DNAFrameAssignNotReady:SetWidth(120)
-DNAFrameAssignNotReady:SetHeight(28)
-DNAFrameAssignNotReady:SetPoint("TOPLEFT", 70, -DNAFrameAssign_h+55)
-DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "ARTWORK")
-DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
-DNAFrameAssignNotReady.text:SetText("Not Ready     X")
-DNAFrameAssignNotReady.text:SetPoint("CENTER", DNAFrameAssignNotReady)
-DNAFrameAssignNotReady:SetBackdrop({
-  bgFile = "Interface/Buttons/RedGrad64",
-  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeSize = 15,
-  insets = {left=4, right=4, top=4, bottom=4},
-})
-DNAFrameAssignNotReady:SetBackdropColor(0.5, 0.4, 0.4, 1)
-DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-DNAFrameAssignNotReady:SetScript("OnEnter", function()
-  DNAFrameAssignNotReady:SetBackdropBorderColor(1, 1, 1, 1)
-end)
-DNAFrameAssignNotReady:SetScript("OnLeave", function()
-  DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-end)
-DNAFrameAssignNotReady:SetScript("OnClick", function()
-  ConfirmReadyCheck()
-  DNASendPacket("send", "!" .. player.name)
-  DNAFrameAssignNotReady:SetBackdropColor(0.2, 0.1, 0.1, 0.4)
-end)
 local DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
 DNAFrameAssignReady:SetWidth(120)
 DNAFrameAssignReady:SetHeight(28)
-DNAFrameAssignReady:SetPoint("TOPLEFT", 210, -DNAFrameAssign_h+55)
+DNAFrameAssignReady:SetPoint("TOPLEFT", 70, -DNAFrameAssign_h+65)
 DNAFrameAssignReady.text = DNAFrameAssignReady:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignReady.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 DNAFrameAssignReady.text:SetText("Ready        √")
@@ -830,6 +797,40 @@ DNAFrameAssignReady:SetScript("OnClick", function()
   DNASendPacket("send", "+" .. player.name)
   DNAFrameAssign:Hide()
 end)
+
+DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
+DNAFrameAssignNotReady:SetWidth(120)
+DNAFrameAssignNotReady:SetHeight(28)
+DNAFrameAssignNotReady:SetPoint("TOPLEFT", 210, -DNAFrameAssign_h+65)
+DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
+DNAFrameAssignNotReady.text:SetText("Not Ready     X")
+DNAFrameAssignNotReady.text:SetPoint("CENTER", DNAFrameAssignNotReady)
+DNAFrameAssignNotReady:SetBackdrop({
+  bgFile = "Interface/Buttons/RedGrad64",
+  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+  edgeSize = 15,
+  insets = {left=4, right=4, top=4, bottom=4},
+})
+DNAFrameAssignNotReady:SetBackdropColor(0.5, 0.4, 0.4, 1)
+DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+DNAFrameAssignNotReady:SetScript("OnEnter", function()
+  DNAFrameAssignNotReady:SetBackdropBorderColor(1, 1, 1, 1)
+end)
+DNAFrameAssignNotReady:SetScript("OnLeave", function()
+  DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+end)
+DNAFrameAssignNotReady:SetScript("OnClick", function()
+  ConfirmReadyCheck()
+  DNASendPacket("send", "!" .. player.name)
+  --DNAFrameAssignNotReady:SetBackdropColor(0.2, 0.1, 0.1, 0.4)
+  DNAFrameAssign:Hide()
+end)
+DNAFrameAssignAuthor = DNAFrameAssign:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignAuthor:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAFrameAssignAuthor:SetText("")
+DNAFrameAssignAuthor:SetPoint("CENTER", 0, -200)
+DNAFrameAssignAuthor:SetTextColor(0.8, 0.8, 0.8)
 
 local DNAFrameAssignTab={}
 
@@ -1140,7 +1141,7 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
 end
 
 -- BUILD THE RAID PER BOSS
-local function buildRaidAssignments(packet, source)
+local function buildRaidAssignments(packet, author, source)
   local assign = packet
   local tank={}
   tank.main={}
@@ -1355,17 +1356,20 @@ local function buildRaidAssignments(packet, source)
 
   if (isItem(assign, "Goblin Pack")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Pauli Rocketspark"
-    for i=1, 4 do
+    for i=1, 6 do
       mark[i] = markers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
 
+    text[8] = "-- PULL --"
+    heal[8] = "-- TANK --"
+
     for i=1, 4 do
       if (raid.hunter[i]) then
-        mark[i+5] = markers[i+1][2]
-        text[i+5] = raid.hunter[i]
-        heal[i+5] = tank.all[i]
+        mark[i+8] = markers[i+1][2]
+        text[i+8] = raid.hunter[i]
+        heal[i+8] = tank.all[i]
       end
     end
   end
@@ -1490,8 +1494,11 @@ local function buildRaidAssignments(packet, source)
   end
 
   pageBossIcon:SetTexture(boss_icon)
-  DNAFrameAssignIcon:SetTexture(boss_icon)
-  --DNAFrameAssignText:SetText(boss)
+  DNAFrameAssignBossIcon:SetTexture(boss_icon)
+  if (author ~= nil) then
+    DNAFrameAssignAuthor:SetText(author .. " has sent raid assignments.")
+  end
+
 
   raidSelection = packet
 end
@@ -1598,7 +1605,10 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
       if (string.sub(netpacket, 1, 1) == "&") then
         netpacket = string.gsub(netpacket, "&", "")
-        buildRaidAssignments(netpacket, "network")
+        local raid_assignment = split(netpacket, ",")
+        print(raid_assignment[1])
+        print(raid_assignment[2])
+        buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
         DNAFrameAssign:Show()
         raidReadyClear()
         --PlaySound(8960) --raidready
@@ -1672,10 +1682,25 @@ getRaidComp()
 
 function setDNAVars()
   for k,v in pairs(DNA[player.combine]) do
+    getsave.key = k
     getsave.role = string.gsub(k, "[^a-zA-Z]", "")
     getsave.slot = string.gsub(k, getsave.role, "")
     getsave.slot = tonumber(getsave.slot)
     getsave.name = v
+    --[==[
+    if (getsave.key == "minimap_x") then
+      if (getsave.name ~= nil) then
+        minimap_x = tonumber(getsave.name)
+        print(minimap_x)
+      end
+    end
+    if (getsave.key == "minimap_y") then
+      if (getsave.name ~= nil) then
+        minimap_y = tonumber(getsave.name)
+        print(minimap_y)
+      end
+    end
+    ]==]--
     if (getsave.role == "tank") then
       if ((getsave.name == nil) or (getsave.name == "Empty")) then
         tankSlot[getsave.slot].text:SetText("Empty")
@@ -1711,6 +1736,7 @@ function setDNAVars()
       end
     end
   end
+  --DNAMiniMap:SetPoint("TOPLEFT",  minimap_x, minimap_y)
   if (DNA[player.combine]["Last Selection"]) then
     local instanceNum = multiKeyFromValue(instance, DNA[player.combine]["Last Selection"])
     InstanceButtonToggle(instance[instanceNum][1], instance[instanceNum][5])
@@ -1722,18 +1748,48 @@ function setDNAVars()
   end
 end
 
-local DNAFrameMain = CreateFrame("Frame", DNAFrameMain, UIParent, "BasicFrameTemplateWithInset")
+--local DNAFrameMain = CreateFrame("Frame", DNAFrameMain, UIParent, "BasicFrameTemplateWithInset")
+local DNAFrameMain = CreateFrame("Frame", DNAFrameMain, UIParent)
 DNAFrameMain:SetWidth(DNAGlobal.width)
 DNAFrameMain:SetHeight(DNAGlobal.height)
 DNAFrameMain:SetPoint("CENTER", 20, 40)
-DNAFrameMain:SetMovable(true)
-DNAFrameMain.text = DNAFrameMain:CreateFontString(nil, "ARTWORK")
+DNAFrameMain.title = CreateFrame("Frame", nil, DNAFrameMain)
+DNAFrameMain.title:SetWidth(DNAGlobal.width)
+DNAFrameMain.title:SetHeight(34)
+DNAFrameMain.title:SetPoint("TOPLEFT", 0, 5)
+DNAFrameMain.title:SetFrameLevel(3)
+DNAFrameMain.title:SetBackdrop({
+  bgFile = "Interface/HelpFrame/DarkSandstone-Tile",
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 26,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNAFrameMain.text = DNAFrameMain.title:CreateFontString(nil, "ARTWORK")
 DNAFrameMain.text:SetFont(DNAGlobal.font, 15, "OUTLINE")
-DNAFrameMain.text:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 12, -4)
+DNAFrameMain.text:SetPoint("TOPLEFT", 20, -10)
 DNAFrameMain.text:SetText(DNAGlobal.name .. " " .. DNAGlobal.version)
 DNAFrameMain.text:SetTextColor(1.0, 1.0, 0.5)
-DNAFrameMain:EnableKeyboard(true)
+DNAFrameMain:SetBackdrop({
+  bgFile = DNAGlobal.background,
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 26,
+  tile = true,
+  tileSize = 450,
+  insets = {left=4, right=4, top=20, bottom=4},
+})
+DNAFrameMainClose = CreateFrame("Button", nil, DNAFrameMain.title, "UIPanelButtonTemplate")
+DNAFrameMainClose:SetSize(25, 24)
+DNAFrameMainClose:SetPoint("TOPLEFT", DNAGlobal.width-29, -4)
+DNAFrameMainCloseX= DNAFrameMainClose:CreateTexture(nil, "ARTWORK")
+DNAFrameMainCloseX:SetTexture("Interface/Buttons/UI-StopButton")
+DNAFrameMainCloseX:SetSize(14, 14)
+DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
+DNAFrameMainClose:SetScript("OnClick", function()
+  DNAFrameMain:Hide()
+end)
+
 --[==[
+DNAFrameMain:EnableKeyboard(true)
 local DNAFrameMainEsc = CreateFrame("Button", nil, DNAFrameMain, "UIPanelButtonTemplate")
 DNAFrameMainEsc:SetWidth(100)
 DNAFrameMainEsc:SetHeight(20)
@@ -1781,10 +1837,12 @@ local pageAssignLeftDiv = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
 pageAssignLeftDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
 pageAssignLeftDiv:SetSize(12, DNAGlobal.height-28)
 pageAssignLeftDiv:SetPoint("TOPLEFT", 196, -21)
+--[==[
 local pageAssignLeftBG = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -6)
 pageAssignLeftBG:SetSize(400, DNAGlobal.height-35)
 pageAssignLeftBG:SetPoint("TOPLEFT", 200, -28)
 pageAssignLeftBG:SetTexture(DNAGlobal.background)
+]==]--
 
 --[==[
 pageAssignLeftCap = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -7)
@@ -1805,11 +1863,12 @@ local pageAssignRightDiv = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
 pageAssignRightDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
 pageAssignRightDiv:SetSize(12, DNAGlobal.height-28)
 pageAssignRightDiv:SetPoint("TOPLEFT", 566, -21)
+--[==[
 local pageAssignRightBG = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -1)
 pageAssignRightBG:SetSize(400, DNAGlobal.height-89)
 pageAssignRightBG:SetPoint("TOPLEFT", 570, -82)
 pageAssignRightBG:SetTexture(DNAGlobal.background)
---SetVertexColor(r, g, b [, a])
+]==]--
 
 pageBanner = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], 0)
 pageBanner:SetTexture(instance[1][3]) --default
@@ -2095,7 +2154,7 @@ end
 
 local function bottomTab(name, pos_x, text_pos_x)
   botTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
-  botTab[name]:SetPoint("BOTTOMLEFT", pos_x, -40)
+  botTab[name]:SetPoint("BOTTOMLEFT", pos_x, -39)
   botTab[name]:SetWidth(85)
   botTab[name]:SetHeight(60)
   botTab[name]:SetFrameStrata("LOW")
@@ -2433,7 +2492,7 @@ for i, v in ipairs(instance) do
     if (DEBUG) then
       print("DEBUG: ddBossList " .. self.value)
     end
-    buildRaidAssignments(self.value, "dropdown")
+    buildRaidAssignments(self.value, nil, "dropdown")
   end
   ddBossList[instance[i][1]]:Hide()
   ddBossList[instance[i][1]].initialize = function(self, level)
@@ -2520,7 +2579,7 @@ btnPostRaid:SetScript("OnClick", function()
   if (raidSelection == nil) then
     DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
   else
-    DNASendPacket("send", "&" .. raidSelection) --openassignments
+    DNASendPacket("send", "&" .. raidSelection .. "," .. player.name) --openassignments
     --DoReadyCheck()
   end
 end)
@@ -2609,7 +2668,7 @@ end
 
 local function DNAOpenWindow()
   DNAFrameMain:Show()
-  DNAFrameAssign:Show()
+  --DNAFrameAssign:Show()
   updateRaidRoster()
   setDNAVars()
   raidPermissions()
@@ -2620,12 +2679,12 @@ SlashCmdList["DNA"] = function(msg)
   DNAOpenWindow()
 end
 
-DNAFrameOpen:SetScript("OnClick", function()
+DNAFrameMainOpen:SetScript("OnClick", function()
   DNAOpenWindow()
 end)
 
 --[==[
-local DNAMiniMap = CreateFrame("Button", nil, Minimap)
+DNAMiniMap = CreateFrame("Button", nil, Minimap)
 DNAMiniMap:SetFrameLevel(6)
 DNAMiniMap:SetSize(24, 24)
 DNAMiniMap:SetMovable(true)
@@ -2652,9 +2711,13 @@ end)
 DNAMiniMap:SetScript("OnDragStop", function()
     DNAMiniMap:StopMovingOrSizing()
     DNAMiniMap:SetScript("OnUpdate", nil)
+    local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
+    print(xOfs .. " , " .. yOfs)
+    DNA[player.combine]["minimap_x"] = xOfs
+    DNA[player.combine]["minimap_y"] = yOfs
     UpdateMapButton()
 end)
-DNAMiniMap:ClearAllPoints();
+DNAMiniMap:ClearAllPoints()
 DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 62 - (80 * cos(myIconPos)),(80 * sin(myIconPos)) - 62)
 DNAMiniMap:SetScript("OnClick", function()
   DNAOpenWindow()
