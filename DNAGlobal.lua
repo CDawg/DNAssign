@@ -87,10 +87,14 @@ function removeValueFromArray(array, value)
   reindexArray(array, array)
 end
 
-function DNASendPacket(bridge, packet)
+function DNASendPacket(bridge, packet, filtered)
   filteredPacket = nil
   if (bridge == "send") then
-    filteredPacket = packet:gsub("%s+", "") --filter spaces
+    if (filtered) then
+      filteredPacket = packet:gsub("%s+", "") --filter spaces
+    else
+      filteredPacket = packet
+    end
     C_ChatInfo.SendAddonMessage("dnassist", filteredPacket, "RAID")
   end
   --C_ChatInfo.SendAddonMessage("dnassist", player.combine, "WHISPER", "bankhoe")

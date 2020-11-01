@@ -793,7 +793,7 @@ DNAFrameAssignReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignReady:SetScript("OnClick", function()
   ConfirmReadyCheck(1)
-  DNASendPacket("send", "+" .. player.name)
+  DNASendPacket("send", "+" .. player.name, true)
   DNAFrameAssign:Hide()
 end)
 
@@ -821,7 +821,7 @@ DNAFrameAssignNotReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignNotReady:SetScript("OnClick", function()
   ConfirmReadyCheck()
-  DNASendPacket("send", "!" .. player.name)
+  DNASendPacket("send", "!" .. player.name, true)
   --DNAFrameAssignNotReady:SetBackdropColor(0.2, 0.1, 0.1, 0.4)
   DNAFrameAssign:Hide()
 end)
@@ -1570,6 +1570,8 @@ DNAMain:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 DNAMain:RegisterEvent("GROUP_ROSTER_UPDATE")
 DNAMain:RegisterEvent("PLAYER_ENTER_COMBAT")
 DNAMain:RegisterEvent("PLAYER_REGEN_DISABLED")
+DNAMain:RegisterEvent("CHAT_MSG_LOOT")
+
 DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if ((event == "ADDON_LOADED") and (prefix == "DNA")) then
     if (DNA == nil) then
@@ -1591,6 +1593,18 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       globalNotification("Loading Raid Profile: " .. player.combine)
       setDNAVars()
     end
+  end
+
+  if (event == "CHAT_MSG_LOOT") then
+    --string.find(msg, ( gsub(LOOT_ITEM, "%%s", "(.+)") ) )
+    --[==[
+    local lootstring, _, _, _, player = ...
+    local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
+    local itemString = string.match(itemLink, "item[%-?%d:]+")
+    local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemString))
+    ]==]--
+    loot_msg = string.match(prefix, "|%x+|Hitem:.-|h.-|h|r")
+    DNASendPacket("send", "_" .. player.name .. "," .. loot_msg, false)
   end
 
   if (event == "GROUP_ROSTER_UPDATE") then
@@ -1650,6 +1664,13 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (string.sub(netpacket, 1, 1) == "!") then
         netpacket = string.gsub(netpacket, "!", "")
         raidReadyMember(netpacket, false)
+        return true
+      end
+      --LOOT
+      if (string.sub(netpacket, 1, 1) == "_") then
+        netpacket = string.gsub(netpacket, "_", "")
+        --DNA[player.combine]["LootLog"]
+        print(netpacket)
         return true
       end
       if (string.sub(netpacket, 1, 1) == "@") then
@@ -1943,7 +1964,7 @@ btnPostDKP.text:SetPoint("CENTER", btnPostDKP)
 btnPostDKP:SetScript("OnClick", function()
   if (UnitIsGroupLeader(player.name)) then
     if (pageDKPEdit:GetText()) then
-      DNASendPacket("send", "@" .. pageDKPEdit:GetText())
+      DNASendPacket("send", "@" .. pageDKPEdit:GetText(), true)
     end
   end
 end)
@@ -2055,8 +2076,8 @@ local function updateSlotPos(role, i, name)
       --SetPartyAssignment("MAINTANK", name) --security issue has been disabled in LUA
       ]==]--
     end
-    DNASendPacket("send", role .. i .. "," .. name)
-    DNASendPacket("send", "#" .. DNAGlobal.version)
+    DNASendPacket("send", role .. i .. "," .. name, true)
+    DNASendPacket("send", "#" .. DNAGlobal.version, true)
   else
     topNotification("You are not in a raid or lack raid permission to modify assignments. [E1]", true)
   end
@@ -2501,7 +2522,7 @@ local function raidPush()
       largePacket = largePacket .. "tank" .. i .. "," .. tankSlot[i].text:GetText() .. "}"
     end
   end
-  DNASendPacket("send", largePacket)
+  DNASendPacket("send", largePacket, true)
 
   largePacket = "{" --beginning key
   for i = 1, healSlots do
@@ -2509,7 +2530,7 @@ local function raidPush()
       largePacket = largePacket .. "heal" .. i .. "," .. healSlot[i].text:GetText() .. "}"
     end
   end
-  DNASendPacket("send", largePacket)
+  DNASendPacket("send", largePacket, true)
 end
 
 local btnShare_w = 160
@@ -2557,7 +2578,7 @@ btnPostRaid:SetScript("OnClick", function()
   if (raidSelection == nil) then
     DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
   else
-    DNASendPacket("send", "&" .. raidSelection .. "," .. player.name) --openassignments
+    DNASendPacket("send", "&" .. raidSelection .. "," .. player.name, true) --openassignments
     --DoReadyCheck()
   end
 end)
