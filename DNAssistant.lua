@@ -643,11 +643,10 @@ local function parsePacket(packet, netpacket)
       tankSlot[packet.slot]:SetFrameLevel(4)
       tankSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
       tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-      --thisClass = UnitClass(packet.name)
       thisClass = raidClass[packet.name]
       classColorText(tankSlot[packet.slot].text, thisClass)
       --PromoteToAssistant(packet.name)
-      --SetPartyAssignment("MAINTANK", packet.name);
+      --SetPartyAssignment("MAINTANK", packet.name, 1);
     end
   end
   if (packet.role == "heal") then
@@ -1570,6 +1569,7 @@ DNAMain:RegisterEvent("ZONE_CHANGED")
 DNAMain:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 DNAMain:RegisterEvent("GROUP_ROSTER_UPDATE")
 DNAMain:RegisterEvent("PLAYER_ENTER_COMBAT")
+DNAMain:RegisterEvent("PLAYER_REGEN_DISABLED")
 DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if ((event == "ADDON_LOADED") and (prefix == "DNA")) then
     if (DNA == nil) then
@@ -1597,8 +1597,9 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     updateRaidRoster()
   end
 
-  if (event == "PLAYER_ENTER_COMBAT") then
+  if ((event == "PLAYER_ENTER_COMBAT") or (event== "PLAYER_REGEN_DISABLED")) then
     raidReadyClear()
+    print("entered combat!")
   end
 
   if (event == "CHAT_MSG_ADDON") then
