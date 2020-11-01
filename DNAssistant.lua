@@ -1764,7 +1764,7 @@ function setDNAVars()
 end
 
 --local DNAFrameMain = CreateFrame("Frame", DNAFrameMain, UIParent, "BasicFrameTemplateWithInset")
-local DNAFrameMain = CreateFrame("Frame", DNAFrameMain, UIParent)
+local DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
 DNAFrameMain:SetWidth(DNAGlobal.width)
 DNAFrameMain:SetHeight(DNAGlobal.height)
 DNAFrameMain:SetPoint("CENTER", 20, 40)
@@ -1802,22 +1802,8 @@ DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
   DNAFrameMain:Hide()
 end)
-
---[==[
 DNAFrameMain:EnableKeyboard(true)
-local DNAFrameMainEsc = CreateFrame("Button", nil, DNAFrameMain, "UIPanelButtonTemplate")
-DNAFrameMainEsc:SetWidth(100)
-DNAFrameMainEsc:SetHeight(20)
-DNAFrameMainEsc:SetPoint("TOPLEFT", -50, 0)
---tinsert(UISpecialFrames, DNAFrameMain)
---DNAFrameMainEsc:SetScript("OnEscapePressed",
---  function(self)
---  self:Hide()
---end)
-]==]--
-
---[==[
-tinsert(UISpecialFrames, DNAFrameMain)
+tinsert(UISpecialFrames, "DNAFrameMain")
 DNAFrameMain.enter = CreateFrame("EditBox", nil, DNAFrameMain)
 DNAFrameMain.enter:SetWidth(100)
 DNAFrameMain.enter:SetHeight(20)
@@ -1828,43 +1814,15 @@ DNAFrameMain.enter:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
 DNAFrameMain.enter:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -50, 0)
 DNAFrameMain.enter:ClearFocus(self)
 DNAFrameMain.enter:SetAutoFocus(false)
---DNAFrameMain.enter:Insert("exit")
---DNAFrameInstance[name]:SetScript('OnEscapePressed', function()
+DNAFrameMain.enter:Hide()
 DNAFrameMain.enter:SetScript("OnEscapePressed", function()
   DNAFrameMain:Hide()
 end)
-]==]--
 
---[==[
-DNAFrameMain:SetBackdrop({
-  --edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeFile = "Interface/LFGFRAME/LFGBorder",
-  edgeSize = 28,
-  insets = {left=2, right=2, top=2, bottom=2},
-})
-]==]--
 page[pages[1][1]] = CreateFrame("Frame", nil, DNAFrameMain)
 page[pages[1][1]]:SetWidth(DNAGlobal.width)
 page[pages[1][1]]:SetHeight(DNAGlobal.height)
 page[pages[1][1]]:SetPoint("TOPLEFT", 0, 0)
-
---[==[
-local pageAssignLeftDiv = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
-pageAssignLeftDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
-pageAssignLeftDiv:SetSize(12, DNAGlobal.height-28)
-pageAssignLeftDiv:SetPoint("TOPLEFT", 196, -21)
-local pageAssignLeftBG = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -6)
-pageAssignLeftBG:SetSize(400, DNAGlobal.height-35)
-pageAssignLeftBG:SetPoint("TOPLEFT", 200, -28)
-pageAssignLeftBG:SetTexture(DNAGlobal.background)
-]==]--
-
---[==[
-pageAssignLeftCap = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -7)
-pageAssignLeftCap:SetTexture(DNAGlobal.background)
-pageAssignLeftCap:SetSize(250, 19)
-pageAssignLeftCap:SetPoint("TOPLEFT", 6, -DNAGlobal.height+25)
-]==]--
 
 local pageAssignBtnDiv={}
 for i=1, 5 do
@@ -1878,12 +1836,6 @@ local pageAssignRightDiv = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
 pageAssignRightDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
 pageAssignRightDiv:SetSize(12, DNAGlobal.height-28)
 pageAssignRightDiv:SetPoint("TOPLEFT", 566, -21)
---[==[
-local pageAssignRightBG = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], -1)
-pageAssignRightBG:SetSize(400, DNAGlobal.height-89)
-pageAssignRightBG:SetPoint("TOPLEFT", 570, -82)
-pageAssignRightBG:SetTexture(DNAGlobal.background)
-]==]--
 
 pageBanner = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], 0)
 pageBanner:SetTexture(instance[1][3]) --default
