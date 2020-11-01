@@ -558,10 +558,12 @@ local function updateRaidRoster()
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
 
+  --[==[
   DNAFrameMainOpen:Hide()
-  if ((IsInRaid()) or (IsInGroup)) then
+  if (IsInRaid()) then
     DNAFrameMainOpen:Show()
   end
+  ]==]--
 
   if (DEBUG) then
     print("DEBUG: updateRaidRoster()")
@@ -612,6 +614,7 @@ local function InstanceButtonToggle(name, icon)
   pageBanner:SetTexture(instance[instanceNum][3])
   pageBanner.text:SetText(instance[instanceNum][2])
   pageBossIcon:SetTexture(instance[instanceNum][4])
+  PlaySound(844)
 end
 
 --parse the incoming packet
@@ -1605,6 +1608,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
   end
 
+  --[==[
   if (event == "CHAT_MSG_LOOT") then
     loot_msg = string.match(prefix, "item[%-?%d:]+")
     --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(loot_msg)
@@ -1620,6 +1624,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
     end
   end
+  ]==]--
 
   if (event == "GROUP_ROSTER_UPDATE") then
     updateRaidRoster()
@@ -1655,7 +1660,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
         DNAFrameAssign:Show()
         raidReadyClear()
-        --PlaySound(8960) --raidready
         return true
       end
       if (string.sub(netpacket, 1, 1) == "#") then
@@ -2102,18 +2106,22 @@ sbtn:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -100, -100); -- (point, frame,
 
 --send the network data, then save after
 local function updateSlotPos(role, i, name)
-  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-    if (name ~= "Empty") then
-      --TargetUnit(name)
-    --[==[
-      ClearPartyAssignment("MAINTANK", name)
-      --SetPartyAssignment("MAINTANK", name) --security issue has been disabled in LUA
+  if (IsInRaid()) then
+    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+      --[==[
+      if (name ~= "Empty") then
+        --TargetUnit(name)
+        ClearPartyAssignment("MAINTANK", name)
+        --SetPartyAssignment("MAINTANK", name) --security issue has been disabled in LUA
+      end
       ]==]--
+      DNASendPacket("send", role .. i .. "," .. name, true)
+      DNASendPacket("send", "#" .. DNAGlobal.version, true)
+    else
+      topNotification("You do not have raid permission to modify assignments.   [E1]", true)
     end
-    DNASendPacket("send", role .. i .. "," .. name, true)
-    DNASendPacket("send", "#" .. DNAGlobal.version, true)
   else
-    topNotification("You are not in a raid or lack raid permission to modify assignments. [E1]", true)
+    return topNotification("You are not in a raid!   [E1]", true)
   end
 end
 
@@ -2571,7 +2579,7 @@ local btnShare_w = 160
 local btnShare_h = 28
 local btnShare_x = 300
 local btnShare_y = DNAGlobal.height-45
-local btnShare_t = "Sync Raid Assistants"
+local btnShare_t = "Push Assignments"
 local btnShare = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
 btnShare:SetSize(btnShare_w, btnShare_h)
 btnShare:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
@@ -2592,7 +2600,11 @@ btnShareDis.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 btnShareDis.text:SetText(btnShare_t)
 btnShareDis.text:SetPoint("CENTER", btnShare)
 btnShareDis:SetScript("OnClick", function()
-  topNotification("You are not in a raid or lack raid permission to modify assignments. [E3]", true)
+  if (IsInRaid()) then
+    topNotification("You do not have raid permission to modify assignments.   [E3]", true)
+  else
+    topNotification("You are not in a raid!   [E3]", true)
+  end
 end)
 
 local btnPostRaid_w = 120
@@ -2624,7 +2636,11 @@ btnPostRaidDis.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 btnPostRaidDis.text:SetText(btnPostRaid_t)
 btnPostRaidDis.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaidDis:SetScript("OnClick", function()
-  topNotification("You are not in a raid or lack raid permission to modify assignments. [E2]", true)
+  if (IsInRaid()) then
+    topNotification("You do not have raid permission to modify assignments.   [E2]", true)
+  else
+    topNotification("You are not in a raid!   [E2]", true)
+  end
 end)
 -- EO PAGE ASSIGN
 
