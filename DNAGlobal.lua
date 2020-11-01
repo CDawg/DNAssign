@@ -25,6 +25,8 @@ DNAGlobal.packet  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
 
+date_day = date("%y-%m-%d")
+timestamp = date("%y-%m-%d %H:%M:%S")
 --DNAssign = LibStub("AceAddon-3.0"):NewAddon("DNAssign", "AceConsole-3.0", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
 --local LSM3 = LibStub("LibSharedMedia-3.0")
 

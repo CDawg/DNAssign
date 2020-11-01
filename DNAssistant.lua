@@ -86,7 +86,8 @@ local pages = {
   {"Assignment", 10},
   {"Raid Details", 100},
   {"DKP", 190},
-  {"Config", 280},
+  {"Loot Log", 280},
+  {"Config", 370},
 }
 
 local page={}
@@ -1580,6 +1581,12 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     if (DNA[player.combine] == nil) then
       DNA[player.combine] = {}
     end
+    if (DNA[player.combine]["Loot Log"] == nil) then
+      DNA[player.combine]["Loot Log"] = {}
+    end
+    if (DNA[player.combine]["Loot Log"][date_day] == nil) then
+      DNA[player.combine]["Loot Log"][date_day] = {}
+    end
   end
 
   if (event == "PLAYER_LOGIN") then
@@ -1588,6 +1595,9 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
     if (DNA[player.combine] == nil) then
       DNA[player.combine] = {}
+      if (DNA[player.combine]["Loot Log"] == nil) then
+        DNA[player.combine]["Loot Log"] = {}
+      end
       globalNotification("Creating Raid Profile: " .. player.combine)
     else
       globalNotification("Loading Raid Profile: " .. player.combine)
@@ -1596,15 +1606,19 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   end
 
   if (event == "CHAT_MSG_LOOT") then
-    --string.find(msg, ( gsub(LOOT_ITEM, "%%s", "(.+)") ) )
-    --[==[
-    local lootstring, _, _, _, player = ...
-    local itemLink = string.match(lootstring,"|%x+|Hitem:.-|h.-|h|r")
-    local itemString = string.match(itemLink, "item[%-?%d:]+")
-    local _, _, quality, _, _, class, subclass, _, equipSlot, texture, _, ClassID, SubClassID = GetItemInfo(itemString))
-    ]==]--
-    loot_msg = string.match(prefix, "|%x+|Hitem:.-|h.-|h|r")
-    DNASendPacket("send", "_" .. player.name .. "," .. loot_msg, false)
+    loot_msg = string.match(prefix, "item[%-?%d:]+")
+    --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(loot_msg)
+    --DNASendPacket("send", "_" .. player.name .. "," .. itemName, false)
+    --safeter to store by the odd string for the itemID
+    local inInstance, instanceType = IsInInstance()
+    if (inInstance) then
+      if (instanceType == "Raid") then
+        local instanceName = GetInstanceInfo()
+        if (instanceName) then
+          DNASendPacket("send", "_" .. instanceName .. "," .. player.name .. "," .. loot_msg, false)
+        end
+      end
+    end
   end
 
   if (event == "GROUP_ROSTER_UPDATE") then
@@ -1668,9 +1682,24 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
       --LOOT
       if (string.sub(netpacket, 1, 1) == "_") then
+        if (DNA[player.combine]["Loot Log"][date_day] == nil) then
+          DNA[player.combine]["Loot Log"][date_day] = {}
+        end
         netpacket = string.gsub(netpacket, "_", "")
-        --DNA[player.combine]["LootLog"]
-        print(netpacket)
+
+        local inInstance, instanceType = IsInInstance()
+        if (inInstance) then
+          if (instanceType == "Raid") then
+            local instanceName = GetInstanceInfo()
+            if (instanceName) then
+              table.insert(DNA[player.combine]["Loot Log"][date_day], {timestamp .. "," .. instanceName .. "," .. netpacket})
+            end
+          end
+        end
+        --print(cur_date)
+        --DNA[player.combine]["Loot Log"] = {cur_date .. "," .. netpacket}
+        table.insert(DNA[player.combine]["Loot Log"][date_day], {netpacket .. "," .. timestamp})
+        --print(netpacket)
         return true
       end
       if (string.sub(netpacket, 1, 1) == "@") then
@@ -1911,6 +1940,11 @@ page[pages[4][1]]:SetWidth(DNAGlobal.width)
 page[pages[4][1]]:SetHeight(DNAGlobal.height)
 page[pages[4][1]]:SetPoint("TOPLEFT", 0, 0)
 
+page[pages[5][1]] = CreateFrame("Frame", nil, DNAFrameMain)
+page[pages[5][1]]:SetWidth(DNAGlobal.width)
+page[pages[5][1]]:SetHeight(DNAGlobal.height)
+page[pages[5][1]]:SetPoint("TOPLEFT", 0, 0)
+
 local checkbox = {}
 function checkBox(checkID, checkName, parentFrame, posX, posY)
   local check_static = CreateFrame("CheckButton", nil, parentFrame, "ChatConfigCheckButtonTemplate")
@@ -1932,8 +1966,8 @@ function checkBox(checkID, checkName, parentFrame, posX, posY)
   checkbox[checkID] = check_static
 end
 
-checkBox("AUTOPROMOTE", "Auto Promote Guild Officers On Raid Invite", page[pages[4][1]], 10, 0)
-checkBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[4][1]], 10, 20)
+checkBox("AUTOPROMOTE", "Auto Promote Guild Officers On Raid Invite", page[pages[5][1]], 10, 0)
+checkBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 20)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page[pages[3][1]])
 pageDKPEdit:SetWidth(200)
