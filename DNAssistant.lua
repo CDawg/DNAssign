@@ -104,6 +104,7 @@ local DNAFrameAssignScrollChild_mark = {}
 local DNAFrameAssignScrollChild_heal = {}
 local DNAFrameAssignBossIcon = {}
 local DNAFrameAssignBossText = {}
+local DNAFrameAssignBossMap = {}
 local DNAFrameAssignAuthor = {}
 
 local pageDKPView={}
@@ -133,7 +134,6 @@ local instance={
     "Interface/GLUES/LoadingScreens/LoadScreenMoltenCore",
     "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros",
     "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore",
-    "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore", --map
   },
   {
     "BWL", --key
@@ -176,7 +176,8 @@ local raidBoss = {
   },
   {"AQ40",
   "Anubisath Sentinels",
-  "Prophet Skerem"
+  "Prophet Skerem",
+  "C'Thun"
   },
 }
 
@@ -725,6 +726,18 @@ DNAFrameAssignBossIcon = DNAFrameAssignPage["assign"]:CreateTexture(nil, "OVERLA
 DNAFrameAssignBossIcon:SetSize(90, 50)
 DNAFrameAssignBossIcon:SetPoint("TOPLEFT", 25, -20)
 DNAFrameAssignBossIcon:SetTexture("")
+
+--hack, have to create a frame due to the tab clipping over
+local DNAFrameAssignBossMapFrame = CreateFrame("Frame", nil, DNAFrameAssignPage["map"], "InsetFrameTemplate")
+DNAFrameAssignBossMapFrame:SetSize(384, 301)
+DNAFrameAssignBossMapFrame:SetPoint("TOPLEFT", 8, -20)
+DNAFrameAssignBossMapFrame:SetFrameStrata("DIALOG")
+DNAFrameAssignBossMapFrame:SetFrameLevel(200)
+
+DNAFrameAssignBossMap = DNAFrameAssignBossMapFrame:CreateTexture(nil, "OVERLAY", DNAFrameAssignBossMapFrame)
+DNAFrameAssignBossMap:SetSize(384, 300)
+DNAFrameAssignBossMap:SetPoint("TOPLEFT", 0, 0)
+DNAFrameAssignBossMap:SetTexture(DNAGlobal.dir .. "images/bwl_razorgore")
 DNAFrameAssign:SetBackdrop({
   bgFile = DNAGlobal.background,
   edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
@@ -864,36 +877,15 @@ function DNAFrameAssignSideTab(name, icon, pos_y)
   DNAFrameAssignTabIcon:SetSize(44, 40)
   DNAFrameAssignTabIcon:SetPoint("TOPLEFT", 5, -6)
   DNAFrameAssignTabIcon:SetTexture(icon)
+
   DNAFrameAssignTab[name]:SetScript("OnClick", function()
     DNAFrameAssignTabToggle(name)
   end)
 end
 
---[==[
-local DNAFrameAssignMap={}
-for i=1, 4 do
-  DNAFrameAssignMap[i] = DNAFrameAssignPage["map"]:CreateTexture(nil, "BORDER")
-  DNAFrameAssignMap[i]:SetSize(90, 90)
-  DNAFrameAssignMap[i]:SetPoint("TOPLEFT", i*90-70, -20)
-  DNAFrameAssignMap[i]:SetTexture("Interface/WorldMap/BlackwingLair/BlackwingLair1_" .. i)
-end
-for i=1, 4 do
-  DNAFrameAssignMap[i+4] = DNAFrameAssignPage["map"]:CreateTexture(nil, "BORDER")
-  DNAFrameAssignMap[i+4]:SetSize(90, 90)
-  DNAFrameAssignMap[i+4]:SetPoint("TOPLEFT", i*90-70, -110)
-  DNAFrameAssignMap[i+4]:SetTexture("Interface/WorldMap/BlackwingLair/BlackwingLair1_" .. i+4)
-end
-for i=1, 4 do
-  DNAFrameAssignMap[i+8] = DNAFrameAssignPage["map"]:CreateTexture(nil, "BORDER")
-  DNAFrameAssignMap[i+8]:SetSize(90, 90)
-  DNAFrameAssignMap[i+8]:SetPoint("TOPLEFT", i*90-70, -200)
-  DNAFrameAssignMap[i+8]:SetTexture("Interface/WorldMap/BlackwingLair/BlackwingLair1_" .. i+8)
-end
-]==]--
 
-DNAFrameAssignSideTab("assign", "Interface/Calendar/Holidays/Calendar_WeekendWorldQuestEnd", 30)
---DNAFrameAssignSideTab("map", "Interface/WorldMap/Azeroth/Azeroth3", 80)
-DNAFrameAssignSideTab("map", "Interface/WorldMap/MoltenCore/MoltenCore1_7", 80)
+DNAFrameAssignSideTab("assign", DNAGlobal.dir .. "images/tab_boss", 30)
+DNAFrameAssignSideTab("map", "Interface/WorldMap/BlackwingLair/BlackwingLair3_6", 80)
 
 DNAFrameAssignTabToggle("assign") --default
 
@@ -902,6 +894,7 @@ DNAFrameAssign:Hide()
 globalNotification("Initializing...")
 
 local boss_icon = nil
+local boss_map = nil
 
 function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer)
   local fear_ward={}
@@ -917,50 +910,50 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
   end
 
   if (isItem(assign, "Lucifron")) then
-    num_adds = 2
+    NUM_ADDS = 2
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron"
-    for i=1, num_adds+1 do
+    for i=1, NUM_ADDS+1 do
       mark[i] = markers[i][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
     --assign up to 5 healers to dispel
     for i=1, 5 do
-      if (raidClass[healer.all[i+num_adds+1]] ~= "Druid") then
-        mark[i+num_adds+1] = "Interface/Icons/spell_holy_dispelmagic"
-        text[i+num_adds+1] = "MC Dispells"
-        heal[i+num_adds+1] = healer.all[i+num_adds+1]
+      if (raidClass[healer.all[i+NUM_ADDS+1]] ~= "Druid") then
+        mark[i+NUM_ADDS+1] = "Interface/Icons/spell_holy_dispelmagic"
+        text[i+NUM_ADDS+1] = "MC Dispells"
+        heal[i+NUM_ADDS+1] = healer.all[i+NUM_ADDS+1]
       end
     end
     mark[1] = boss_icon
   end
 
   if (isItem(assign, "Gehennas")) then
-    num_adds = 2
+    NUM_ADDS = 2
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Gehennas"
-    for i=1, num_adds+1 do
+    for i=1, NUM_ADDS+1 do
       mark[i] = markers[i][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
     num_healers_dr = table.getn(healer.druid)
     for i=1, num_healers_dr do
-      mark[i+num_adds+2] = "Interface/Icons/spell_holy_removecurse"
-      text[i+num_adds+2] = "Decurse"
-      heal[i+num_adds+2] = healer.druid[i]
+      mark[i+NUM_ADDS+2] = "Interface/Icons/spell_holy_removecurse"
+      text[i+NUM_ADDS+2] = "Decurse"
+      heal[i+NUM_ADDS+2] = healer.druid[i]
     end
     for i=1, total.mages do
-      mark[i+num_adds+num_healers_dr+2] = "Interface/Icons/spell_nature_removecurse"
-      text[i+num_adds+num_healers_dr+2] = "Decurse"
-      heal[i+num_adds+num_healers_dr+2] = raid.mage[i]
+      mark[i+NUM_ADDS+num_healers_dr+2] = "Interface/Icons/spell_nature_removecurse"
+      text[i+NUM_ADDS+num_healers_dr+2] = "Decurse"
+      heal[i+NUM_ADDS+num_healers_dr+2] = raid.mage[i]
     end
     mark[1] = boss_icon
   end
 
   if (isItem(assign, "Dogpack")) then
-    num_adds = 5
+    NUM_ADDS = 5
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Son of the Beast"
-    for i=1, num_adds do
+    for i=1, NUM_ADDS do
       mark[i] = markers[i+1][2]
       text[i] = tank.all[i]
     end
@@ -992,9 +985,9 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
   end
 
   if (isItem(assign, "Garr")) then
-    num_adds = 8
+    NUM_ADDS = 8
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Lord Roccor"
-    for i=1, num_adds do
+    for i=1, NUM_ADDS do
       mark[i] = markers[i][2]
       text[i] = tank.banish[i]
       if (raidClass[tank.banish[i]] ~= "Warlock") then
@@ -1005,9 +998,9 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
   end
 
   if (isItem(assign, "Lava Pack")) then
-    num_adds = 3 --minimum, last for a banisher
+    NUM_ADDS = 3 --minimum, last for a banisher
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Garr"
-    for i=1, num_adds do
+    for i=1, NUM_ADDS do
       mark[i] = markers[i+1][2]
       text[i] = tank.banish[i]
       heal[i] = healer.all[i]
@@ -1030,9 +1023,9 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
   end
 
   if (isItem(assign, "Sulfuron")) then
-    num_adds = 5
+    NUM_ADDS = 5
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Sulfuron Harbinger"
-    for i=1, num_adds do
+    for i=1, NUM_ADDS do
       mark[i] = markers[i][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
@@ -1078,12 +1071,12 @@ function instanceMC(assign, total, raid, markers, mark, text, heal, tank, healer
   end
 
   if (isItem(assign, "Golemagg")) then
-    num_adds = 2
+    NUM_ADDS = 2
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Golemagg the Incinerator"
-    for i=1, num_adds+1 do
+    for i=1, NUM_ADDS+1 do
       mark[i] = markers[i+1][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i] .. "," .. healer.all[i+num_adds+1]
+      heal[i] = healer.all[i] .. "," .. healer.all[i+NUM_ADDS+1]
     end
   end
 
@@ -1168,7 +1161,7 @@ local function buildRaidAssignments(packet, author, source)
   local boss=""
   local mark = {}
   local text = {}
-  local num_adds = 0
+  local NUM_ADDS = 0
   --local fear_ward = {}
   local raid={}
   raid.warrior={}
@@ -1277,6 +1270,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Razorgore")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed"
+    boss_map = DNAGlobal.dir .. "images/bwl_razorgore"
     for i=1, 5 do
       heal[i] = tank.all[i] .. "," .. healer.all[i]
     end
@@ -1294,6 +1288,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Vaelestraz")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Vaelastrasz the Corrupt"
+    boss_map = DNAGlobal.dir .. "images/bwl_vaelastrasz"
     local healer_row = ""
     local vael_heals = {}
     table.merge(vael_heals, healer.priest)
@@ -1315,6 +1310,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Dragon Pack")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Overlord Wyrmthalak"
+    boss_map = DNAGlobal.dir .. "images/bwl_dragonpack"
     for i=1, 3 do
       mark[i] = markers[i+1][2]
       text[i] = tank.all[i]
@@ -1353,6 +1349,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Suppression Room")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Flamebender Kagraz"
+    boss_map = DNAGlobal.dir .. "images/bwl_goblinpack"
     NUM_ADDS = 3
     text[1] = "No AOE Tank assigned!" --default message
     for i=1, tankSlots do
@@ -1367,13 +1364,14 @@ local function buildRaidAssignments(packet, author, source)
       heal[i+1] = healer.all[i]
     end
     for i=1, total.rogues do
-      text[i+NUM_ADDS*2] = "Device"
+      text[i+NUM_ADDS*2] = " - Device - "
       heal[i+NUM_ADDS*2] = raid.rogue[i]
     end
   end
 
   if (isItem(assign, "Goblin Pack")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Pauli Rocketspark"
+    boss_map = DNAGlobal.dir .. "images/bwl_broodlord"
     for i=1, 6 do
       mark[i] = markers[i+1][2]
       text[i] = tank.all[i]
@@ -1394,6 +1392,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Firemaw")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
+    boss_map = DNAGlobal.dir .. "images/bwl_firemaw"
     text[1] = tank.all[1]
     heal[1] = healer.paladin[1] .. "," .. healer.paladin[2] .. "," .. healer.priest[1]
     if (tank.all[3]) then
@@ -1435,6 +1434,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Small Wyrmguards (4)")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer"
+    boss_map = DNAGlobal.dir .. "images/bwl_firemaw"
     NUM_ADDS = 4
     for i=1, NUM_ADDS do
       mark[i] = markers[i+1][2]
@@ -1445,6 +1445,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Large Wyrmguards (3)")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer"
+    boss_map = DNAGlobal.dir .. "images/bwl_ebonroc"
     NUM_ADDS = 3
     for i=1, NUM_ADDS do
       mark[i] = markers[i+1][2]
@@ -1467,18 +1468,23 @@ local function buildRaidAssignments(packet, author, source)
 
   if (isItem(assign, "Anubisath Sentinels")) then
     boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Setesh"
-    num_adds = 4
-    for i=1, num_adds do
+    NUM_ADDS = 4
+    for i=1, NUM_ADDS do
       mark[i] = markers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
 
       if (raid.mage[i]) then
-        mark[i+num_adds+1] = "Interface/Icons/spell_holy_dizzy"
-        text[i+num_adds+1] = "Detect Magic"
-        heal[i+num_adds+1] = raid.mage[i]
+        mark[i+NUM_ADDS+1] = "Interface/Icons/spell_holy_dizzy"
+        text[i+NUM_ADDS+1] = "Detect Magic"
+        heal[i+NUM_ADDS+1] = raid.mage[i]
       end
     end
+  end
+
+  if (isItem(assign, "C'Thun")) then
+    boss_icon = "Interface/EncounterJournal/UI-EJ-BOSS-Setesh"
+    boss_map = DNAGlobal.dir .. "images/aq40_cthun_groups"
   end
 
   for i = 1, viewFrameLines do
@@ -1512,11 +1518,19 @@ local function buildRaidAssignments(packet, author, source)
   end
 
   pageBossIcon:SetTexture(boss_icon)
-  DNAFrameAssignBossIcon:SetTexture(boss_icon)
+  --pageBossMap:SetTexture(boss_icon)
+  if (boss_icon) then
+    DNAFrameAssignBossIcon:SetTexture(boss_icon)
+  end
+  if (boss_map) then
+    DNAFrameAssignBossMap:SetTexture(boss_map)
+  end
   if (author ~= nil) then
     DNAFrameAssignAuthor:SetText(author .. " has sent raid assignments.")
   end
 
+  --DISABLING MAPS ATM
+  DNAFrameAssignBossMap:SetTexture("")
 
   raidSelection = packet
 end
@@ -1855,6 +1869,7 @@ DNAFrameMainCloseX:SetTexture("Interface/Buttons/UI-StopButton")
 DNAFrameMainCloseX:SetSize(14, 14)
 DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
+  PlaySound(88)
   DNAFrameMain:Hide()
 end)
 DNAFrameMain:EnableKeyboard(true)
@@ -2247,12 +2262,12 @@ local DNARaidScrollFrameScrollChildFrame = CreateFrame("Frame", DNARaidScrollFra
 DNARaidScrollFrameScrollChildFrame:SetSize(DNARaidScrollFrame_w, DNARaidScrollFrame_h)
 DNARaidScrollFrame.text = DNARaidScrollFrame:CreateFontString(nil, "ARTWORK")
 DNARaidScrollFrame.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
-DNARaidScrollFrame.text:SetPoint("CENTER", DNARaidScrollFrame, "TOPLEFT", 60, 10)
+DNARaidScrollFrame.text:SetPoint("CENTER", DNARaidScrollFrame, "TOPLEFT", 75, 10)
 DNARaidScrollFrame.text:SetText("Raid")
 DNARaidScrollFrame.ScrollFrame:SetScrollChild(DNARaidScrollFrameScrollChildFrame)
 DNARaidScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.ScrollFrame, "TOPRIGHT", 0, -10)
-DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -40, -1)
+DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, -1)
 
 local raidSlotOrgPoint_x = {}
 local raidSlotOrgPoint_y = {}
@@ -2358,10 +2373,6 @@ for i = 1, tankSlots do
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tankSlot[i]:StartMoving()
       tankSlot[i]:SetFrameStrata("DIALOG")
-
-      memberDrag = tankSlot[i].text:GetText()
-      print("start moving tank: " .. memberDrag)
-
     end
   end)
   tankSlot[i]:SetScript("OnDragStop", function()
@@ -2378,18 +2389,24 @@ for i = 1, tankSlots do
         if (tankSlot[dupe].text:GetText() == memberDrag) then
           updateSlotPos("tank", dupe, "Empty")
           updateSlotPos("tank", i, memberDrag)
-          print("DEBUG: duplicate slot")
           return true --print("DEBUG: duplicate slot")
+        end
+      end
+      if (i > 1) then
+        if (tankSlot[i-1].text:GetText() == "Empty") then
+          updateSlotPos("tank", i-1, memberDrag)
+          memberDrag = nil
+          return true
         end
       end
       updateSlotPos("tank", i, memberDrag)
     end
   end)
   tankSlot[i]:SetScript('OnLeave', function()
-    memberDrag = nil
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tankSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
     end
+    memberDrag = nil
   end)
 end
 
@@ -2440,6 +2457,7 @@ for i = 1, healSlots do
   healSlot[i]:SetScript("OnDragStart", function()
     if (healSlot[i].text:GetText() ~= "Empty") then
       healSlot[i]:StartMoving()
+      healSlot[i]:SetFrameStrata("DIALOG")
     end
   end)
   healSlot[i]:SetScript("OnDragStop", function()
@@ -2451,18 +2469,23 @@ for i = 1, healSlots do
     if (healSlot[i].text:GetText() ~= "Empty") then
       healSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
     end
-    --if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      if (memberDrag) then
-        for dupe = 1, healSlots do
-          if (healSlot[dupe].text:GetText() == memberDrag) then
-            updateSlotPos("heal", dupe, "Empty")
-            updateSlotPos("heal", i, memberDrag)
-            return true --print("DEBUG: duplicate slot")
-          end
+    if (memberDrag) then
+      for dupe = 1, healSlots do
+        if (healSlot[dupe].text:GetText() == memberDrag) then
+          updateSlotPos("heal", dupe, "Empty")
+          updateSlotPos("heal", i, memberDrag)
+          return true --print("DEBUG: duplicate slot")
         end
-        updateSlotPos("heal", i, memberDrag)
       end
-    --end
+      if (i > 1) then
+        if (healSlot[i-1].text:GetText() == "Empty") then
+          updateSlotPos("heal", i-1, memberDrag)
+          memberDrag = nil
+          return true
+        end
+      end
+      updateSlotPos("heal", i, memberDrag)
+    end
   end)
   healSlot[i]:SetScript('OnLeave', function()
     if (healSlot[i].text:GetText() ~= "Empty") then
@@ -2717,7 +2740,7 @@ end
 
 local function DNAOpenWindow()
   DNAFrameMain:Show()
-  --DNAFrameAssign:Show()
+  DNAFrameAssign:Show()
   updateRaidRoster()
   setDNAVars()
   raidPermissions()

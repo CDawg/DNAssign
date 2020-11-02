@@ -14,6 +14,7 @@ the copyright holders.
 
 DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
+DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
 DNAGlobal.vminor  = 15
 DNAGlobal.width   = 980
