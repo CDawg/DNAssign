@@ -12,6 +12,31 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
+local bossList = {
+  "BWL", --key
+  "Razorgore",
+  "Vaelestraz",
+  "Dragon Pack",
+  "Suppression Room",
+  "Goblin Pack",
+  "Firemaw",
+  "Small Wyrmguards (4)",
+  "Large Wyrmguards (3)",
+  "Ebonroc",
+  "Flamegor",
+  "Chromaggus",
+  "Nefarian"
+}
+local instanceDetails = {
+  "BWL", --key
+  "Blackwing Lair",
+  "Interface/GLUES/LoadingScreens/LoadScreenBlackWingLair",
+  "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian",
+  "Interface/EncounterJournal/UI-EJ-LOREBG-BlackwingLair"
+}
+table.insert(DNARaidBosses, bossList)
+table.insert(DNAInstance, instanceDetails)
+
 function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
@@ -148,9 +173,11 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     text[12] = "-- MELEE HEALERS --"
     local firemaw_heals = {}
     table.merge(firemaw_heals, healer.all)
+    --[==[
     for i=1, table.getn(firemaw_heals) do
       print("before :" .. i .. firemaw_heals[i])
     end
+    ]==]--
     --remove the assigned healers
     removeValueFromArray(firemaw_heals, healer.paladin[1])
     removeValueFromArray(firemaw_heals, healer.paladin[2])
@@ -160,9 +187,11 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     removeValueFromArray(firemaw_heals, healer.priest[3])
     removeValueFromArray(firemaw_heals, healer.priest[4])
 
+    --[==[
     for i=1, table.getn(firemaw_heals) do
       print("after :" .. i .. firemaw_heals[i])
     end
+    ]==]--
     for i=1, table.getn(firemaw_heals) do
       if (firemaw_heals[i]) then
         text[i+12] = firemaw_heals[i]

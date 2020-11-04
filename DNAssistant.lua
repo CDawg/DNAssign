@@ -66,6 +66,8 @@ local botTab = {}
 local botBack = {}
 local botBorder = {}
 
+local viewFrameBotTab = {}
+
 local pages = {
   {"Assignment", 10},
   {"Raid Details", 100},
@@ -584,14 +586,14 @@ DNAFrameAssignScrollBG:SetHeight(DNAFrameAssign_h-150)
 DNAFrameAssignScrollBG:SetPoint("TOPLEFT", 20, -70)
 
 DNAFrameAssign.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameAssignPage["assign"], "UIPanelScrollFrameTemplate")
-DNAFrameAssign.ScrollFrame:SetPoint("TOPLEFT", DNAFrameAssignPage["assign"], "TOPLEFT", 6, -85)
-DNAFrameAssign.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameAssignPage["assign"], "BOTTOMRIGHT", 6, 80)
+DNAFrameAssign.ScrollFrame:SetPoint("TOPLEFT", DNAFrameAssignPage["assign"], "TOPLEFT", 6, -75)
+DNAFrameAssign.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameAssignPage["assign"], "BOTTOMRIGHT", 6, 85)
 local DNAFrameAssignScrollChild = CreateFrame("Frame", nil, DNAFrameAssign.ScrollFrame)
 DNAFrameAssignScrollChild:SetSize(DNAFrameAssign_w-40, DNAFrameAssign_h-80)
 DNAFrameAssign.ScrollFrame:SetScrollChild(DNAFrameAssignScrollChild)
 DNAFrameAssign.ScrollFrame.ScrollBar:ClearAllPoints()
-DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameAssign.ScrollFrame, "TOPRIGHT", -175, -5)
-DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameAssign.ScrollFrame, "BOTTOMRIGHT", 100, 20)
+DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameAssign.ScrollFrame, "TOPRIGHT", -175, -15)
+DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameAssign.ScrollFrame, "BOTTOMRIGHT", 100, 14)
 --[==[
 DNAFrameAssignScrollChild.bg = DNAFrameAssignScrollChild:CreateTexture(nil, "ARTWORK")
 DNAFrameAssignScrollChild.bg:SetAllPoints(true)
@@ -606,18 +608,18 @@ end)
 for i = 1, viewFrameLines do
   DNAFrameAssignScrollChild_mark[i] = DNAFrameAssignScrollChild:CreateTexture(nil, "ARTWORK")
   DNAFrameAssignScrollChild_mark[i]:SetSize(16, 16)
-  DNAFrameAssignScrollChild_mark[i]:SetPoint("TOPLEFT", 20, (-i*18)+22)
+  DNAFrameAssignScrollChild_mark[i]:SetPoint("TOPLEFT", 20, (-i*18)+12)
   DNAFrameAssignScrollChild_mark[i]:SetTexture("")
 
   DNAFrameAssignScrollChild_tank[i] = DNAFrameAssignScrollChild:CreateFontString(nil, "ARTWORK")
   DNAFrameAssignScrollChild_tank[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   DNAFrameAssignScrollChild_tank[i]:SetText("")
-  DNAFrameAssignScrollChild_tank[i]:SetPoint("TOPLEFT", 45, (-i*18)+20)
+  DNAFrameAssignScrollChild_tank[i]:SetPoint("TOPLEFT", 45, (-i*18)+10)
 
   DNAFrameAssignScrollChild_heal[i] = DNAFrameAssignScrollChild:CreateFontString(nil, "ARTWORK")
   DNAFrameAssignScrollChild_heal[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   DNAFrameAssignScrollChild_heal[i]:SetText("")
-  DNAFrameAssignScrollChild_heal[i]:SetPoint("TOPLEFT", 145, (-i*18)+20)
+  DNAFrameAssignScrollChild_heal[i]:SetPoint("TOPLEFT", 145, (-i*18)+10)
 end
 local DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
 DNAFrameAssignReady:SetWidth(120)
@@ -894,9 +896,12 @@ local function buildRaidAssignments(packet, author, source)
     DNAFrameAssignBossIcon:SetTexture(DNABossIcon)
   end
   if (DNABossMap) then
+    DNAFrameViewBossMap:SetTexture(DNABossMap)
     DNAFrameAssignBossMap:SetTexture(DNABossMap)
     DNAFrameAssignTabIcon["map"]:SetTexture(DNABossMap) --update the little assign tab icon
-    DNAFrameAssignMapGroupID:SetText(player.name .. " is in group " .. DNARaid["groupid"][player.name])
+    if (IsInRaid()) then
+      DNAFrameAssignMapGroupID:SetText(player.name .. " is in group " .. DNARaid["groupid"][player.name])
+    end
   end
   if (author ~= nil) then
     DNAFrameAssignAuthor:SetText(author .. " has sent raid assignments.")
@@ -1625,8 +1630,8 @@ DNARaidScrollFrame:SetHeight(DNARaidScrollFrame_h-7)
 DNARaidScrollFrame:SetPoint("TOPLEFT", 220, -80)
 DNARaidScrollFrame:SetFrameLevel(5)
 DNARaidScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNARaidScrollFrame, "UIPanelScrollFrameTemplate")
-DNARaidScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNARaidScrollFrame, "TOPLEFT", 3, -10)
-DNARaidScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame, "BOTTOMRIGHT", 10, 20)
+DNARaidScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNARaidScrollFrame, "TOPLEFT", 3, -4)
+DNARaidScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame, "BOTTOMRIGHT", 10, 4)
 local DNARaidScrollFrameScrollChildFrame = CreateFrame("Frame", DNARaidScrollFrameScrollChildFrame, DNARaidScrollFrame.ScrollFrame)
 DNARaidScrollFrameScrollChildFrame:SetSize(DNARaidScrollFrame_w, DNARaidScrollFrame_h)
 DNARaidScrollFrame.text = DNARaidScrollFrame:CreateFontString(nil, "ARTWORK")
@@ -1635,8 +1640,8 @@ DNARaidScrollFrame.text:SetPoint("CENTER", DNARaidScrollFrame, "TOPLEFT", 75, 10
 DNARaidScrollFrame.text:SetText("Raid")
 DNARaidScrollFrame.ScrollFrame:SetScrollChild(DNARaidScrollFrameScrollChildFrame)
 DNARaidScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
-DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.ScrollFrame, "TOPRIGHT", 0, -10)
-DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, -1)
+DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
 
 local raidSlotOrgPoint_x = {}
 local raidSlotOrgPoint_y = {}
@@ -1876,12 +1881,12 @@ local viewFrame_x = 580
 local viewFrame_y = 100
 local DNAFrameView = CreateFrame("Frame", nil, page[pages[1][1]], "InsetFrameTemplate")
 DNAFrameView:SetWidth(viewFrame_w-20)
-DNAFrameView:SetHeight(viewFrame_h-40)
+DNAFrameView:SetHeight(viewFrame_h-80)
 DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
 DNAFrameView:SetMovable(true)
 DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
-DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -20)
-DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 20)
+DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
+DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 5)
 local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
 DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
 DNAViewScrollChildFrame.bg = DNAViewScrollChildFrame:CreateTexture(nil, "BACKGROUND")
@@ -1889,8 +1894,8 @@ DNAViewScrollChildFrame.bg:SetAllPoints(true)
 --DNAViewScrollChildFrame.bg:SetColorTexture(0.2, 0.6, 0, 0.4)
 DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
 DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -150, 0)
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 106, 0)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -150, -16)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 106, 15)
 
 for i = 1, viewFrameLines do
   DNAFrameViewScrollChild_mark[i] = DNAViewScrollChildFrame:CreateTexture(nil, "ARTWORK")
@@ -1908,6 +1913,61 @@ for i = 1, viewFrameLines do
   DNAFrameViewScrollChild_heal[i]:SetText("")
   DNAFrameViewScrollChild_heal[i]:SetPoint("TOPLEFT", 130, (-i*18)+10)
 end
+
+DNAFrameViewBossMap = DNAFrameView:CreateTexture(nil, "BACKGROUND")
+DNAFrameViewBossMap:SetTexture(DNAGlobal.dir .. "images/mc")
+DNAFrameViewBossMap:SetSize(380, 320)
+DNAFrameViewBossMap:SetPoint("TOPLEFT", 0, 0)
+DNAFrameViewBossMap:Hide()
+
+local function viewFrameBottomTabToggle(name)
+  viewFrameBotTab["Markers"]:SetFrameLevel(2)
+  viewFrameBotTab["Markers"].text:SetTextColor(0.7, 0.7, 0.7)
+  viewFrameBotTab["Map"]:SetFrameLevel(2)
+  viewFrameBotTab["Map"].text:SetTextColor(0.7, 0.7, 0.7)
+  viewFrameBotTab[name]:SetFrameLevel(5)
+  viewFrameBotTab[name].text:SetTextColor(1.0, 1.0, 0.5)
+  if (name == "Markers") then
+    DNAViewScrollChildFrame:Show()
+    DNAFrameView.ScrollFrame:Show()
+    DNAFrameViewBossMap:Hide()
+  end
+  if (name == "Map") then
+    DNAViewScrollChildFrame:Hide()
+    DNAFrameView.ScrollFrame:Hide()
+    DNAFrameViewBossMap:Show()
+  end
+end
+
+local function viewFrameBottomTab(name, pos_x, text_pos_x)
+  viewFrameBotTab[name] = CreateFrame("Frame", nil, DNAFrameView)
+  viewFrameBotTab[name]:SetPoint("BOTTOMLEFT", pos_x, -44)
+  viewFrameBotTab[name]:SetWidth(85)
+  viewFrameBotTab[name]:SetHeight(60)
+  viewFrameBotTab[name]:SetFrameLevel(2)
+  viewFrameBotTab[name].text = viewFrameBotTab[name]:CreateFontString(nil, "ARTWORK")
+  viewFrameBotTab[name].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  viewFrameBotTab[name].text:SetText(name)
+  viewFrameBotTab[name].text:SetTextColor(0.8, 0.8, 0.8)
+  viewFrameBotTab[name].text:SetPoint("CENTER", viewFrameBotTab[name], "CENTER", 9, 0)
+  local viewFrameBotBorder ={}
+  viewFrameBotBorder[name] = viewFrameBotTab[name]:CreateTexture(nil, "BORDER", nil, 0)
+  viewFrameBotBorder[name]:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
+  viewFrameBotBorder[name]:SetSize(100, 35)
+  viewFrameBotBorder[name]:SetPoint("TOPLEFT", 0, -14)
+  local viewFrameBotTabScript = {}
+  viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name], "UIPanelButtonTemplate")
+  viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name])
+  viewFrameBotTabScript[name]:SetSize(85, 30)
+  viewFrameBotTabScript[name]:SetPoint("CENTER", 0, 0)
+  viewFrameBotTabScript[name]:SetScript("OnClick", function()
+    viewFrameBottomTabToggle(name)
+  end)
+end
+
+viewFrameBottomTab("Markers", 10, 0)
+viewFrameBottomTab("Map", 100, 0)
+viewFrameBottomTabToggle("Markers") --default enabled
 
 for i, v in ipairs(DNAInstance) do
   ddBossList[DNAInstance[i][1]] = CreateFrame("frame", nil, page[pages[1][1]], "UIDropDownMenuTemplate")
@@ -2109,7 +2169,7 @@ end
 
 local function DNAOpenWindow()
   DNAFrameMain:Show()
-  DNAFrameAssign:Show()
+  --DNAFrameAssign:Show()
   updateRaidRoster()
   setDNAVars()
   raidPermissions()

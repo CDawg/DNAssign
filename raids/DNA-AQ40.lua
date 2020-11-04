@@ -18,6 +18,22 @@ the copyright holders.
 --UI-EJ-BOSS-Ossirian the Unscarred
 --UI-EJ-BOSS-Setesh
 
+local bossList = {
+  "AQ40", --key
+  "Anubisath Sentinels",
+  "Prophet Skeram",
+  "C'Thun"
+}
+local instanceDetails = {
+  "AQ40", --key
+  "Temple of Ahn'Qiraj",
+  "Interface/GLUES/LoadingScreens/LoadScreenAhnQiraj40man",
+  "Interface/EncounterJournal/UI-EJ-BOSS-CThun",
+  "Interface/EncounterJournal/UI-EJ-LOREBG-TempleofAhnQiraj"
+}
+table.insert(DNARaidBosses, bossList)
+table.insert(DNAInstance, instanceDetails)
+
 function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Anubisath Sentinels")) then

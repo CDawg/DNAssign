@@ -12,6 +12,30 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
+local bossList = {
+  "MC", --key
+  "Trash MC",
+  "Lucifron",
+  "Dogpack",
+  "Magmadar",
+  "Gehennas",
+  "Garr",
+  "Lava Pack",
+  "Sulfuron",
+  "Golemagg",
+  "Majordomo Executus",
+  "Ragnaros"
+}
+local instanceDetails = {
+  "MC", --key
+  "Molten Core",
+  "Interface/GLUES/LoadingScreens/LoadScreenMoltenCore",
+  "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros",
+  "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore",
+}
+table.insert(DNARaidBosses, bossList)
+table.insert(DNAInstance, instanceDetails)
+
 function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   local fear_ward={}
 

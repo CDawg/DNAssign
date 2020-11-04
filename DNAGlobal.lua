@@ -105,69 +105,8 @@ DNASlots = {}
 DNASlots.tank = 6
 DNASlots.heal = 12
 
-DNAInstance={
-  {
-    "MC", --key
-    "Molten Core", --fullname
-    "Interface/GLUES/LoadingScreens/LoadScreenMoltenCore", --banner
-    "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros", -- default boss icon
-    "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore", --map
-  },
-  {
-    "BWL", --key
-    "Blackwing Lair",
-    "Interface/GLUES/LoadingScreens/LoadScreenBlackWingLair",
-    "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian",
-    "Interface/EncounterJournal/UI-EJ-LOREBG-BlackwingLair"
-  },
-  {
-    "AQ40", --key
-    "Temple of Ahn'Qiraj",
-    "Interface/GLUES/LoadingScreens/LoadScreenAhnQiraj40man",
-    "Interface/EncounterJournal/UI-EJ-BOSS-CThun",
-    "Interface/EncounterJournal/UI-EJ-LOREBG-TempleofAhnQiraj"
-  }
-}
-
-DNARaidBosses = {
-  {
-    "MC",
-    "Trash MC",
-    "Lucifron",
-    "Dogpack",
-    "Magmadar",
-    "Gehennas",
-    "Garr",
-    "Lava Pack",
-    "Sulfuron",
-    "Golemagg",
-    "Majordomo Executus",
-    "Ragnaros"
-  },
-
-  {
-    "BWL",
-    "Razorgore",
-    "Vaelestraz",
-    "Dragon Pack",
-    "Suppression Room",
-    "Goblin Pack",
-    "Firemaw",
-    "Small Wyrmguards (4)",
-    "Large Wyrmguards (3)",
-    "Ebonroc",
-    "Flamegor",
-    "Chromaggus",
-    "Nefarian"
-  },
-
-  {
-    "AQ40",
-    "Anubisath Sentinels",
-    "Prophet Skeram",
-    "C'Thun"
-  },
-}
+DNAInstance = {}
+DNARaidBosses = {}
 
 DNARaidMarkers={
   {"",   ""}, --leave blank for boss icons that are dynamic
@@ -268,6 +207,7 @@ DNABossMap = nil
 DNAFrameViewScrollChild_tank = {}
 DNAFrameViewScrollChild_mark = {}
 DNAFrameViewScrollChild_heal = {}
+DNAFrameViewBossMap = {}
 DNAFrameAssignScrollChild_tank = {}
 DNAFrameAssignScrollChild_mark = {}
 DNAFrameAssignScrollChild_heal = {}
