@@ -16,7 +16,7 @@ DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 15
+DNAGlobal.vminor  = 16
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
@@ -25,11 +25,10 @@ DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
 DNAGlobal.packet  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
+DN = {}
 
 date_day = date("%y-%m-%d")
 timestamp = date("%y-%m-%d %H:%M:%S")
---DNAssign = LibStub("AceAddon-3.0"):NewAddon("DNAssign", "AceConsole-3.0", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
---local LSM3 = LibStub("LibSharedMedia-3.0")
 
 --single array
 function singleKeyFromValue(_array, value)
@@ -66,14 +65,14 @@ function reindexArray(input, remove)
 end
 
 function split(s, delimiter)
-  result = {};
+  result = {}
   for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-    table.insert(result, match);
+    table.insert(result, match)
   end
-  return result;
+  return result
 end
 
-local function isempty(s)
+function isempty(s)
   return s == nil or s == ''
 end
 
@@ -90,7 +89,7 @@ function removeValueFromArray(array, value)
   reindexArray(array, array)
 end
 
-function DNASendPacket(bridge, packet, filtered)
+function DN:SendPacket(bridge, packet, filtered)
   filteredPacket = nil
   if (bridge == "send") then
     if (filtered) then
@@ -100,5 +99,190 @@ function DNASendPacket(bridge, packet, filtered)
     end
     C_ChatInfo.SendAddonMessage("dnassist", filteredPacket, "RAID")
   end
-  --C_ChatInfo.SendAddonMessage("dnassist", player.combine, "WHISPER", "bankhoe")
+end
+
+DNASlots = {}
+DNASlots.tank = 6
+DNASlots.heal = 12
+
+DNAInstance={
+  {
+    "MC", --key
+    "Molten Core", --fullname
+    "Interface/GLUES/LoadingScreens/LoadScreenMoltenCore", --banner
+    "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros", -- default boss icon
+    "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore", --map
+  },
+  {
+    "BWL", --key
+    "Blackwing Lair",
+    "Interface/GLUES/LoadingScreens/LoadScreenBlackWingLair",
+    "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian",
+    "Interface/EncounterJournal/UI-EJ-LOREBG-BlackwingLair"
+  },
+  {
+    "AQ40", --key
+    "Temple of Ahn'Qiraj",
+    "Interface/GLUES/LoadingScreens/LoadScreenAhnQiraj40man",
+    "Interface/EncounterJournal/UI-EJ-BOSS-CThun",
+    "Interface/EncounterJournal/UI-EJ-LOREBG-TempleofAhnQiraj"
+  }
+}
+
+DNARaidBosses = {
+  {
+    "MC",
+    "Trash MC",
+    "Lucifron",
+    "Dogpack",
+    "Magmadar",
+    "Gehennas",
+    "Garr",
+    "Lava Pack",
+    "Sulfuron",
+    "Golemagg",
+    "Majordomo Executus",
+    "Ragnaros"
+  },
+
+  {
+    "BWL",
+    "Razorgore",
+    "Vaelestraz",
+    "Dragon Pack",
+    "Suppression Room",
+    "Goblin Pack",
+    "Firemaw",
+    "Small Wyrmguards (4)",
+    "Large Wyrmguards (3)",
+    "Ebonroc",
+    "Flamegor",
+    "Chromaggus",
+    "Nefarian"
+  },
+
+  {
+    "AQ40",
+    "Anubisath Sentinels",
+    "Prophet Skeram",
+    "C'Thun"
+  },
+}
+
+DNARaidMarkers={
+  {"",   ""}, --leave blank for boss icons that are dynamic
+  {"{skull}",   "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_8"},
+  {"{cross}",   "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_7"},
+  {"{triangle}","Interface/TARGETINGFRAME/UI-RaidTargetingIcon_4"},
+  {"{circle}",  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_2"},
+  {"{square}",  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_6"},
+  {"{diamond}", "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_3"},
+  {"{moon}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5"},
+  {"{star}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1"},
+}
+
+icon_boss    = DNARaidMarkers[1][2]
+icon_skull   = DNARaidMarkers[2][2]
+icon_cross   = DNARaidMarkers[3][2]
+icon_triangle= DNARaidMarkers[4][2]
+icon_circle  = DNARaidMarkers[5][2]
+icon_square  = DNARaidMarkers[6][2]
+icon_diamond = DNARaidMarkers[7][2]
+icon_moon    = DNARaidMarkers[8][2]
+icon_star    = DNARaidMarkers[9][2]
+
+function DN:ClassColorText(frame, class)
+  local rgb={0.60, 0.60, 0.60} --offline gray
+  if (class == "Warrior") then
+    rgb={0.78, 0.61, 0.43}
+  end
+  if (class == "Warlock") then
+    rgb={0.53, 0.53, 0.93}
+  end
+  if (class == "Rogue") then
+    rgb={1.00, 0.96, 0.41}
+  end
+  if (class == "Druid") then
+    rgb={1.00, 0.49, 0.04}
+  end
+  if (class == "Hunter") then
+    rgb={0.67, 0.83, 0.45}
+  end
+  if (class == "Paladin") then
+    rgb={0.96, 0.55, 0.73}
+  end
+  if (class == "Mage") then
+    rgb={0.25, 0.78, 0.92}
+  end
+  if (class == "Priest") then
+    rgb={1.00, 1.00, 1.00}
+  end
+  if (class == "Empty") then --empty slot
+    rgb={0.20, 0.20, 0.20}
+  end
+  return frame:SetTextColor(rgb[1],rgb[2],rgb[3])
+end
+
+function DN:ClassColorAppend(name, class)
+  local rgb="dedede" --offline gray
+  if (class == "Warrior") then
+    rgb="C79C6E"
+  end
+  if (class == "Warlock") then
+    rgb="8787ED"
+  end
+  if (class == "Rogue") then
+    rgb="FFF569"
+  end
+  if (class == "Druid") then
+    rgb="FF7D0A"
+  end
+  if (class == "Hunter") then
+    rgb="A9D271"
+  end
+  if (class == "Paladin") then
+    rgb="F58CBA"
+  end
+  if (class == "Mage") then
+    rgb="40C7EB"
+  end
+  if (class == "Priest") then
+    rgb="ffffff"
+  end
+  if (class == "Empty") then --empty slot
+    rgb="ededed"
+  end
+  return "|cff" .. rgb .. name .. "|r"
+end
+
+DNARaid={}
+DNARaid["member"] = {}
+DNARaid["class"] = {}
+DNARaid["race"] = {}
+DNARaid["groupid"] = {}
+DNARaid["assist"] = {}
+
+DNABossIcon = nil
+DNABossMap = nil
+
+DNAFrameViewScrollChild_tank = {}
+DNAFrameViewScrollChild_mark = {}
+DNAFrameViewScrollChild_heal = {}
+DNAFrameAssignScrollChild_tank = {}
+DNAFrameAssignScrollChild_mark = {}
+DNAFrameAssignScrollChild_heal = {}
+DNAFrameAssignBossIcon = {}
+DNAFrameAssignBossText = {}
+DNAFrameAssignBossMap = {}
+DNAFrameAssignAuthor = {}
+
+function isItem(compare, item) --dropdown packets that are filtered from spaces
+  --(lava pack)
+  filteredItem = item:gsub("%s+", "")
+  if ((compare == item) or (compare == filteredItem)) then
+    DNAFrameAssignBossText:SetText(item)
+    return true
+  else
+    return false
+  end
 end

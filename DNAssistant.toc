@@ -7,7 +7,7 @@
 
 DNAGlobal.lua
 DNAssistant.lua
-raids/DNA-MC.lua
-raids/DNA-BWL.lua
-raids/DNA-AQ40.lua
-raids/DNA-NAXX.lua
+raids\DNA-MC.lua
+raids\DNA-BWL.lua
+raids\DNA-AQ40.lua
+raids\DNA-NAXX.lua
