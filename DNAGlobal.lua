@@ -21,8 +21,8 @@ DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
---DNAGlobal.font    = "Interface/Addons/DNAssistant/Fonts/cooline.ttf"
-DNAGlobal.packet  = "dnassist"
+
+DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
 DN = {}
@@ -89,6 +89,47 @@ function removeValueFromArray(array, value)
   reindexArray(array, array)
 end
 
+player = {}
+player.name = UnitName("player")
+player.realm = GetRealmName()
+player.combine=player.name .. "-" .. player.realm
+
+DNACheckbox = {}
+DNACheckbox["AUTOPROMOTE"] = {}
+DNACheckbox["DEBUG"] = {}
+
+DNASlots = {}
+DNASlots.tank = 6
+DNASlots.heal = 12
+
+DNAInstance = {}
+DNARaidBosses = {}
+
+function DN:ChatNotification(msg)
+  print("|cffe36c00" .. DNAGlobal.name .. "|r " .. msg)
+end
+
+function DN:BuildGlobal()
+  if (DNA == nil) then
+    DNA = {}
+  end
+  if (DNA[player.combine] == nil) then
+    DNA[player.combine] = {}
+    if (DNA[player.combine]["CONFIG"] == nil) then
+      DNA[player.combine]["CONFIG"] = {}
+    end
+    if (DNA[player.combine]["ASSIGN"] == nil) then
+      DNA[player.combine]["ASSIGN"] = {}
+    end
+    if (DNA[player.combine]["LOOTLOG"] == nil) then
+      DNA[player.combine]["LOOTLOG"] = {}
+    end
+    DN:ChatNotification("Creating Raid Profile: " .. player.combine)
+  else
+    DN:ChatNotification("Loading Raid Profile: " .. player.combine)
+  end
+end
+
 function DN:SendPacket(bridge, packet, filtered)
   filteredPacket = nil
   if (bridge == "send") then
@@ -100,13 +141,6 @@ function DN:SendPacket(bridge, packet, filtered)
     C_ChatInfo.SendAddonMessage("dnassist", filteredPacket, "RAID")
   end
 end
-
-DNASlots = {}
-DNASlots.tank = 6
-DNASlots.heal = 12
-
-DNAInstance = {}
-DNARaidBosses = {}
 
 DNARaidMarkers={
   {"",   ""}, --leave blank for boss icons that are dynamic
@@ -193,6 +227,10 @@ function DN:ClassColorAppend(name, class)
   end
   return "|cff" .. rgb .. name .. "|r"
 end
+
+DNAGuild={}
+DNAGuild["member"] = {}
+DNAGuild["rank"] = {}
 
 DNARaid={}
 DNARaid["member"] = {}

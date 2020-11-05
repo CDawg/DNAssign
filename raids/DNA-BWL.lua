@@ -40,6 +40,13 @@ table.insert(DNAInstance, instanceDetails)
 function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
+  if ((total.tanks) and (total.healers)) then
+    mark[3] = "Interface/DialogFrame/UI-Dialog-Icon-AlertNew"
+    text[3] = "No Tanks or Healers are assigned!"
+    DNABossMap = ""
+    return
+  end
+
   if (isItem(assign, "Razorgore")) then
     DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed"
     DNABossMap = DNAGlobal.dir .. "images/bwl_razorgore"

@@ -36,6 +36,13 @@ table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
+  if ((total.tanks) and (total.healers)) then
+    mark[3] = "Interface/DialogFrame/UI-Dialog-Icon-AlertNew"
+    text[3] = "No Tanks or Healers are assigned!"
+    DNABossMap = ""
+    return
+  end
+
   if (isItem(assign, "Anubisath Sentinels")) then
     DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Setesh"
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
