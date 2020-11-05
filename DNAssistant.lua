@@ -894,6 +894,15 @@ local function buildRaidAssignments(packet, author, source)
   end
   ]==]--
 
+  if ((total.tanks < 2) or (total.healers < 2)) then
+    DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
+    DNAFrameViewScrollChild_tank[3]:SetText("Not enough Tanks and Healers assigned!")
+    DNABossMap = ""
+    print("total.tanks")
+    print(total.tanks)
+    return
+  end
+
   DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
@@ -2026,6 +2035,12 @@ end
 
 local largePacket = nil
 function DN:RaidSendAssignments()
+
+  if ((total.tanks < 2) or (total.healers < 2)) then
+    DN:Notification("Not enough tanks and healers assigned!", true)
+    return
+  end
+
   largePacket = "{"
   for i = 1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= nil) then
@@ -2056,8 +2071,12 @@ btnShare.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 btnShare.text:SetText(btnShare_t)
 btnShare.text:SetPoint("CENTER", btnShare)
 btnShare:SetScript("OnClick", function()
-  DN:UpdateRaidRoster()
-  DN:RaidSendAssignments()
+  if (IsInRaid()) then
+    DN:UpdateRaidRoster()
+    DN:RaidSendAssignments()
+  else
+    DN:Notification("You are not in a raid!   [E3]", true)
+  end
 end)
 btnShare:Hide()
 local btnShareDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
@@ -2088,12 +2107,16 @@ btnPostRaid.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 btnPostRaid.text:SetText(btnPostRaid_t)
 btnPostRaid.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaid:SetScript("OnClick", function()
-  DN:RaidSendAssignments()
-  if (raidSelection == nil) then
-    DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
+  if (IsInRaid()) then
+    DN:RaidSendAssignments()
+    if (raidSelection == nil) then
+      DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
+    else
+      DN:SendPacket("send", "&" .. raidSelection .. "," .. player.name, true) --openassignments
+      DoReadyCheck()
+    end
   else
-    DN:SendPacket("send", "&" .. raidSelection .. "," .. player.name, true) --openassignments
-    --DoReadyCheck()
+    DN:Notification("You are not in a raid!   [E3]", true)
   end
 end)
 local btnPostRaidDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")

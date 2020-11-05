@@ -39,13 +39,6 @@ table.insert(DNAInstance, instanceDetails)
 function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   local fear_ward={}
 
-  if ((total.tanks) and (total.healers)) then
-    mark[3] = "Interface/DialogFrame/UI-Dialog-Icon-AlertNew"
-    text[3] = "No Tanks or Healers are assigned!"
-    DNABossMap = ""
-    return
-  end
-
   if (isItem(assign, "Trash MC")) then
     NUM_ADDS = 3
     DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-BaelGar"

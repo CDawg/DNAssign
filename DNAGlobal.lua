@@ -106,7 +106,7 @@ DNAInstance = {}
 DNARaidBosses = {}
 
 function DN:ChatNotification(msg)
-  print("|cffe36c00" .. DNAGlobal.name .. "|r " .. msg)
+  print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
 end
 
 function DN:BuildGlobal()
