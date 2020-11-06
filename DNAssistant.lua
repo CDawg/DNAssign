@@ -19,7 +19,7 @@ All of this is because Blizz uses LUA which is a fucking piece of shit garbage c
 hooksecurefunc
 ]==]--
 
-local DEBUG = true
+local DEBUG = false
 
 local packet = {}
 
@@ -144,7 +144,7 @@ local function getRaidComp()
 
       if (IsInRaid()) then
         if (invited[name] ~= 1) then
-          print(name .. " has joined")
+          --print("DEBUG: " .. name .. " has joined")
           if (DNARaid["assist"][player.name] == 1) then
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
@@ -153,7 +153,7 @@ local function getRaidComp()
                     if (DNARaid["assist"][name] ~= 1) then --has not been promoted yet
                       if (UnitIsGroupAssistant(name) == false) then
                         if (DNACheckbox["AUTOPROMOTE"]:GetChecked()) then
-                          --print(player.name .. " promoted " .. name)
+                          DN:ChatNotification("Auto promoted: " .. name)
                           PromoteToAssistant(name)
                         end
                       end
@@ -682,7 +682,7 @@ DNAFrameAssignReady:SetScript("OnLeave", function()
   DNAFrameAssignReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 end)
 DNAFrameAssignReady:SetScript("OnClick", function()
-  ConfirmReadyCheck(1)
+  ConfirmReadyCheck(1) --ready
   DN:SendPacket("send", "+" .. player.name, true)
   DNAFrameAssign:Hide()
 end)
@@ -710,7 +710,7 @@ DNAFrameAssignNotReady:SetScript("OnLeave", function()
   DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 end)
 DNAFrameAssignNotReady:SetScript("OnClick", function()
-  ConfirmReadyCheck()
+  ConfirmReadyCheck() --not ready
   DN:SendPacket("send", "!" .. player.name, true)
   --DNAFrameAssignNotReady:SetBackdropColor(0.2, 0.1, 0.1, 0.4)
   DNAFrameAssign:Hide()
@@ -765,7 +765,6 @@ DNAFrameAssign:Hide()
 
 DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing...")
 
-
 -- BUILD THE RAID PER BOSS
 local function buildRaidAssignments(packet, author, source)
   local assign = packet
@@ -784,7 +783,6 @@ local function buildRaidAssignments(packet, author, source)
   local mark = {}
   local text = {}
   local NUM_ADDS = 0
-  --local fear_ward = {}
   local raid={}
   raid.warrior={}
   raid.mage={}
@@ -801,19 +799,21 @@ local function buildRaidAssignments(packet, author, source)
   clearFrameAssign()
 
   if (total.raid < 8) then
-    return DNAFrameViewScrollChild_tank[3]:SetText("Not enough raid members to form assignments!")
+    DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
+    DNAFrameViewScrollChild_tank[3]:SetText("Not enough raid members to form assignments!")
+    DNABossMap = ""
+    return
   end
 
-  for i = 1, DNASlots.tank do
+  for i=1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tank.main[i] = tankSlot[i].text:GetText()
       -- always build tanks so the 'nils' dont error
-      --tank.all[i] = tankSlot[i].text:GetText()
       tank.banish[i] = tankSlot[i].text:GetText()
     end
   end
 
-  for i = 1, DNASlots.heal do
+  for i=1, DNASlots.heal do
     if (healSlot[i].text:GetText() ~= "Empty") then
       healer.all[i] = healSlot[i].text:GetText()
       if (DNARaid["class"][healer.all[i]] == "Paladin") then
@@ -898,8 +898,6 @@ local function buildRaidAssignments(packet, author, source)
     DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
     DNAFrameViewScrollChild_tank[3]:SetText("Not enough Tanks and Healers assigned!")
     DNABossMap = ""
-    print("total.tanks")
-    print(total.tanks)
     return
   end
 
@@ -907,7 +905,7 @@ local function buildRaidAssignments(packet, author, source)
   DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
-  for i = 1, viewFrameLines do
+  for i=1, viewFrameLines do
     if (mark[i]) then
       DNAFrameViewScrollChild_mark[i]:SetTexture(mark[i])
       DNAFrameAssignScrollChild_mark[i]:SetTexture(mark[i])
@@ -1013,8 +1011,6 @@ DNAMain:RegisterEvent("PLAYER_REGEN_DISABLED")
 --DNAMain:RegisterEvent("PARTY_INVITE_REQUEST")
 DNAMain:RegisterEvent("CHAT_MSG_LOOT")
 
-
-
 DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if ((event == "ADDON_LOADED") and (prefix == "DNA")) then
     DN:BuildGlobal()
@@ -1049,12 +1045,14 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if ((event == "PLAYER_ENTER_COMBAT") or (event== "PLAYER_REGEN_DISABLED")) then
     raidReadyClear()
-    print("entered combat!")
+    --print("entered combat!")
   end
 
   if (event == "CHAT_MSG_ADDON") then
     if (prefix == DNAGlobal.prefix) then
-      print("DEBUG: CHAT_MSG_ADDON " .. netpacket)
+      if (DEBUG) then
+        print("DEBUG: CHAT_MSG_ADDON " .. netpacket)
+      end
 
       --parse incoming large packet chunk
       if (string.sub(netpacket, 1, 1) == "{") then
@@ -1372,14 +1370,10 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   check_static.text:SetText(checkName)
   --check_static.tooltip = checkName
   check_static:SetScript("OnClick", function()
-    if (DNA[player.combine]["CONFIG"][checkID]) then
-      if (DNA[player.combine]["CONFIG"][checkID] == "ON") then
-        DNA[player.combine]["CONFIG"][checkID] = "OFF"
-        print(checkID .. " = OFF")
-      else
-        DNA[player.combine]["CONFIG"][checkID] = "ON"
-        print(checkID .. " = ON")
-      end
+    if (DNA[player.combine]["CONFIG"][checkID] == "ON") then
+      DNA[player.combine]["CONFIG"][checkID] = "OFF"
+    else
+      DNA[player.combine]["CONFIG"][checkID] = "ON"
     end
   end)
   DNACheckbox[checkID] = check_static
@@ -1653,6 +1647,10 @@ local DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page[pages[1
 DNARaidScrollFrame:SetWidth(DNARaidScrollFrame_w+20) --add scroll frame width
 DNARaidScrollFrame:SetHeight(DNARaidScrollFrame_h-7)
 DNARaidScrollFrame:SetPoint("TOPLEFT", 220, -80)
+DNARaidScrollFrame.icon = DNARaidScrollFrame:CreateTexture(nil, "OVERLAY")
+DNARaidScrollFrame.icon:SetTexture(DNAGlobal.dir .. "images/role_dps")
+DNARaidScrollFrame.icon:SetPoint("TOPLEFT", 35, 20)
+DNARaidScrollFrame.icon:SetSize(20, 20)
 DNARaidScrollFrame:SetFrameLevel(5)
 DNARaidScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNARaidScrollFrame, "UIPanelScrollFrameTemplate")
 DNARaidScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNARaidScrollFrame, "TOPLEFT", 3, -4)
@@ -1733,6 +1731,10 @@ tankSlotframe.text = tankSlotframe:CreateFontString(nil, "ARTWORK")
 tankSlotframe.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 tankSlotframe.text:SetPoint("CENTER", tankSlotframe, "TOPLEFT", 71, 10)
 tankSlotframe.text:SetText("Tanks")
+tankSlotframe.icon = tankSlotframe:CreateTexture(nil, "OVERLAY")
+tankSlotframe.icon:SetTexture(DNAGlobal.dir .. "images/role_tank")
+tankSlotframe.icon:SetPoint("TOPLEFT", 25, 20)
+tankSlotframe.icon:SetSize(20, 20)
 tankSlotframe:SetFrameLevel(2)
 for i = 1, DNASlots.tank do
   tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotframe)
@@ -1791,6 +1793,7 @@ for i = 1, DNASlots.tank do
           return true --print("DEBUG: duplicate slot")
         end
       end
+      --[==[
       if (i > 1) then
         if (tankSlot[i-1].text:GetText() == "Empty") then
           updateSlotPos("T", i-1, memberDrag)
@@ -1798,6 +1801,7 @@ for i = 1, DNASlots.tank do
           return true
         end
       end
+      ]==]--
       updateSlotPos("T", i, memberDrag)
     end
   end)
@@ -1819,6 +1823,10 @@ healSlotframe.text = healSlotframe:CreateFontString(nil, "ARTWORK")
 healSlotframe.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
 healSlotframe.text:SetPoint("CENTER", healSlotframe, "TOPLEFT", 71, 10)
 healSlotframe.text:SetText("Healers")
+healSlotframe.icon = healSlotframe:CreateTexture(nil, "OVERLAY")
+healSlotframe.icon:SetTexture(DNAGlobal.dir .. "images/role_heal")
+healSlotframe.icon:SetPoint("TOPLEFT", 20, 20)
+healSlotframe.icon:SetSize(20, 20)
 healSlotframe:SetFrameLevel(2)
 for i = 1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotframe)
@@ -1876,6 +1884,7 @@ for i = 1, DNASlots.heal do
           return true --print("DEBUG: duplicate slot")
         end
       end
+      --[==[
       if (i > 1) then
         if (healSlot[i-1].text:GetText() == "Empty") then
           updateSlotPos("H", i-1, memberDrag)
@@ -1883,6 +1892,7 @@ for i = 1, DNASlots.heal do
           return true
         end
       end
+      ]==]--
       updateSlotPos("H", i, memberDrag)
     end
   end)
@@ -2058,18 +2068,17 @@ function DN:RaidSendAssignments()
   DN:SendPacket("send", largePacket, true)
 end
 
-local btnShare_w = 160
-local btnShare_h = 28
 local btnShare_x = 300
 local btnShare_y = DNAGlobal.height-45
 local btnShare_t = "Push Assignments"
 local btnShare = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
-btnShare:SetSize(btnShare_w, btnShare_h)
+btnShare:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShare:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShare.text = btnShare:CreateFontString(nil, "ARTWORK")
-btnShare.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
+btnShare.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnShare.text:SetText(btnShare_t)
 btnShare.text:SetPoint("CENTER", btnShare)
+
 btnShare:SetScript("OnClick", function()
   if (IsInRaid()) then
     DN:UpdateRaidRoster()
@@ -2080,30 +2089,29 @@ btnShare:SetScript("OnClick", function()
 end)
 btnShare:Hide()
 local btnShareDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
-btnShareDis:SetSize(btnShare_w, btnShare_h)
+btnShareDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShareDis:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShareDis.text = btnShareDis:CreateFontString(nil, "ARTWORK")
-btnShareDis.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
+btnShareDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnShareDis.text:SetText(btnShare_t)
 btnShareDis.text:SetPoint("CENTER", btnShare)
 btnShareDis:SetScript("OnClick", function()
   if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [E3]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [E4]", true)
   else
-    DN:Notification("You are not in a raid!   [E3]", true)
+    DN:Notification("You are not in a raid!   [E4]", true)
   end
 end)
 
-local btnPostRaid_w = 120
-local btnPostRaid_h = 28
+
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
 local btnPostRaid_t = "Post to Raid"
 local btnPostRaid = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
-btnPostRaid:SetSize(btnPostRaid_w, btnPostRaid_h)
+btnPostRaid:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnPostRaid:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaid.text = btnPostRaid:CreateFontString(nil, "ARTWORK")
-btnPostRaid.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
+btnPostRaid.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnPostRaid.text:SetText(btnPostRaid_t)
 btnPostRaid.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaid:SetScript("OnClick", function()
@@ -2116,21 +2124,21 @@ btnPostRaid:SetScript("OnClick", function()
       DoReadyCheck()
     end
   else
-    DN:Notification("You are not in a raid!   [E3]", true)
+    DN:Notification("You are not in a raid!   [E2]", true)
   end
 end)
 local btnPostRaidDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
-btnPostRaidDis:SetSize(btnPostRaid_w, btnPostRaid_h)
+btnPostRaidDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnPostRaidDis:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaidDis.text = btnPostRaidDis:CreateFontString(nil, "ARTWORK")
-btnPostRaidDis.text:SetFont(DNAGlobal.font, 14, "OUTLINE")
+btnPostRaidDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnPostRaidDis.text:SetText(btnPostRaid_t)
 btnPostRaidDis.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaidDis:SetScript("OnClick", function()
   if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [E2]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [E3]", true)
   else
-    DN:Notification("You are not in a raid!   [E2]", true)
+    DN:Notification("You are not in a raid!   [E3]", true)
   end
 end)
 -- EO PAGE ASSIGN

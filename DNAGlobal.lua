@@ -16,10 +16,12 @@ DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 16
+DNAGlobal.vminor  = 17
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
+DNAGlobal.btn_w   = 130
+DNAGlobal.btn_h   = 25
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
 
 DNAGlobal.prefix  = "dnassist"
