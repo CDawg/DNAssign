@@ -19,8 +19,6 @@ All of this is because Blizz uses LUA which is a fucking piece of shit garbage c
 hooksecurefunc
 ]==]--
 
-local DEBUG = false
-
 local packet = {}
 
 local raidSlot = {}
@@ -792,6 +790,7 @@ local function buildRaidAssignments(packet, author, source)
   raid.warlock={}
   raid.priest={}
   raid.druid={}
+  raid.range={}
 
   DN:UpdateRaidRoster()
 
@@ -883,6 +882,9 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(tank.banish, raid.warrior) -- merge all tanks with warlocks
   table.merge(healer.nodruid, healer.priest)
   table.merge(healer.nodruid, healer.paladin)
+  table.merge(raid.range, raid.hunter)
+  table.merge(raid.range, raid.warlock)
+  table.merge(raid.range, raid.mage)
 
   --[==[
   for i=1, table.getn(healer.nodruid) do
@@ -1051,7 +1053,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if (event == "CHAT_MSG_ADDON") then
     if (prefix == DNAGlobal.prefix) then
       if (DEBUG) then
-        print("DEBUG: CHAT_MSG_ADDON " .. netpacket)
+        print("DEBUG: Reading netpacket " .. netpacket)
       end
 
       --parse incoming large packet chunk
@@ -2103,7 +2105,6 @@ btnShareDis:SetScript("OnClick", function()
   end
 end)
 
-
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
 local btnPostRaid_t = "Post to Raid"
@@ -2217,6 +2218,7 @@ end
 local function DNAOpenWindow()
   DNAFrameMain:Show()
   --DNAFrameAssign:Show()
+  memberDrag = nil --bugfix
   DN:UpdateRaidRoster()
   DN:SetVars()
   raidPermissions()
