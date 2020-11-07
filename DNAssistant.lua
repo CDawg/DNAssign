@@ -459,6 +459,11 @@ local function clearFrameAssign()
   end
 end
 
+local function clearFrameAssignPersonal()
+  DNAFrameAssignPersonalMark:SetTexture("")
+  DNAFrameAssignPersonalColOne:SetText("")
+  DNAFrameAssignPersonalColTwo:SetText("")
+end
 
 local function InstanceButtonToggle(name, icon)
   local instanceNum = multiKeyFromValue(DNAInstance, name)
@@ -592,6 +597,67 @@ DNAFrameAssignBossIcon = DNAFrameAssignPage["assign"]:CreateTexture(nil, "OVERLA
 DNAFrameAssignBossIcon:SetSize(90, 50)
 DNAFrameAssignBossIcon:SetPoint("TOPLEFT", 25, -20)
 DNAFrameAssignBossIcon:SetTexture("")
+
+local DNAFrameAssignPersonal_w = 300
+local DNAFrameAssignPersonal_h = 50
+DNAFrameAssignPersonal = CreateFrame("Frame", nil, UIParent)
+DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
+DNAFrameAssignPersonal:SetHeight(DNAFrameAssignPersonal_h)
+DNAFrameAssignPersonal:SetPoint("BOTTOMRIGHT", -120, 200)
+DNAFrameAssignPersonal:SetMovable(true)
+DNAFrameAssignPersonal:EnableMouse(true)
+DNAFrameAssignPersonal:SetFrameStrata("DIALOG")
+DNAFrameAssignPersonal:RegisterForDrag("LeftButton")
+DNAFrameAssignPersonal:SetBackdrop({
+  bgFile = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  insets = {left=0, right=0, top=0, bottom=0},
+})
+DNAFrameAssignPersonal:SetScript("OnDragStart", function()
+    DNAFrameAssignPersonal:StartMoving()
+end)
+DNAFrameAssignPersonal:SetScript("OnDragStop", function()
+  DNAFrameAssignPersonal:StopMovingOrSizing()
+end)
+DNAFrameAssignPersonal:SetBackdropColor(0, 0, 0, 1)
+DNAFrameAssignPersonal.header = CreateFrame("Frame", nil, DNAFrameAssignPersonal)
+DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal_w)
+DNAFrameAssignPersonal.header:SetHeight(18)
+DNAFrameAssignPersonal.header:SetPoint("TOPLEFT", 0, 0)
+DNAFrameAssignPersonal.header:SetBackdrop({
+  bgFile = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  insets = {left=0, right=0, top=0, bottom=0},
+})
+DNAFrameAssignPersonal.headerText = DNAFrameAssignPersonal.header:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignPersonal.headerText:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAFrameAssignPersonal.headerText:SetPoint("TOPLEFT", 5, -3)
+DNAFrameAssignPersonal.headerText:SetText("DNA               v" .. DNAGlobal.version)
+DNAFrameAssignPersonal.headerText:SetTextColor(1, 1, 0.4)
+DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal)
+DNAFrameAssignPersonal.close:SetWidth(25)
+DNAFrameAssignPersonal.close:SetHeight(25)
+DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal_w-20, 4)
+DNAFrameAssignPersonal.close:SetFrameLevel(4)
+DNAFrameAssignPersonal.close:SetBackdrop({
+  bgFile = "Interface/Buttons/UI-Panel-MinimizeButton-Up",
+  insets = {left=0, right=0, top=0, bottom=0},
+})
+DNAFrameAssignPersonal.close:SetScript("OnClick", function()
+    DNAFrameAssignPersonal:Hide()
+end)
+
+--DNAFrameAssignMe:Hide()
+DNAFrameAssignPersonalMark = DNAFrameAssignPersonal:CreateTexture(nil, "ARTWORK")
+DNAFrameAssignPersonalMark:SetSize(16, 16)
+DNAFrameAssignPersonalMark:SetPoint("TOPLEFT", 10, -22)
+DNAFrameAssignPersonalMark:SetTexture("")
+DNAFrameAssignPersonalColOne = DNAFrameAssignPersonal:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignPersonalColOne:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAFrameAssignPersonalColOne:SetPoint("TOPLEFT", 30, -25)
+DNAFrameAssignPersonalColOne:SetText("")
+DNAFrameAssignPersonalColTwo = DNAFrameAssignPersonal:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignPersonalColTwo:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAFrameAssignPersonalColTwo:SetPoint("TOPLEFT", 125, -25)
+DNAFrameAssignPersonalColTwo:SetText("")
 
 --hack, have to create a frame due to the tab clipping over
 local DNAFrameAssignBossMapFrame = CreateFrame("Frame", nil, DNAFrameAssignPage["map"], "InsetFrameTemplate")
@@ -797,8 +863,7 @@ local function buildRaidAssignments(packet, author, source)
 
   clearFrameView() --clear out the current text
   clearFrameAssign()
-
-  print(source)
+  clearFrameAssignPersonal()
 
   if (total.raid < 8) then
     DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
@@ -930,12 +995,24 @@ local function buildRaidAssignments(packet, author, source)
       filterHealer[i] = string.gsub(heal[i], ',', " / ")
       filter_row = ""
       for n=1, table.getn(healer_row) do
+        print(healer_row[n])
         if (n > 1) then
           filter_row = filter_row .. " / " .. DN:ClassColorAppend(healer_row[n], DNARaid["class"][healer_row[n]])
         else
           filter_row = DN:ClassColorAppend(healer_row[n], DNARaid["class"][healer_row[n]])
         end
+        if (healer_row[n] == player.name) then
+          if (mark[i]) then --pull mark
+            DNAFrameAssignPersonalMark:SetTexture(mark[i])
+          end
+          if (text[i]) then --pull tank to see who we are healing
+            DNAFrameAssignPersonalColOne:SetText(text[i])
+            DN:ClassColorText(DNAFrameAssignPersonalColOne, DNARaid["class"][text[i]])
+          end
+          DNAFrameAssignPersonalColTwo:SetText(filter_row)
+        end
       end
+
       --print(filter_row)
       DNAFrameViewScrollChild_heal[i]:SetText(filter_row)
       DNAFrameAssignScrollChild_heal[i]:SetText(filter_row)
