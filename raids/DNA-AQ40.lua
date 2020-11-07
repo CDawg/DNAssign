@@ -33,6 +33,13 @@ local bossList = {
   "Champion Pack",
   "C'Thun"
 }
+
+local bossDetails = {
+  {"C'Thun",
+  "DPS\nThe entire raid has to have impeccable positioning during Phase 1, to avoid deaths from Eye Beam and Dark Glare. The raid should be well prepared and have players assigned to various locations in the room around C'thun, ensuring an even distribution of players at max distance from one another, to avoid doubling and tripling the damage from Eye Beam, and setting the raid up for an easier rotation around the room during Dark Glare.\nDuring Phase 2, damage dealers should be looking to do\nas much damage while in C'thun's stomach as they can before receiving too much damage and having to leave the stomach. If any damage dealer is inside the stomach, they should communicate how much health the remaining Flesh Tentacle has, ensuring they wait to kill it until the raid is in position and all adds have been cleaned up around C'thun, so the raid can focus target C'thun when the Carapace goes away.\n\nTanks\nThe entire raid has to have impeccable positioning during Phase 1, to\navoid deaths from Eye Beam and Dark Glare. The raid should be well prepared and have players assigned to various locations in the room around C'thun, ensuring an even distribution of players at max distance from one another, to avoid doubling and tripling the damage from Eye Beam, and setting the raid up for an easier rotation around the room during Dark Glare.\nIf a tank is devoured into C'thun's stomach, they should immediately leave as they are too important for being up top, to pick\nup any Giant Claw Tentacles that may spawn, as their melee damage will do too much to a melee damage dealer or a caster if there isn't a tank holding threat. To exit, just jump on the launch pad in between the two Flesh Tentacles.\n\nHealers\nThe entire raid has to have impeccable positioning during Phase 1, to avoid deaths from Eye Beam and Dark Glare. The raid should be well prepared and have players assigned to various locations in the room around C'thun, ensuring an even\ndistribution of players at max distance from one another, to avoid doubling and tripling the damage from Eye Beam, and setting the raid up for an easier rotation around the room during Dark Glare.\nIn the event a healer is devoured and sent to C'thun's stomach, they should immediately heal anyone inside the stomach and top them off, before leaving the stomach and joining the rest of the raid up top. To exit, just jump on the launch pad in between the two Flesh Tentacles.\n"
+  },
+}
+
 local instanceDetails = {
   "AQ40", --key
   "Temple of Ahn'Qiraj",
@@ -47,7 +54,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Anubisath Sentinels")) then
     --DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Setesh"
-    DNABossIcon = DNAGlobal.dir .. "images/boss_anubisath"
+    DNABossIcon = DNAGlobal.dir .. "images/boss_anubisath2"
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
     NUM_ADDS = 4
     for i=1, NUM_ADDS do

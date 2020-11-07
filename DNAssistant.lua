@@ -442,6 +442,7 @@ local function clearFrameView()
     DNAFrameViewScrollChild_tank[i]:SetText("")
     DNAFrameViewScrollChild_heal[i]:SetText("")
   end
+  --ddBossListText[DNARaidBosses[1][1]]:SetText("Select a boss")
   if (DEBUG) then
     print("DEBUG: clearFrameView()")
   end
@@ -797,6 +798,8 @@ local function buildRaidAssignments(packet, author, source)
   clearFrameView() --clear out the current text
   clearFrameAssign()
 
+  print(source)
+
   if (total.raid < 8) then
     DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
     DNAFrameViewScrollChild_tank[3]:SetText("Not enough raid members to form assignments!")
@@ -863,6 +866,7 @@ local function buildRaidAssignments(packet, author, source)
     end
   end
 
+  --[==[
   if (DEBUG) then
     print("num_tanks " .. total.tanks)
     print("num_healers " .. total.healers)
@@ -875,6 +879,7 @@ local function buildRaidAssignments(packet, author, source)
     print("num_paladins " .. total.paladins)
     print("num_warlocks " .. total.warlocks)
   end
+  ]==]--
 
   table.merge(tank.all, tank.main)
   table.merge(tank.all, raid.warrior)
@@ -934,6 +939,31 @@ local function buildRaidAssignments(packet, author, source)
       --print(filter_row)
       DNAFrameViewScrollChild_heal[i]:SetText(filter_row)
       DNAFrameAssignScrollChild_heal[i]:SetText(filter_row)
+    end
+  end
+
+  if (source == "network") then
+    if (DNACheckbox["RAIDCHAT"]:GetChecked()) then
+      for i=1, viewFrameLines do
+        local this_key = 0
+        local text_line = ""
+        if (text[i]) then
+          if (mark[i]) then
+            this_key = singleKeyFromValue(DNARaidMarkerText, mark[i])
+          end
+          if (DNARaidMarkerIcon[this_key]) then
+            text_line = text_line .. DNARaidMarkerIcon[this_key] .. " "
+          else
+            text_line = text_line
+          end
+          if (heal[i]) then
+            text_line = text_line .. text[i] .. " [" .. heal[i] .. "]"
+          else
+            text_line = text_line .. text[i]
+          end
+          SendChatMessage(text_line, "RAID", nil, "RAID")
+        end
+      end
     end
   end
 
@@ -1218,6 +1248,11 @@ function DN:SetVars()
 
   if (DNA[player.combine]["CONFIG"]["DEBUG"] == "ON") then
     DNACheckbox["DEBUG"]:SetChecked(true)
+    DEBUG = true
+  end
+
+  if (DNA[player.combine]["CONFIG"]["RAIDCHAT"] == "ON") then
+    DNACheckbox["RAIDCHAT"]:SetChecked(true)
   end
 
   if (DNA[player.combine]["CONFIG"]["RAID"]) then
@@ -1382,7 +1417,8 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
 end
 
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page[pages[5][1]], 10, 0)
-DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 20)
+DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page[pages[5][1]], 10, 20)
+DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page[pages[3][1]])
 pageDKPEdit:SetWidth(200)
@@ -1655,7 +1691,7 @@ DNARaidScrollFrame.icon:SetPoint("TOPLEFT", 35, 20)
 DNARaidScrollFrame.icon:SetSize(20, 20)
 DNARaidScrollFrame:SetFrameLevel(5)
 DNARaidScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNARaidScrollFrame, "UIPanelScrollFrameTemplate")
-DNARaidScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNARaidScrollFrame, "TOPLEFT", 3, -4)
+DNARaidScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNARaidScrollFrame, "TOPLEFT", 3, -3)
 DNARaidScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame, "BOTTOMRIGHT", 10, 4)
 local DNARaidScrollFrameScrollChildFrame = CreateFrame("Frame", DNARaidScrollFrameScrollChildFrame, DNARaidScrollFrame.ScrollFrame)
 DNARaidScrollFrameScrollChildFrame:SetSize(DNARaidScrollFrame_w, DNARaidScrollFrame_h)
@@ -1667,6 +1703,11 @@ DNARaidScrollFrame.ScrollFrame:SetScrollChild(DNARaidScrollFrameScrollChildFrame
 DNARaidScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+
+DNARaidScrollFrame.MR = DNARaidScrollFrame:CreateTexture(nil, "BACKGROUND", DNARaidScrollFrame, -2)
+DNARaidScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNARaidScrollFrame.MR:SetPoint("TOPLEFT", 135, 0)
+DNARaidScrollFrame.MR:SetSize(24, 400)
 
 local raidSlotOrgPoint_x = {}
 local raidSlotOrgPoint_y = {}
@@ -1932,7 +1973,11 @@ DNAViewScrollChildFrame.bg:SetAllPoints(true)
 DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
 DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
 DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -150, -16)
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 106, 15)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 106, 14)
+DNAFrameView.MR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
+DNAFrameView.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAFrameView.MR:SetPoint("TOPLEFT", 354, -2)
+DNAFrameView.MR:SetSize(24, 316)
 
 for i = 1, viewFrameLines do
   DNAFrameViewScrollChild_mark[i] = DNAViewScrollChildFrame:CreateTexture(nil, "ARTWORK")

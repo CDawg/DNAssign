@@ -29,7 +29,7 @@ DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
 DN = {}
 
-DEBUG = true
+DEBUG = false
 
 date_day = date("%y-%m-%d")
 timestamp = date("%y-%m-%d %H:%M:%S")
@@ -145,6 +145,31 @@ function DN:SendPacket(bridge, packet, filtered)
     C_ChatInfo.SendAddonMessage("dnassist", filteredPacket, "RAID")
   end
 end
+
+
+DNARaidMarkerText={
+  "",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_8",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_7",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_4",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_2",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_6",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_3",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5",
+  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1",
+}
+
+DNARaidMarkerIcon={
+  "",
+  "{skull}",
+  "{cross}",
+  "{triangle}",
+  "{circle}",
+  "{square}",
+  "{diamond}",
+  "{moon}",
+  "{star}",
+}
 
 DNARaidMarkers={
   {"",   ""}, --leave blank for boss icons that are dynamic
