@@ -194,7 +194,7 @@ local function getRaidComp()
     DNARaid["member"][12] = "Crisis"
     DNARaid["member"][13] = "Whistper"
     DNARaid["member"][14] = "Zarianna"
-    DNARaid["member"][15] = "Addontesterc"
+    DNARaid["member"][15] = "Averglade"
     DNARaid["member"][16] = "Roaxe"
     DNARaid["member"][17] = "Krizzu"
     DNARaid["member"][18] = "Elderpen"
@@ -238,6 +238,7 @@ local function getRaidComp()
     DNARaid["class"]["Krizzu"] = "Mage"
     DNARaid["class"]["Elderpen"] = "Warrior"
     DNARaid["class"]["Snibson"] = "Priest"
+    DNARaid["class"]["Averglade"] = "Paladin"
     DNARaid["class"]["Justwengit"] = "Mage"
     DNARaid["class"]["Däggerz"] = "Rogue"
     DNARaid["class"]["Mirrand"] = "Rogue"
@@ -258,6 +259,46 @@ local function getRaidComp()
     DNARaid["class"]["Measles"] = "Warlock"
     DNARaid["class"]["Nightling"] = "Druid"
     DNARaid["class"]["Kelvarn"] = "Priest"
+
+    DNARaid["groupid"]["Aellwyn"] = 1
+    DNARaid["groupid"]["Porthios"] = 1
+    DNARaid["groupid"]["Zarianna"] = 1
+    DNARaid["groupid"]["Upya"] = 1
+    DNARaid["groupid"]["Zarj"] = 1
+    DNARaid["groupid"]["Cryonix"] = 2
+    DNARaid["groupid"]["Grayleaf"] = 2
+    DNARaid["groupid"]["Droott"] = 2
+    DNARaid["groupid"]["Aquilla"] = 2
+    DNARaid["groupid"]["Neilsbhor"] = 2
+    DNARaid["groupid"]["Frosthunt"] = 3
+    DNARaid["groupid"]["Nanodel"] = 3
+    DNARaid["groupid"]["Crisis"] = 3
+    DNARaid["groupid"]["Whistper"] = 3
+    DNARaid["groupid"]["Roaxe"] = 3
+    DNARaid["groupid"]["Krizzu"] = 4
+    DNARaid["groupid"]["Elderpen"] = 4
+    DNARaid["groupid"]["Snibson"] = 4
+    DNARaid["groupid"]["Justwengit"] = 4
+    DNARaid["groupid"]["Däggerz"] = 4
+    DNARaid["groupid"]["Mirrand"] = 5
+    DNARaid["groupid"]["Corr"] = 5
+    DNARaid["groupid"]["Valency"] = 5
+    DNARaid["groupid"]["Nutty"] = 5
+    DNARaid["groupid"]["Zatos"] = 5
+    DNARaid["groupid"]["Muppot"] = 6
+    DNARaid["groupid"]["Gaelic"] = 6
+    DNARaid["groupid"]["Chrundle"] = 6
+    DNARaid["groupid"]["Akilina"] = 6
+    DNARaid["groupid"]["Sleapy"] = 6
+    DNARaid["groupid"]["Mairakus"] = 7
+    DNARaid["groupid"]["Stumpymcaxe"] = 7
+    DNARaid["groupid"]["Cahonez"] = 7
+    DNARaid["groupid"]["Avarius"] = 7
+    DNARaid["groupid"]["Blackprince"] = 7
+    DNARaid["groupid"]["Measles"] = 8
+    DNARaid["groupid"]["Nightling"] = 8
+    DNARaid["groupid"]["Kelvarn"] = 8
+    DNARaid["groupid"]["Averglade"] = 8
 
     DNARaid["race"]["Kelvarn"] = "Dwarf"
 
@@ -337,6 +378,7 @@ function raidReadyMember(member, isReady)
     end
   end
 end
+
 
 --alpha sort the member matrix
 local DNARaidMemberSorted = {}
@@ -828,6 +870,19 @@ DNAFrameAssignTabToggle("assign") --default
 
 DNAFrameAssign:Hide()
 
+local DNAFrameAssignTab={}
+
+--[==[
+function DNAFrameAssignTabToggle(name)
+  DNAFrameAssignTab["assign"]:SetFrameLevel(1)
+  DNAFrameAssignTab["map"]:SetFrameLevel(1)
+  DNAFrameAssignPage["assign"]:Hide()
+  DNAFrameAssignPage["map"]:Hide()
+  DNAFrameAssignTab[name]:SetFrameLevel(155)
+  DNAFrameAssignPage[name]:Show()
+end
+]==]--
+
 DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing...")
 
 -- BUILD THE RAID PER BOSS
@@ -995,7 +1050,7 @@ local function buildRaidAssignments(packet, author, source)
       filterHealer[i] = string.gsub(heal[i], ',', " / ")
       filter_row = ""
       for n=1, table.getn(healer_row) do
-        print(healer_row[n])
+        --print("DEBUG :" .. healer_row[n])
         if (n > 1) then
           filter_row = filter_row .. " / " .. DN:ClassColorAppend(healer_row[n], DNARaid["class"][healer_row[n]])
         else
@@ -1833,6 +1888,10 @@ function raidSlotFrame(parentFrame, i, y)
   raidSlot[i].ready:SetTexture("")
   raidSlot[i].ready:SetPoint("TOPLEFT", DNARaidScrollFrame_w-21, -4)
   raidSlot[i].ready:SetSize(12, 12)
+  raidSlot[i].blacklist = raidSlot[i]:CreateTexture(nil, "OVERLAY")
+  raidSlot[i].blacklist:SetTexture("")
+  raidSlot[i].blacklist:SetPoint("TOPLEFT", DNARaidScrollFrame_w-41, -4)
+  raidSlot[i].blacklist:SetSize(12, 12)
   raidSlot[i]:SetScript('OnEnter', function()
     raidSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
   end)
@@ -2079,22 +2138,58 @@ DNAFrameViewBossMap:SetSize(380, 320)
 DNAFrameViewBossMap:SetPoint("TOPLEFT", 0, 0)
 DNAFrameViewBossMap:Hide()
 
+local DNAFrameClassAssignView = CreateFrame("Frame", nil, page[pages[1][1]], "InsetFrameTemplate")
+DNAFrameView:SetWidth(viewFrame_w-20)
+DNAFrameView:SetHeight(viewFrame_h-80)
+DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
+
+local DNAFrameClassAssignEdit={}
+function DNAFrameClassAssignTextbox(name, pos_y)
+  DNAFrameClassAssignEdit[name] = CreateFrame("EditBox", nil, DNAFrameClassAssignView)
+  DNAFrameClassAssignEdit[name]:SetWidth(200)
+  DNAFrameClassAssignEdit[name]:SetHeight(24)
+  DNAFrameClassAssignEdit[name]:SetFontObject(GameFontNormal)
+  DNAFrameClassAssignEdit[name]:SetBackdrop(GameTooltip:GetBackdrop())
+  DNAFrameClassAssignEdit[name]:SetBackdropColor(0, 0, 0, 0.8)
+  DNAFrameClassAssignEdit[name]:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+  DNAFrameClassAssignEdit[name]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -50, 0)
+  DNAFrameClassAssignEdit[name]:EnableKeyboard(true)
+  DNAFrameClassAssignEdit[name]:ClearFocus(self)
+  DNAFrameClassAssignEdit[name]:SetAutoFocus(false)
+  --[==[
+  DNAFrameClassAssign[name].enter:SetScript("OnEscapePressed", function()
+    DNAFrameMain:Hide()
+  end)
+  ]==]--
+end
+DNAFrameClassAssignTextbox("Warriors", 20)
+
 local function viewFrameBottomTabToggle(name)
   viewFrameBotTab["Markers"]:SetFrameLevel(2)
   viewFrameBotTab["Markers"].text:SetTextColor(0.7, 0.7, 0.7)
   viewFrameBotTab["Map"]:SetFrameLevel(2)
   viewFrameBotTab["Map"].text:SetTextColor(0.7, 0.7, 0.7)
+  viewFrameBotTab["Class"]:SetFrameLevel(2)
+  viewFrameBotTab["Class"].text:SetTextColor(0.7, 0.7, 0.7)
   viewFrameBotTab[name]:SetFrameLevel(5)
   viewFrameBotTab[name].text:SetTextColor(1.0, 1.0, 0.5)
   if (name == "Markers") then
     DNAViewScrollChildFrame:Show()
     DNAFrameView.ScrollFrame:Show()
     DNAFrameViewBossMap:Hide()
+    DNAFrameClassAssignView:Hide()
   end
   if (name == "Map") then
     DNAViewScrollChildFrame:Hide()
     DNAFrameView.ScrollFrame:Hide()
     DNAFrameViewBossMap:Show()
+    DNAFrameClassAssignView:Hide()
+  end
+  if (name == "Class") then
+    DNAViewScrollChildFrame:Hide()
+    DNAFrameView.ScrollFrame:Hide()
+    DNAFrameViewBossMap:Hide()
+    DNAFrameClassAssignView:Hide()
   end
 end
 
@@ -2126,6 +2221,7 @@ end
 
 viewFrameBottomTab("Markers", 10, 0)
 viewFrameBottomTab("Map", 100, 0)
+viewFrameBottomTab("Class", 190, 0)
 viewFrameBottomTabToggle("Markers") --default enabled
 
 for i, v in ipairs(DNAInstance) do
@@ -2162,10 +2258,6 @@ for i, v in ipairs(DNAInstance) do
 end
 
 ddBossListText[DNARaidBosses[1][1]]:SetText("Select a boss")
-
-function updateRaid(raid)
-  print("{rt8} test")
-end
 
 local largePacket = nil
 function DN:RaidSendAssignments()

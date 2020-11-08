@@ -286,6 +286,8 @@ DNAFrameAssignBossText = {}
 DNAFrameAssignBossMap = {}
 DNAFrameAssignAuthor = {}
 
+--DNAFrameClassAssignView = {}
+
 function isItem(compare, item) --dropdown packets that are filtered from spaces
   --(lava pack)
   filteredItem = item:gsub("%s+", "")

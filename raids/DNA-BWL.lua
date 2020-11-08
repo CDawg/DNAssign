@@ -74,10 +74,18 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   if (isItem(assign, "Dragon Pack")) then
     DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Overlord Wyrmthalak"
     DNABossMap = DNAGlobal.dir .. "images/bwl_dragonpack"
+    local healer_row = ""
+    local dpack_heals = {}
+    table.merge(dpack_heals, healer.paladin)
+    table.merge(dpack_heals, healer.priest)
+    --static shuffle
+    if (dpack_heals[7]) then
+      dpack_heals[2] = dpack_heals[7]
+    end
     for i=1, 3 do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+      heal[i] = dpack_heals[i] -- don't assign druids
     end
     mark[4] = icon_circle
     mark[5] = icon_square
@@ -94,17 +102,17 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     if (healer.druid[1]) then
       mark[6] = icon_diamond
       text[6] = healer.druid[1]
-      heal[6] = healer.all[4]
+      heal[6] = dpack_heals[4]
       if (heal[6] == healer.all[4]) then
-        heal[6] = healer.all[5]
+        heal[6] = dpack_heals[5]
       end
     end
     if (healer.druid[2]) then
       mark[7] = icon_moon
       text[7] = healer.druid[2]
-      heal[7] = healer.all[6]
+      heal[7] = dpack_heals[6]
       if (heal[7] == healer.all[6]) then
-        heal[7] = healer.all[7]
+        heal[7] = dpack_heals[7]
       end
     end
     text[9] = "Extra marks provided for Crowd Control"
