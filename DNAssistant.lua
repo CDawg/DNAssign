@@ -308,13 +308,6 @@ local function getRaidComp()
 end
 
 --[==[
-local trash = {}
-for k,v in pairs(DNARaidMarkers) do
-  trash[k] = {v[1], v[2]}
-end
-]==]--
-
---local DNAFrameMainOpen = CreateFrame("Button", nil, UIParent, "UIPanelButtonTemplate")
 local DNAFrameMainOpen = CreateFrame("Button", nil, UIParent)
 DNAFrameMainOpen:SetWidth(80)
 DNAFrameMainOpen:SetHeight(40)
@@ -327,6 +320,7 @@ local DNAFrameMainOpenIcon = DNAFrameMainOpen:CreateTexture(nil, "ARTWORK", DNAF
 DNAFrameMainOpenIcon:SetTexture("Interface/Icons/Spell_Nature_Lightning")
 DNAFrameMainOpenIcon:SetSize(18, 18)
 DNAFrameMainOpenIcon:SetPoint("TOPLEFT", 26, -10)
+]==]--
 
 local DNAFrameAssignNotReady={}
 
@@ -465,13 +459,6 @@ function DN:UpdateRaidRoster()
   total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
-
-  --[==[
-  DNAFrameMainOpen:Hide()
-  if (IsInRaid()) then
-    DNAFrameMainOpen:Show()
-  end
-  ]==]--
 
   if (DEBUG) then
     print("DEBUG: DN:UpdateRaidRoster()")
@@ -1407,6 +1394,11 @@ function DN:SetVars()
   end
   ]==]--
 
+  if (DNA[player.combine]["CONFIG"]["HIDEICON"] == "ON") then
+    DNACheckbox["HIDEICON"]:SetChecked(true)
+    DNAMiniMap:Hide()
+  end
+
   if (DNA[player.combine]["CONFIG"]["RAIDCHAT"] == "ON") then
     DNACheckbox["RAIDCHAT"]:SetChecked(true)
   end
@@ -1565,8 +1557,14 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   check_static:SetScript("OnClick", function()
     if (DNA[player.combine]["CONFIG"][checkID] == "ON") then
       DNA[player.combine]["CONFIG"][checkID] = "OFF"
+      if (checkID == "HIDEICON") then
+        DNAMiniMap:Show()
+      end
     else
       DNA[player.combine]["CONFIG"][checkID] = "ON"
+      if (checkID == "HIDEICON") then
+        DNAMiniMap:Hide()
+      end
     end
   end)
   DNACheckbox[checkID] = check_static
@@ -1574,6 +1572,7 @@ end
 
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page[pages[5][1]], 10, 0)
 DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page[pages[5][1]], 10, 20)
+DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page[pages[5][1]], 10, 60)
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page[pages[3][1]])
@@ -2519,18 +2518,19 @@ SlashCmdList["DNA"] = function(msg)
   DNAOpenWindow()
 end
 
+--[==[
 DNAFrameMainOpen:SetScript("OnClick", function()
   DNAOpenWindow()
 end)
+]==]--
 
---[==[
 DNAMiniMap = CreateFrame("Button", nil, Minimap)
-DNAMiniMap:SetFrameLevel(6)
-DNAMiniMap:SetSize(24, 24)
+DNAMiniMap:SetFrameLevel(50)
+DNAMiniMap:SetSize(28, 28)
 DNAMiniMap:SetMovable(true)
-DNAMiniMap:SetNormalTexture("Interface/Icons/inv_misc_book_04")
-DNAMiniMap:SetPushedTexture("Interface/Icons/inv_misc_book_04")
-DNAMiniMap:SetHighlightTexture("Interface/Icons/inv_misc_book_04")
+DNAMiniMap:SetNormalTexture(DNAGlobal.dir .. "images/icon_dn")
+DNAMiniMap:SetPushedTexture(DNAGlobal.dir .. "images/icon_dn")
+DNAMiniMap:SetHighlightTexture(DNAGlobal.dir .. "images/icon_dn")
 
 local myIconPos = 40
 
@@ -2541,7 +2541,7 @@ local function UpdateMapButton()
   Ypoa = Ypoa / Minimap:GetEffectiveScale() - Ymin - 70
   myIconPos = math.deg(math.atan2(Ypoa, Xpoa))
   DNAMiniMap:ClearAllPoints()
-  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 62 - (80 * cos(myIconPos)), (80 * sin(myIconPos)) - 62)
+  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 62 - (80 * cos(myIconPos)), (80 * sin(myIconPos)) - 56)
 end
 DNAMiniMap:RegisterForDrag("LeftButton")
 DNAMiniMap:SetScript("OnDragStart", function()
@@ -2552,14 +2552,14 @@ DNAMiniMap:SetScript("OnDragStop", function()
     DNAMiniMap:StopMovingOrSizing()
     DNAMiniMap:SetScript("OnUpdate", nil)
     local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
-    print(xOfs .. " , " .. yOfs)
-    DNA[player.combine]["minimap_x"] = xOfs
-    DNA[player.combine]["minimap_y"] = yOfs
+    if (DEBUG) then
+      print(math.ceil(xOfs) .. "," .. math.ceil(yOfs))
+    end
+    DNA[player.combine]["CONFIG"]["ICONPOS"] = math.ceil(xOfs) .. "," .. math.ceil(yOfs)
     UpdateMapButton()
 end)
 DNAMiniMap:ClearAllPoints()
-DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 62 - (80 * cos(myIconPos)),(80 * sin(myIconPos)) - 62)
+DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 62 - (80 * cos(myIconPos)),(80 * sin(myIconPos)) - 56)
 DNAMiniMap:SetScript("OnClick", function()
   DNAOpenWindow()
 end)
-]==]--
