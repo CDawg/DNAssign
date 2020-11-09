@@ -200,7 +200,7 @@ local function getRaidComp()
     DNARaid["member"][18] = "Elderpen"
     DNARaid["member"][19] = "Snibson"
     DNARaid["member"][20] = "Justwengit"
-    DNARaid["member"][21] = "Däggerz"
+    DNARaid["member"][21] = "Bibbi"
     DNARaid["member"][22] = "Mirrand"
     DNARaid["member"][23] = "Corr"
     DNARaid["member"][24] = "Valency"
@@ -240,7 +240,7 @@ local function getRaidComp()
     DNARaid["class"]["Snibson"] = "Priest"
     DNARaid["class"]["Averglade"] = "Paladin"
     DNARaid["class"]["Justwengit"] = "Mage"
-    DNARaid["class"]["Däggerz"] = "Rogue"
+    DNARaid["class"]["Bibbi"] = "Rogue"
     DNARaid["class"]["Mirrand"] = "Rogue"
     DNARaid["class"]["Corr"] = "Paladin"
     DNARaid["class"]["Valency"] = "Warlock"
@@ -279,7 +279,7 @@ local function getRaidComp()
     DNARaid["groupid"]["Elderpen"] = 4
     DNARaid["groupid"]["Snibson"] = 4
     DNARaid["groupid"]["Justwengit"] = 4
-    DNARaid["groupid"]["Däggerz"] = 4
+    DNARaid["groupid"]["Bibbi"] = 4
     DNARaid["groupid"]["Mirrand"] = 5
     DNARaid["groupid"]["Corr"] = 5
     DNARaid["groupid"]["Valency"] = 5
@@ -321,6 +321,24 @@ DNAFrameMainOpenIcon:SetTexture("Interface/Icons/Spell_Nature_Lightning")
 DNAFrameMainOpenIcon:SetSize(18, 18)
 DNAFrameMainOpenIcon:SetPoint("TOPLEFT", 26, -10)
 ]==]--
+
+local windowOpen = false
+
+local swapQueue = {}
+local prevQueue = {}
+local function resetSwapQueues()
+  prevQueue["T"] = 0
+  swapQueue["T"] = 0
+  prevQueue["H"] = 0
+  swapQueue["H"] = 0
+end
+
+local function DNACloseWindow()
+  resetSwapQueues() --sanity check on queues
+  DNAFrameMain:Hide()
+  windowOpen = false
+  PlaySound(88)
+end
 
 local DNAFrameAssignNotReady={}
 
@@ -1454,8 +1472,7 @@ DNAFrameMainCloseX:SetTexture("Interface/Buttons/UI-StopButton")
 DNAFrameMainCloseX:SetSize(14, 14)
 DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
-  PlaySound(88)
-  DNAFrameMain:Hide()
+  DNACloseWindow()
 end)
 DNAFrameMain:EnableKeyboard(true)
 tinsert(UISpecialFrames, "DNAFrameMain")
@@ -1470,9 +1487,11 @@ DNAFrameMain.enter:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -50, 0)
 DNAFrameMain.enter:ClearFocus(self)
 DNAFrameMain.enter:SetAutoFocus(false)
 DNAFrameMain.enter:Hide()
+--[==[
 DNAFrameMain.enter:SetScript("OnEscapePressed", function()
-  DNAFrameMain:Hide()
+  DNACloseWindow()
 end)
+]==]--
 
 page[pages[1][1]] = CreateFrame("Frame", nil, DNAFrameMain)
 page[pages[1][1]]:SetWidth(DNAGlobal.width)
@@ -1842,14 +1861,6 @@ local raidSlotOrgPoint_x = {}
 local raidSlotOrgPoint_y = {}
 local memberDrag = nil
 local thisClass = nil
-local swapQueue = {}
-local prevQueue = {}
-local function resetSwapQueues()
-  prevQueue["T"] = 0
-  swapQueue["T"] = 0
-  prevQueue["H"] = 0
-  swapQueue["H"] = 0
-end
 
 resetSwapQueues()
 
@@ -2235,7 +2246,7 @@ function DNAFrameClassAssignTextbox(name, pos_y)
   DNAFrameClassAssignEdit[name]:SetAutoFocus(false)
   --[==[
   DNAFrameClassAssign[name].enter:SetScript("OnEscapePressed", function()
-    DNAFrameMain:Hide()
+
   end)
   ]==]--
 end
@@ -2502,19 +2513,20 @@ local function raidPermissions()
   end
 end
 
-local function DNACloseWindow()
-  resetSwapQueues() --sanity check on queues
-  DNAFrameMain:Hide()
-end
-
 local function DNAOpenWindow()
-  DNAFrameMain:Show()
-  --DNAFrameAssign:Show()
-  memberDrag = nil --bugfix
-  DN:UpdateRaidRoster()
-  DN:SetVars()
-  raidPermissions()
-  raidDetails()
+  if (windowOpen) then
+    DNACloseWindow()
+  else
+    windowOpen = true
+    DNAFrameMain:Show()
+    --DNAFrameAssign:Show()
+    memberDrag = nil --bugfix
+    DN:UpdateRaidRoster()
+    DN:SetVars()
+    raidPermissions()
+    raidDetails()
+    resetSwapQueues() --sanity check on queues
+  end
 end
 
 SlashCmdList["DNA"] = function(msg)
