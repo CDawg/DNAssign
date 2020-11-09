@@ -29,7 +29,7 @@ DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
 DN = {}
 
-DEBUG = false
+DEBUG = true
 
 date_day = date("%y-%m-%d")
 timestamp = date("%y-%m-%d %H:%M:%S")

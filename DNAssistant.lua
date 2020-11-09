@@ -672,7 +672,7 @@ DNAFrameAssignPersonal.header:SetBackdrop({
 DNAFrameAssignPersonal.headerText = DNAFrameAssignPersonal.header:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignPersonal.headerText:SetFont(DNAGlobal.font, 12, "OUTLINE")
 DNAFrameAssignPersonal.headerText:SetPoint("TOPLEFT", 5, -3)
-DNAFrameAssignPersonal.headerText:SetText("DNA               v" .. DNAGlobal.version)
+DNAFrameAssignPersonal.headerText:SetText(player.name .. "'s Assignment             DNA v" .. DNAGlobal.version)
 DNAFrameAssignPersonal.headerText:SetTextColor(1, 1, 0.4)
 DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal)
 DNAFrameAssignPersonal.close:SetWidth(25)
@@ -686,6 +686,7 @@ DNAFrameAssignPersonal.close:SetBackdrop({
 DNAFrameAssignPersonal.close:SetScript("OnClick", function()
     DNAFrameAssignPersonal:Hide()
 end)
+DNAFrameAssignPersonal:Hide()
 
 --DNAFrameAssignMe:Hide()
 DNAFrameAssignPersonalMark = DNAFrameAssignPersonal:CreateTexture(nil, "ARTWORK")
@@ -913,12 +914,15 @@ local function buildRaidAssignments(packet, author, source)
   raid.priest={}
   raid.druid={}
   raid.range={}
+  local assign_lock={}
+  assign_lock[player.name] = 0
 
   DN:UpdateRaidRoster()
 
   clearFrameView() --clear out the current text
   clearFrameAssign()
   clearFrameAssignPersonal()
+  DNAFrameAssignPersonal:Hide()
 
   if (total.raid < 8) then
     DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
@@ -1044,6 +1048,20 @@ local function buildRaidAssignments(packet, author, source)
       DN:ClassColorText(DNAFrameAssignScrollChild_tank[i], DNARaid["class"][text[i]])
     end
 
+    if (text[i] == player.name) then
+      if (assign_lock[player.name] ~= 1) then
+        if (mark[i]) then --pull mark
+          DNAFrameAssignPersonalMark:SetTexture(mark[i])
+        end
+        if (text[i]) then --pull tank to see who we are healing
+          DNAFrameAssignPersonalColOne:SetText(text[i])
+          DN:ClassColorText(DNAFrameAssignPersonalColOne, DNARaid["class"][text[i]])
+        end
+        assign_lock[player.name] = 1
+        DNAFrameAssignPersonal:Show()
+      end
+    end
+
     if (heal[i]) then
       local filterHealer={}
       healer_row = split(heal[i], ",")
@@ -1057,14 +1075,18 @@ local function buildRaidAssignments(packet, author, source)
           filter_row = DN:ClassColorAppend(healer_row[n], DNARaid["class"][healer_row[n]])
         end
         if (healer_row[n] == player.name) then
-          if (mark[i]) then --pull mark
-            DNAFrameAssignPersonalMark:SetTexture(mark[i])
+          if (assign_lock[player.name] ~= 1) then
+            if (mark[i]) then --pull mark
+              DNAFrameAssignPersonalMark:SetTexture(mark[i])
+            end
+            if (text[i]) then --pull tank to see who we are healing
+              DNAFrameAssignPersonalColOne:SetText(text[i])
+              DN:ClassColorText(DNAFrameAssignPersonalColOne, DNARaid["class"][text[i]])
+            end
+            DNAFrameAssignPersonalColTwo:SetText(filter_row)
+            assign_lock[player.name] = 1
+            DNAFrameAssignPersonal:Show()
           end
-          if (text[i]) then --pull tank to see who we are healing
-            DNAFrameAssignPersonalColOne:SetText(text[i])
-            DN:ClassColorText(DNAFrameAssignPersonalColOne, DNARaid["class"][text[i]])
-          end
-          DNAFrameAssignPersonalColTwo:SetText(filter_row)
         end
       end
 
@@ -1378,10 +1400,12 @@ function DN:SetVars()
     DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
   end
 
+  --[==[
   if (DNA[player.combine]["CONFIG"]["DEBUG"] == "ON") then
     DNACheckbox["DEBUG"]:SetChecked(true)
     DEBUG = true
   end
+  ]==]--
 
   if (DNA[player.combine]["CONFIG"]["RAIDCHAT"] == "ON") then
     DNACheckbox["RAIDCHAT"]:SetChecked(true)
@@ -1550,7 +1574,7 @@ end
 
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page[pages[5][1]], 10, 0)
 DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page[pages[5][1]], 10, 20)
-DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 80)
+--DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page[pages[3][1]])
 pageDKPEdit:SetWidth(200)
@@ -1812,6 +1836,20 @@ end
 -- BO PAGE ASSIGN
 local DNARaidScrollFrame_w = 140
 local DNARaidScrollFrame_h = 406
+local raidSlotOrgPoint_x = {}
+local raidSlotOrgPoint_y = {}
+local memberDrag = nil
+local thisClass = nil
+local swapQueue = {}
+local prevQueue = {}
+local function resetSwapQueues()
+  prevQueue["T"] = 0
+  swapQueue["T"] = 0
+  prevQueue["H"] = 0
+  swapQueue["H"] = 0
+end
+
+resetSwapQueues()
 
 local DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page[pages[1][1]], "InsetFrameTemplate")
 DNARaidScrollFrame:SetWidth(DNARaidScrollFrame_w+20) --add scroll frame width
@@ -1835,16 +1873,17 @@ DNARaidScrollFrame.ScrollFrame:SetScrollChild(DNARaidScrollFrameScrollChildFrame
 DNARaidScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
-
 DNARaidScrollFrame.MR = DNARaidScrollFrame:CreateTexture(nil, "BACKGROUND", DNARaidScrollFrame, -2)
 DNARaidScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNARaidScrollFrame.MR:SetPoint("TOPLEFT", 135, 0)
 DNARaidScrollFrame.MR:SetSize(24, 400)
+DNARaidScrollFrame:SetScript("OnEnter", function()
+  resetSwapQueues()
+end)
+DNARaidScrollFrame:SetScript("OnLeave", function()
+  resetSwapQueues()
+end)
 
-local raidSlotOrgPoint_x = {}
-local raidSlotOrgPoint_y = {}
-local memberDrag = nil
-local thisClass = nil
 function raidSlotFrame(parentFrame, i, y)
   raidSlot[i] = CreateFrame("button", raidSlot[i], parentFrame)
   raidSlot[i]:SetFrameLevel(10)
@@ -1858,11 +1897,13 @@ function raidSlotFrame(parentFrame, i, y)
     raidSlot[i]:SetParent(page[pages[1][1]])
     raidSlot[i]:SetFrameStrata("DIALOG")
     memberDrag = raidSlot[i].text:GetText()
+    resetSwapQueues()
   end)
   raidSlot[i]:SetScript("OnDragStop", function()
     raidSlot[i]:StopMovingOrSizing()
     raidSlot[i]:SetParent(parentFrame)
     raidSlot[i]:SetPoint("TOPLEFT", raidSlotOrgPoint_x[i], raidSlotOrgPoint_y[i])
+    resetSwapQueues()
   end)
   raidSlot[i]:SetBackdrop({
     bgFile = "Interface/Collections/CollectionsBackgroundTile",
@@ -1915,6 +1956,11 @@ tankSlotframe.icon:SetTexture(DNAGlobal.dir .. "images/role_tank")
 tankSlotframe.icon:SetPoint("TOPLEFT", 25, 20)
 tankSlotframe.icon:SetSize(20, 20)
 tankSlotframe:SetFrameLevel(2)
+--[==[
+tankSlotframe:SetScript('OnLeave', function()
+  resetSwapQueues()
+end)
+]==]--
 for i = 1, DNASlots.tank do
   tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotframe)
   tankSlot[i]:SetWidth(DNARaidScrollFrame_w)
@@ -1953,35 +1999,47 @@ for i = 1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tankSlot[i]:StartMoving()
       tankSlot[i]:SetFrameStrata("DIALOG")
+      resetSwapQueues()
+      swapQueue["T"] = i
     end
   end)
   tankSlot[i]:SetScript("OnDragStop", function()
     tankSlot[i]:StopMovingOrSizing()
     tankSlot[i]:SetPoint("TOPLEFT", tankSlotOrgPoint_x[i], tankSlotOrgPoint_y[i])
-    updateSlotPos("T", i, "Empty")
+    if ((swapQueue["T"] > 0) and (prevQueue["T"] > 0)) then --swap positions
+      --updateSlotPos("T", i, "Empty")
+    else
+      updateSlotPos("T", i, "Empty")
+      --resetSwapQueues()
+    end
   end)
   tankSlot[i]:SetScript('OnEnter', function()
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tankSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+      if (swapQueue["T"] > 0) then
+        prevQueue["T"] = i
+      end
     end
-    if (memberDrag) then
-      for dupe = 1, DNASlots.tank do
-        if (tankSlot[dupe].text:GetText() == memberDrag) then
-          updateSlotPos("T", dupe, "Empty")
-          updateSlotPos("T", i, memberDrag)
-          return true --print("DEBUG: duplicate slot")
+    if ((swapQueue["T"] > 0) and (prevQueue["T"] > 0)) then --swap positions
+      if (swapQueue["T"] ~= prevQueue["T"]) then --dupe check
+        if ((tankSlot[swapQueue["T"]].text:GetText() ~= "Empty") and (tankSlot[prevQueue["T"]].text:GetText() ~= "Empty")) then
+          updateSlotPos("T", swapQueue["T"], tankSlot[prevQueue["T"]].text:GetText() )
+          updateSlotPos("T", prevQueue["T"], tankSlot[swapQueue["T"]].text:GetText() )
         end
+        resetSwapQueues()
+        memberDrag = nil
       end
-      --[==[
-      if (i > 1) then
-        if (tankSlot[i-1].text:GetText() == "Empty") then
-          updateSlotPos("T", i-1, memberDrag)
-          memberDrag = nil
-          return true
+    else
+      if (memberDrag) then
+        for dupe = 1, DNASlots.tank do
+          if (tankSlot[dupe].text:GetText() == memberDrag) then
+            updateSlotPos("T", dupe, "Empty")
+            updateSlotPos("T", i, memberDrag)
+            return true --print("DEBUG: duplicate slot")
+          end
         end
+        updateSlotPos("T", i, memberDrag)
       end
-      ]==]--
-      updateSlotPos("T", i, memberDrag)
     end
   end)
   tankSlot[i]:SetScript('OnLeave', function()
@@ -2007,6 +2065,11 @@ healSlotframe.icon:SetTexture(DNAGlobal.dir .. "images/role_heal")
 healSlotframe.icon:SetPoint("TOPLEFT", 20, 20)
 healSlotframe.icon:SetSize(20, 20)
 healSlotframe:SetFrameLevel(2)
+--[==[
+healSlotframe:SetScript('OnLeave', function()
+  resetSwapQueues()
+end)
+]==]--
 for i = 1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotframe)
   healSlot[i]:SetWidth(DNARaidScrollFrame_w)
@@ -2044,35 +2107,47 @@ for i = 1, DNASlots.heal do
     if (healSlot[i].text:GetText() ~= "Empty") then
       healSlot[i]:StartMoving()
       healSlot[i]:SetFrameStrata("DIALOG")
+      resetSwapQueues()
+      swapQueue["H"] = i
     end
   end)
   healSlot[i]:SetScript("OnDragStop", function()
     healSlot[i]:StopMovingOrSizing()
     healSlot[i]:SetPoint("TOPLEFT", healSlotOrgPoint_x[i], healSlotOrgPoint_y[i])
-    updateSlotPos("H", i, "Empty")
+    if ((swapQueue["H"] > 0) and (prevQueue["H"] > 0)) then --swap positions
+      --updateSlotPos("H", i, "Empty")
+    else
+      updateSlotPos("H", i, "Empty")
+      --resetSwapQueues()
+    end
   end)
   healSlot[i]:SetScript('OnEnter', function()
     if (healSlot[i].text:GetText() ~= "Empty") then
       healSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+      if (swapQueue["H"] > 0) then
+        prevQueue["H"] = i
+      end
     end
-    if (memberDrag) then
-      for dupe = 1, DNASlots.heal do
-        if (healSlot[dupe].text:GetText() == memberDrag) then
-          updateSlotPos("H", dupe, "Empty")
-          updateSlotPos("H", i, memberDrag)
-          return true --print("DEBUG: duplicate slot")
+    if ((swapQueue["H"] > 0) and (prevQueue["H"] > 0)) then --swap positions
+      if (swapQueue["H"] ~= prevQueue["H"]) then --dupe check
+        if ((healSlot[swapQueue["H"]].text:GetText() ~= "Empty") and (healSlot[prevQueue["H"]].text:GetText() ~= "Empty")) then
+          updateSlotPos("H", swapQueue["H"], healSlot[prevQueue["H"]].text:GetText() )
+          updateSlotPos("H", prevQueue["H"], healSlot[swapQueue["H"]].text:GetText() )
         end
+        resetSwapQueues()
+        memberDrag = nil
       end
-      --[==[
-      if (i > 1) then
-        if (healSlot[i-1].text:GetText() == "Empty") then
-          updateSlotPos("H", i-1, memberDrag)
-          memberDrag = nil
-          return true
+    else
+      if (memberDrag) then
+        for dupe = 1, DNASlots.heal do
+          if (healSlot[dupe].text:GetText() == memberDrag) then
+            updateSlotPos("H", dupe, "Empty")
+            updateSlotPos("H", i, memberDrag)
+            return true --print("DEBUG: duplicate slot")
+          end
         end
+        updateSlotPos("H", i, memberDrag)
       end
-      ]==]--
-      updateSlotPos("H", i, memberDrag)
     end
   end)
   healSlot[i]:SetScript('OnLeave', function()
@@ -2426,6 +2501,7 @@ local function raidPermissions()
 end
 
 local function DNACloseWindow()
+  resetSwapQueues() --sanity check on queues
   DNAFrameMain:Hide()
 end
 
