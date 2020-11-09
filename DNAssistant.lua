@@ -780,6 +780,7 @@ DNAFrameAssignReady:SetScript("OnClick", function()
   ConfirmReadyCheck(1) --ready
   DN:SendPacket("send", "+" .. player.name, true)
   DNAFrameAssign:Hide()
+  print("|cfffaff04You have marked yourself as Ready.")
 end)
 
 DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
@@ -1102,7 +1103,9 @@ local function buildRaidAssignments(packet, author, source)
           else
             text_line = text_line .. text[i]
           end
-          SendChatMessage(text_line, "RAID", nil, "RAID")
+          if (author == player.name) then
+            SendChatMessage(text_line, "RAID", nil, "RAID")
+          end
         end
       end
     end
