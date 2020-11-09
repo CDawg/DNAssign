@@ -197,7 +197,7 @@ local function getRaidComp()
     DNARaid["member"][15] = "Averglade"
     DNARaid["member"][16] = "Roaxe"
     DNARaid["member"][17] = "Krizzu"
-    DNARaid["member"][18] = "Elderpen"
+    DNARaid["member"][18] = "Alectar"
     DNARaid["member"][19] = "Snibson"
     DNARaid["member"][20] = "Justwengit"
     DNARaid["member"][21] = "Bibbi"
@@ -236,7 +236,7 @@ local function getRaidComp()
     DNARaid["class"]["Zarianna"] = "Paladin"
     DNARaid["class"]["Roaxe"] = "Paladin"
     DNARaid["class"]["Krizzu"] = "Mage"
-    DNARaid["class"]["Elderpen"] = "Warrior"
+    DNARaid["class"]["Alectar"] = "Warrior"
     DNARaid["class"]["Snibson"] = "Priest"
     DNARaid["class"]["Averglade"] = "Paladin"
     DNARaid["class"]["Justwengit"] = "Mage"
@@ -276,7 +276,7 @@ local function getRaidComp()
     DNARaid["groupid"]["Whistper"] = 3
     DNARaid["groupid"]["Roaxe"] = 3
     DNARaid["groupid"]["Krizzu"] = 4
-    DNARaid["groupid"]["Elderpen"] = 4
+    DNARaid["groupid"]["Alectar"] = 4
     DNARaid["groupid"]["Snibson"] = 4
     DNARaid["groupid"]["Justwengit"] = 4
     DNARaid["groupid"]["Bibbi"] = 4

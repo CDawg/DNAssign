@@ -49,10 +49,10 @@ function multiKeyFromValue(_array, value)
   return nil
 end
 
-function reindexArray(input, remove)
+function reindexArray(input, reval)
   local n=#input
   for i=1,n do
-    if remove[input[i]] then
+    if reval[input[i]] then
       input[i]=nil
     end
   end
