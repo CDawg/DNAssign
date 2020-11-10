@@ -54,19 +54,9 @@ total.raid = 0
 local raidSelection = nil
 local viewFrameLines = 20 --also setup the same for the assign window
 
-local botTab = {}
-local botBack = {}
-local botBorder = {}
+local DNAFrameMainBottomTab = {}
 
 local viewFrameBotTab = {}
-
-local pages = {
-  {"Assignment", 10},
-  {"Raid Details", 100},
-  {"DKP", 190},
-  {"Loot Log", 280},
-  {"Config", 370},
-}
 
 local page={}
 local pageBanner = {}
@@ -1294,6 +1284,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
       --LOOT
+      --[==[
       if (string.sub(netpacket, 1, 1) == "_") then
         if (DNA[player.combine]["LOOTLOG"][date_day] == nil) then
           DNA[player.combine]["LOOTLOG"][date_day] = {}
@@ -1309,12 +1300,10 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             end
           end
         end
-        --print(cur_date)
-        --DNA[player.combine]["Loot Log"] = {cur_date .. "," .. netpacket}
         table.insert(DNA[player.combine]["LOOTLOG"][date_day], {netpacket .. "," .. timestamp})
-        --print(netpacket)
         return true
       end
+      ]==]--
       if (string.sub(netpacket, 1, 1) == "@") then
         netpacket = string.gsub(netpacket, "@", "")
         --DNAFrameAssign:Show()
@@ -1493,39 +1482,39 @@ DNAFrameMain.enter:SetScript("OnEscapePressed", function()
 end)
 ]==]--
 
-page[pages[1][1]] = CreateFrame("Frame", nil, DNAFrameMain)
-page[pages[1][1]]:SetWidth(DNAGlobal.width)
-page[pages[1][1]]:SetHeight(DNAGlobal.height)
-page[pages[1][1]]:SetPoint("TOPLEFT", 0, 0)
+page["Assignment"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Assignment"]:SetWidth(DNAGlobal.width)
+page["Assignment"]:SetHeight(DNAGlobal.height)
+page["Assignment"]:SetPoint("TOPLEFT", 0, 0)
 
 local pageAssignBtnDiv={}
 for i=1, 5 do
-  pageAssignBtnDiv[i] = page[pages[1][1]]:CreateTexture(nil, "ARTWORK", page[pages[1][1]], 3)
+  pageAssignBtnDiv[i] = page["Assignment"]:CreateTexture(nil, "ARTWORK", page["Assignment"], 3)
   pageAssignBtnDiv[i]:SetTexture("Interface/DialogFrame/UI-DialogBox-Divider")
   pageAssignBtnDiv[i]:SetSize(256, 20)
   pageAssignBtnDiv[i]:SetPoint("TOPLEFT", 6, i*100-622)
 end
 
-local pageAssignRightDiv = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
+local pageAssignRightDiv = page["Assignment"]:CreateTexture(nil, "ARTWORK")
 pageAssignRightDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
 pageAssignRightDiv:SetSize(12, DNAGlobal.height-28)
 pageAssignRightDiv:SetPoint("TOPLEFT", 566, -21)
 
-pageBanner = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], 0)
+pageBanner = page["Assignment"]:CreateTexture(nil, "BACKGROUND", page["Assignment"], 0)
 pageBanner:SetTexture(DNAInstance[1][3]) --default
 pageBanner:SetTexCoord(0, 1, 0.25, 0.50)
 pageBanner:SetSize(400, 54)
 pageBanner:SetPoint("TOPLEFT", 570, -28)
-local pageBannerBorder = page[pages[1][1]]:CreateTexture(nil, "BACKGROUND", page[pages[1][1]], 1)
+local pageBannerBorder = page["Assignment"]:CreateTexture(nil, "BACKGROUND", page["Assignment"], 1)
 pageBannerBorder:SetTexture("Interface/ACHIEVEMENTFRAME/UI-Achievement-MetalBorder-Top")
 pageBannerBorder:SetSize(452, 14)
 pageBannerBorder:SetPoint("TOPLEFT", 570, -75)
-pageBanner.text = page[pages[1][1]]:CreateFontString(nil, "ARTWORK")
+pageBanner.text = page["Assignment"]:CreateFontString(nil, "ARTWORK")
 pageBanner.text:SetFont("Fonts/MORPHEUS.ttf", 18, "OUTLINE")
 pageBanner.text:SetText(DNAInstance[1][2]) --default
 pageBanner.text:SetTextColor(1.00, 1.00, 0.60)
 pageBanner.text:SetPoint("TOPLEFT", pageBanner, "TOPLEFT", 20, -8)
-pageBossIcon = page[pages[1][1]]:CreateTexture(nil, "ARTWORK")
+pageBossIcon = page["Assignment"]:CreateTexture(nil, "ARTWORK")
 pageBossIcon:SetTexture(DNAInstance[1][4]) --default
 pageBossIcon:SetSize(134, 70)
 pageBossIcon:SetPoint("TOPLEFT", 590, -52)
@@ -1548,29 +1537,29 @@ DNAFrameMainNotif:SetBackdropBorderColor(1, 0, 0)
 DNAFrameMainNotif:SetBackdropColor(1, 0.2, 0.2, 1)
 DNAFrameMainNotif:Hide()
 
-page[pages[2][1]] = CreateFrame("Frame", nil, DNAFrameMain)
-page[pages[2][1]]:SetWidth(DNAGlobal.width)
-page[pages[2][1]]:SetHeight(DNAGlobal.height)
-page[pages[2][1]]:SetPoint("TOPLEFT", 0, 0)
+page["Raid Details"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Raid Details"]:SetWidth(DNAGlobal.width)
+page["Raid Details"]:SetHeight(DNAGlobal.height)
+page["Raid Details"]:SetPoint("TOPLEFT", 0, 0)
 
-page[pages[3][1]] = CreateFrame("Frame", nil, DNAFrameMain)
-page[pages[3][1]]:SetWidth(DNAGlobal.width)
-page[pages[3][1]]:SetHeight(DNAGlobal.height)
-page[pages[3][1]]:SetPoint("TOPLEFT", 0, 0)
+page["DKP"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["DKP"]:SetWidth(DNAGlobal.width)
+page["DKP"]:SetHeight(DNAGlobal.height)
+page["DKP"]:SetPoint("TOPLEFT", 0, 0)
 
-page[pages[4][1]] = CreateFrame("Frame", nil, DNAFrameMain)
-page[pages[4][1]]:SetWidth(DNAGlobal.width)
-page[pages[4][1]]:SetHeight(DNAGlobal.height)
-page[pages[4][1]]:SetPoint("TOPLEFT", 0, 0)
+page["Loot Log"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Loot Log"]:SetWidth(DNAGlobal.width)
+page["Loot Log"]:SetHeight(DNAGlobal.height)
+page["Loot Log"]:SetPoint("TOPLEFT", 0, 0)
 
-page[pages[5][1]] = CreateFrame("Frame", nil, DNAFrameMain)
-page[pages[5][1]]:SetWidth(DNAGlobal.width)
-page[pages[5][1]]:SetHeight(DNAGlobal.height)
-page[pages[5][1]]:SetPoint("TOPLEFT", 0, 0)
+page["Config"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Config"]:SetWidth(DNAGlobal.width)
+page["Config"]:SetHeight(DNAGlobal.height)
+page["Config"]:SetPoint("TOPLEFT", 0, 0)
 
 function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   local check_static = CreateFrame("CheckButton", nil, parentFrame, "ChatConfigCheckButtonTemplate")
-  check_static:SetPoint("TOPLEFT", posX, -posY-40)
+  check_static:SetPoint("TOPLEFT", posX+10, -posY-40)
   check_static.text = check_static:CreateFontString(nil,"ARTWORK")
   check_static.text:SetFont("Fonts\\ARIALN.ttf", 14, "OUTLINE")
   check_static.text:SetPoint("TOPLEFT", check_static, "TOPLEFT", 25, -5)
@@ -1592,12 +1581,12 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   DNACheckbox[checkID] = check_static
 end
 
-DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page[pages[5][1]], 10, 0)
-DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page[pages[5][1]], 10, 20)
-DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page[pages[5][1]], 10, 60)
---DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page[pages[5][1]], 10, 80)
+DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 0)
+DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 20)
+DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page["Config"], 10, 60)
+--DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Config"], 10, 80)
 
-pageDKPEdit = CreateFrame("EditBox", nil, page[pages[3][1]])
+pageDKPEdit = CreateFrame("EditBox", nil, page["DKP"])
 pageDKPEdit:SetWidth(200)
 pageDKPEdit:SetHeight(200)
 pageDKPEdit:SetFontObject(GameFontNormal)
@@ -1616,7 +1605,7 @@ pageDKPEdit:SetJustifyV("CENTER")
 pageDKPEdit:SetTextColor(1, 1, 1)
 pageDKPEdit:Hide()
 
-local btnPostDKP = CreateFrame("Button", nil, page[pages[3][1]], "UIPanelButtonTemplate")
+local btnPostDKP = CreateFrame("Button", nil, page["DKP"], "UIPanelButtonTemplate")
 btnPostDKP:SetSize(120, 28)
 btnPostDKP:SetPoint("TOPLEFT", 30, -100)
 btnPostDKP.text = btnPostDKP:CreateFontString(nil, "ARTWORK")
@@ -1632,19 +1621,19 @@ btnPostDKP:SetScript("OnClick", function()
 end)
 btnPostDKP:Hide()
 
-local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page[pages[2][1]], "InsetFrameTemplate")
+local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Raid Details"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(194, DNAGlobal.height-5)
 DNAFrameRaidDetailsBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameRaidDetailsBG:SetFrameLevel(2)
 
 for i = 1, 50 do
-  pageRaidDetailsColOne[i] = page[pages[2][1]]:CreateFontString(nil, "ARTWORK")
+  pageRaidDetailsColOne[i] = page["Raid Details"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColOne[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColOne[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 20, (-i*14)-24)
   pageRaidDetailsColOne[i]:SetText("")
   pageRaidDetailsColOne[i]:SetTextColor(1, 1, 1)
 
-  pageRaidDetailsColTwo[i] = page[pages[2][1]]:CreateFontString(nil, "ARTWORK")
+  pageRaidDetailsColTwo[i] = page["Raid Details"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColTwo[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColTwo[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 110, (-i*14)-24)
   pageRaidDetailsColTwo[i]:SetText("")
@@ -1655,7 +1644,7 @@ local DKPViewFrame_w = 400
 local DKPViewFrame_h = 400
 local DKPViewFrame_x = 580
 local DKPViewFrame_y = 100
-local pageDKPView = CreateFrame("Frame", nil, page[pages[3][1]], "InsetFrameTemplate")
+local pageDKPView = CreateFrame("Frame", nil, page["DKP"], "InsetFrameTemplate")
 pageDKPView:SetWidth(DKPViewFrame_w-20)
 pageDKPView:SetHeight(DKPViewFrame_h-40)
 pageDKPView:SetPoint("TOPLEFT", DKPViewFrame_x+5, -DKPViewFrame_y-20)
@@ -1750,16 +1739,16 @@ local function updateSlotPos(role, i, name)
 end
 
 DNAFrameMain:Hide()
-page[pages[3][1]]:Hide()
-page[pages[2][1]]:Hide()
+page["DKP"]:Hide()
+page["Raid Details"]:Hide()
 
-local DNAFrameInstanceBG = CreateFrame("Frame", nil, page[pages[1][1]], "InsetFrameTemplate")
+local DNAFrameInstanceBG = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
 DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-5)
 DNAFrameInstanceBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameInstanceBG:SetFrameLevel(2)
 
 local function instanceButton(name, pos_y, longtext, icon)
-  DNAFrameInstance[name] = CreateFrame("Frame", nil, page[pages[1][1]])
+  DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
   DNAFrameInstance[name]:SetSize(140, 80)
   DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+64)
   DNAFrameInstance[name]:SetBackdrop({
@@ -1805,39 +1794,48 @@ end
 
 InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
 
+local pages = {
+  {"Assignment", 10},
+  {"Raid Details", 100},
+  {"Config", 190},
+  --{"DKP", 190},
+  --{"Loot Log", 280},
+  --{"Config", 370},
+}
+
 local function bottomTabToggle(name)
   for i,v in pairs(pages) do
-    botTab[v[1]]:SetFrameStrata("LOW")
-    botTab[v[1]].text:SetTextColor(0.7, 0.7, 0.7)
+    DNAFrameMainBottomTab[v[1]]:SetFrameStrata("LOW")
+    DNAFrameMainBottomTab[v[1]].text:SetTextColor(0.7, 0.7, 0.7)
     page[v[1]]:Hide()
   end
-  botTab[name]:SetFrameStrata("MEDIUM")
-  botTab[name].text:SetTextColor(1.0, 1.0, 0.5)
+  DNAFrameMainBottomTab[name]:SetFrameStrata("MEDIUM")
+  DNAFrameMainBottomTab[name].text:SetTextColor(1.0, 1.0, 0.5)
   page[name]:Show()
 end
 
 local function bottomTab(name, pos_x, text_pos_x)
-  botTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
-  botTab[name]:SetPoint("BOTTOMLEFT", pos_x, -39)
-  botTab[name]:SetWidth(85)
-  botTab[name]:SetHeight(60)
-  botTab[name]:SetFrameStrata("LOW")
-  botTab[name].text = botTab[name]:CreateFontString(nil, "ARTWORK")
-  botTab[name].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
-  botTab[name].text:SetText(name)
-  botTab[name].text:SetTextColor(0.8, 0.8, 0.8)
-  --botTab[name].text:SetPoint("TOPLEFT", botTab[name], "TOPLEFT", text_pos_x, -26)
-  botTab[name].text:SetPoint("CENTER", botTab[name], "CENTER", 9, 0)
-  botBorder[name] = botTab[name]:CreateTexture(nil, "BORDER", nil, 0)
-  botBorder[name]:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
-  botBorder[name]:SetSize(100, 35)
-  botBorder[name]:SetPoint("TOPLEFT", 0, -14)
-  botTabScript = {}
-  botTabScript[name] = CreateFrame("Button", nil, botTab[name], "UIPanelButtonTemplate")
-  botTabScript[name] = CreateFrame("Button", nil, botTab[name])
-  botTabScript[name]:SetSize(85, 30)
-  botTabScript[name]:SetPoint("CENTER", 0, 0)
-  botTabScript[name]:SetScript("OnClick", function()
+  DNAFrameMainBottomTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
+  DNAFrameMainBottomTab[name]:SetPoint("BOTTOMLEFT", pos_x, -39)
+  DNAFrameMainBottomTab[name]:SetWidth(85)
+  DNAFrameMainBottomTab[name]:SetHeight(60)
+  DNAFrameMainBottomTab[name]:SetFrameStrata("LOW")
+  DNAFrameMainBottomTab[name].text = DNAFrameMainBottomTab[name]:CreateFontString(nil, "ARTWORK")
+  DNAFrameMainBottomTab[name].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  DNAFrameMainBottomTab[name].text:SetText(name)
+  DNAFrameMainBottomTab[name].text:SetTextColor(0.8, 0.8, 0.8)
+  DNAFrameMainBottomTab[name].text:SetPoint("CENTER", DNAFrameMainBottomTab[name], "CENTER", 9, 0)
+
+  local botBorder = DNAFrameMainBottomTab[name]:CreateTexture(nil, "BORDER", nil, 0)
+  botBorder:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
+  botBorder:SetSize(100, 35)
+  botBorder:SetPoint("TOPLEFT", 0, -14)
+  DNAFrameMainBottomTabScript = {}
+  DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name], "UIPanelButtonTemplate")
+  DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name])
+  DNAFrameMainBottomTabScript[name]:SetSize(85, 30)
+  DNAFrameMainBottomTabScript[name]:SetPoint("CENTER", 0, 0)
+  DNAFrameMainBottomTabScript[name]:SetScript("OnClick", function()
     DN:Notification("", false)
     bottomTabToggle(name)
   end)
@@ -1864,7 +1862,7 @@ local thisClass = nil
 
 resetSwapQueues()
 
-local DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page[pages[1][1]], "InsetFrameTemplate")
+local DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page["Assignment"], "InsetFrameTemplate")
 DNARaidScrollFrame:SetWidth(DNARaidScrollFrame_w+20) --add scroll frame width
 DNARaidScrollFrame:SetHeight(DNARaidScrollFrame_h-7)
 DNARaidScrollFrame:SetPoint("TOPLEFT", 220, -80)
@@ -1907,7 +1905,7 @@ function raidSlotFrame(parentFrame, i, y)
   raidSlotOrgPoint_y[i] = -y+17 --top padding
   raidSlot[i]:SetScript("OnDragStart", function()
     raidSlot[i]:StartMoving()
-    raidSlot[i]:SetParent(page[pages[1][1]])
+    raidSlot[i]:SetParent(page["Assignment"])
     raidSlot[i]:SetFrameStrata("DIALOG")
     memberDrag = raidSlot[i].text:GetText()
     resetSwapQueues()
@@ -1956,7 +1954,7 @@ end
 
 local tankSlotOrgPoint_x = {}
 local tankSlotOrgPoint_y = {}
-local tankSlotframe = CreateFrame("Frame", tankSlotframe, page[pages[1][1]], "InsetFrameTemplate")
+local tankSlotframe = CreateFrame("Frame", tankSlotframe, page["Assignment"], "InsetFrameTemplate")
 tankSlotframe:SetWidth(DNARaidScrollFrame_w+6)
 tankSlotframe:SetHeight((DNASlots.tank*20)+4)
 tankSlotframe:SetPoint("TOPLEFT", 400, -80)
@@ -2065,7 +2063,7 @@ end
 
 local healSlotOrgPoint_x = {}
 local healSlotOrgPoint_y = {}
-local healSlotframe = CreateFrame("Frame", healSlotframe, page[pages[1][1]], "InsetFrameTemplate")
+local healSlotframe = CreateFrame("Frame", healSlotframe, page["Assignment"], "InsetFrameTemplate")
 healSlotframe:SetWidth(DNARaidScrollFrame_w+6)
 healSlotframe:SetHeight((DNASlots.heal*20)-2)
 healSlotframe:SetPoint("TOPLEFT", 400, -240)
@@ -2181,7 +2179,7 @@ local viewFrame_w = 400
 local viewFrame_h = 400
 local viewFrame_x = 580
 local viewFrame_y = 100
-local DNAFrameView = CreateFrame("Frame", nil, page[pages[1][1]], "InsetFrameTemplate")
+local DNAFrameView = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
 DNAFrameView:SetWidth(viewFrame_w-20)
 DNAFrameView:SetHeight(viewFrame_h-80)
 DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
@@ -2226,7 +2224,7 @@ DNAFrameViewBossMap:SetSize(380, 320)
 DNAFrameViewBossMap:SetPoint("TOPLEFT", 0, 0)
 DNAFrameViewBossMap:Hide()
 
-local DNAFrameClassAssignView = CreateFrame("Frame", nil, page[pages[1][1]], "InsetFrameTemplate")
+local DNAFrameClassAssignView = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
 DNAFrameView:SetWidth(viewFrame_w-20)
 DNAFrameView:SetHeight(viewFrame_h-80)
 DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
@@ -2313,7 +2311,7 @@ viewFrameBottomTab("Class", 190, 0)
 viewFrameBottomTabToggle("Markers") --default enabled
 
 for i, v in ipairs(DNAInstance) do
-  ddBossList[DNAInstance[i][1]] = CreateFrame("frame", nil, page[pages[1][1]], "UIDropDownMenuTemplate")
+  ddBossList[DNAInstance[i][1]] = CreateFrame("frame", nil, page["Assignment"], "UIDropDownMenuTemplate")
   ddBossList[DNAInstance[i][1]]:SetPoint("TOPLEFT", 680, -90)
   ddBossListText[DNAInstance[i][1]] = ddBossList[DNAInstance[i][1]]:CreateFontString(nil, "ARTWORK")
   ddBossListText[DNAInstance[i][1]]:SetFont(DNAGlobal.font, 12, "OUTLINE")
@@ -2375,7 +2373,7 @@ end
 local btnShare_x = 300
 local btnShare_y = DNAGlobal.height-45
 local btnShare_t = "Push Assignments"
-local btnShare = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
+local btnShare = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
 btnShare:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShare:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShare.text = btnShare:CreateFontString(nil, "ARTWORK")
@@ -2392,7 +2390,7 @@ btnShare:SetScript("OnClick", function()
   end
 end)
 btnShare:Hide()
-local btnShareDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
+local btnShareDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
 btnShareDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShareDis:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShareDis.text = btnShareDis:CreateFontString(nil, "ARTWORK")
@@ -2410,7 +2408,7 @@ end)
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
 local btnPostRaid_t = "Post to Raid"
-local btnPostRaid = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
+local btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
 btnPostRaid:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnPostRaid:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaid.text = btnPostRaid:CreateFontString(nil, "ARTWORK")
@@ -2430,7 +2428,7 @@ btnPostRaid:SetScript("OnClick", function()
     DN:Notification("You are not in a raid!   [E2]", true)
   end
 end)
-local btnPostRaidDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
+local btnPostRaidDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
 btnPostRaidDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnPostRaidDis:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaidDis.text = btnPostRaidDis:CreateFontString(nil, "ARTWORK")
@@ -2451,7 +2449,7 @@ for i,v in pairs(pages) do
 end
 
 --default selection after drawn
-bottomTabToggle(pages[1][1])
+bottomTabToggle("Assignment")
 ddBossList[DNAInstance[1][1]]:Show() -- show first one
 
 --[==[
@@ -2482,9 +2480,9 @@ SecureCmdList["MAINTANKOFF"] = function(msg)
 	end
 end
 
---local secBtn = CreateFrame("Button", nil, page[pages[1][1]], 'SecureActionButtonTemplate')
---local secBtn = CreateFrame("Button", "secrun", page[pages[1][1]], 'InsecureActionButtonTemplate')
-local secBtn = CreateFrame("Button", "secrun", page[pages[1][1]], 'InsecureActionButtonTemplate')
+--local secBtn = CreateFrame("Button", nil, page["Assignment"], 'SecureActionButtonTemplate')
+--local secBtn = CreateFrame("Button", "secrun", page["Assignment"], 'InsecureActionButtonTemplate')
+local secBtn = CreateFrame("Button", "secrun", page["Assignment"], 'InsecureActionButtonTemplate')
 secBtn:SetSize(80, 20)
 secBtn:SetPoint("TOPLEFT", 0, 0)
 secBtn.text = secBtn:CreateFontString(nil, "ARTWORK")
