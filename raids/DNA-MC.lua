@@ -114,10 +114,23 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i] .. "," .. raid.mage[i]
+      heal[i] = healer.paladin[i] .. "," .. healer.priest[i]
     end
 
     text[5] = "Raid: Mages & Druids decurse!"
+
+    for i=1, NUM_ADDS+1 do
+      --mark[i] = DNARaidMarkers[i][2]
+      text[i+5] = tank.all[i]
+      if (raid.mage[i]) then
+        heal[i+5] = raid.mage[i]
+      else
+        if (healer.druid[i]) then
+          heal[i+5] = healer.druid[i]
+        end
+      end
+    end
+
     --[==[
     num_healers_dr = table.getn(healer.druid)
     for i=1, num_healers_dr do

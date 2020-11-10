@@ -63,7 +63,8 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       heal[i] = healer.all[i]
 
       if (raid.mage[i]) then
-        mark[i+NUM_ADDS+1] = "Interface/Icons/spell_holy_dizzy"
+        --mark[i+NUM_ADDS+1] = "Interface/Icons/spell_holy_dizzy"
+        mark[i+NUM_ADDS+1] = DNARaidMarkers[i+1][2]
         text[i+NUM_ADDS+1] = "Detect Magic"
         heal[i+NUM_ADDS+1] = raid.mage[i]
       end
