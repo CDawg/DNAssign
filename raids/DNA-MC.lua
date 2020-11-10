@@ -14,13 +14,13 @@ the copyright holders.
 
 local bossList = {
   "MC", --key
-  "Trash MC",
+  "_Trash MC_",
   "Lucifron",
-  "Dogpack",
+  "_Dogpack_",
   "Magmadar",
   "Gehennas",
   "Garr",
-  "Lava Pack",
+  "_Lava Pack_",
   "Sulfuron",
   "Golemagg",
   "Majordomo Executus",
@@ -33,6 +33,8 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros",
   "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore",
 }
+
+table.insert(DNARaidBossesNew, bossList)
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 

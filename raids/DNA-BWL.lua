@@ -37,6 +37,8 @@ local instanceDetails = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
+local note_color = "|cffbebebe"
+
 function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
@@ -57,17 +59,17 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     table.merge(vael_heals, healer.priest)
     table.merge(vael_heals, healer.druid)
     for i=1, table.getn(healer.paladin) do
-      if (i <= 4) then --max at 4 pally healers
+      --if (i <= 4) then --max at 4 pally healers
         healer_row = healer_row .. healer.paladin[i] .. ","
-      end
+      --end
     end
     for i=1, 3 do
       text[i] = tank.all[i]
       heal[i] = healer_row
     end
-    text[5] = "-- RAID HEALS --"
     for i=1, table.getn(vael_heals) do
-      text[i+5] = vael_heals[i]
+      text[i+4] = "RAID HEAL"
+      heal[i+4] = vael_heals[i]
     end
   end
 
@@ -149,8 +151,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       heal[i] = healer.all[i]
     end
 
-    text[8] = "-- PULL --"
-    heal[8] = "-- TANK --"
+    text[8] = note_color .. "-- PULL --"
+    heal[8] = note_color .. "-- TANK --"
 
     for i=1, 4 do
       if (raid.hunter[i]) then
@@ -164,29 +166,33 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   if (isItem(assign, "Firemaw")) then
     DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
     DNABossMap = DNAGlobal.dir .. "images/bwl_firemaw"
+    mark[1] = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
     text[1] = tank.all[1]
-    heal[1] = healer.paladin[1] .. "," .. healer.paladin[2] .. "," .. healer.priest[1]
+    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     if (tank.all[3]) then
-      text[3] = "-- Stack Rotation Relief --"
+      text[3] = "-- STACK ROTATION RELIEF / RANGE SIDE --"
+      mark[4] = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
       text[4] = tank.all[3]
-      heal[4] = healer.paladin[1] .. "," .. healer.paladin[2] .. "," .. healer.priest[1]
+      heal[4] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     end
-    text[6] = "-- Wingbuff --"
+    text[6] = "-- WINGBUFF / MELEE SIDE --"
+    mark[7] = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
     text[7] = tank.all[2]
-    heal[7] = healer.paladin[3] .. "," .. healer.priest[2] .. "," .. healer.priest[3]
+    heal[7] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
 
-    text[9] = "-- RANGE HEALERS --"
-    text[10] = healer.priest[4]
+    if (healer.paladin[3]) then
+      text[9] = "RANGE HEAL"
+      heal[9] = healer.paladin[3]
+    end
+    if (healer.druid[1]) then
+      text[10] = "MELEE HEAL"
+      heal[10] = healer.druid[1]
+    end
 
-    text[12] = "-- MELEE HEALERS --"
     local firemaw_heals = {}
     table.merge(firemaw_heals, healer.all)
-    --[==[
-    for i=1, table.getn(firemaw_heals) do
-      print("before :" .. i .. firemaw_heals[i])
-    end
-    ]==]--
     --remove the assigned healers
+    removeValueFromArray(firemaw_heals, healer.druid[1])
     removeValueFromArray(firemaw_heals, healer.paladin[1])
     removeValueFromArray(firemaw_heals, healer.paladin[2])
     removeValueFromArray(firemaw_heals, healer.paladin[3])
@@ -194,15 +200,10 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     removeValueFromArray(firemaw_heals, healer.priest[2])
     removeValueFromArray(firemaw_heals, healer.priest[3])
     removeValueFromArray(firemaw_heals, healer.priest[4])
-
-    --[==[
-    for i=1, table.getn(firemaw_heals) do
-      print("after :" .. i .. firemaw_heals[i])
-    end
-    ]==]--
     for i=1, table.getn(firemaw_heals) do
       if (firemaw_heals[i]) then
-        text[i+12] = firemaw_heals[i]
+        text[i+11] = "MELEE HEAL"
+        heal[i+11] = firemaw_heals[i]
       end
     end
   end
@@ -225,14 +226,16 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+      heal[i] = healer.all[i] .. "," .. healer.all[i+2]
     end
     text[5] = "-- BACKUP --"
     for i=1, NUM_ADDS do
       mark[i+5] = DNARaidMarkers[i+1][2]
       text[i+5] = tank.all[i+3]
-      heal[i+5] = healer.all[i+3]
+      heal[i+5] = healer.all[i+5]
     end
+
+    text[10] = "Tanks: Equip shields!"
   end
 
   if (isItem(assign, "Ebonroc")) then
@@ -240,9 +243,12 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     DNABossMap = DNAGlobal.dir .. "images/bwl_ebonroc"
     text[1] = tank.all[1]
     heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
-    text[3] = "-- Wingbuff --"
+    text[3] = "-- WINGBUFF --"
     text[4] = tank.all[2]
     heal[4] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
+    text[6] = "-- CURSE RELIEF (OPTIONAL) --"
+    text[7] = tank.all[3]
+    heal[7] = healer.all[7] .. "," .. healer.all[8] .. "," .. healer.all[9]
   end
 
   if (isItem(assign, "Flamegor")) then
@@ -250,7 +256,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     DNABossMap = DNAGlobal.dir .. "images/bwl_flamegor"
     text[1] = tank.all[1]
     heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
-    text[3] = "-- Wingbuff --"
+    text[3] = "-- WINGBUFF --"
     text[4] = tank.all[2]
     heal[4] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
 
@@ -265,10 +271,10 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Chromaggus"
     DNABossMap = DNAGlobal.dir .. "images/bwl_Chromaggus"
     text[1] = tank.all[1]
-    heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
-    text[3] = "-- Time Lapse --"
+    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
+    text[3] = note_color .. "-- TIME LAPSE / MELEE --"
     text[4] = tank.all[2]
-    heal[4] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
+    heal[4] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
   end
 
   if (isItem(assign, "Nefarian")) then

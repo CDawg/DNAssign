@@ -185,7 +185,7 @@ local function getRaidComp()
     DNARaid["member"][13] = "Whistper"
     DNARaid["member"][14] = "Zarianna"
     DNARaid["member"][15] = "Averglade"
-    DNARaid["member"][16] = "Roaxe"
+    DNARaid["member"][16] = "Toaxe"
     DNARaid["member"][17] = "Krizzu"
     DNARaid["member"][18] = "Alectar"
     DNARaid["member"][19] = "Snibson"
@@ -479,7 +479,6 @@ local function clearFrameView()
     DNAFrameViewScrollChild_tank[i]:SetText("")
     DNAFrameViewScrollChild_heal[i]:SetText("")
   end
-  --ddBossListText[DNARaidBosses[1][1]]:SetText("Select a boss")
   if (DEBUG) then
     print("DEBUG: clearFrameView()")
   end
@@ -1130,6 +1129,7 @@ local function buildRaidAssignments(packet, author, source)
     DNAFrameAssignTabIcon["map"]:SetTexture(DNABossMap) --update the little assign tab icon
     if (IsInRaid()) then
       DNAFrameAssignMapGroupID:SetText(player.name .. " is in group " .. DNARaid["groupid"][player.name])
+      --DNAFrameAssignMapGroupID:SetText("You are a " .. DNARaid["class"][player.name])
     end
   end
   if (author ~= nil) then
@@ -1197,12 +1197,18 @@ DNAMain:RegisterEvent("CHAT_MSG_LOOT")
 
 DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if ((event == "ADDON_LOADED") and (prefix == "DNA")) then
-    DN:BuildGlobal()
+    DN:BuildGlobalVars()
+    if (DEBUG) then
+      print("DEBUG: " .. event)
+    end
   end
 
   if (event == "PLAYER_LOGIN") then
-    DN:BuildGlobal()
+    DN:BuildGlobalVars()
     DN:SetVars()
+    if (DEBUG) then
+      print("DEBUG: " .. event)
+    end
   end
 
   --[==[
@@ -1537,10 +1543,10 @@ DNAFrameMainNotif:SetBackdropBorderColor(1, 0, 0)
 DNAFrameMainNotif:SetBackdropColor(1, 0.2, 0.2, 1)
 DNAFrameMainNotif:Hide()
 
-page["Raid Details"] = CreateFrame("Frame", nil, DNAFrameMain)
-page["Raid Details"]:SetWidth(DNAGlobal.width)
-page["Raid Details"]:SetHeight(DNAGlobal.height)
-page["Raid Details"]:SetPoint("TOPLEFT", 0, 0)
+page["Raid Builder"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Raid Builder"]:SetWidth(DNAGlobal.width)
+page["Raid Builder"]:SetHeight(DNAGlobal.height)
+page["Raid Builder"]:SetPoint("TOPLEFT", 0, 0)
 
 page["DKP"] = CreateFrame("Frame", nil, DNAFrameMain)
 page["DKP"]:SetWidth(DNAGlobal.width)
@@ -1621,19 +1627,19 @@ btnPostDKP:SetScript("OnClick", function()
 end)
 btnPostDKP:Hide()
 
-local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Raid Details"], "InsetFrameTemplate")
+local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Raid Builder"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(194, DNAGlobal.height-5)
 DNAFrameRaidDetailsBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameRaidDetailsBG:SetFrameLevel(2)
 
 for i = 1, 50 do
-  pageRaidDetailsColOne[i] = page["Raid Details"]:CreateFontString(nil, "ARTWORK")
+  pageRaidDetailsColOne[i] = page["Raid Builder"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColOne[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColOne[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 20, (-i*14)-24)
   pageRaidDetailsColOne[i]:SetText("")
   pageRaidDetailsColOne[i]:SetTextColor(1, 1, 1)
 
-  pageRaidDetailsColTwo[i] = page["Raid Details"]:CreateFontString(nil, "ARTWORK")
+  pageRaidDetailsColTwo[i] = page["Raid Builder"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColTwo[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColTwo[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 110, (-i*14)-24)
   pageRaidDetailsColTwo[i]:SetText("")
@@ -1740,7 +1746,7 @@ end
 
 DNAFrameMain:Hide()
 page["DKP"]:Hide()
-page["Raid Details"]:Hide()
+page["Raid Builder"]:Hide()
 
 local DNAFrameInstanceBG = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
 DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-5)
@@ -1796,7 +1802,7 @@ InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
 
 local pages = {
   {"Assignment", 10},
-  {"Raid Details", 100},
+  {"Raid Builder", 100},
   {"Config", 190},
   --{"DKP", 190},
   --{"Loot Log", 280},
@@ -2189,13 +2195,13 @@ DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
 DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 5)
 local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
 DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
-DNAViewScrollChildFrame.bg = DNAViewScrollChildFrame:CreateTexture(nil, "BACKGROUND")
-DNAViewScrollChildFrame.bg:SetAllPoints(true)
+--DNAViewScrollChildFrame.bg = DNAViewScrollChildFrame:CreateTexture(nil, "BACKGROUND")
+--DNAViewScrollChildFrame.bg:SetAllPoints(true)
 --DNAViewScrollChildFrame.bg:SetColorTexture(0.2, 0.6, 0, 0.4)
 DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
 DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -150, -16)
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 106, 14)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 6, 14)
 DNAFrameView.MR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
 DNAFrameView.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNAFrameView.MR:SetPoint("TOPLEFT", 354, -2)
@@ -2333,8 +2339,18 @@ for i, v in ipairs(DNAInstance) do
   	local info = UIDropDownMenu_CreateInfo()
     for ddKey, ddVal in pairs(DNARaidBosses[instanceNum]) do
       if (ddKey ~= 1) then --remove first key
-        info.text = ddVal
-      	info.value= ddVal
+        info.notCheckable = 1
+        --info.text = ddVal
+      	--info.value= ddVal
+        --info.icon = "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_8"
+        info.padding = 10
+        info.text = string.gsub(ddVal, "_", "")
+        info.value= string.gsub(ddVal, "_", "")
+        info.colorCode = "|cffffffff"
+        if (string.sub(ddVal, 1, 1) == "_") then
+          info.colorCode = "|cfff2bd63"
+          --info.icon = ""
+        end
       	info.func = self.onClick
       	UIDropDownMenu_AddButton(info, level)
       end
@@ -2373,7 +2389,7 @@ end
 local btnShare_x = 300
 local btnShare_y = DNAGlobal.height-45
 local btnShare_t = "Push Assignments"
-local btnShare = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
+local btnShare = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
 btnShare:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShare:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShare.text = btnShare:CreateFontString(nil, "ARTWORK")
@@ -2390,7 +2406,7 @@ btnShare:SetScript("OnClick", function()
   end
 end)
 btnShare:Hide()
-local btnShareDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
+local btnShareDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
 btnShareDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShareDis:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShareDis.text = btnShareDis:CreateFontString(nil, "ARTWORK")

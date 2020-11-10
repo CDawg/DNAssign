@@ -16,7 +16,7 @@ DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 18
+DNAGlobal.vminor  = 191
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
@@ -88,9 +88,11 @@ function table.merge(t1, t2)
 end
 
 function removeValueFromArray(array, value)
-  remove_key = singleKeyFromValue(array, value)
-  array[remove_key] = nil
-  reindexArray(array, array)
+  if (value) then
+    remove_key = singleKeyFromValue(array, value)
+    array[remove_key] = nil
+    reindexArray(array, array)
+  end
 end
 
 player = {}
@@ -108,12 +110,13 @@ DNASlots.heal = 12
 
 DNAInstance = {}
 DNARaidBosses = {}
+DNARaidBossesNew = {}
 
 function DN:ChatNotification(msg)
   print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
 end
 
-function DN:BuildGlobal()
+function DN:BuildGlobalVars()
   if (DNA == nil) then
     DNA = {}
   end
