@@ -92,6 +92,9 @@ local pageRaidDetailsColTwo = {}
 local DNAFrameAssignTabIcon = {}
 local DNAFrameAssignMapGroupID={}
 
+local DNAFrameAssignPersonal_w = 320 --MIN WIDTH, length may depend on the string length
+local DNAFrameAssignPersonal_h = 80
+
 local invited={}
 
 local function getGuildComp()
@@ -190,7 +193,7 @@ local function getRaidComp()
     DNARaid["member"][13] = "Whistper"
     DNARaid["member"][14] = "Zarianna"
     DNARaid["member"][15] = "Averglade"
-    DNARaid["member"][16] = "Toaxe"
+    DNARaid["member"][16] = "Addontesterc"
     DNARaid["member"][17] = "Krizzu"
     DNARaid["member"][18] = "Alectar"
     DNARaid["member"][19] = "Snibson"
@@ -494,6 +497,11 @@ local function clearFrameAssignPersonal()
   DNAFrameAssignPersonalMark:SetTexture("")
   DNAFrameAssignPersonalColOne:SetText("")
   DNAFrameAssignPersonalColTwo:SetText("")
+  DNAFrameAssignPersonalClass:SetText("")
+  --reset the window positioning, similar to a chat bubble
+  DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
+  DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
+  DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
 end
 
 local function InstanceButtonToggle(name, icon)
@@ -633,8 +641,7 @@ DNAFrameAssignBossIcon:SetSize(90, 50)
 DNAFrameAssignBossIcon:SetPoint("TOPLEFT", 25, -20)
 DNAFrameAssignBossIcon:SetTexture("")
 
-local DNAFrameAssignPersonal_w = 300
-local DNAFrameAssignPersonal_h = 50
+
 DNAFrameAssignPersonal = CreateFrame("Frame", nil, UIParent)
 DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
 DNAFrameAssignPersonal:SetHeight(DNAFrameAssignPersonal_h)
@@ -670,7 +677,7 @@ DNAFrameAssignPersonal.headerText:SetTextColor(1, 1, 0.4)
 DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal)
 DNAFrameAssignPersonal.close:SetWidth(25)
 DNAFrameAssignPersonal.close:SetHeight(25)
-DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal_w-20, 4)
+DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-10, 4)
 DNAFrameAssignPersonal.close:SetFrameLevel(4)
 DNAFrameAssignPersonal.close:SetBackdrop({
   bgFile = "Interface/Buttons/UI-Panel-MinimizeButton-Up",
@@ -694,6 +701,10 @@ DNAFrameAssignPersonalColTwo = DNAFrameAssignPersonal:CreateFontString(nil, "ART
 DNAFrameAssignPersonalColTwo:SetFont(DNAGlobal.font, 12, "OUTLINE")
 DNAFrameAssignPersonalColTwo:SetPoint("TOPLEFT", 125, -25)
 DNAFrameAssignPersonalColTwo:SetText("")
+DNAFrameAssignPersonalClass = DNAFrameAssignPersonal:CreateFontString(nil, "ARTWORK")
+DNAFrameAssignPersonalClass:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAFrameAssignPersonalClass:SetPoint("TOPLEFT", 20, -50)
+DNAFrameAssignPersonalClass:SetText("")
 
 --hack, have to create a frame due to the tab clipping over
 local DNAFrameAssignBossMapFrame = CreateFrame("Frame", nil, DNAFrameAssignPage["map"], "InsetFrameTemplate")
@@ -1044,8 +1055,30 @@ local function buildRaidAssignments(packet, author, source)
             DNAFrameAssignPersonalColTwo:SetText(filter_row)
             assign_lock[player.name] = 1
             DNAFrameAssignPersonal:Show()
+            print(string.len(filter_row)) --increase the width of the window
+            if (string.len(filter_row) > 40) then
+              DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row))
+              DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
+              DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+            end
           end
         end
+      end
+
+      --class notes
+      local my_class = DNARaid["class"][player.name]
+      local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
+      if (class_message ~= "") then
+        class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
+        local max_class_message_length = class_message:sub(1, 80)
+        if (string.len(max_class_message_length)) then
+          DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
+          DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
+          DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+        end
+        DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
+        DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
+        DNAFrameAssignPersonal:Show()
       end
 
       --print(filter_row)

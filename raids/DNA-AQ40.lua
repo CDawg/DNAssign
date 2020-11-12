@@ -39,6 +39,8 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
+  local note_color = "|cffd0c1da"
+  local fearward={}
 
   if (isItem(assign, "Anubisath Sentinels")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
