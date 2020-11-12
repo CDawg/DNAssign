@@ -64,6 +64,22 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
       text[i+NUM_ADDS*2] = "MC Dispells"
       heal[i+NUM_ADDS*2] = healer.priest[i]
     end
+    if (raid.mage[1]) then
+      mark[9] = "Interface/Icons/spell_nature_removecurse"
+      text[9] = "Decruse"
+      heal[9] = raid.mage[1]
+    end
+    if (raid.mage[2]) then
+      mark[10] = "Interface/Icons/spell_nature_removecurse"
+      text[10] = "Decruse"
+      heal[10] = raid.mage[2]
+    end
+    if (raid.mage[3]) then
+      mark[11] = "Interface/Icons/spell_nature_removecurse"
+      text[11] = "Decruse"
+      heal[11] = raid.mage[3]
+    end
+
     mark[1] = DNABossIcon
   end
 
@@ -113,7 +129,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
       heal[i] = healer.paladin[i] .. "," .. healer.priest[i]
     end
 
-    text[5] = "Raid: Mages & Druids decurse!"
+    text[5] = note_color .. "Mages and Druids decurse!"
 
     for i=1, NUM_ADDS+1 do
       --mark[i] = DNARaidMarkers[i][2]

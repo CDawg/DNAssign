@@ -38,9 +38,9 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-local note_color = "|cffbebebe"
-
 function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
+  local note_color = "|cffd0c1da"
+  local fearward={}
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
   if (isItem(assign, "Razorgore")) then
@@ -67,7 +67,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       heal[i] = healer_row
     end
     for i=1, table.getn(vael_heals) do
-      text[i+4] = "RAID HEAL"
+      text[i+4] = note_color .. "RAID HEAL"
       heal[i+4] = vael_heals[i]
     end
   end
@@ -115,7 +115,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
         heal[7] = dpack_heals[7]
       end
     end
-    text[9] = "Extra marks provided for Crowd Control"
+    text[9] = note_color .. "Extra marks provided for Crowd Control"
   end
 
   if (isItem(assign, "Suppression Room")) then
@@ -125,7 +125,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, DNASlots.tank do
       if ((DNARaid["class"][tank.main[i]] == "Paladin") or (DNARaid["class"][tank.main[i]] == "Druid")) then
         text[1] = "Whelps"
-        heal[1] = tank.main[i]
+        heal[1] = tank.main[i] .. "," .. healer.all[4]
       end
     end
     for i=1, NUM_ADDS do
@@ -157,6 +157,22 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
         heal[i+8] = tank.all[i]
       end
     end
+    if (healer.all[7]) then
+      text[13] = note_color .. "Mage heal"
+      heal[13] = healer.all[7]
+    end
+    if (healer.all[8]) then
+      text[14] = note_color .. "Mage heal"
+      heal[14] = healer.all[8]
+    end
+    if (healer.all[9]) then
+      text[15] = note_color .. "Mage heal"
+      heal[15] = healer.all[9]
+    end
+    if (healer.all[10]) then
+      text[16] = note_color .. "Mage heal"
+      heal[16] = healer.all[10]
+    end
   end
 
   if (isItem(assign, "Firemaw")) then
@@ -165,23 +181,18 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     text[1] = tank.all[1]
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     if (tank.all[3]) then
-      text[3] = "-- STACK ROTATION RELIEF / RANGE SIDE --"
-      mark[4] = DNABossIcon
-      text[4] = tank.all[3]
-      heal[4] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
+      mark[2] = DNABossIcon
+      text[2] = tank.all[2]
+      heal[2] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     end
-    text[6] = "-- WINGBUFF / MELEE SIDE --"
-    mark[7] = DNABossIcon
-    text[7] = tank.all[2]
-    heal[7] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
+    text[4] = "-- WINGBUFF / MELEE SIDE --"
+    mark[5] = DNABossIcon
+    text[5] = tank.all[3]
+    heal[5] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
 
-    if (healer.paladin[3]) then
-      text[9] = "RANGE HEAL"
-      heal[9] = healer.paladin[3]
-    end
     if (healer.druid[1]) then
-      text[10] = "MELEE HEAL"
-      heal[10] = healer.druid[1]
+      text[8] = note_color .. "MELEE HEAL"
+      heal[8] = healer.druid[1]
     end
 
     local firemaw_heals = {}
@@ -190,15 +201,14 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     removeValueFromArray(firemaw_heals, healer.druid[1])
     removeValueFromArray(firemaw_heals, healer.paladin[1])
     removeValueFromArray(firemaw_heals, healer.paladin[2])
-    removeValueFromArray(firemaw_heals, healer.paladin[3])
     removeValueFromArray(firemaw_heals, healer.priest[1])
     removeValueFromArray(firemaw_heals, healer.priest[2])
     removeValueFromArray(firemaw_heals, healer.priest[3])
     removeValueFromArray(firemaw_heals, healer.priest[4])
     for i=1, table.getn(firemaw_heals) do
       if (firemaw_heals[i]) then
-        text[i+11] = "MELEE HEAL"
-        heal[i+11] = firemaw_heals[i]
+        text[i+8] = note_color .. "RANGE HEAL"
+        heal[i+8] = firemaw_heals[i]
       end
     end
   end
@@ -219,13 +229,13 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i] .. "," .. healer.all[i+2]
+      heal[i] = healer.all[i] .. "," .. healer.all[i+3]
     end
     text[5] = "-- BACKUP --"
     for i=1, NUM_ADDS do
       mark[i+5] = DNARaidMarkers[i+1][2]
       text[i+5] = tank.all[i+3]
-      heal[i+5] = healer.all[i+5]
+      heal[i+5] = healer.all[i+6]
     end
 
     text[10] = "Tanks: Equip shields!"
@@ -264,10 +274,50 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     text[3] = note_color .. "-- TIME LAPSE / MELEE --"
     text[4] = tank.all[2]
-    heal[4] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
+    if (healer.druid[1]) then
+      heal[4] = healer.druid[1] .. "," .. healer.paladin[2]
+    else
+      heal[4] = healer.priest[3] .. "," .. healer.paladin[2]
+    end
+
+    text[6] = note_color .. "Rest of healers on range side."
+    text[7] = note_color .. "Paladins/Druids cleanse poison."
   end
 
   if (isItem(assign, "Nefarian")) then
     DNABossMap = DNAGlobal.dir .. "images/bwl_Nefarian"
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = healer.paladin[1] .. "," .. healer.paladin[2] .. "," .. healer.priest[1]
+
+    --fear warders
+    for i=1, DNASlots.heal do
+      if ((DNARaid["class"][healer.all[i]] == "Priest") and (DNARaid["race"][healer.all[i]] == "Dwarf")) then
+        fearward[i] = healer.all[i]
+      end
+    end
+    local i = 0
+    for k,v in pairs(fearward) do
+      i = i + 1
+      mark[i+1] = "Interface/Icons/spell_holy_excorcism"
+      text[i+1] = note_color .. "Fear Ward"
+      heal[i+1] = v
+    end
+
+    if (raid.mage[1]) then
+      mark[6] = "Interface/Icons/spell_nature_removecurse"
+      text[6] = "Decruse"
+      heal[6] = raid.mage[1]
+    end
+    if (raid.mage[2]) then
+      mark[7] = "Interface/Icons/spell_nature_removecurse"
+      text[7] = "Decruse"
+      heal[7] = raid.mage[2]
+    end
+    if (raid.mage[3]) then
+      mark[8] = "Interface/Icons/spell_nature_removecurse"
+      text[8] = "Decruse"
+      heal[8] = raid.mage[3]
+    end
   end
 end

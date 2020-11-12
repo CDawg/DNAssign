@@ -1221,76 +1221,70 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
-      --[==[
-      if (string.sub(netpacket, 1, 1) == "V") then
-        netpacket = string.gsub(netpacket, "V", "")
-        DNAFrameClassAssignEdit["Tank"]:SetText(netpacket)
-        print("Tank: " .. netpacket)
-        return true
-      end
+      local hasClassAssigns = false
 
-      if (string.sub(netpacket, 1, 1) == "U") then
-        netpacket = string.gsub(netpacket, "U", "")
-        DNAFrameClassAssignEdit["Heal"]:SetText(netpacket)
-        print("Heal: " .. netpacket)
-        return true
-      end
-      ]==]--
-
-      if (string.sub(netpacket, 1, 1) == "W") then
-        netpacket = string.gsub(netpacket, "W", "")
+      classCode = "0xEFWa"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Warrior"]:SetText(netpacket)
         print("Warriors: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "M") then
-        netpacket = string.gsub(netpacket, "M", "")
+      classCode = "0xEFMa"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Mage"]:SetText(netpacket)
         print("Mages: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "H") then
-        netpacket = string.gsub(netpacket, "H", "")
+      classCode = "0xEFHu"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Hunter"]:SetText(netpacket)
         print("Hunters: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "A") then
-        netpacket = string.gsub(netpacket, "A", "")
+      classCode = "0xEFLo"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Warlock"]:SetText(netpacket)
         print("Warlocks: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "P") then
-        netpacket = string.gsub(netpacket, "P", "")
+      classCode = "0xEFPa"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Paladin"]:SetText(netpacket)
         print("Paladins: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "R") then
-        netpacket = string.gsub(netpacket, "R", "")
+      classCode = "0xEFRo"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Rogue"]:SetText(netpacket)
         print("Rogues: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "I") then
-        netpacket = string.gsub(netpacket, "I", "")
+      classCode = "0xEFPr"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Priest"]:SetText(netpacket)
         print("Priests: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
-      if (string.sub(netpacket, 1, 1) == "D") then
-        netpacket = string.gsub(netpacket, "D", "")
+      classCode = "0xEFDr"
+      if (string.sub(netpacket, 1, 6) == classCode) then
+        netpacket = string.gsub(netpacket, classCode, "")
         DNAFrameClassAssignEdit["Druid"]:SetText(netpacket)
         print("Druids: " .. netpacket)
-        return true
+        hasClassAssigns = true
       end
 
       if (string.sub(netpacket, 1, 1) == "&") then
@@ -1303,6 +1297,11 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         raidReadyClear()
         return true
       end
+
+      if (hasClassAssigns) then
+        return true
+      end
+
       if (string.sub(netpacket, 1, 1) == "#") then
         netpacket = string.gsub(netpacket, "#", "")
         --if (version_checked <= 0) then
@@ -1348,7 +1347,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
       ]==]--
-      if (string.sub(netpacket, 1, 1) == "@") then
+      if (string.sub(netpacket, 1, 1) == "@") then --DKP
         netpacket = string.gsub(netpacket, "@", "")
         --DNAFrameAssign:Show()
         --print("DKP Pushed: " .. netpacket)
@@ -1462,7 +1461,8 @@ function DN:SetVars()
     InstanceButtonToggle(DNAInstance[instanceNum][1], DNAInstance[instanceNum][5])
     for i, v in ipairs(DNAInstance) do
       ddBossList[DNAInstance[i][1]]:Hide()
-      ddBossListText[DNAInstance[i][1]]:SetText("Select a boss")
+      --ddBossListText[DNAInstance[i][1]]:SetText("Select a boss")
+      DN:Notification("Please select a boss or trash pack!          [E8]", true)
     end
     ddBossList[DNAInstance[instanceNum][1]]:Show()
   end
@@ -2493,36 +2493,33 @@ btnPostRaid:SetScript("OnClick", function()
   if (IsInRaid()) then
     DN:RaidSendAssignments()
     if (raidSelection == nil) then
-      DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
+      --DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
+      DN:Notification("Please select a boss or trash pack!          [E9]", true)
     else
-      --[==[
-      if (DNAFrameClassAssignEdit["Tank"]:GetText()) then
-        DN:SendPacket("send", "V" .. DNAFrameClassAssignEdit["Tank"]:GetText(), false)
+      --MSG_
+      if (DNAFrameClassAssignEdit["Warrior"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFWa" .. DNAFrameClassAssignEdit["Warrior"]:GetText(), false)
       end
-      if (DNAFrameClassAssignEdit["Heal"]:GetText()) then
-        DN:SendPacket("send", "U" .. DNAFrameClassAssignEdit["Heal"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Mage"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFMa" .. DNAFrameClassAssignEdit["Mage"]:GetText(), false)
       end
-      ]==]--
-      if (DNAFrameClassAssignEdit["Warrior"]:GetText()) then
-        DN:SendPacket("send", "W" .. DNAFrameClassAssignEdit["Warrior"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Hunter"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFHu" .. DNAFrameClassAssignEdit["Hunter"]:GetText(), false)
       end
-      if (DNAFrameClassAssignEdit["Hunter"]:GetText()) then
-        DN:SendPacket("send", "H" .. DNAFrameClassAssignEdit["Hunter"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Warlock"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFLo" .. DNAFrameClassAssignEdit["Warlock"]:GetText(), false)
       end
-      if (DNAFrameClassAssignEdit["Rogue"]:GetText()) then
-        DN:SendPacket("send", "R" .. DNAFrameClassAssignEdit["Rogue"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Paladin"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFPa" .. DNAFrameClassAssignEdit["Paladin"]:GetText(), false)
       end
-      if (DNAFrameClassAssignEdit["Priest"]:GetText()) then
-        DN:SendPacket("send", "I" .. DNAFrameClassAssignEdit["Priest"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Rogue"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFRo" .. DNAFrameClassAssignEdit["Rogue"]:GetText(), false)
       end
-      if (DNAFrameClassAssignEdit["Druid"]:GetText()) then
-        DN:SendPacket("send", "D" .. DNAFrameClassAssignEdit["Druid"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Priest"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFPr" .. DNAFrameClassAssignEdit["Priest"]:GetText(), false)
       end
-      if (DNAFrameClassAssignEdit["Paladin"]:GetText()) then
-        DN:SendPacket("send", "P" .. DNAFrameClassAssignEdit["Paladin"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Warlock"]:GetText()) then
-        DN:SendPacket("send", "A" .. DNAFrameClassAssignEdit["Warlock"]:GetText(), false)
+      if (DNAFrameClassAssignEdit["Druid"]:GetText() ~= "") then
+        DN:SendPacket("send", "0xEFDr" .. DNAFrameClassAssignEdit["Druid"]:GetText(), false)
       end
       DN:SendPacket("send", "&" .. raidSelection .. "," .. player.name, true) --openassignments
       DoReadyCheck()
@@ -2620,7 +2617,7 @@ local function DNAOpenWindow()
   else
     windowOpen = true
     DNAFrameMain:Show()
-    DNAFrameAssign:Show()
+    --DNAFrameAssign:Show()
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
     DN:SetVars()

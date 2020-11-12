@@ -65,7 +65,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       heal[i] = tank.all[i]
     end
 
-    text[6] = "Rogues use mind numbing poison on offhand."
+    text[6] = note_color .. "Rogues use mind numbing poison on offhand."
   end
 
   if (isItem(assign, "Mindflayer Pack")) then
