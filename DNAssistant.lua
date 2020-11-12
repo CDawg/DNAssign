@@ -52,7 +52,6 @@ total.range = 0
 total.raid = 0
 
 local raidSelection = nil
-local viewFrameLines = 20 --also setup the same for the assign window
 
 local DNAFrameMainBottomTab = {}
 
@@ -80,6 +79,12 @@ local DNAFrameInstance = {}
 local DNAFrameInstanceText={}
 local DNAFrameInstanceScript={}
 local DNAFrameInstanceGlow={}
+
+local DNAFrameView = {}
+local DNAFrameViewBG = {}
+
+local DNAFrameClassAssignEdit={}
+--local DNAFrameClassAssignHidden={}
 
 local pageRaidDetailsColOne = {}
 local pageRaidDetailsColTwo = {}
@@ -297,21 +302,6 @@ local function getRaidComp()
 
 end
 
---[==[
-local DNAFrameMainOpen = CreateFrame("Button", nil, UIParent)
-DNAFrameMainOpen:SetWidth(80)
-DNAFrameMainOpen:SetHeight(40)
-DNAFrameMainOpen:SetPoint("TOPLEFT", 220, 10)
-local DNAFrameMainOpenBG = DNAFrameMainOpen:CreateTexture(nil, "ARTWORK")
-DNAFrameMainOpenBG:SetTexture("Interface/ExtraButton/GarrZoneAbility-MageTower")
-DNAFrameMainOpenBG:SetSize(80, 40)
-DNAFrameMainOpenBG:SetPoint("TOPLEFT", -5, 0)
-local DNAFrameMainOpenIcon = DNAFrameMainOpen:CreateTexture(nil, "ARTWORK", DNAFrameMainOpenBG, -4)
-DNAFrameMainOpenIcon:SetTexture("Interface/Icons/Spell_Nature_Lightning")
-DNAFrameMainOpenIcon:SetSize(18, 18)
-DNAFrameMainOpenIcon:SetPoint("TOPLEFT", 26, -10)
-]==]--
-
 local windowOpen = false
 
 local swapQueue = {}
@@ -380,7 +370,6 @@ function raidReadyMember(member, isReady)
     end
   end
 end
-
 
 --alpha sort the member matrix
 local DNARaidMemberSorted = {}
@@ -474,7 +463,7 @@ function DN:UpdateRaidRoster()
 end
 
 local function clearFrameView()
-  for i = 1, viewFrameLines do
+  for i = 1, MAX_FRAME_LINES do
     DNAFrameViewScrollChild_mark[i]:SetTexture("")
     DNAFrameViewScrollChild_tank[i]:SetText("")
     DNAFrameViewScrollChild_heal[i]:SetText("")
@@ -485,13 +474,19 @@ local function clearFrameView()
 end
 
 local function clearFrameAssign()
-  for i = 1, viewFrameLines do
+  for i = 1, MAX_FRAME_LINES do
     DNAFrameAssignScrollChild_mark[i]:SetTexture("")
     DNAFrameAssignScrollChild_tank[i]:SetText("")
     DNAFrameAssignScrollChild_heal[i]:SetText("")
   end
   if (DEBUG) then
     print("DEBUG: clearFrameAssign()")
+  end
+end
+
+local function clearFrameClassAssign()
+  for i, v in ipairs(DNAClasses) do
+    DNAFrameClassAssignEdit[v]:SetText("")
   end
 end
 
@@ -507,21 +502,25 @@ local function InstanceButtonToggle(name, icon)
     DNAFrameInstance[DNAInstance[i][1]]:SetBackdrop({
       bgFile = DNAInstance[i][5],
       edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-      edgeSize = 18,
-      insets = {left=0, right=-45, top=0, bottom=-44},
+      edgeSize = 14,
+      insets = {left=0, right=-66, top=0, bottom=-28},
     })
+    DNAFrameInstance[DNAInstance[i][1]]:SetBackdropBorderColor(1, 1, 1, 1)
     DNAFrameInstanceGlow[DNAInstance[i][1]]:Hide()
   end
   DNAFrameInstance[name]:SetBackdrop({
     bgFile = icon,
-    edgeFile = "Interface/TUTORIALFRAME/UI-TutorialFrame-CalloutGlow",
-    edgeSize = 8,
-    insets = {left=0, right=-45, top=0, bottom=-44},
+    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+    edgeSize = 14,
+    insets = {left=0, right=-66, top=0, bottom=-28},
   })
+  DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0.40, 1)
   DNAFrameInstanceGlow[name]:Show()
   pageBanner:SetTexture(DNAInstance[instanceNum][3])
   pageBanner.text:SetText(DNAInstance[instanceNum][2])
   pageBossIcon:SetTexture(DNAInstance[instanceNum][4])
+  DNAFrameViewBG:SetTexture(DNAInstance[instanceNum][6])
+  clearFrameClassAssign()
   PlaySound(844)
 end
 
@@ -745,7 +744,7 @@ end)
 DNAFrameAssign:SetScript("OnDragStop", function()
     DNAFrameAssign:StopMovingOrSizing()
 end)
-for i = 1, viewFrameLines do
+for i = 1, MAX_FRAME_LINES do
   DNAFrameAssignScrollChild_mark[i] = DNAFrameAssignScrollChild:CreateTexture(nil, "ARTWORK")
   DNAFrameAssignScrollChild_mark[i]:SetSize(16, 16)
   DNAFrameAssignScrollChild_mark[i]:SetPoint("TOPLEFT", 20, (-i*18)+12)
@@ -868,17 +867,6 @@ DNAFrameAssign:Hide()
 
 local DNAFrameAssignTab={}
 
---[==[
-function DNAFrameAssignTabToggle(name)
-  DNAFrameAssignTab["assign"]:SetFrameLevel(1)
-  DNAFrameAssignTab["map"]:SetFrameLevel(1)
-  DNAFrameAssignPage["assign"]:Hide()
-  DNAFrameAssignPage["map"]:Hide()
-  DNAFrameAssignTab[name]:SetFrameLevel(155)
-  DNAFrameAssignPage[name]:Show()
-end
-]==]--
-
 DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing...")
 
 -- BUILD THE RAID PER BOSS
@@ -985,21 +973,6 @@ local function buildRaidAssignments(packet, author, source)
     end
   end
 
-  --[==[
-  if (DEBUG) then
-    print("num_tanks " .. total.tanks)
-    print("num_healers " .. total.healers)
-    print("num_warriors " .. total.warriors)
-    print("num_hunters " .. total.hunters)
-    print("num_rogues " .. total.rogues)
-    print("num_druids " .. total.druids)
-    print("num_priests " .. total.priests)
-    print("num_mages " .. total.mages)
-    print("num_paladins " .. total.paladins)
-    print("num_warlocks " .. total.warlocks)
-  end
-  ]==]--
-
   table.merge(tank.all, tank.main)
   table.merge(tank.all, raid.warrior)
   table.merge(tank.banish, raid.warlock)
@@ -1009,16 +982,6 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(raid.range, raid.hunter)
   table.merge(raid.range, raid.warlock)
   table.merge(raid.range, raid.mage)
-
-  --[==[
-  for i=1, table.getn(healer.nodruid) do
-    print(healer.nodruid[i])
-  end
-
-  for i=1, table.getn(tank.banish) do
-    print(tank.banish[i])
-  end
-  ]==]--
 
   if ((total.tanks < 2) or (total.healers < 2)) then
     DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
@@ -1031,7 +994,7 @@ local function buildRaidAssignments(packet, author, source)
   DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
-  for i=1, viewFrameLines do
+  for i=1, MAX_FRAME_LINES do
     if (mark[i]) then
       DNAFrameViewScrollChild_mark[i]:SetTexture(mark[i])
       DNAFrameAssignScrollChild_mark[i]:SetTexture(mark[i])
@@ -1093,7 +1056,7 @@ local function buildRaidAssignments(packet, author, source)
 
   if (source == "network") then
     if (DNACheckbox["RAIDCHAT"]:GetChecked()) then
-      for i=1, viewFrameLines do
+      for i=1, MAX_FRAME_LINES do
         local this_key = 0
         local text_line = ""
         if (text[i]) then
@@ -1257,6 +1220,79 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
          raidReadyClear()
         return true
       end
+
+      --[==[
+      if (string.sub(netpacket, 1, 1) == "V") then
+        netpacket = string.gsub(netpacket, "V", "")
+        DNAFrameClassAssignEdit["Tank"]:SetText(netpacket)
+        print("Tank: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "U") then
+        netpacket = string.gsub(netpacket, "U", "")
+        DNAFrameClassAssignEdit["Heal"]:SetText(netpacket)
+        print("Heal: " .. netpacket)
+        return true
+      end
+      ]==]--
+
+      if (string.sub(netpacket, 1, 1) == "W") then
+        netpacket = string.gsub(netpacket, "W", "")
+        DNAFrameClassAssignEdit["Warrior"]:SetText(netpacket)
+        print("Warriors: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "M") then
+        netpacket = string.gsub(netpacket, "M", "")
+        DNAFrameClassAssignEdit["Mage"]:SetText(netpacket)
+        print("Mages: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "H") then
+        netpacket = string.gsub(netpacket, "H", "")
+        DNAFrameClassAssignEdit["Hunter"]:SetText(netpacket)
+        print("Hunters: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "A") then
+        netpacket = string.gsub(netpacket, "A", "")
+        DNAFrameClassAssignEdit["Warlock"]:SetText(netpacket)
+        print("Warlocks: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "P") then
+        netpacket = string.gsub(netpacket, "P", "")
+        DNAFrameClassAssignEdit["Paladin"]:SetText(netpacket)
+        print("Paladins: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "R") then
+        netpacket = string.gsub(netpacket, "R", "")
+        DNAFrameClassAssignEdit["Rogue"]:SetText(netpacket)
+        print("Rogues: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "I") then
+        netpacket = string.gsub(netpacket, "I", "")
+        DNAFrameClassAssignEdit["Priest"]:SetText(netpacket)
+        print("Priests: " .. netpacket)
+        return true
+      end
+
+      if (string.sub(netpacket, 1, 1) == "D") then
+        netpacket = string.gsub(netpacket, "D", "")
+        DNAFrameClassAssignEdit["Druid"]:SetText(netpacket)
+        print("Druids: " .. netpacket)
+        return true
+      end
+
       if (string.sub(netpacket, 1, 1) == "&") then
         netpacket = string.gsub(netpacket, "&", "")
         local raid_assignment = split(netpacket, ",")
@@ -1281,12 +1317,14 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (string.sub(netpacket, 1, 1) == "+") then
         netpacket = string.gsub(netpacket, "+", "")
         raidReadyMember(netpacket, true)
+        clearFrameClassAssign()
         return true
       end
       --NOT READY
       if (string.sub(netpacket, 1, 1) == "!") then
         netpacket = string.gsub(netpacket, "!", "")
         raidReadyMember(netpacket, false)
+        clearFrameClassAssign()
         return true
       end
       --LOOT
@@ -1563,6 +1601,107 @@ page["Config"]:SetWidth(DNAGlobal.width)
 page["Config"]:SetHeight(DNAGlobal.height)
 page["Config"]:SetPoint("TOPLEFT", 0, 0)
 
+local viewFrame_w = 400
+local viewFrame_h = 400
+local viewFrame_x = 580
+local viewFrame_y = 100
+DNAFrameView = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
+DNAFrameView:SetWidth(viewFrame_w-20)
+DNAFrameView:SetHeight(viewFrame_h-80)
+DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
+DNAFrameView:SetMovable(true)
+
+DNAFrameViewBG = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -4)
+DNAFrameViewBG:SetPoint("TOPLEFT", 0, 0)
+DNAFrameViewBG:SetSize(viewFrame_w+90, viewFrame_h-20)
+DNAFrameViewBG:SetTexture("Interface/EncounterJournal/UI-EJ-BACKGROUND-BlackwingLair")
+
+DNAFrameViewDARK = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -3)
+DNAFrameViewDARK:SetAllPoints(true)
+DNAFrameViewDARK:SetColorTexture(0, 0, 0, 0.8)
+
+DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
+DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
+DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 5)
+local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
+DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
+DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
+DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 6, 14)
+DNAFrameViewMR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
+DNAFrameViewMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAFrameViewMR:SetPoint("TOPLEFT", 354, -2)
+DNAFrameViewMR:SetSize(24, 316)
+
+for i = 1, MAX_FRAME_LINES do
+  DNAFrameViewScrollChild_mark[i] = DNAViewScrollChildFrame:CreateTexture(nil, "ARTWORK")
+  DNAFrameViewScrollChild_mark[i]:SetSize(16, 16)
+  DNAFrameViewScrollChild_mark[i]:SetPoint("TOPLEFT", 5, (-i*18)+13)
+  DNAFrameViewScrollChild_mark[i]:SetTexture("")
+
+  DNAFrameViewScrollChild_tank[i] = DNAViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
+  DNAFrameViewScrollChild_tank[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
+  DNAFrameViewScrollChild_tank[i]:SetText("")
+  DNAFrameViewScrollChild_tank[i]:SetPoint("TOPLEFT", 30, (-i*18)+10)
+
+  DNAFrameViewScrollChild_heal[i] = DNAViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
+  DNAFrameViewScrollChild_heal[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
+  DNAFrameViewScrollChild_heal[i]:SetText("")
+  DNAFrameViewScrollChild_heal[i]:SetPoint("TOPLEFT", 130, (-i*18)+10)
+end
+
+DNAFrameViewBossMap = DNAFrameView:CreateTexture(nil, "BACKGROUND")
+DNAFrameViewBossMap:SetTexture(DNAGlobal.dir .. "images/mc")
+DNAFrameViewBossMap:SetSize(380, 320)
+DNAFrameViewBossMap:SetPoint("TOPLEFT", 0, 0)
+DNAFrameViewBossMap:Hide()
+
+local DNAFrameClassAssignView = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
+DNAFrameClassAssignView:SetWidth(viewFrame_w-20)
+DNAFrameClassAssignView:SetHeight(viewFrame_h-80)
+DNAFrameClassAssignView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
+
+function DNAFrameClassAssignTextbox(name, pos_y)
+  local edit_w = 225
+  local edit_h = 25
+  local DNAFrameClassAssignBorder = CreateFrame("Frame", nil, DNAFrameClassAssignView)
+  DNAFrameClassAssignBorder:SetSize(edit_w, edit_h)
+  DNAFrameClassAssignBorder:SetPoint("TOPLEFT", 115, -pos_y)
+  DNAFrameClassAssignBorder:SetBackdrop({
+    bgFile = "Interface/ToolTips/UI-Tooltip-Background",
+    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  DNAFrameClassAssignBorder:SetBackdropColor(0, 0, 0, 0.8)
+  local DNAFrameClassAssignIcon = DNAFrameClassAssignBorder:CreateTexture(nil, "BACKGROUND")
+  DNAFrameClassAssignIcon:SetSize(20, 20)
+  DNAFrameClassAssignIcon:SetTexture("Interface/Icons/ClassIcon_" .. name)
+  DNAFrameClassAssignIcon:SetPoint("TOPLEFT", -100, -2)
+  local DNAFrameClassAssignLabel = DNAFrameClassAssignBorder:CreateFontString(nil, "OVERLAY")
+  DNAFrameClassAssignLabel:SetFont(DNAGlobal.font, 14, "OUTLINE")
+  DNAFrameClassAssignLabel:SetPoint("TOPLEFT", -75, -4)
+  DNAFrameClassAssignLabel:SetText(name .. "s")
+
+  DNAFrameClassAssignEdit[name] = CreateFrame("EditBox", nil, DNAFrameClassAssignBorder)
+  DNAFrameClassAssignEdit[name]:SetSize(edit_w-12, edit_h)
+  DNAFrameClassAssignEdit[name]:SetFontObject(GameFontWhite)
+  DNAFrameClassAssignEdit[name]:SetPoint("TOPLEFT", 8, 0)
+  DNAFrameClassAssignEdit[name]:EnableKeyboard(true)
+  DNAFrameClassAssignEdit[name]:ClearFocus(self)
+  DNAFrameClassAssignEdit[name]:SetAutoFocus(false)
+  --DNAFrameClassAssign[name].enter:SetScript("OnEscapePressed", function()
+  --end)
+end
+
+--DNAFrameClassAssignTextbox("Tank", 15)
+--DNAFrameClassAssignTextbox("Heal", 50)
+
+for i, v in ipairs(DNAClasses) do
+  DNAFrameClassAssignTextbox(v, (i*26)-10)
+end
+
 function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   local check_static = CreateFrame("CheckButton", nil, parentFrame, "ChatConfigCheckButtonTemplate")
   check_static:SetPoint("TOPLEFT", posX+10, -posY-40)
@@ -1757,15 +1896,7 @@ local function instanceButton(name, pos_y, longtext, icon)
   DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
   DNAFrameInstance[name]:SetSize(140, 80)
   DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+64)
-  DNAFrameInstance[name]:SetBackdrop({
-    bgFile = icon,
-    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-    edgeSize = 18,
-    insets = {left=0, right=-45, top=0, bottom=-44},
-  })
-  --DNAFrameInstance[name]:SetScript('OnEnter', function()
-    DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0, 1)
-  --end)
+
   DNAFrameInstanceText[name] = DNAFrameInstance[name]:CreateFontString(nil, "OVERLAY")
   DNAFrameInstanceText[name]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   DNAFrameInstanceText[name]:SetPoint("CENTER", 0, -25)
@@ -2181,81 +2312,6 @@ for i = 1, MAX_RAID_MEMBERS do
   raidSlot[i]:Hide()
 end
 
-local viewFrame_w = 400
-local viewFrame_h = 400
-local viewFrame_x = 580
-local viewFrame_y = 100
-local DNAFrameView = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
-DNAFrameView:SetWidth(viewFrame_w-20)
-DNAFrameView:SetHeight(viewFrame_h-80)
-DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
-DNAFrameView:SetMovable(true)
-DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
-DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
-DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 5)
-local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
-DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
---DNAViewScrollChildFrame.bg = DNAViewScrollChildFrame:CreateTexture(nil, "BACKGROUND")
---DNAViewScrollChildFrame.bg:SetAllPoints(true)
---DNAViewScrollChildFrame.bg:SetColorTexture(0.2, 0.6, 0, 0.4)
-DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
-DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 6, 14)
-DNAFrameView.MR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
-DNAFrameView.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
-DNAFrameView.MR:SetPoint("TOPLEFT", 354, -2)
-DNAFrameView.MR:SetSize(24, 316)
-
-for i = 1, viewFrameLines do
-  DNAFrameViewScrollChild_mark[i] = DNAViewScrollChildFrame:CreateTexture(nil, "ARTWORK")
-  DNAFrameViewScrollChild_mark[i]:SetSize(16, 16)
-  DNAFrameViewScrollChild_mark[i]:SetPoint("TOPLEFT", 5, (-i*18)+13)
-  DNAFrameViewScrollChild_mark[i]:SetTexture("")
-
-  DNAFrameViewScrollChild_tank[i] = DNAViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
-  DNAFrameViewScrollChild_tank[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
-  DNAFrameViewScrollChild_tank[i]:SetText("")
-  DNAFrameViewScrollChild_tank[i]:SetPoint("TOPLEFT", 30, (-i*18)+10)
-
-  DNAFrameViewScrollChild_heal[i] = DNAViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
-  DNAFrameViewScrollChild_heal[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
-  DNAFrameViewScrollChild_heal[i]:SetText("")
-  DNAFrameViewScrollChild_heal[i]:SetPoint("TOPLEFT", 130, (-i*18)+10)
-end
-
-DNAFrameViewBossMap = DNAFrameView:CreateTexture(nil, "BACKGROUND")
-DNAFrameViewBossMap:SetTexture(DNAGlobal.dir .. "images/mc")
-DNAFrameViewBossMap:SetSize(380, 320)
-DNAFrameViewBossMap:SetPoint("TOPLEFT", 0, 0)
-DNAFrameViewBossMap:Hide()
-
-local DNAFrameClassAssignView = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
-DNAFrameView:SetWidth(viewFrame_w-20)
-DNAFrameView:SetHeight(viewFrame_h-80)
-DNAFrameView:SetPoint("TOPLEFT", viewFrame_x+5, -viewFrame_y-20)
-
-local DNAFrameClassAssignEdit={}
-function DNAFrameClassAssignTextbox(name, pos_y)
-  DNAFrameClassAssignEdit[name] = CreateFrame("EditBox", nil, DNAFrameClassAssignView)
-  DNAFrameClassAssignEdit[name]:SetWidth(200)
-  DNAFrameClassAssignEdit[name]:SetHeight(24)
-  DNAFrameClassAssignEdit[name]:SetFontObject(GameFontNormal)
-  DNAFrameClassAssignEdit[name]:SetBackdrop(GameTooltip:GetBackdrop())
-  DNAFrameClassAssignEdit[name]:SetBackdropColor(0, 0, 0, 0.8)
-  DNAFrameClassAssignEdit[name]:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-  DNAFrameClassAssignEdit[name]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -50, 0)
-  DNAFrameClassAssignEdit[name]:EnableKeyboard(true)
-  DNAFrameClassAssignEdit[name]:ClearFocus(self)
-  DNAFrameClassAssignEdit[name]:SetAutoFocus(false)
-  --[==[
-  DNAFrameClassAssign[name].enter:SetScript("OnEscapePressed", function()
-
-  end)
-  ]==]--
-end
-DNAFrameClassAssignTextbox("Warriors", 20)
-
 local function viewFrameBottomTabToggle(name)
   viewFrameBotTab["Markers"]:SetFrameLevel(2)
   viewFrameBotTab["Markers"].text:SetTextColor(0.7, 0.7, 0.7)
@@ -2281,7 +2337,7 @@ local function viewFrameBottomTabToggle(name)
     DNAViewScrollChildFrame:Hide()
     DNAFrameView.ScrollFrame:Hide()
     DNAFrameViewBossMap:Hide()
-    DNAFrameClassAssignView:Hide()
+    DNAFrameClassAssignView:Show()
   end
 end
 
@@ -2317,14 +2373,15 @@ viewFrameBottomTab("Class", 190, 0)
 viewFrameBottomTabToggle("Markers") --default enabled
 
 for i, v in ipairs(DNAInstance) do
+  --local icon = _G[button:GetName().."Icon"]
   ddBossList[DNAInstance[i][1]] = CreateFrame("frame", nil, page["Assignment"], "UIDropDownMenuTemplate")
   ddBossList[DNAInstance[i][1]]:SetPoint("TOPLEFT", 680, -90)
+  --ddBossList[DNAInstance[i][1]].displayMode = "MENU"
   ddBossListText[DNAInstance[i][1]] = ddBossList[DNAInstance[i][1]]:CreateFontString(nil, "ARTWORK")
   ddBossListText[DNAInstance[i][1]]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   ddBossListText[DNAInstance[i][1]]:SetPoint("TOPLEFT", ddBossList[DNAInstance[i][1]], "TOPLEFT", 25, -8);
   local instanceNum = multiKeyFromValue(DNAInstance, DNAInstance[i][1])
   ddBossListText[DNAInstance[i][1]]:SetText(DNARaidBosses[instanceNum][1])
-  --print("DEBUG: " .. DNARaidBosses[instanceNum][1])
   ddBossList[DNAInstance[i][1]].onClick = function(self, checked)
     ddBossListText[DNAInstance[i][1]]:SetText(self.value)
     clearFrameView()
@@ -2338,28 +2395,29 @@ for i, v in ipairs(DNAInstance) do
   ddBossList[DNAInstance[i][1]].initialize = function(self, level)
   	local info = UIDropDownMenu_CreateInfo()
     for ddKey, ddVal in pairs(DNARaidBosses[instanceNum]) do
-      if (ddKey ~= 1) then --remove first key
+      --if (ddKey ~= 1) then --remove first key
         info.notCheckable = 1
-        --info.text = ddVal
-      	--info.value= ddVal
-        --info.icon = "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_8"
-        info.padding = 10
-        info.text = string.gsub(ddVal, "_", "")
-        info.value= string.gsub(ddVal, "_", "")
+        info.padding = 20
+        info.text = ddVal[1]
+        info.value= ddVal[1]
+        info.icon = ""
+        info.fontObject = GameFontNormalLeft
         info.colorCode = "|cffffffff"
-        if (string.sub(ddVal, 1, 1) == "_") then
+        if (ddVal[3] == 1) then
           info.colorCode = "|cfff2bd63"
-          --info.icon = ""
+        end
+        if (ddVal[2]) then
+          info.icon = ddVal[2] --bossicon
         end
       	info.func = self.onClick
       	UIDropDownMenu_AddButton(info, level)
-      end
+      --end
     end
   end
   UIDropDownMenu_SetWidth(ddBossList[DNAInstance[i][1]], 160)
 end
 
-ddBossListText[DNARaidBosses[1][1]]:SetText("Select a boss")
+--ddBossListText[DNARaidBosses[1][1]]:SetText("Select a boss")
 
 local largePacket = nil
 function DN:RaidSendAssignments()
@@ -2437,6 +2495,35 @@ btnPostRaid:SetScript("OnClick", function()
     if (raidSelection == nil) then
       DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
     else
+      --[==[
+      if (DNAFrameClassAssignEdit["Tank"]:GetText()) then
+        DN:SendPacket("send", "V" .. DNAFrameClassAssignEdit["Tank"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Heal"]:GetText()) then
+        DN:SendPacket("send", "U" .. DNAFrameClassAssignEdit["Heal"]:GetText(), false)
+      end
+      ]==]--
+      if (DNAFrameClassAssignEdit["Warrior"]:GetText()) then
+        DN:SendPacket("send", "W" .. DNAFrameClassAssignEdit["Warrior"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Hunter"]:GetText()) then
+        DN:SendPacket("send", "H" .. DNAFrameClassAssignEdit["Hunter"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Rogue"]:GetText()) then
+        DN:SendPacket("send", "R" .. DNAFrameClassAssignEdit["Rogue"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Priest"]:GetText()) then
+        DN:SendPacket("send", "I" .. DNAFrameClassAssignEdit["Priest"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Druid"]:GetText()) then
+        DN:SendPacket("send", "D" .. DNAFrameClassAssignEdit["Druid"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Paladin"]:GetText()) then
+        DN:SendPacket("send", "P" .. DNAFrameClassAssignEdit["Paladin"]:GetText(), false)
+      end
+      if (DNAFrameClassAssignEdit["Warlock"]:GetText()) then
+        DN:SendPacket("send", "A" .. DNAFrameClassAssignEdit["Warlock"]:GetText(), false)
+      end
       DN:SendPacket("send", "&" .. raidSelection .. "," .. player.name, true) --openassignments
       DoReadyCheck()
     end
@@ -2533,7 +2620,7 @@ local function DNAOpenWindow()
   else
     windowOpen = true
     DNAFrameMain:Show()
-    --DNAFrameAssign:Show()
+    DNAFrameAssign:Show()
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
     DN:SetVars()

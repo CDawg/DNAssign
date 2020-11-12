@@ -12,28 +12,29 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-local bossList = {
-  "BWL", --key
-  "Razorgore",
-  "Vaelestraz",
-  "Dragon Pack",
-  "Suppression Room",
-  "Goblin Pack",
-  "Firemaw",
-  "Small Wyrmguards (4)",
-  "Large Wyrmguards (3)",
-  "Ebonroc",
-  "Flamegor",
-  "Chromaggus",
-  "Nefarian"
-}
 local instanceDetails = {
-  "BWL", --key
+  "BWL",
   "Blackwing Lair",
   "Interface/GLUES/LoadingScreens/LoadScreenBlackWingLair",
   "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian",
-  "Interface/EncounterJournal/UI-EJ-LOREBG-BlackwingLair"
+  "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-BlackwingLair",
+  "Interface/EncounterJournal/UI-EJ-BACKGROUND-BlackwingLair"
 }
+local bossList = {
+  {"Razorgore",           "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed", 0},
+  {"Vaelestraz",          "Interface/EncounterJournal/UI-EJ-BOSS-Vaelastrasz the Corrupt", 0},
+  {"Dragon Pack",         "Interface/EncounterJournal/UI-EJ-BOSS-Overlord Wyrmthalak", 1},
+  {"Suppression Room",    "Interface/EncounterJournal/UI-EJ-BOSS-Flamebender Kagraz", 1},
+  {"Goblin Pack",         "Interface/EncounterJournal/UI-EJ-BOSS-Pauli Rocketspark", 1},
+  {"Firemaw",             "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw", 0},
+  {"Small Wyrmguards (4)","Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer", 1},
+  {"Large Wyrmguards (3)","Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer", 1},
+  {"Ebonroc",             "Interface/EncounterJournal/UI-EJ-BOSS-Ebonroc", 0},
+  {"Flamegor",            "Interface/EncounterJournal/UI-EJ-BOSS-Flamegor", 0},
+  {"Chromaggus",          "Interface/EncounterJournal/UI-EJ-BOSS-Chromaggus", 0},
+  {"Nefarian",            "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian", 0}
+}
+
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
@@ -43,7 +44,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
   if (isItem(assign, "Razorgore")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed"
     DNABossMap = DNAGlobal.dir .. "images/bwl_razorgore"
     for i=1, 5 do
       text[i] = compass[i]
@@ -52,7 +52,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Vaelestraz")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Vaelastrasz the Corrupt"
     DNABossMap = DNAGlobal.dir .. "images/bwl_vaelastrasz"
     local healer_row = ""
     local vael_heals = {}
@@ -74,7 +73,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Dragon Pack")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Overlord Wyrmthalak"
     DNABossMap = DNAGlobal.dir .. "images/bwl_dragonpack"
     local healer_row = ""
     local dpack_heals = {}
@@ -121,7 +119,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Suppression Room")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Flamebender Kagraz"
     DNABossMap = DNAGlobal.dir .. "images/bwl_goblinpack"
     NUM_ADDS = 3
     text[1] = "No AOE Tank assigned!" --default message
@@ -143,7 +140,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Goblin Pack")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Pauli Rocketspark"
     DNABossMap = DNAGlobal.dir .. "images/bwl_broodlord"
     for i=1, 6 do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -164,19 +160,18 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Firemaw")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
     DNABossMap = DNAGlobal.dir .. "images/bwl_firemaw"
-    mark[1] = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
+    mark[1] = DNABossIcon
     text[1] = tank.all[1]
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     if (tank.all[3]) then
       text[3] = "-- STACK ROTATION RELIEF / RANGE SIDE --"
-      mark[4] = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
+      mark[4] = DNABossIcon
       text[4] = tank.all[3]
       heal[4] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
     end
     text[6] = "-- WINGBUFF / MELEE SIDE --"
-    mark[7] = "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw"
+    mark[7] = DNABossIcon
     text[7] = tank.all[2]
     heal[7] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
 
@@ -209,7 +204,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Small Wyrmguards (4)")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer"
     DNABossMap = DNAGlobal.dir .. "images/bwl_firemaw"
     NUM_ADDS = 4
     for i=1, NUM_ADDS do
@@ -220,7 +214,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Large Wyrmguards (3)")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer"
     DNABossMap = DNAGlobal.dir .. "images/bwl_ebonroc"
     NUM_ADDS = 3
     for i=1, NUM_ADDS do
@@ -239,7 +232,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Ebonroc")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Ebonroc"
     DNABossMap = DNAGlobal.dir .. "images/bwl_ebonroc"
     text[1] = tank.all[1]
     heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
@@ -252,7 +244,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Flamegor")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Flamegor"
     DNABossMap = DNAGlobal.dir .. "images/bwl_flamegor"
     text[1] = tank.all[1]
     heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
@@ -268,7 +259,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Chromaggus")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Chromaggus"
     DNABossMap = DNAGlobal.dir .. "images/bwl_Chromaggus"
     text[1] = tank.all[1]
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
@@ -278,7 +268,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Nefarian")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian"
     DNABossMap = DNAGlobal.dir .. "images/bwl_Nefarian"
   end
 end

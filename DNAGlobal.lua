@@ -16,7 +16,7 @@ DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 191
+DNAGlobal.vminor  = 192
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
@@ -108,9 +108,10 @@ DNASlots = {}
 DNASlots.tank = 6
 DNASlots.heal = 12
 
+MAX_FRAME_LINES = 25 --also setup the same for the assign window
+
 DNAInstance = {}
 DNARaidBosses = {}
-DNARaidBossesNew = {}
 
 function DN:ChatNotification(msg)
   print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
@@ -184,6 +185,17 @@ DNARaidMarkers={
   {"{diamond}", "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_3"},
   {"{moon}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5"},
   {"{star}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1"},
+}
+
+DNAClasses={
+  "Warrior",
+  "Druid",
+  "Priest",
+  "Paladin",
+  "Rogue",
+  "Mage",
+  "Warlock",
+  "Hunter"
 }
 
 icon_boss    = DNARaidMarkers[1][2]
@@ -292,10 +304,16 @@ DNAFrameAssignAuthor = {}
 --DNAFrameClassAssignView = {}
 
 function isItem(compare, item) --dropdown packets that are filtered from spaces
-  --(lava pack)
+  local boss_icon = nil
   filteredItem = item:gsub("%s+", "")
   if ((compare == item) or (compare == filteredItem)) then
     DNAFrameAssignBossText:SetText(item)
+    for i=1, table.getn(DNARaidBosses) do
+      boss_icon = multiKeyFromValue(DNARaidBosses[i], item)
+      if (boss_icon) then
+        DNABossIcon = DNARaidBosses[i][boss_icon][2]
+      end
+    end
     return true
   else
     return false

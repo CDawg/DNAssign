@@ -12,38 +12,36 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-local bossList = {
-  "MC", --key
-  "_Trash MC_",
-  "Lucifron",
-  "_Dogpack_",
-  "Magmadar",
-  "Gehennas",
-  "Garr",
-  "_Lava Pack_",
-  "Sulfuron",
-  "Golemagg",
-  "Majordomo Executus",
-  "Ragnaros"
-}
 local instanceDetails = {
-  "MC", --key
+  "MC",
   "Molten Core",
   "Interface/GLUES/LoadingScreens/LoadScreenMoltenCore",
   "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros",
-  "Interface/EncounterJournal/UI-EJ-LOREBG-MoltenCore",
+  "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-MoltenCore",
+  "Interface/EncounterJournal/UI-EJ-BACKGROUND-MoltenCore"
+}
+local bossList = {
+  {"Trash",             "Interface/EncounterJournal/UI-EJ-BOSS-Baron Geddon", 1},
+  {"Lucifron",          "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron", 0},
+  {"Dog Pack",          "Interface/EncounterJournal/UI-EJ-BOSS-Son of the Beast", 1},
+  {"Magmadar",          "Interface/EncounterJournal/UI-EJ-BOSS-Magmadar", 0},
+  {"Gehennas",          "Interface/EncounterJournal/UI-EJ-BOSS-Gehennas", 0},
+  {"Garr",              "Interface/EncounterJournal/UI-EJ-BOSS-Lord Roccor", 0},
+  {"Lava Pack",         "Interface/EncounterJournal/UI-EJ-BOSS-Garr", 1},
+  {"Sulfuron",          "Interface/EncounterJournal/UI-EJ-BOSS-Sulfuron Harbinger", 0},
+  {"Golemagg",          "Interface/EncounterJournal/UI-EJ-BOSS-Golemagg the Incinerator", 0},
+  {"Majordomo Executus","Interface/EncounterJournal/UI-EJ-BOSS-Majordomo Executus", 0},
+  {"Ragnaros",          "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros", 0}
 }
 
-table.insert(DNARaidBossesNew, bossList)
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   local fearward={}
 
-  if (isItem(assign, "Trash MC")) then
+  if (isItem(assign, "Trash")) then
     NUM_ADDS = 3
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-BaelGar"
     DNABossMap = DNAGlobal.dir .. "images/mc"
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -54,7 +52,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Lucifron")) then
     NUM_ADDS = 2
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i][2]
@@ -70,9 +67,8 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     mark[1] = DNABossIcon
   end
 
-  if (isItem(assign, "Dogpack")) then
+  if (isItem(assign, "Dog Pack")) then
     NUM_ADDS = 5
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Son of the Beast"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -81,7 +77,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Magmadar")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Magmadar"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
@@ -111,7 +106,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Gehennas")) then
     NUM_ADDS = 2
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Gehennas"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i][2]
@@ -132,26 +126,11 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
         end
       end
     end
-
-    --[==[
-    num_healers_dr = table.getn(healer.druid)
-    for i=1, num_healers_dr do
-      mark[i+NUM_ADDS+2] = "Interface/Icons/spell_holy_removecurse"
-      text[i+NUM_ADDS+2] = "Decurse"
-      heal[i+NUM_ADDS+2] = healer.druid[i]
-    end
-    for i=1, total.mages do
-      mark[i+NUM_ADDS+num_healers_dr+2] = "Interface/Icons/spell_nature_removecurse"
-      text[i+NUM_ADDS+num_healers_dr+2] = "Decurse"
-      heal[i+NUM_ADDS+num_healers_dr+2] = raid.mage[i]
-    end
-    ]==]--
     mark[1] = DNABossIcon
   end
 
   if (isItem(assign, "Garr")) then
     NUM_ADDS = 8
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Lord Roccor"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i][2]
@@ -165,7 +144,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Lava Pack")) then
     NUM_ADDS = 3 --minimum, last for a banisher
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Garr"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -189,7 +167,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Sulfuron")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Sulfuron Harbinger"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, 5 do -- 4 adds and the boss
       mark[i] = DNARaidMarkers[i][2]
@@ -225,33 +202,11 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
         heal[11] = raid.warrior[4]
       end
     end
-
-    --[==[
-    text[13] = "-- Warrior Pummels/Bashes -- "
-    if (raid.warrior[1]) then
-      mark[14] = DNARaidMarkers[2][2]
-      text[14] = raid.warrior[1]
-    end
-    if (raid.warrior[2]) then
-      mark[15] = DNARaidMarkers[3][2]
-      text[15] = raid.warrior[2]
-    end
-    if (raid.warrior[3]) then
-      mark[16] = DNARaidMarkers[4][2]
-      text[16] = raid.warrior[3]
-    end
-    if (raid.warrior[4]) then
-      mark[17] = DNARaidMarkers[5][2]
-      text[17] = raid.warrior[4]
-    end
-    ]==]--
-
     mark[1] = DNABossIcon
   end
 
   if (isItem(assign, "Golemagg")) then
     NUM_ADDS = 2
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Golemagg the Incinerator"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -261,7 +216,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Majordomo Executus")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Majordomo Executus"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, 5 do
       mark[i] = DNARaidMarkers[i][2]
@@ -307,7 +261,6 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Ragnaros")) then
-    DNABossIcon = "Interface/EncounterJournal/UI-EJ-BOSS-Ragnaros"
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     mark[1] = DNABossIcon
     text[1] = tank.main[1]
