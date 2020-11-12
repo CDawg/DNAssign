@@ -911,16 +911,17 @@ local function buildRaidAssignments(packet, author, source)
   local assign_lock={}
   assign_lock[player.name] = 0
 
+  clearNotifications()
   DN:UpdateRaidRoster()
-
   clearFrameView() --clear out the current text
   clearFrameAssign()
   clearFrameAssignPersonal()
   DNAFrameAssignPersonal:Hide()
 
   if (total.raid < 8) then
-    DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
-    DNAFrameViewScrollChild_tank[3]:SetText("Not enough raid members to form assignments!")
+    --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
+    --DNAFrameViewScrollChild_tank[3]:SetText("Not enough raid members to form assignments!")
+    DN:Notification("Not enough raid members to form assignments!", true)
     DNABossMap = ""
     return
   end
@@ -994,9 +995,10 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(raid.range, raid.warlock)
   table.merge(raid.range, raid.mage)
 
-  if ((total.tanks < 2) or (total.healers < 2)) then
-    DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
-    DNAFrameViewScrollChild_tank[3]:SetText("Not enough Tanks and Healers assigned!")
+  if ((total.tanks < 2) or (total.healers < 7)) then
+    --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
+    --DNAFrameViewScrollChild_tank[3]:SetText("Not enough Tanks and Healers assigned!")
+    DN:Notification("Not enough tanks and healers assigned!     [E12]", true)
     DNABossMap = ""
     return
   end
@@ -1857,13 +1859,15 @@ for i = 1, 256 do
   pageDKPViewScrollChild_colThree[i]:SetPoint("TOPLEFT", 200, (-i*18)+10)
 end
 
-function DN:Notification(msg, show)
-  if (show) then
-    DNAFrameMainNotifText:SetText(msg)
-    DNAFrameMainNotif:Show()
-  else
-    DNAFrameMainNotif:Hide()
-  end
+function clearNotifications()
+  DNAFrameMainNotifText:SetText("")
+  DNAFrameMainNotif:Hide()
+end
+
+function DN:Notification(msg)
+  clearNotifications()
+  DNAFrameMainNotifText:SetText(msg)
+  DNAFrameMainNotif:Show()
 end
 
 --[==[
@@ -1940,7 +1944,7 @@ local function instanceButton(name, pos_y, longtext, icon)
   DNAFrameInstanceScript[name]:SetSize(140, 80)
   DNAFrameInstanceScript[name]:SetPoint("CENTER", 0, 2)
   DNAFrameInstanceScript[name]:SetScript("OnClick", function()
-    DN:Notification("", false)
+    clearNotifications()
     for i, v in ipairs(DNAInstance) do
       ddBossList[DNAInstance[i][1]]:Hide() --hide all dropdowns
     end
@@ -2006,7 +2010,7 @@ local function bottomTab(name, pos_x, text_pos_x)
   DNAFrameMainBottomTabScript[name]:SetSize(85, 30)
   DNAFrameMainBottomTabScript[name]:SetPoint("CENTER", 0, 0)
   DNAFrameMainBottomTabScript[name]:SetScript("OnClick", function()
-    DN:Notification("", false)
+    clearNotifications()
     bottomTabToggle(name)
   end)
 end
@@ -2455,8 +2459,8 @@ end
 local largePacket = nil
 function DN:RaidSendAssignments()
 
-  if ((total.tanks < 2) or (total.healers < 2)) then
-    DN:Notification("Not enough tanks and healers assigned!", true)
+  if ((total.tanks < 2) or (total.healers < 7)) then
+    DN:Notification("Not enough tanks and healers assigned!     [E13]", true)
     return
   end
 
@@ -2630,7 +2634,7 @@ end)
 ]==]--
 
 local function raidPermissions()
-  DN:Notification("", false)
+  clearNotifications()
   if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
     btnShareDis:Hide()
     btnShare:Show()

@@ -63,6 +63,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       --end
     end
     for i=1, 3 do
+      mark[i] = DNABossIcon
       text[i] = tank.all[i]
       heal[i] = healer_row
     end

@@ -301,7 +301,9 @@ DNAFrameAssignBossText = {}
 DNAFrameAssignBossMap = {}
 DNAFrameAssignAuthor = {}
 
---DNAFrameClassAssignView = {}
+function testtesttest()
+  DN:Notification("not enough!", true)
+end
 
 function isItem(compare, item) --dropdown packets that are filtered from spaces
   local boss_icon = nil
