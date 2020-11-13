@@ -149,8 +149,7 @@ local function getRaidComp()
                     if (DNARaid["assist"][name] ~= 1) then --has not been promoted yet
                       if (UnitIsGroupAssistant(name) == false) then
                         if (DNACheckbox["AUTOPROMOTE"]:GetChecked()) then
-                          DN:ChatNotification("Auto promoted: " .. name)
-                          PromoteToAssistant(name)
+                          DN:PromoteToAssistant(name)
                         end
                       end
                     end
@@ -176,130 +175,8 @@ local function getRaidComp()
     DNARaid["member"][1] = player.name
   end
 
-  --FAKE RAID
   if (DEBUG) then
-    DNARaid["member"][1] = "Aellwyn"
-    DNARaid["member"][2] = "Porthios"
-    DNARaid["member"][3] = "Upya"
-    DNARaid["member"][4] = "Zarj"
-    DNARaid["member"][5] = "Cryonix"
-    DNARaid["member"][6] = "Grayleaf"
-    DNARaid["member"][7] = "Droott"
-    DNARaid["member"][8] = "Aquilla"
-    DNARaid["member"][9] = "Neilsbhor"
-    DNARaid["member"][10] = "Frosthunt"
-    DNARaid["member"][11] = "Nanodel"
-    DNARaid["member"][12] = "Crisis"
-    DNARaid["member"][13] = "Whistper"
-    DNARaid["member"][14] = "Zarianna"
-    DNARaid["member"][15] = "Averglade"
-    DNARaid["member"][16] = "Addontesterc"
-    DNARaid["member"][17] = "Krizzu"
-    DNARaid["member"][18] = "Alectar"
-    DNARaid["member"][19] = "Snibson"
-    DNARaid["member"][20] = "Justwengit"
-    DNARaid["member"][21] = "Bibbi"
-    DNARaid["member"][22] = "Mirrand"
-    DNARaid["member"][23] = "Corr"
-    DNARaid["member"][24] = "Valency"
-    DNARaid["member"][25] = "Nutty"
-    DNARaid["member"][26] = "Zatos"
-    DNARaid["member"][27] = "Muppot"
-    DNARaid["member"][28] = "Gaelic"
-    DNARaid["member"][29] = "Chrundle"
-    DNARaid["member"][30] = "Akilina"
-    DNARaid["member"][31] = "Mairakus"
-    DNARaid["member"][32] = "Sleapy"
-    DNARaid["member"][33] = "Stumpymcaxe"
-    DNARaid["member"][34] = "Cahonez"
-    DNARaid["member"][35] = "Avarius"
-    DNARaid["member"][36] = "Blackprince"
-    DNARaid["member"][37] = "Nightling"
-    DNARaid["member"][38] = "Kelvarn"
-    DNARaid["member"][39] = "Measles"
-
-    DNARaid["class"]["Aellwyn"] = "Warrior"
-    DNARaid["class"]["Porthios"] = "Warrior"
-    DNARaid["class"]["Upya"] = "Warlock"
-    DNARaid["class"]["Zarj"] = "Rogue"
-    DNARaid["class"]["Cryonix"] = "Priest"
-    DNARaid["class"]["Grayleaf"] = "Warrior"
-    DNARaid["class"]["Droott"] = "Druid"
-    DNARaid["class"]["Aquilla"] = "Mage"
-    DNARaid["class"]["Neilsbhor"] = "Mage"
-    DNARaid["class"]["Frosthunt"] = "Hunter"
-    DNARaid["class"]["Nanodel"] = "Hunter"
-    DNARaid["class"]["Crisis"] = "Warrior"
-    DNARaid["class"]["Whistper"] = "Hunter"
-    DNARaid["class"]["Zarianna"] = "Paladin"
-    DNARaid["class"]["Roaxe"] = "Paladin"
-    DNARaid["class"]["Krizzu"] = "Mage"
-    DNARaid["class"]["Alectar"] = "Warrior"
-    DNARaid["class"]["Snibson"] = "Priest"
-    DNARaid["class"]["Averglade"] = "Paladin"
-    DNARaid["class"]["Justwengit"] = "Mage"
-    DNARaid["class"]["Bibbi"] = "Rogue"
-    DNARaid["class"]["Mirrand"] = "Rogue"
-    DNARaid["class"]["Corr"] = "Paladin"
-    DNARaid["class"]["Valency"] = "Warlock"
-    DNARaid["class"]["Nutty"] = "Paladin"
-    DNARaid["class"]["Zatos"] = "Priest"
-    DNARaid["class"]["Muppot"] = "Warlock"
-    DNARaid["class"]["Gaelic"] = "Paladin"
-    DNARaid["class"]["Chrundle"] = "Mage"
-    DNARaid["class"]["Akilina"] = "Warrior"
-    DNARaid["class"]["Sleapy"] = "Priest"
-    DNARaid["class"]["Mairakus"] = "Warrior"
-    DNARaid["class"]["Stumpymcaxe"] = "Warrior"
-    DNARaid["class"]["Cahonez"] = "Rogue"
-    DNARaid["class"]["Avarius"] = "Warrior"
-    DNARaid["class"]["Blackprince"] = "Paladin"
-    DNARaid["class"]["Measles"] = "Warlock"
-    DNARaid["class"]["Nightling"] = "Druid"
-    DNARaid["class"]["Kelvarn"] = "Priest"
-
-    DNARaid["groupid"]["Aellwyn"] = 1
-    DNARaid["groupid"]["Porthios"] = 1
-    DNARaid["groupid"]["Zarianna"] = 1
-    DNARaid["groupid"]["Upya"] = 1
-    DNARaid["groupid"]["Zarj"] = 1
-    DNARaid["groupid"]["Cryonix"] = 2
-    DNARaid["groupid"]["Grayleaf"] = 2
-    DNARaid["groupid"]["Droott"] = 2
-    DNARaid["groupid"]["Aquilla"] = 2
-    DNARaid["groupid"]["Neilsbhor"] = 2
-    DNARaid["groupid"]["Frosthunt"] = 3
-    DNARaid["groupid"]["Nanodel"] = 3
-    DNARaid["groupid"]["Crisis"] = 3
-    DNARaid["groupid"]["Whistper"] = 3
-    DNARaid["groupid"]["Roaxe"] = 3
-    DNARaid["groupid"]["Krizzu"] = 4
-    DNARaid["groupid"]["Alectar"] = 4
-    DNARaid["groupid"]["Snibson"] = 4
-    DNARaid["groupid"]["Justwengit"] = 4
-    DNARaid["groupid"]["Bibbi"] = 4
-    DNARaid["groupid"]["Mirrand"] = 5
-    DNARaid["groupid"]["Corr"] = 5
-    DNARaid["groupid"]["Valency"] = 5
-    DNARaid["groupid"]["Nutty"] = 5
-    DNARaid["groupid"]["Zatos"] = 5
-    DNARaid["groupid"]["Muppot"] = 6
-    DNARaid["groupid"]["Gaelic"] = 6
-    DNARaid["groupid"]["Chrundle"] = 6
-    DNARaid["groupid"]["Akilina"] = 6
-    DNARaid["groupid"]["Sleapy"] = 6
-    DNARaid["groupid"]["Mairakus"] = 7
-    DNARaid["groupid"]["Stumpymcaxe"] = 7
-    DNARaid["groupid"]["Cahonez"] = 7
-    DNARaid["groupid"]["Avarius"] = 7
-    DNARaid["groupid"]["Blackprince"] = 7
-    DNARaid["groupid"]["Measles"] = 8
-    DNARaid["groupid"]["Nightling"] = 8
-    DNARaid["groupid"]["Kelvarn"] = 8
-    DNARaid["groupid"]["Averglade"] = 8
-
-    DNARaid["race"]["Kelvarn"] = "Dwarf"
-
+    buildDebugRaid() --fake raid
     print("DEBUG: getRaidComp() total:" .. total.raid)
   end
 
@@ -564,8 +441,8 @@ local function parsePacket(packet, netpacket)
       tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
       thisClass = DNARaid["class"][packet.name]
       DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
-      --PromoteToAssistant(packet.name)
-      --SetPartyAssignment("MAINTANK", packet.name, 1);
+      --DN:PromoteToAssistant(packet.name)
+      --SetPartyAssignment("MAINTANK", packet.name, 1)
     end
   end
   if (packet.role == "H") then
@@ -795,7 +672,8 @@ DNAFrameAssignReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignReady:SetScript("OnClick", function()
   ConfirmReadyCheck(1) --ready
-  DN:SendPacket("send", "+" .. player.name, true)
+  local getCode = multiKeyFromValue(netCode, "readyyes")
+  DN:SendPacket(netCode[getCode][2] .. player.name, true)
   DNAFrameAssign:Hide()
   print("|cfffaff04You have marked yourself as Ready.")
 end)
@@ -824,8 +702,8 @@ DNAFrameAssignNotReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignNotReady:SetScript("OnClick", function()
   ConfirmReadyCheck() --not ready
-  DN:SendPacket("send", "!" .. player.name, true)
-  --DNAFrameAssignNotReady:SetBackdropColor(0.2, 0.1, 0.1, 0.4)
+  local getCode = multiKeyFromValue(netCode, "readyno")
+  DN:SendPacket(netCode[getCode][2] .. player.name, true)
   DNAFrameAssign:Hide()
 end)
 DNAFrameAssignAuthor = DNAFrameAssign:CreateFontString(nil, "ARTWORK")
@@ -962,14 +840,14 @@ local function buildRaidAssignments(packet, author, source)
       end
     end
     if (v == "Priest") then
-      if (tContains(healer.priest, k) == false) then
+      --if (tContains(healer.priest, k) == false) then
         table.insert(raid.priest, k) -- exclude healers
-      end
+      --end
     end
     if (v == "Druid") then
-      if (tContains(healer.druid, k) == false) then
+      --if (tContains(healer.druid, k) == false) then
         table.insert(raid.druid, k) -- exclude healers
-      end
+      --end
     end
     if (v == "Rogue") then
       table.insert(raid.rogue, k)
@@ -1057,7 +935,9 @@ local function buildRaidAssignments(packet, author, source)
             DNAFrameAssignPersonalColTwo:SetText(filter_row)
             assign_lock[player.name] = 1
             DNAFrameAssignPersonal:Show()
-            print(string.len(filter_row)) --increase the width of the window
+            if (DEBUG) then
+              print(string.len(filter_row)) --increase the width of the window
+            end
             if (string.len(filter_row) > 40) then
               DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row))
               DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
@@ -1069,18 +949,20 @@ local function buildRaidAssignments(packet, author, source)
 
       --class notes
       local my_class = DNARaid["class"][player.name]
-      local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
-      if (class_message ~= "") then
-        class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
-        local max_class_message_length = class_message:sub(1, 80)
-        if (string.len(max_class_message_length)) then
-          DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
-          DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-          DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+      if (my_class) then
+        local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
+        if (class_message ~= "") then
+          class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
+          local max_class_message_length = class_message:sub(1, 80)
+          if (string.len(max_class_message_length)) then
+            DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
+            DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
+            DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+          end
+          DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
+          DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
+          DNAFrameAssignPersonal:Show()
         end
-        DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
-        DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
-        DNAFrameAssignPersonal:Show()
       end
 
       --print(filter_row)
@@ -1213,14 +1095,14 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if (event == "CHAT_MSG_LOOT") then
     loot_msg = string.match(prefix, "item[%-?%d:]+")
     --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(loot_msg)
-    --DN:SendPacket("send", "_" .. player.name .. "," .. itemName, false)
+    --DN:SendPacket("_" .. player.name .. "," .. itemName, false)
     --safeter to store by the odd string for the itemID
     local inInstance, instanceType = IsInInstance()
     if (inInstance) then
       if (instanceType == "Raid") then
         local instanceName = GetInstanceInfo()
         if (instanceName) then
-          DN:SendPacket("send", "_" .. instanceName .. "," .. player.name .. "," .. loot_msg, false)
+          DN:SendPacket("_" .. instanceName .. "," .. player.name .. "," .. loot_msg, false)
         end
       end
     end
@@ -1258,109 +1140,153 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
       local hasClassAssigns = false
 
-      classCode = "0xEFWa"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Warrior"]:SetText(netpacket)
-        print("Warriors: " .. netpacket)
-        hasClassAssigns = true
+      --[==[
+      classCode = "Warrior"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFMa"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Mage"]:SetText(netpacket)
-        print("Mages: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Mage"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFHu"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Hunter"]:SetText(netpacket)
-        print("Hunters: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Hunter"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFLo"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Warlock"]:SetText(netpacket)
-        print("Warlocks: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Warlock"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFPa"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Paladin"]:SetText(netpacket)
-        print("Paladins: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Paladin"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFRo"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Rogue"]:SetText(netpacket)
-        print("Rogues: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Rogue"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFPr"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Priest"]:SetText(netpacket)
-        print("Priests: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Priest"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
       end
 
-      classCode = "0xEFDr"
-      if (string.sub(netpacket, 1, 6) == classCode) then
-        netpacket = string.gsub(netpacket, classCode, "")
-        DNAFrameClassAssignEdit["Druid"]:SetText(netpacket)
-        print("Druids: " .. netpacket)
-        hasClassAssigns = true
+      classCode = "Druid"
+      local getCode = multiKeyFromValue(netCode, classCode)
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
+          hasClassAssigns = true
+        end
+      end
+      ]==]--
+
+      --class notes
+      for i,v in ipairs(DNAClasses) do
+        local getCode = multiKeyFromValue(netCode, v)
+        if (getCode) then
+          if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+            netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+            DNAFrameClassAssignEdit[v]:SetText(netpacket)
+            hasClassAssigns = true
+          end
+        end
       end
 
-      if (string.sub(netpacket, 1, 1) == "&") then
-        netpacket = string.gsub(netpacket, "&", "")
-        local raid_assignment = split(netpacket, ",")
-        print(raid_assignment[1])
-        print(raid_assignment[2])
-        buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
-        DNAFrameAssign:Show()
-        raidReadyClear()
-        return true
+      local getCode = multiKeyFromValue(netCode, "posttoraid")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          local raid_assignment = split(netpacket, ",")
+          if (DEBUG) then
+            print(raid_assignment[1])
+            print(raid_assignment[2])
+          end
+          buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
+          DNAFrameAssign:Show()
+          raidReadyClear()
+          return true
+        end
       end
 
       if (hasClassAssigns) then
         return true
       end
 
-      if (string.sub(netpacket, 1, 1) == "#") then
-        netpacket = string.gsub(netpacket, "#", "")
-        --if (version_checked <= 0) then
-          if (DNAGlobal.version < netpacket) then
-            DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
-            version_checked = tonumber(netpacket)
-          end
-        --end
-        return true
+      local getCode = multiKeyFromValue(netCode, "version")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          --if (version_checked <= 0) then
+              if (DNAGlobal.version < netpacket) then
+                DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
+                version_checked = tonumber(netpacket)
+              end
+          --end
+          return true
+        end
       end
       --READYCHECK
-      if (string.sub(netpacket, 1, 1) == "+") then
-        netpacket = string.gsub(netpacket, "+", "")
-        raidReadyMember(netpacket, true)
-        clearFrameClassAssign()
-        return true
+      local getCode = multiKeyFromValue(netCode, "readyyes")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          raidReadyMember(netpacket, true)
+          clearFrameClassAssign()
+          return true
+        end
       end
       --NOT READY
-      if (string.sub(netpacket, 1, 1) == "!") then
-        netpacket = string.gsub(netpacket, "!", "")
-        raidReadyMember(netpacket, false)
-        clearFrameClassAssign()
-        return true
+      local getCode = multiKeyFromValue(netCode, "readyno")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          raidReadyMember(netpacket, false)
+          clearFrameClassAssign()
+          return true
+        end
       end
+
       --LOOT
       --[==[
       if (string.sub(netpacket, 1, 1) == "_") then
@@ -1381,7 +1307,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         table.insert(DNA[player.combine]["LOOTLOG"][date_day], {netpacket .. "," .. timestamp})
         return true
       end
-      ]==]--
+
       if (string.sub(netpacket, 1, 1) == "@") then --DKP
         netpacket = string.gsub(netpacket, "@", "")
         --DNAFrameAssign:Show()
@@ -1411,6 +1337,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         end
         return true
       end
+      ]==]--
 
       --single slot update, parse individual packets
       parsePacket(packet, netpacket)
@@ -1636,6 +1563,11 @@ page["Config"]:SetWidth(DNAGlobal.width)
 page["Config"]:SetHeight(DNAGlobal.height)
 page["Config"]:SetPoint("TOPLEFT", 0, 0)
 
+local profileMessage = page["Config"]:CreateFontString(nil, "ARTWORK")
+profileMessage:SetFont(DNAGlobal.font, 13, "OUTLINE")
+profileMessage:SetText("|cffffe885Profile:|r " .. player.combine)
+profileMessage:SetPoint("TOPLEFT", 30, -50)
+
 local viewFrame_w = 400
 local viewFrame_h = 400
 local viewFrame_x = 580
@@ -1761,9 +1693,9 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   DNACheckbox[checkID] = check_static
 end
 
-DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 0)
-DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 20)
-DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page["Config"], 10, 60)
+DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40)
+DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 60)
+DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page["Config"], 10, 80)
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Config"], 10, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page["DKP"])
@@ -1795,7 +1727,8 @@ btnPostDKP.text:SetPoint("CENTER", btnPostDKP)
 btnPostDKP:SetScript("OnClick", function()
   if (UnitIsGroupLeader(player.name)) then
     if (pageDKPEdit:GetText()) then
-      DN:SendPacket("send", "@" .. pageDKPEdit:GetText(), true)
+      local getCode = multiKeyFromValue(netCode, "postdkp")
+      DN:SendPacket(netCode[getCode][2] .. player.name, true)
     end
   end
 end)
@@ -1910,8 +1843,9 @@ local function updateSlotPos(role, i, name)
         --SetPartyAssignment("MAINTANK", name) --security issue has been disabled in LUA
       end
       ]==]--
-      DN:SendPacket("send", role .. i .. "," .. name, true)
-      DN:SendPacket("send", "#" .. DNAGlobal.version, true)
+      DN:SendPacket(role .. i .. "," .. name, true)
+      local getCode = multiKeyFromValue(netCode, "version")
+      DN:SendPacket(netCode[getCode][2] .. DNAGlobal.version, true)
     else
       DN:Notification("You do not have raid permission to modify assignments.   [E1]", true)
     end
@@ -2427,6 +2361,7 @@ for i, v in ipairs(DNAInstance) do
       print("DEBUG: ddBossList " .. self.value)
     end
     buildRaidAssignments(self.value, nil, "dropdown")
+    --print(multiKeyFromValue(netCode, "posttoraid"))
   end
   ddBossList[DNAInstance[i][1]]:Hide()
   ddBossList[DNAInstance[i][1]].initialize = function(self, level)
@@ -2470,7 +2405,7 @@ function DN:RaidSendAssignments()
       largePacket = largePacket .. "T" .. i .. "," .. tankSlot[i].text:GetText() .. "}"
     end
   end
-  DN:SendPacket("send", largePacket, true)
+  DN:SendPacket(largePacket, true)
 
   largePacket = "{" --beginning key
   for i = 1, DNASlots.heal do
@@ -2478,7 +2413,7 @@ function DN:RaidSendAssignments()
       largePacket = largePacket .. "H" .. i .. "," .. healSlot[i].text:GetText() .. "}"
     end
   end
-  DN:SendPacket("send", largePacket, true)
+  DN:SendPacket(largePacket, true)
 end
 
 local btnShare_x = 300
@@ -2533,33 +2468,17 @@ btnPostRaid:SetScript("OnClick", function()
       --DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
       DN:Notification("Please select a boss or trash pack!          [E9]", true)
     else
-      --MSG_
-      if (DNAFrameClassAssignEdit["Warrior"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFWa" .. DNAFrameClassAssignEdit["Warrior"]:GetText(), false)
+      --class notes
+      for i,v in ipairs(DNAClasses) do
+        local getCode = multiKeyFromValue(netCode, v)
+        if (DNAFrameClassAssignEdit[v]:GetText() ~= "") then
+          DN:SendPacket(netCode[getCode][2] .. DNAFrameClassAssignEdit[v]:GetText(), false)
+        end
       end
-      if (DNAFrameClassAssignEdit["Mage"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFMa" .. DNAFrameClassAssignEdit["Mage"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Hunter"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFHu" .. DNAFrameClassAssignEdit["Hunter"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Warlock"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFLo" .. DNAFrameClassAssignEdit["Warlock"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Paladin"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFPa" .. DNAFrameClassAssignEdit["Paladin"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Rogue"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFRo" .. DNAFrameClassAssignEdit["Rogue"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Priest"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFPr" .. DNAFrameClassAssignEdit["Priest"]:GetText(), false)
-      end
-      if (DNAFrameClassAssignEdit["Druid"]:GetText() ~= "") then
-        DN:SendPacket("send", "0xEFDr" .. DNAFrameClassAssignEdit["Druid"]:GetText(), false)
-      end
-      DN:SendPacket("send", "&" .. raidSelection .. "," .. player.name, true) --openassignments
-      DoReadyCheck()
+
+      local getCode = multiKeyFromValue(netCode, "posttoraid")
+      DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
+      --DoReadyCheck()
     end
   else
     DN:Notification("You are not in a raid!   [E2]", true)
@@ -2590,33 +2509,6 @@ bottomTabToggle("Assignment")
 ddBossList[DNAInstance[1][1]]:Show() -- show first one
 
 --[==[
-local SecureCmdList = {}
-SecureCmdList["MAINTANKON"] = function(msg)
-	local action, target = SecureCmdOptionParse(msg)
-	if ( action ) then
-		if ( not target ) then
-			target = action
-		end
-		if ( target == "" ) then
-			target = "target"
-		end
-		SetPartyAssignment("MAINTANK", target)
-	end
-end
-
-SecureCmdList["MAINTANKOFF"] = function(msg)
-	local action, target = SecureCmdOptionParse(msg)
-	if ( action ) then
-		if ( not target ) then
-			target = action
-		end
-		if ( target == "" ) then
-			target = "target"
-		end
-		ClearPartyAssignment("MAINTANK", target)
-	end
-end
-
 --local secBtn = CreateFrame("Button", nil, page["Assignment"], 'SecureActionButtonTemplate')
 --local secBtn = CreateFrame("Button", "secrun", page["Assignment"], 'InsecureActionButtonTemplate')
 local secBtn = CreateFrame("Button", "secrun", page["Assignment"], 'InsecureActionButtonTemplate')

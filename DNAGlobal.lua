@@ -12,11 +12,13 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
+DEBUG = true
+
 DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 192
+DNAGlobal.vminor  = 194
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
@@ -28,8 +30,6 @@ DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
 DN = {}
-
-DEBUG = true
 
 date_day = date("%y-%m-%d")
 timestamp = date("%y-%m-%d %H:%M:%S")
@@ -117,6 +117,11 @@ function DN:ChatNotification(msg)
   print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
 end
 
+function DN:PromoteToAssistant(name)
+  DN:ChatNotification("Auto promoted: " .. name)
+  PromoteToAssistant(name)
+end
+
 function DN:BuildGlobalVars()
   if (DNA == nil) then
     DNA = {}
@@ -138,18 +143,45 @@ function DN:BuildGlobalVars()
   end
 end
 
-function DN:SendPacket(bridge, packet, filtered)
+function DN:SendPacket(packet, filtered)
   filteredPacket = nil
-  if (bridge == "send") then
-    if (filtered) then
-      filteredPacket = packet:gsub("%s+", "") --filter spaces
-    else
-      filteredPacket = packet
-    end
-    C_ChatInfo.SendAddonMessage("dnassist", filteredPacket, "RAID")
+  if (filtered) then
+    filteredPacket = packet:gsub("%s+", "") --filter spaces
+  else
+    filteredPacket = packet
   end
+  C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "RAID")
 end
 
+DNAClasses={
+  "Warrior",
+  "Druid",
+  "Priest",
+  "Paladin",
+  "Rogue",
+  "Mage",
+  "Warlock",
+  "Hunter"
+}
+
+netCode = {
+  --class codes
+  {"Warrior", "0xEFWa"},
+  {"Hunter",  "0xEFHu"},
+  {"Druid",   "0xEFDr"},
+  {"Rogue",   "0xEFRo"},
+  {"Warlock", "0xEFLo"},
+  {"Paladin", "0xEFPa"},
+  {"Priest",  "0xEFPr"},
+  {"Mage",    "0xEFMa"},
+  --app codes
+  {"posttoraid","0xEFPo"},
+  {"version",   "0xEFVe"},
+  {"readyyes",  "0xEFRy"},
+  {"readyno",   "0xEFNr"},
+  {"version",   "0xEFVe"},
+  {"postdkp",   "0xEFPd"},
+}
 
 DNARaidMarkerText={
   "",
@@ -185,17 +217,6 @@ DNARaidMarkers={
   {"{diamond}", "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_3"},
   {"{moon}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5"},
   {"{star}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1"},
-}
-
-DNAClasses={
-  "Warrior",
-  "Druid",
-  "Priest",
-  "Paladin",
-  "Rogue",
-  "Mage",
-  "Warlock",
-  "Hunter"
 }
 
 icon_boss    = DNARaidMarkers[1][2]

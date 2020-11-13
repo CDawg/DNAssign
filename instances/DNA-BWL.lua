@@ -49,6 +49,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       text[i] = compass[i]
       heal[i] = tank.all[i] .. "," .. healer.all[i]
     end
+    text[7] = note_color .. "EVENS - NORTH"
+    text[8] = note_color .. "ODDS - SOUTH"
   end
 
   if (isItem(assign, "Vaelestraz")) then
@@ -293,8 +295,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
 
     --fear warders
     for i=1, DNASlots.heal do
-      if ((DNARaid["class"][healer.all[i]] == "Priest") and (DNARaid["race"][healer.all[i]] == "Dwarf")) then
-        fearward[i] = healer.all[i]
+      if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
+        fearward[i] = raid.priest[i]
       end
     end
     local i = 0
