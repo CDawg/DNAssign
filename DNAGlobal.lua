@@ -34,6 +34,31 @@ DN = {}
 date_day = date("%y-%m-%d")
 timestamp = date("%y-%m-%d %H:%M:%S")
 
+player = {}
+player.name = UnitName("player")
+player.realm = GetRealmName()
+player.combine=player.name .. "-" .. player.realm
+
+total = {}
+total.warriors= 0
+total.rogues = 0
+total.hunters = 0
+total.paladins= 0
+total.priests = 0
+total.warlocks= 0
+total.mages = 0
+total.druids = 0
+total.warriors_dps = 0 --dps warrs called to OT
+total.druids_dps = 0 --dps druids called to OT
+total.paladins_dps = 0 --dps paladins called to OT
+--
+total.tanks = 0
+total.healers = 0
+total.melee = 0
+total.range = 0
+--
+total.raid = 0
+
 --single array
 function singleKeyFromValue(_array, value)
   for k,v in pairs(_array) do
