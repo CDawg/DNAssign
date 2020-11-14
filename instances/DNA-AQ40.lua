@@ -60,21 +60,16 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Prophet Skeram")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
-    --local PLATFORMS = {"MIDDLE", "LEFT", "RIGHT"}
     text[1] = note_color .. "- MIDDLE -"
     text[2] = tank.all[1]
-    heal[2] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
-
+    heal[2] = healer.nodruid[1] .. "," .. healer.nodruid[2] .. "," .. healer.nodruid[3]
     text[4] = note_color .. "- LEFT -"
     text[5] = tank.all[2]
-    heal[5] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
-
+    heal[5] = healer.nodruid[4] .. "," .. healer.nodruid[5] .. "," .. healer.nodruid[6]
     text[7] = note_color .. "- RIGHT -"
     text[8] = tank.all[3]
-    if (healer.all[9]) then
-      heal[8] = healer.all[7] .. "," .. healer.all[8] .. "," .. healer.all[9]
-    else
-      heal[8] = healer.all[7] .. "," .. healer.all[8]
+    if (healer.nodruid[9]) then
+      heal[8] = healer.nodruid[7] .. "," .. healer.nodruid[8] .. "," .. healer.nodruid[9]
     end
   end
 
@@ -134,17 +129,23 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Battleguard Sartura")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40"
-    NUM_ADDS = 3
-    for i=1, 2 do --first 2 primary tanks
-      mark[i] = DNABossIcon
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
-    for i=1, NUM_ADDS do
-      mark[i+NUM_ADDS] = DNARaidMarkers[i+1][2]
-      text[i+NUM_ADDS] = tank.all[i+2]
-      heal[i+NUM_ADDS] = healer.all[i+2]
-    end
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = healer.paladin[1] .. "," .. healer.priest[1]
+    mark[2] = DNABossIcon
+    text[2] = tank.all[2]
+    heal[2] = healer.paladin[2] .. "," .. healer.priest[2]
+
+    text[4] = "-- BOSS ADDS -- "
+    mark[5] = DNARaidMarkers[2][2]
+    text[5] = tank.all[3]
+    heal[5] = healer.paladin[3]
+    mark[6] = DNARaidMarkers[3][2]
+    text[6] = tank.all[4]
+    heal[6] = healer.priest[3]
+    mark[7] = DNARaidMarkers[4][2]
+    text[7] = tank.all[3]
+    heal[7] = healer.priest[4]
   end
 
   if (isItem(assign, "Fankriss")) then
@@ -156,9 +157,9 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     text[2] = tank.all[2]
     heal[2] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
 
-    text[4] = note_color .. "Boss Adds"
+    text[4] = note_color .. "Boss Trash"
     heal[4] = tank.all[3]
-    text[5] = note_color .. "Boss Adds"
+    text[5] = note_color .. "Boss Trash"
     heal[5] = tank.all[4]
   end
 
@@ -252,19 +253,21 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Champion Pack")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40"
-    NUM_ADDS = 5
-    for i=1, NUM_ADDS+1 do
-      if (tank.main[i]) then
-        mark[i] = DNARaidMarkers[i+1][2]
-        text[i] = tank.all[i]
-        heal[i] = healer.all[i]
-      end
-
-      text[NUM_ADDS+2] = "-- BACKUP --"
-      if (raid.warrior[i]) then
-        mark[i+NUM_ADDS+2] = DNARaidMarkers[i+1][2]
-        text[i+NUM_ADDS+2] = raid.warrior[i]
-        --heal[i+8] = healer.all[i]
+    local tank_all_paladin = {}
+    table.merge(tank_all_paladin, tank.all)
+    table.merge(tank_all_paladin, raid.paladin)
+    for i=1, 5 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank_all_paladin[i]
+      heal[i] = healer.all[i]
+    end
+    for i=1, 5 do
+      mark[i+6] = DNARaidMarkers[i+1][2]
+      if (tank_all_paladin[i+6]) then
+        text[i+6] =  tank_all_paladin[i+5]
+        --if (healer.all[i+6]) then
+          --heal[i+6] = healer.all[i+5]
+        --end
       end
     end
 
@@ -275,6 +278,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       end
     end
 
+    --[==[
     local i = 0
     for k,v in pairs(fearward) do
       i = i + 1
@@ -282,6 +286,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       text[i+NUM_ADDS+8] = "Fear Ward"
       heal[i+NUM_ADDS+8] = v
     end
+    ]==]--
   end
 
   if (isItem(assign, "C'Thun")) then

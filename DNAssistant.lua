@@ -841,6 +841,7 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(tank.banish, raid.warrior) -- merge all tanks with warlocks
   table.merge(healer.nodruid, healer.priest)
   table.merge(healer.nodruid, healer.paladin)
+  table.sort(healer.nodruid)
   table.merge(raid.range, raid.hunter)
   table.merge(raid.range, raid.warlock)
   table.merge(raid.range, raid.mage)
@@ -918,29 +919,28 @@ local function buildRaidAssignments(packet, author, source)
           end
         end
       end
-
-      --class notes
-      local my_class = DNARaid["class"][player.name]
-      if (my_class) then
-        local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
-        if (class_message ~= "") then
-          class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
-          local max_class_message_length = class_message:sub(1, 80)
-          if (string.len(max_class_message_length)) then
-            DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
-            DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-            DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
-          end
-          DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
-          DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
-          DNAFrameAssignPersonal:Show()
-        end
-      end
-
-      --print(filter_row)
       DNAFrameViewScrollChild_heal[i]:SetText(filter_row)
       DNAFrameAssignScrollChild_heal[i]:SetText(filter_row)
     end
+
+    --class notes
+    local my_class = DNARaid["class"][player.name]
+    if (my_class) then
+      local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
+      if (class_message ~= "") then
+        class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
+        local max_class_message_length = class_message:sub(1, 80)
+        if (string.len(max_class_message_length)) then
+          DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
+          DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
+          DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+        end
+        DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
+        DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
+        DNAFrameAssignPersonal:Show()
+      end
+    end
+
   end
 
   if (source == "network") then
@@ -1112,88 +1112,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
 
       local hasClassAssigns = false
-
-      --[==[
-      classCode = "Warrior"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Mage"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Hunter"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Warlock"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Paladin"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Rogue"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Priest"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-
-      classCode = "Druid"
-      local getCode = multiKeyFromValue(netCode, classCode)
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DNAFrameClassAssignEdit[classCode]:SetText(netpacket)
-          hasClassAssigns = true
-        end
-      end
-      ]==]--
 
       --class notes
       for i,v in ipairs(DNAClasses) do
@@ -2339,8 +2257,10 @@ for i, v in ipairs(DNAInstance) do
   ddBossList[DNAInstance[i][1]]:Hide()
   ddBossList[DNAInstance[i][1]].initialize = function(self, level)
   	local info = UIDropDownMenu_CreateInfo()
+    local i = 0
     for ddKey, ddVal in pairs(DNARaidBosses[instanceNum]) do
       --if (ddKey ~= 1) then --remove first key
+        --i = i +1
         info.notCheckable = 1
         info.padding = 20
         info.text = ddVal[1]
