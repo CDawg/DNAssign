@@ -39,7 +39,6 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
-  local note_color = "|cffd0c1da"
   local fearward={}
 
   if (isItem(assign, "Anubisath Sentinels")) then
@@ -61,13 +60,22 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "Prophet Skeram")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
-    local PLATFORMS = {"MIDDLE", "LEFT", "RIGHT"}
-    for i=1, table.getn(PLATFORMS) do
-      text[i] = "-" .. PLATFORMS[i] .. "-"
-      heal[i] = tank.all[i] .."," .. healer.all[i] .. "," .. healer.all[i+2] .. "," .. healer.all[i+4]
-    end
+    --local PLATFORMS = {"MIDDLE", "LEFT", "RIGHT"}
+    text[1] = note_color .. "- MIDDLE -"
+    text[2] = tank.all[1]
+    heal[2] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
 
-    text[6] = note_color .. "Rogues use mind numbing poison on offhand."
+    text[4] = note_color .. "- LEFT -"
+    text[5] = tank.all[2]
+    heal[5] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
+
+    text[7] = note_color .. "- RIGHT -"
+    text[8] = tank.all[3]
+    if (healer.all[9]) then
+      heal[8] = healer.all[7] .. "," .. healer.all[8] .. "," .. healer.all[9]
+    else
+      heal[8] = healer.all[7] .. "," .. healer.all[8]
+    end
   end
 
   if (isItem(assign, "Mindflayer Pack")) then
@@ -82,18 +90,23 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
   if (isItem(assign, "Bug Trio")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40"
     NUM_BOSSES=3
+    local interrupts={}
+    table.merge(interrupts, raid.warrior)
+    table.merge(interrupts, raid.rogue)
+    local num_interrupts = table.getn(interrupts)
     for i=1, NUM_BOSSES do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i] .. "," .. healer.all[i+3]
     end
 
-    for i=1, 5 do
-      text[i+NUM_BOSSES+1] = "Yauj Interrupts"
-      heal[i+NUM_BOSSES+1] = tank.all[i+NUM_BOSSES]
+    for i=1, num_interrupts do
+      if (interrupts[i]) then
+        text[i+NUM_BOSSES+1] = "Yauj Interrupts"
+        heal[i+NUM_BOSSES+1] = interrupts[i]
+      end
     end
 
-    --fear warders
     for i=1, table.getn(raid.priest) do
       if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
         fearward[i] = raid.priest[i]
@@ -102,19 +115,21 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     local i = 0
     for k,v in pairs(fearward) do
       i = i + 1
-      mark[i+NUM_BOSSES+8] = "Interface/Icons/spell_holy_excorcism"
-      text[i+NUM_BOSSES+8] = "Fear Ward"
-      heal[i+NUM_BOSSES+8] = v
+      mark[i+NUM_BOSSES+num_interrupts+2] = "Interface/Icons/spell_holy_excorcism"
+      text[i+NUM_BOSSES+num_interrupts+2] = "Fear Ward"
+      heal[i+NUM_BOSSES+num_interrupts+2] = v
     end
   end
 
   if (isItem(assign, "Vekniss Pack")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
-    for i=1, 6 do
+    for i=1, 8 do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
+
+    text[10] = note_color .. "Extra marks are only for backup!"
   end
 
   if (isItem(assign, "Battleguard Sartura")) then

@@ -283,12 +283,10 @@ function DN:UpdateRaidRoster()
   end
   table.sort(DNARaidMemberSorted)
   for k,v in ipairs(DNARaidMemberSorted) do
-    --print("DEBUG: " .. k .. "=" .. v)
     --set text, get class color for each raid slot built
     if (v ~= nil) then
       raidSlot[k].text:SetText(v)
       raidSlot[k]:Show()
-      --thisClass = UnitClass(v)
       thisClass = DNARaid["class"][v]
       DN:ClassColorText(raidSlot[k].text, thisClass)
     end
@@ -492,7 +490,6 @@ DNAFrameAssignBossIcon = DNAFrameAssignPage["assign"]:CreateTexture(nil, "OVERLA
 DNAFrameAssignBossIcon:SetSize(90, 50)
 DNAFrameAssignBossIcon:SetPoint("TOPLEFT", 25, -20)
 DNAFrameAssignBossIcon:SetTexture("")
-
 
 DNAFrameAssignPersonal = CreateFrame("Frame", nil, UIParent)
 DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
@@ -848,7 +845,7 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(raid.range, raid.warlock)
   table.merge(raid.range, raid.mage)
 
-  if ((total.tanks < 2) or (total.healers < 7)) then
+  if ((total.tanks < 2) or (total.healers < 8)) then
     --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
     --DNAFrameViewScrollChild_tank[3]:SetText("Not enough Tanks and Healers assigned!")
     DN:Notification("Not enough tanks and healers assigned!     [E12]", true)
@@ -952,6 +949,7 @@ local function buildRaidAssignments(packet, author, source)
         local this_key = 0
         local text_line = ""
         if (text[i]) then
+          text[i] = string.gsub(text[i], note_color, "")
           if (mark[i]) then
             this_key = singleKeyFromValue(DNARaidMarkerText, mark[i])
           end
@@ -2369,7 +2367,7 @@ end
 local largePacket = nil
 function DN:RaidSendAssignments()
 
-  if ((total.tanks < 2) or (total.healers < 7)) then
+  if ((total.tanks < 2) or (total.healers < 8)) then
     DN:Notification("Not enough tanks and healers assigned!     [E13]", true)
     return
   end

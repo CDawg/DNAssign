@@ -39,7 +39,6 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
-  local note_color = "|cffd0c1da"
   local fearward={}
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 

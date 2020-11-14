@@ -59,6 +59,8 @@ total.range = 0
 --
 total.raid = 0
 
+note_color = "|cffd0c1da" --extra note assignment color
+
 --single array
 function singleKeyFromValue(_array, value)
   for k,v in pairs(_array) do

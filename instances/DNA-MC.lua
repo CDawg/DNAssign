@@ -38,7 +38,6 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
-  local note_color = "|cffd0c1da"
   local fearward={}
 
   if (isItem(assign, "Trash")) then
