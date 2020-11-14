@@ -922,25 +922,24 @@ local function buildRaidAssignments(packet, author, source)
       DNAFrameViewScrollChild_heal[i]:SetText(filter_row)
       DNAFrameAssignScrollChild_heal[i]:SetText(filter_row)
     end
+  end
 
-    --class notes
-    local my_class = DNARaid["class"][player.name]
-    if (my_class) then
-      local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
-      if (class_message ~= "") then
-        class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
-        local max_class_message_length = class_message:sub(1, 80)
-        if (string.len(max_class_message_length)) then
-          DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
-          DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-          DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
-        end
-        DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
-        DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
-        DNAFrameAssignPersonal:Show()
+  --class notes
+  local my_class = DNARaid["class"][player.name]
+  if (my_class) then
+    local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
+    if (class_message ~= "") then
+      class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
+      local max_class_message_length = class_message:sub(1, 80)
+      if (string.len(max_class_message_length)) then
+        DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
+        DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
+        DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
       end
+      DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
+      DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
+      DNAFrameAssignPersonal:Show()
     end
-
   end
 
   if (source == "network") then
