@@ -213,6 +213,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
         heal[i+8] = firemaw_heals[i]
       end
     end
+
+    text[table.getn(firemaw_heals)+10] = note_color .. "ONYXIA SCALE CLOAKS ON!!!"
   end
 
   if (isItem(assign, "Small Wyrmguards (4)")) then
@@ -253,6 +255,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     text[6] = "-- CURSE RELIEF (OPTIONAL) --"
     text[7] = tank.all[3]
     heal[7] = healer.all[7] .. "," .. healer.all[8] .. "," .. healer.all[9]
+
+    text[10] = note_color .. "ONYXIA SCALE CLOAKS ON!!!"
   end
 
   if (isItem(assign, "Flamegor")) then
@@ -268,6 +272,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       text[i+5] = "Tranq Shot"
       heal[i+5] = raid.hunter[i]
     end
+
+    text[10] = note_color .. "ONYXIA SCALE CLOAKS ON!!!"
   end
 
   if (isItem(assign, "Chromaggus")) then
@@ -321,5 +327,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       text[8] = "Decruse"
       heal[8] = raid.mage[3]
     end
+
+    text[10] = note_color .. "ONYXIA SCALE CLOAKS ON!!!"
   end
 end
