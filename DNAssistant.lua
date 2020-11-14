@@ -521,7 +521,7 @@ DNAFrameAssignPersonal.header:SetBackdrop({
 DNAFrameAssignPersonal.headerText = DNAFrameAssignPersonal.header:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignPersonal.headerText:SetFont(DNAGlobal.font, 12, "OUTLINE")
 DNAFrameAssignPersonal.headerText:SetPoint("TOPLEFT", 5, -3)
-DNAFrameAssignPersonal.headerText:SetText(player.name .. "'s Assignment             DNA v" .. DNAGlobal.version)
+DNAFrameAssignPersonal.headerText:SetText(player.name .. "'s Assignment         DNA v" .. DNAGlobal.version)
 DNAFrameAssignPersonal.headerText:SetTextColor(1, 1, 0.4)
 DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal)
 DNAFrameAssignPersonal.close:SetWidth(25)
@@ -750,16 +750,20 @@ local function buildRaidAssignments(packet, author, source)
   local NUM_ADDS = 0
   local raid={}
   raid.warrior={}
+  raid.warrior_dps={}
   raid.mage={}
   raid.paladin={}
+  raid.paladin_dps={}
   raid.hunter={}
   raid.rogue={}
   raid.warlock={}
   raid.priest={}
+  raid.priest_dps={}
   raid.druid={}
-  raid.range={}
-  local assign_lock={}
-  assign_lock[player.name] = 0
+  raid.druid_dps={}
+  --raid.range={}
+  local locked_assignments={}
+  locked_assignments[player.name] = 0
 
   clearNotifications()
   DN:UpdateRaidRoster()
@@ -799,27 +803,31 @@ local function buildRaidAssignments(packet, author, source)
     end
   end
 
-  --include warriors as OT
+  --include warriors as OT for the first prio
   for k,v in pairs(DNARaid["class"]) do
     if (v == "Warrior") then
       if (tContains(tank.main, k) == false) then
-        table.insert(raid.warrior, k) -- exclude tanks
+        table.insert(raid.warrior_dps, k) -- exclude tanks
       end
+      table.insert(raid.warrior, k)
     end
     if (v == "Paladin") then
-      if (tContains(healer.all, k) == false) then
-        table.insert(raid.paladin, k) -- exclude healers
+      if ((tContains(tank.main, k) == false) and (tContains(healer.all, k) == false)) then
+        table.insert(raid.paladin_dps, k) --exclude tanks/healers
       end
-    end
-    if (v == "Priest") then
-      --if (tContains(healer.priest, k) == false) then
-        table.insert(raid.priest, k) -- exclude healers
-      --end
+      table.insert(raid.paladin, k)
     end
     if (v == "Druid") then
-      --if (tContains(healer.druid, k) == false) then
-        table.insert(raid.druid, k) -- exclude healers
-      --end
+      if ((tContains(tank.main, k) == false) and (tContains(healer.all, k) == false)) then
+        table.insert(raid.druid_dps, k) -- exclude tanks/healers
+      end
+      table.insert(raid.druid, k)
+    end
+    if (v == "Priest") then
+      if (tContains(healer.all, k) == false) then
+        table.insert(raid.priest_dps, k) -- exclude healers
+      end
+      table.insert(raid.priest, k)
     end
     if (v == "Rogue") then
       table.insert(raid.rogue, k)
@@ -836,15 +844,14 @@ local function buildRaidAssignments(packet, author, source)
   end
 
   table.merge(tank.all, tank.main)
-  table.merge(tank.all, raid.warrior)
+  table.merge(tank.all, raid.warrior_dps)
   table.merge(tank.banish, raid.warlock)
-  table.merge(tank.banish, raid.warrior) -- merge all tanks with warlocks
+  table.merge(tank.banish, raid.warrior_dps) -- merge all tanks with warlocks
   table.merge(healer.nodruid, healer.priest)
   table.merge(healer.nodruid, healer.paladin)
-  table.sort(healer.nodruid)
-  table.merge(raid.range, raid.hunter)
-  table.merge(raid.range, raid.warlock)
-  table.merge(raid.range, raid.mage)
+  --table.merge(raid.range, raid.hunter)
+  --table.merge(raid.range, raid.warlock)
+  --table.merge(raid.range, raid.mage)
 
   if ((total.tanks < 2) or (total.healers < 8)) then
     --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
@@ -871,7 +878,7 @@ local function buildRaidAssignments(packet, author, source)
     end
 
     if (text[i] == player.name) then
-      if (assign_lock[player.name] ~= 1) then
+      if (locked_assignments[player.name] ~= 1) then
         if (mark[i]) then --pull mark
           DNAFrameAssignPersonalMark:SetTexture(mark[i])
         end
@@ -879,7 +886,7 @@ local function buildRaidAssignments(packet, author, source)
           DNAFrameAssignPersonalColOne:SetText(text[i])
           DN:ClassColorText(DNAFrameAssignPersonalColOne, DNARaid["class"][text[i]])
         end
-        assign_lock[player.name] = 1
+        locked_assignments[player.name] = 1
         DNAFrameAssignPersonal:Show()
       end
     end
@@ -897,7 +904,7 @@ local function buildRaidAssignments(packet, author, source)
           filter_row = DN:ClassColorAppend(healer_row[n], DNARaid["class"][healer_row[n]])
         end
         if (healer_row[n] == player.name) then
-          if (assign_lock[player.name] ~= 1) then
+          if (locked_assignments[player.name] ~= 1) then
             if (mark[i]) then --pull mark
               DNAFrameAssignPersonalMark:SetTexture(mark[i])
             end
@@ -906,7 +913,7 @@ local function buildRaidAssignments(packet, author, source)
               DN:ClassColorText(DNAFrameAssignPersonalColOne, DNARaid["class"][text[i]])
             end
             DNAFrameAssignPersonalColTwo:SetText(filter_row)
-            assign_lock[player.name] = 1
+            locked_assignments[player.name] = 1
             DNAFrameAssignPersonal:Show()
             if (DEBUG) then
               print(string.len(filter_row)) --increase the width of the window
@@ -922,6 +929,7 @@ local function buildRaidAssignments(packet, author, source)
       DNAFrameViewScrollChild_heal[i]:SetText(filter_row)
       DNAFrameAssignScrollChild_heal[i]:SetText(filter_row)
     end
+
   end
 
   --class notes
@@ -1024,13 +1032,15 @@ function raidDetails()
   DN:ClassColorText(pageRaidDetailsColOne[8], "Warrior")
   pageRaidDetailsColTwo[8]:SetText(total.warriors)
 
+  --[==[
   pageRaidDetailsColOne[10]:SetText("Total Range")
   pageRaidDetailsColTwo[10]:SetText(total.range)
   pageRaidDetailsColOne[11]:SetText("Total Melee")
   pageRaidDetailsColTwo[11]:SetText(total.melee)
+  ]==]--
 
-  pageRaidDetailsColOne[13]:SetText("Total")
-  pageRaidDetailsColTwo[13]:SetText(total.raid)
+  pageRaidDetailsColOne[10]:SetText("Total")
+  pageRaidDetailsColTwo[10]:SetText(total.raid)
 end
 
 local DNAMain = CreateFrame("Frame")
@@ -1147,6 +1157,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       local getCode = multiKeyFromValue(netCode, "version")
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
           --if (version_checked <= 0) then
               if (DNAGlobal.version < netpacket) then
                 DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)

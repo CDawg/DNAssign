@@ -204,29 +204,29 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     if (raid.rogue[1]) then
       mark[8] = DNARaidMarkers[2][2]
       text[8] = raid.rogue[1]
-      if (raid.warrior[1]) then
-        heal[8] = raid.warrior[1]
+      if (raid.warrior_dps[1]) then
+        heal[8] = raid.warrior_dps[1]
       end
     end
     if (raid.rogue[2]) then
       mark[9] = DNARaidMarkers[3][2]
       text[9] = raid.rogue[2]
-      if (raid.warrior[2]) then
-        heal[9] = raid.warrior[2]
+      if (raid.warrior_dps[2]) then
+        heal[9] = raid.warrior_dps[2]
       end
     end
     if (raid.rogue[3]) then
       mark[10] = DNARaidMarkers[4][2]
       text[10] = raid.rogue[3]
-      if (raid.warrior[3]) then
-        heal[10] = raid.warrior[3]
+      if (raid.warrior_dps[3]) then
+        heal[10] = raid.warrior_dps[3]
       end
     end
     if (raid.rogue[4]) then
       mark[11] = DNARaidMarkers[5][2]
       text[11] = raid.rogue[4]
-      if (raid.warrior[4]) then
-        heal[11] = raid.warrior[4]
+      if (raid.warrior_dps[4]) then
+        heal[11] = raid.warrior_dps[4]
       end
     end
     mark[1] = DNABossIcon

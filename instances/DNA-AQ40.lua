@@ -70,6 +70,8 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     text[8] = tank.all[3]
     if (healer.nodruid[9]) then
       heal[8] = healer.nodruid[7] .. "," .. healer.nodruid[8] .. "," .. healer.nodruid[9]
+    else
+      heal[8] = healer.nodruid[7] .. "," .. healer.nodruid[8] .. "," .. healer.druid[1]
     end
   end
 
@@ -86,7 +88,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     DNABossMap = DNAGlobal.dir .. "images/aq40"
     NUM_BOSSES=3
     local interrupts={}
-    table.merge(interrupts, raid.warrior)
+    table.merge(interrupts, raid.warrior_dps)
     table.merge(interrupts, raid.rogue)
     local num_interrupts = table.getn(interrupts)
     for i=1, NUM_BOSSES do
@@ -255,7 +257,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     DNABossMap = DNAGlobal.dir .. "images/aq40"
     local tank_all_paladin = {}
     table.merge(tank_all_paladin, tank.all)
-    table.merge(tank_all_paladin, raid.paladin)
+    table.merge(tank_all_paladin, raid.paladin_dps)
     for i=1, 5 do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank_all_paladin[i]
@@ -291,9 +293,11 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "C'Thun")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_cthun_groups"
+    --[==[
     for i=1, table.getn(raid.range) do
       text[i] = "Eye Tentacle"
       heal[i] = raid.range[i]
     end
+    ]==]--
   end
 end

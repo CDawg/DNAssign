@@ -206,7 +206,6 @@ netCode = {
   {"version",   "0xEFVe"},
   {"readyyes",  "0xEFRy"},
   {"readyno",   "0xEFNr"},
-  {"version",   "0xEFVe"},
   {"postdkp",   "0xEFPd"},
 }
 
