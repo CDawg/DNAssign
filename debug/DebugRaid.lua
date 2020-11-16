@@ -36,7 +36,7 @@ function buildDebugRaid()
   DNARaid["member"][19] = "Snibson"
   DNARaid["member"][20] = "Justwengit"
   DNARaid["member"][21] = "Bibbi"
-  DNARaid["member"][22] = "Mirrand"
+  DNARaid["member"][22] = "Lefti"
   DNARaid["member"][23] = "Corr"
   DNARaid["member"][24] = "Valency"
   DNARaid["member"][25] = "Nutty"
@@ -76,7 +76,7 @@ function buildDebugRaid()
   DNARaid["class"]["Averglade"] = "Paladin"
   DNARaid["class"]["Justwengit"] = "Mage"
   DNARaid["class"]["Bibbi"] = "Rogue"
-  DNARaid["class"]["Mirrand"] = "Rogue"
+  DNARaid["class"]["Lefti"] = "Priest"
   DNARaid["class"]["Corr"] = "Paladin"
   DNARaid["class"]["Valency"] = "Warlock"
   DNARaid["class"]["Nutty"] = "Paladin"
@@ -116,7 +116,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Snibson"] = 4
   DNARaid["groupid"]["Justwengit"] = 4
   DNARaid["groupid"]["Bibbi"] = 4
-  DNARaid["groupid"]["Mirrand"] = 5
+  DNARaid["groupid"]["Lefti"] = 5
   DNARaid["groupid"]["Corr"] = 5
   DNARaid["groupid"]["Valency"] = 5
   DNARaid["groupid"]["Nutty"] = 5
@@ -137,4 +137,5 @@ function buildDebugRaid()
   DNARaid["groupid"]["Averglade"] = 8
 
   DNARaid["race"]["Kelvarn"] = "Dwarf"
+  DNARaid["race"]["Lefti"] = "Dwarf"
 end

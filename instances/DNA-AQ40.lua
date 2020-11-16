@@ -39,7 +39,6 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
-  local fearward={}
 
   if (isItem(assign, "Anubisath Sentinels")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
@@ -91,30 +90,27 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     table.merge(interrupts, raid.warrior_dps)
     table.merge(interrupts, raid.rogue)
     local num_interrupts = table.getn(interrupts)
-    for i=1, NUM_BOSSES do
+    for i=1, NUM_BOSSES-1 do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i] .. "," .. healer.all[i+3]
     end
 
-    for i=1, num_interrupts do
+    mark[3] = icon_triangle
+    text[3] = tank.all[3]
+    heal[3] = healer.all[3] .. "," .. healer.all[6]
+
+    for i=1, 3 do
       if (interrupts[i]) then
-        text[i+NUM_BOSSES+1] = "Yauj Interrupts"
+        text[i+NUM_BOSSES+1] = note_color .. "Yauj Interrupts"
         heal[i+NUM_BOSSES+1] = interrupts[i]
       end
     end
 
-    for i=1, table.getn(raid.priest) do
-      if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
-        fearward[i] = raid.priest[i]
-      end
-    end
-    local i = 0
-    for k,v in pairs(fearward) do
-      i = i + 1
-      mark[i+NUM_BOSSES+num_interrupts+2] = "Interface/Icons/spell_holy_excorcism"
-      text[i+NUM_BOSSES+num_interrupts+2] = "Fear Ward"
-      heal[i+NUM_BOSSES+num_interrupts+2] = v
+    for i=1, table.getn(raid.fearward) do
+      mark[i+NUM_BOSSES+1] = icon_triangle
+      text[i+NUM_BOSSES+1] = note_color .. "Fear Ward"
+      heal[i+NUM_BOSSES+1] = raid.fearward[i]
     end
   end
 
@@ -267,28 +263,14 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       mark[i+6] = DNARaidMarkers[i+1][2]
       if (tank_all_paladin[i+6]) then
         text[i+6] =  tank_all_paladin[i+5]
-        --if (healer.all[i+6]) then
-          --heal[i+6] = healer.all[i+5]
-        --end
       end
     end
 
-    --fear warders
-    for i=1, DNASlots.heal do
-      if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
-        fearward[i] = raid.priest[i]
-      end
+    for i=1, table.getn(raid.fearward) do
+      mark[i+12] = icon_triangle
+      text[i+12] = note_color .. "Fear Ward"
+      heal[i+12] = raid.fearward[i]
     end
-
-    --[==[
-    local i = 0
-    for k,v in pairs(fearward) do
-      i = i + 1
-      mark[i+NUM_ADDS+8] = "Interface/Icons/spell_holy_excorcism"
-      text[i+NUM_ADDS+8] = "Fear Ward"
-      heal[i+NUM_ADDS+8] = v
-    end
-    ]==]--
   end
 
   if (isItem(assign, "C'Thun")) then

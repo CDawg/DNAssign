@@ -39,7 +39,6 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
-  local fearward={}
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
   if (isItem(assign, "Razorgore")) then
@@ -299,17 +298,10 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     heal[1] = healer.paladin[1] .. "," .. healer.paladin[2] .. "," .. healer.priest[1]
 
     --fear warders
-    for i=1, DNASlots.heal do
-      if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
-        fearward[i] = raid.priest[i]
-      end
-    end
-    local i = 0
-    for k,v in pairs(fearward) do
-      i = i + 1
-      mark[i+1] = "Interface/Icons/spell_holy_excorcism"
-      text[i+1] = note_color .. "Fear Ward"
-      heal[i+1] = v
+    for i=1, table.getn(raid.fearward) do
+      mark[i+2] = "Interface/Icons/spell_holy_excorcism"
+      text[i+2] = tank.all[1]
+      heal[i+2] = raid.fearward[i]
     end
 
     if (raid.mage[1]) then

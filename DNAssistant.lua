@@ -772,6 +772,7 @@ local function buildRaidAssignments(packet, author, source)
   raid.priest_dps={}
   raid.druid={}
   raid.druid_dps={}
+  raid.fearward={}
   --raid.range={}
   local locked_assignments={}
   locked_assignments[player.name] = 0
@@ -870,6 +871,15 @@ local function buildRaidAssignments(packet, author, source)
     DN:Notification("Not enough tanks and healers assigned!     [E12]", true)
     DNABossMap = ""
     return
+  end
+
+  --fear warders
+  local num_fearwards = 0
+  for i = 1, MAX_RAID_MEMBERS do
+    if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
+      num_fearwards = num_fearwards +1
+      raid.fearward[num_fearwards] = raid.priest[i]
+    end
   end
 
   DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
@@ -2436,6 +2446,10 @@ end)
 
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
+
+--DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], DNAGlobal.width-260, DNAGlobal.height-107)
+--DNACheckbox["READYCHECK"]:SetChecked(true)
+
 local btnPostRaid_t = "Post to Raid"
 local btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
 btnPostRaid:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
@@ -2461,7 +2475,9 @@ btnPostRaid:SetScript("OnClick", function()
 
       local getCode = multiKeyFromValue(netCode, "posttoraid")
       DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
-      --DoReadyCheck()
+      --if (DNACheckbox["READYCHECK"]:GetChecked()) then
+        DoReadyCheck()
+      --end
     end
   else
     DN:Notification("You are not in a raid!   [E2]", true)

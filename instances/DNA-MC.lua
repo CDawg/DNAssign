@@ -22,11 +22,13 @@ local instanceDetails = {
 }
 local bossList = {
   {"Trash",             "Interface/EncounterJournal/UI-EJ-BOSS-Baron Geddon", 1},
-  {"Lucifron",          "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron", 0},
+  {"Lucifron [1]",      "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron", 0},
+  {"Lucifron [2]",      "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron", 0},
   {"Dog Pack",          "Interface/EncounterJournal/UI-EJ-BOSS-Son of the Beast", 1},
   {"Magmadar",          "Interface/EncounterJournal/UI-EJ-BOSS-Magmadar", 0},
   {"Gehennas",          "Interface/EncounterJournal/UI-EJ-BOSS-Gehennas", 0},
-  {"Garr",              "Interface/EncounterJournal/UI-EJ-BOSS-Garr", 0},
+  {"Garr [1]",          "Interface/EncounterJournal/UI-EJ-BOSS-Garr", 0},
+  {"Garr [2]",          "Interface/EncounterJournal/UI-EJ-BOSS-Garr", 0},
   {"Lava Pack",         "Interface/EncounterJournal/UI-EJ-BOSS-Lord Roccor", 1},
   {"Sulfuron",          "Interface/EncounterJournal/UI-EJ-BOSS-Sulfuron Harbinger", 0},
   {"Golemagg",          "Interface/EncounterJournal/UI-EJ-BOSS-Golemagg the Incinerator", 0},
@@ -38,7 +40,6 @@ table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
-  local fearward={}
 
   if (isItem(assign, "Trash")) then
     NUM_ADDS = 3
@@ -50,7 +51,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     end
   end
 
-  if (isItem(assign, "Lucifron")) then
+  if (isItem(assign, "Lucifron [1]")) then
     NUM_ADDS = 2
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     for i=1, NUM_ADDS+1 do
@@ -83,6 +84,38 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     mark[1] = DNABossIcon
   end
 
+  if (isItem(assign, "Lucifron [2]")) then
+    NUM_ADDS = 2
+    DNABossMap = DNAGlobal.dir .. "images/mc" --default
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.paladin[i] .. "," .. healer.priest[i]
+    end
+    for i=1, total.mages+total.druids do
+      if (raid.mage[i]) then
+        mark[i+NUM_ADDS+2] = "Interface/Icons/spell_nature_removecurse"
+        text[i+NUM_ADDS+2] = "Decruse"
+        heal[i+NUM_ADDS+2] = raid.mage[i]
+      end
+      if (raid.druid[i]) then
+        mark[i+NUM_ADDS+2] = "Interface/Icons/spell_holy_removecurse"
+        text[i+NUM_ADDS+2] = "Decruse"
+        heal[i+NUM_ADDS+2] = raid.druid[i]
+      end
+    end
+
+    for i=1, 3 do --assign 3 priests
+      if (healer.priest[i+3]) then
+        mark[i+NUM_ADDS+total.mages+2] = "Interface/Icons/spell_holy_dispelmagic"
+        text[i+NUM_ADDS+total.mages+2] = "MC Dispells"
+        heal[i+NUM_ADDS+total.mages+2] = healer.priest[i+3]
+      end
+    end
+
+    mark[1] = DNABossIcon
+  end
+
   if (isItem(assign, "Dog Pack")) then
     NUM_ADDS = 5
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
@@ -96,20 +129,10 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     DNABossMap = DNAGlobal.dir .. "images/mc" --default
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
-    heal[1] = healer.all[1] .. "," .. healer.all[2]
-    --fear warders
-    for i=1, DNASlots.heal do
-      if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
-        fearward[i] = raid.priest[i]
-      end
-    end
-
-    local i = 0
-    for k,v in pairs(fearward) do
-      i = i + 1
-      mark[i+1] = "Interface/Icons/spell_holy_excorcism"
-      text[i+1] = "Fear Ward"
-      heal[i+1] = v
+    if (raid.fearward[1]) then
+      heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. raid.fearward[1]
+    else
+      heal[1] = healer.all[1] .. "," .. healer.all[2]
     end
 
     for i=1, table.getn(raid.hunter) do
@@ -129,23 +152,28 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
       heal[i] = healer.paladin[i] .. "," .. healer.priest[i]
     end
 
-    text[5] = note_color .. "Mages and Druids decurse!"
-
     for i=1, NUM_ADDS+1 do
       --mark[i] = DNARaidMarkers[i][2]
-      text[i+5] = tank.all[i]
+      text[i+4] = tank.all[i]
       if (raid.mage[i]) then
-        heal[i+5] = raid.mage[i]
+        heal[i+4] = raid.mage[i]
       else
         if (healer.druid[i]) then
-          heal[i+5] = healer.druid[i]
+          heal[i+4] = healer.druid[i]
         end
+      end
+    end
+
+    for i=3, total.mages do
+      if (raid.mage[i]) then
+        text[i+NUM_ADDS+4] = "Raid Decurse"
+        heal[i+NUM_ADDS+4] = raid.mage[i]
       end
     end
     mark[1] = DNABossIcon
   end
 
-  if (isItem(assign, "Garr")) then
+  if (isItem(assign, "Garr [1]")) then
     local nodruid_heals = {}
     table.merge(nodruid_heals, healer.paladin)
     table.merge(nodruid_heals, healer.priest)
@@ -158,7 +186,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
     end
     for i=1, 5 do
       if (raid.warlock[i]) then
-        mark[i+4] = DNARaidMarkers[i+4][2]
+        mark[i+4] = DNARaidMarkers[i+5][2]
         text[i+4] = raid.warlock[i]
       else
         mark[i+4] = DNARaidMarkers[i][2]
@@ -166,6 +194,45 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
         heal[i+4] = nodruid_heals[i]
       end
     end
+    mark[1] = DNABossIcon
+  end
+
+  if (isItem(assign, "Garr [2]")) then
+    local nodruid_heals = {}
+    table.merge(nodruid_heals, healer.paladin)
+    table.merge(nodruid_heals, healer.priest)
+    DNABossMap = DNAGlobal.dir .. "images/mc" --default
+    mark[1] = DNARaidMarkers[1][2]
+    text[1] = tank.all[1]
+    heal[1] = nodruid_heals[1]
+    for i=2, 4 do
+      mark[i] = DNARaidMarkers[i][2]
+      text[i] = tank.all[2]
+      heal[i] = nodruid_heals[2]
+    end
+    for i=5, 7 do
+      mark[i] = DNARaidMarkers[i][2]
+      text[i] = tank.all[3]
+      heal[i] = nodruid_heals[3]
+    end
+    for i=8, 9 do
+      mark[i] = DNARaidMarkers[i][2]
+      text[i] = tank.all[4]
+      heal[i] = nodruid_heals[4]
+    end
+
+    --[==[
+    for i=1, 3 do
+      if (raid.warlock[i]) then
+        mark[i+4] = DNARaidMarkers[i+5][2]
+        text[i+4] = raid.warlock[i]
+      else
+        mark[i+4] = DNARaidMarkers[i][2]
+        text[i+4] = tank.all[i]
+        heal[i+4] = nodruid_heals[i]
+      end
+    end
+    ]==]--
     mark[1] = DNABossIcon
   end
 
