@@ -292,7 +292,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   end
 
   if (isItem(assign, "Nefarian")) then
-    DNABossMap = DNAGlobal.dir .. "images/bwl_Nefarian"
+    DNABossMap = DNAGlobal.dir .. "images/bwl_nefarian"
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
     heal[1] = healer.paladin[1] .. "," .. healer.paladin[2] .. "," .. healer.priest[1]

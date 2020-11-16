@@ -192,6 +192,9 @@ DNAClasses={
 }
 
 netCode = {
+  --packet codes
+  {"tanks",   "0xEFTa"},
+  {"healers", "0xEFHe"},
   --class codes
   {"Warrior", "0xEFWa"},
   {"Hunter",  "0xEFHu"},

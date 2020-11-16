@@ -1325,6 +1325,15 @@ function DN:SetVars()
 
     healSlotUp[1]:Hide()
     healSlotDown[DNASlots.heal]:Hide()
+
+    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+      --showing changes??
+    else
+      for i = 1, DNASlots.heal do
+        healSlotUp[i]:Hide()
+        healSlotDown[i]:Hide()
+      end
+    end
   end
 
   if (DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] == "ON") then
@@ -2536,6 +2545,10 @@ local function raidPermissions()
     btnShare:Hide()
     btnPostRaid:Hide()
     btnPostRaidDis:Show()
+    for i = 1, DNASlots.heal do
+      healSlotUp[i]:Hide()
+      healSlotDown[i]:Hide()
+    end
   end
 end
 
