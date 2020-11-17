@@ -368,7 +368,7 @@ local function clearFrameAssignPersonal()
   --reset the window positioning, similar to a chat bubble
   DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
   DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-  DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+  DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
 end
 
 local function InstanceButtonToggle(name, icon)
@@ -543,7 +543,7 @@ DNAFrameAssignPersonal.headerText:SetTextColor(1, 1, 0.4)
 DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal)
 DNAFrameAssignPersonal.close:SetWidth(25)
 DNAFrameAssignPersonal.close:SetHeight(25)
-DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-10, 4)
+DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-14, 4)
 DNAFrameAssignPersonal.close:SetFrameLevel(4)
 DNAFrameAssignPersonal.close:SetBackdrop({
   bgFile = "Interface/Buttons/UI-Panel-MinimizeButton-Up",
@@ -802,7 +802,7 @@ local function buildRaidAssignments(packet, author, source)
     healSlotFrameClear:Hide()
   end
 
-  if (total.raid < 8) then
+  if (total.raid < 12) then
     --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
     --DNAFrameViewScrollChild_tank[3]:SetText("Not enough raid members to form assignments!")
     DN:Notification("Not enough raid members to form assignments!", true)
@@ -884,8 +884,6 @@ local function buildRaidAssignments(packet, author, source)
   --table.merge(raid.range, raid.mage)
 
   if ((total.tanks < 2) or (total.healers < 8)) then
-    --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
-    --DNAFrameViewScrollChild_tank[3]:SetText("Not enough Tanks and Healers assigned!")
     DN:Notification("Not enough tanks and healers assigned!     [E12]", true)
     DNABossMap = ""
     return
@@ -960,7 +958,7 @@ local function buildRaidAssignments(packet, author, source)
             if (string.len(filter_row) > 40) then
               DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row))
               DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-              DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+              DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
             end
           end
         end
@@ -981,7 +979,7 @@ local function buildRaidAssignments(packet, author, source)
       if (string.len(max_class_message_length)) then
         DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
         DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-        DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-20, 4)
+        DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
       end
       DNAFrameAssignPersonalClass:SetText(my_class .. "'s: " .. max_class_message_length)
       DN:ClassColorText(DNAFrameAssignPersonalClass, my_class)
@@ -1544,6 +1542,7 @@ DNAFrameViewDARK = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -
 DNAFrameViewDARK:SetAllPoints(true)
 DNAFrameViewDARK:SetColorTexture(0, 0, 0, 0.8)
 
+--[==[
 DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
 DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
 DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 5)
@@ -1553,6 +1552,21 @@ DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
 DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
 DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
 DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 6, 14)
+DNAFrameViewMR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
+DNAFrameViewMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAFrameViewMR:SetPoint("TOPLEFT", 354, -2)
+DNAFrameViewMR:SetSize(24, 316)
+]==]--
+
+DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
+DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
+DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", -20, 5)
+local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
+DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
+DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
+DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 66, 14)
 DNAFrameViewMR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
 DNAFrameViewMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNAFrameViewMR:SetPoint("TOPLEFT", 354, -2)

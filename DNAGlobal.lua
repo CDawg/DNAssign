@@ -22,6 +22,7 @@ DNAGlobal.vminor  = 198
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
+--DNAGlobal.font    = DNAGlobal.dir .. "Fonts/Verdana.ttf"
 DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
 DNAGlobal.btn_w   = 130
 DNAGlobal.btn_h   = 25

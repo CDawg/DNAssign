@@ -279,7 +279,8 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     end
 
     if (warlock_assigned ~= 1) then
-      text[3] = "No warlocks assigned in tank queue!"
+      mark[2] = icon_alert
+      text[2] = "|cffff0000 NO WARLOCKS IN THE TANK QUEUE!"
     end
 
     for i=1, table.getn(tank.main) do

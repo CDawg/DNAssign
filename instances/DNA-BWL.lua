@@ -62,9 +62,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     table.merge(vael_heals, healer.priest)
     table.merge(vael_heals, healer.druid)
     for i=1, table.getn(healer.paladin) do
-      --if (i <= 4) then --max at 4 pally healers
-        healer_row = healer_row .. healer.paladin[i] .. ","
-      --end
+      healer_row = healer_row .. healer.paladin[i] .. ","
     end
     for i=1, 3 do
       mark[i] = DNABossIcon
@@ -120,13 +118,14 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
         heal[7] = dpack_heals[7]
       end
     end
-    text[9] = note_color .. "Extra marks provided for Crowd Control"
+    text[9] = note_color .. "Extra marks provided for crowd control"
   end
 
   if (isItem(assign, "Suppression Room")) then
     DNABossMap = DNAGlobal.dir .. "images/bwl_goblinpack"
     NUM_ADDS = 3
-    text[1] = note_color .. "NO AOE TANK ASSIGNED!" --default message
+    mark[1] = icon_alert
+    text[1] = "|cffff0000 NO AOE TANK IN TANK QUEUE!" --default message
     for i=1, DNASlots.tank do
       if ((DNARaid["class"][tank.main[i]] == "Paladin") or (DNARaid["class"][tank.main[i]] == "Druid")) then
         text[1] = note_color .. "Whelps"
@@ -168,24 +167,6 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
         heal[i+6] = healer.nodruid[i]
       end
     end
-    --[==[
-    if (healer.nodruid[7]) then
-      text[13] = note_color .. "Mage heal"
-      heal[13] = healer.nodruid[7]
-    end
-    if (healer.nodruid[8]) then
-      text[14] = note_color .. "Mage heal"
-      heal[14] = healer.nodruid[8]
-    end
-    if (healer.nodruid[9]) then
-      text[15] = note_color .. "Mage heal"
-      heal[15] = healer.nodruid[9]
-    end
-    if (healer.nodruid[10]) then
-      text[16] = note_color .. "Mage heal"
-      heal[16] = healer.nodruid[10]
-    end
-    ]==]--
   end
 
   if (isItem(assign, "Firemaw")) then
@@ -250,7 +231,9 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, NUM_ADDS do
       mark[i+5] = DNARaidMarkers[i+1][2]
       text[i+5] = tank.all[i+3]
-      heal[i+5] = healer.all[i+6]
+      if (healer.all[i+6]) then
+        heal[i+5] = healer.all[i+6]
+      end
     end
 
     text[10] = "TANKS: Equip Shields and use Free Action Pots!"
@@ -265,7 +248,15 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     heal[4] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
     text[6] = "-- CURSE RELIEF (OPTIONAL) --"
     text[7] = tank.all[3]
-    heal[7] = healer.all[7] .. "," .. healer.all[8] .. "," .. healer.all[9]
+    if (healer.all[7]) then
+      heal[7] = healer.all[7]
+      if (healer.all[8]) then
+          heal[7] = healer.all[7] .. "," .. healer.all[8]
+        if (healer.all[9]) then
+          heal[7] = healer.all[7] .. "," .. healer.all[8] .. "," .. healer.all[9]
+        end
+      end
+    end
 
     text[10] = note_color .. "ONYXIA SCALE CLOAKS ON!!!"
   end
