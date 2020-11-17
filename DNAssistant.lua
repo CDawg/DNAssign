@@ -25,8 +25,12 @@ local raidSlot={}
 local raidSlot_h=20
 local tankSlot={}
 local healSlot={}
+local tankSlotFrame={}
+local healSlotFrame={}
 local healSlotUp={}
 local healSlotDown={}
+local tankSlotFrameClear={}
+local healSlotFrameClear={}
 
 local raidSelection = nil
 
@@ -259,6 +263,7 @@ function DN:UpdateRaidRoster()
     end
     if (tankSlot[i].text:GetText() ~= "Empty") then
       total.tanks = total.tanks +1
+      tankSlotFrameClear:Show()
       remove_slot = singleKeyFromValue(DNARaid["member"], tankSlot[i].text:GetText())
       if (DNARaid["member"][remove_slot] == tankSlot[i].text:GetText()) then
         DNARaid["member"][remove_slot] = nil
@@ -279,6 +284,7 @@ function DN:UpdateRaidRoster()
       total.healers = total.healers +1
       healSlotUp[i]:Show()
       healSlotDown[i]:Show()
+      healSlotFrameClear:Show()
       remove_slot = singleKeyFromValue(DNARaid["member"], healSlot[i].text:GetText())
       if (DNARaid["member"][remove_slot] == healSlot[i].text:GetText()) then
         DNARaid["member"][remove_slot] = nil
@@ -785,12 +791,15 @@ local function buildRaidAssignments(packet, author, source)
   DNAFrameAssignPersonal:Hide()
 
   if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-    --showing changes??
+    tankSlotFrameClear:Show()
+    healSlotFrameClear:Show()
   else
     for i = 1, DNASlots.heal do
       healSlotUp[i]:Hide()
       healSlotDown[i]:Hide()
     end
+    tankSlotFrameClear:Hide()
+    healSlotFrameClear:Hide()
   end
 
   if (total.raid < 8) then
@@ -1335,12 +1344,15 @@ function DN:SetVars()
     healSlotDown[DNASlots.heal]:Hide()
 
     if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      --showing changes??
+      tankSlotFrameClear:Show()
+      healSlotFrameClear:Show()
     else
       for i = 1, DNASlots.heal do
         healSlotUp[i]:Hide()
         healSlotDown[i]:Hide()
       end
+      tankSlotFrameClear:Hide()
+      healSlotFrameClear:Hide()
     end
   end
 
@@ -1915,6 +1927,32 @@ local thisClass = nil
 
 resetSwapQueues()
 
+local clearQueuePrompt=""
+local function clearQueue()
+  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+    if (clearQueuePrompt == "Heal") then
+      healSlotFrame:Hide()
+      for i = 1, DNASlots.heal do
+        healSlot[i].text:SetText("Empty")
+      end
+      healSlotFrameClear:Hide()
+    end
+    if (clearQueuePrompt == "Tank") then
+      tankSlotFrame:Hide()
+      for i = 1, DNASlots.tank do
+        tankSlot[i].text:SetText("Empty")
+      end
+      tankSlotFrameClear:Hide()
+    end
+    DN:UpdateRaidRoster()
+    DN:RaidSendAssignments()
+    tankSlotFrame:Show()
+    healSlotFrame:Show()
+  else
+    DN:Notification("You do not have raid permission to modify assignments.   [E6]", true)
+  end
+end
+
 local DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page["Assignment"], "InsetFrameTemplate")
 DNARaidScrollFrame:SetWidth(DNARaidScrollFrame_w+20) --add scroll frame width
 DNARaidScrollFrame:SetHeight(DNARaidScrollFrame_h-7)
@@ -2018,8 +2056,9 @@ slotDialog:SetBackdrop({
 slotDialog.text = slotDialog:CreateFontString(nil, "ARTWORK")
 slotDialog.text:SetFont(DNAGlobal.font, 13, "OUTLINE")
 slotDialog.text:SetPoint("CENTER", slotDialog, "CENTER", 0, 20)
-slotDialog.text:SetText("Clear out the Healing queue?")
-slotDialog:SetFrameLevel(30)
+slotDialog.text:SetText("")
+slotDialog:SetFrameLevel(500)
+slotDialog:SetFrameStrata("FULLSCREEN_DIALOG")
 local slotDialogNo = CreateFrame("Button", nil, slotDialog, "UIPanelButtonTemplate")
 slotDialogNo:SetSize(100, 24)
 slotDialogNo:SetPoint("CENTER", -60, -10)
@@ -2038,12 +2077,14 @@ slotDialogYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 slotDialogYes.text:SetPoint("CENTER", slotDialogYes, "CENTER", 0, 0)
 slotDialogYes.text:SetText("Yes")
 slotDialogYes:SetScript('OnClick', function()
+  clearQueue(true)
+  slotDialog:Hide()
 end)
 slotDialog:Hide()
 
 local tankSlotOrgPoint_x={}
 local tankSlotOrgPoint_y={}
-local tankSlotFrame = CreateFrame("Frame", tankSlotFrame, page["Assignment"], "InsetFrameTemplate")
+tankSlotFrame = CreateFrame("Frame", tankSlotFrame, page["Assignment"], "InsetFrameTemplate")
 tankSlotFrame:SetWidth(DNARaidScrollFrame_w+6)
 tankSlotFrame:SetHeight((DNASlots.tank*20)+4)
 tankSlotFrame:SetPoint("TOPLEFT", 380, -80)
@@ -2056,6 +2097,18 @@ tankSlotFrame.icon:SetTexture(DNAGlobal.dir .. "images/role_tank")
 tankSlotFrame.icon:SetPoint("TOPLEFT", 25, 20)
 tankSlotFrame.icon:SetSize(20, 20)
 tankSlotFrame:SetFrameLevel(2)
+tankSlotFrameClear = CreateFrame("Button", nil, tankSlotFrame, "UIPanelButtonTemplate")
+tankSlotFrameClear:SetPoint("TOPLEFT", DNARaidScrollFrame_w-20, 18)
+tankSlotFrameClear:SetSize(20, 18)
+local tankSlotFrameClearIcon = tankSlotFrameClear:CreateTexture(nil, "OVERLAY")
+tankSlotFrameClearIcon:SetTexture("Interface/Buttons/CancelButton-Up")
+tankSlotFrameClearIcon:SetPoint("CENTER", -1, -2)
+tankSlotFrameClearIcon:SetSize(31, 31)
+tankSlotFrameClear:SetScript("OnClick", function()
+  clearQueuePrompt = "Tank"
+  slotDialog.text:SetText("Clear out the Tanking queue?")
+  slotDialog:Show()
+end)
 --[==[
 tankSlotFrame:SetScript('OnLeave', function()
   resetSwapQueues()
@@ -2191,7 +2244,7 @@ end
 
 local healSlotOrgPoint_x={}
 local healSlotOrgPoint_y={}
-local healSlotFrame = CreateFrame("Frame", healSlotFrame, page["Assignment"], "InsetFrameTemplate")
+healSlotFrame = CreateFrame("Frame", healSlotFrame, page["Assignment"], "InsetFrameTemplate")
 healSlotFrame:SetWidth(DNARaidScrollFrame_w+6)
 healSlotFrame:SetHeight((DNASlots.heal*20)-2)
 healSlotFrame:SetPoint("TOPLEFT", 380, -240)
@@ -2204,14 +2257,16 @@ healSlotFrame.icon:SetTexture(DNAGlobal.dir .. "images/role_heal")
 healSlotFrame.icon:SetPoint("TOPLEFT", 20, 20)
 healSlotFrame.icon:SetSize(20, 20)
 healSlotFrame:SetFrameLevel(2)
-healSlotFrame.clear = CreateFrame("Button", nil, healSlotFrame, "UIPanelButtonTemplate")
-healSlotFrame.clear:SetPoint("TOPLEFT", DNARaidScrollFrame_w-20, 18)
-healSlotFrame.clear:SetSize(20, 18)
-healSlotFrame.clearIcon = healSlotFrame.clear:CreateTexture(nil, "OVERLAY")
-healSlotFrame.clearIcon:SetTexture("Interface/Buttons/CancelButton-Up")
-healSlotFrame.clearIcon:SetPoint("CENTER", -1, -2)
-healSlotFrame.clearIcon:SetSize(31, 31)
-healSlotFrame.clear:SetScript("OnClick", function()
+healSlotFrameClear = CreateFrame("Button", nil, healSlotFrame, "UIPanelButtonTemplate")
+healSlotFrameClear:SetPoint("TOPLEFT", DNARaidScrollFrame_w-20, 18)
+healSlotFrameClear:SetSize(20, 18)
+local healSlotFrameClearIcon = healSlotFrameClear:CreateTexture(nil, "OVERLAY")
+healSlotFrameClearIcon:SetTexture("Interface/Buttons/CancelButton-Up")
+healSlotFrameClearIcon:SetPoint("CENTER", -1, -2)
+healSlotFrameClearIcon:SetSize(31, 31)
+healSlotFrameClear:SetScript("OnClick", function()
+  clearQueuePrompt = "Heal"
+  slotDialog.text:SetText("Clear out the Healing queue?")
   slotDialog:Show()
 end)
 
@@ -2232,25 +2287,25 @@ for i = 1, DNASlots.heal do
   healSlot[i].text:SetText("Empty")
   healSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
   healSlotUp[i] = CreateFrame("Button", nil, healSlot[i], "UIPanelButtonTemplate")
-  healSlotUp[i]:SetPoint("TOPLEFT", DNARaidScrollFrame_w, 0)
+  healSlotUp[i]:SetPoint("TOPLEFT", DNARaidScrollFrame_w+16, 0)
   healSlotUp[i]:SetSize(20, 18)
   healSlotUp[i]:SetScript("OnClick", function()
     shiftSlot(i, "up")
   end)
   local healSlotUpIcon = healSlotUp[i]:CreateTexture(nil, "OVERLAY")
-  healSlotUpIcon:SetTexture("Interface/Buttons/Arrow-Up-Up")
-  healSlotUpIcon:SetPoint("TOPLEFT", 5, -3)
-  healSlotUpIcon:SetSize(11, 11)
+  healSlotUpIcon:SetTexture("Interface/MainMenuBar/UI-MainMenu-ScrollUpButton-Up")
+  healSlotUpIcon:SetPoint("TOPLEFT", -3, 5)
+  healSlotUpIcon:SetSize(27, 30)
   healSlotDown[i] = CreateFrame("Button", nil, healSlot[i], "UIPanelButtonTemplate")
-  healSlotDown[i]:SetPoint("TOPLEFT", DNARaidScrollFrame_w+16, 0)
+  healSlotDown[i]:SetPoint("TOPLEFT", DNARaidScrollFrame_w, 0)
   healSlotDown[i]:SetSize(20, 18)
   healSlotDown[i]:SetScript("OnClick", function()
     shiftSlot(i, "down")
   end)
   local healSlotDownIcon = healSlotDown[i]:CreateTexture(nil, "OVERLAY")
-  healSlotDownIcon:SetTexture("Interface/Buttons/Arrow-Down-Up")
-  healSlotDownIcon:SetPoint("TOPLEFT", 5, -8)
-  healSlotDownIcon:SetSize(11, 11)
+  healSlotDownIcon:SetTexture("Interface/MainMenuBar/UI-MainMenu-ScrollDownButton-Up")
+  healSlotDownIcon:SetPoint("TOPLEFT", -3, 5)
+  healSlotDownIcon:SetSize(27, 30)
   healSlot[i]:SetBackdrop({
     bgFile = "Interface/Collections/CollectionsBackgroundTile",
     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -2334,7 +2389,7 @@ for i = 1, DNASlots.heal do
   end)
 end
 
-healSlotDown[1]:SetPoint("TOPLEFT", DNARaidScrollFrame_w, 0) --down button slide to left
+healSlotUp[DNASlots.heal]:SetPoint("TOPLEFT", DNARaidScrollFrame_w, 0) --last up button slide to left
 
 --build all 40 first
 for i = 1, MAX_RAID_MEMBERS do
@@ -2454,14 +2509,6 @@ end
 
 local largePacket = nil
 function DN:RaidSendAssignments()
-
-  --[==[
-  if ((total.tanks < 2) or (total.healers < 8)) then
-    DN:Notification("Not enough tanks and healers assigned!     [E13]", true)
-    return
-  end
-  ]==]--
-
   largePacket = "{"
   for i = 1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= nil) then
@@ -2532,6 +2579,10 @@ btnPostRaid.text:SetText(btnPostRaid_t)
 btnPostRaid.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaid:SetScript("OnClick", function()
   if (IsInRaid()) then
+    if ((total.tanks < 2) or (total.healers < 8)) then
+      DN:Notification("Not enough tanks and healers assigned!     [E13]", true)
+      return
+    end
     DN:RaidSendAssignments()
     if (raidSelection == nil) then
       --DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
