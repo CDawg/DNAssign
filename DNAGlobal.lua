@@ -18,7 +18,7 @@ DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 195
+DNAGlobal.vminor  = 196
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
@@ -29,6 +29,7 @@ DNAGlobal.btn_h   = 25
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
+--DNAGlobal.background="Interface/ACHIEVEMENTFRAME/UI-GuildAchievement-Parchment-Horizontal-Desaturated"
 DN = {}
 
 date_day = date("%y-%m-%d")
@@ -246,6 +247,7 @@ DNARaidMarkers={
   {"{diamond}", "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_3"},
   {"{moon}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5"},
   {"{star}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1"},
+  {"{alert}",   "Interface/DialogFrame/UI-Dialog-Icon-AlertNew"},
 }
 
 icon_boss    = DNARaidMarkers[1][2]
@@ -257,6 +259,7 @@ icon_square  = DNARaidMarkers[6][2]
 icon_diamond = DNARaidMarkers[7][2]
 icon_moon    = DNARaidMarkers[8][2]
 icon_star    = DNARaidMarkers[9][2]
+icon_alert   = DNARaidMarkers[10][2]
 
 function DN:ClassColorText(frame, class)
   local rgb={0.60, 0.60, 0.60} --offline gray

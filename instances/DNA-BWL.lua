@@ -44,11 +44,15 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   if (isItem(assign, "Razorgore")) then
     DNABossMap = DNAGlobal.dir .. "images/bwl_razorgore"
     for i=1, 5 do
-      text[i] = compass[i]
+      text[i] = note_color .. compass[i]
       heal[i] = tank.all[i] .. "," .. healer.all[i]
     end
     text[7] = note_color .. "EVENS - NORTH"
     text[8] = note_color .. "ODDS - SOUTH"
+
+    text[10] = note_color .. "CONFLAG"
+    heal[10] = tank.all[2] .. "," .. healer.all[2]
+    text[12] = note_color .. "FREE ACTION POT FOR CONFLAG TANK!"
   end
 
   if (isItem(assign, "Vaelestraz")) then
@@ -100,17 +104,17 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     else
       text[5] = tank.all[5]
     end
-    if (healer.druid[1]) then
+    if (raid.druid[1]) then
       mark[6] = icon_diamond
-      text[6] = healer.druid[1]
+      text[6] = raid.druid[1]
       heal[6] = dpack_heals[4]
       if (heal[6] == healer.all[4]) then
         heal[6] = dpack_heals[5]
       end
     end
-    if (healer.druid[2]) then
+    if (raid.druid[2]) then
       mark[7] = icon_moon
-      text[7] = healer.druid[2]
+      text[7] = raid.druid[2]
       heal[7] = dpack_heals[6]
       if (heal[7] == healer.all[6]) then
         heal[7] = dpack_heals[7]
@@ -122,10 +126,10 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   if (isItem(assign, "Suppression Room")) then
     DNABossMap = DNAGlobal.dir .. "images/bwl_goblinpack"
     NUM_ADDS = 3
-    text[1] = "No AOE Tank assigned!" --default message
+    text[1] = note_color .. "NO AOE TANK ASSIGNED!" --default message
     for i=1, DNASlots.tank do
       if ((DNARaid["class"][tank.main[i]] == "Paladin") or (DNARaid["class"][tank.main[i]] == "Druid")) then
-        text[1] = "Whelps"
+        text[1] = note_color .. "Whelps"
         heal[1] = tank.main[i] .. "," .. healer.all[4]
       end
     end
@@ -135,7 +139,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       heal[i+1] = healer.all[i]
     end
     for i=1, total.rogues do
-      text[i+NUM_ADDS*2] = " - Device - "
+      text[i+NUM_ADDS*2] = note_color .. " - Device - "
       heal[i+NUM_ADDS*2] = raid.rogue[i]
     end
   end
@@ -145,7 +149,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, 6 do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+      heal[i] = healer.nodruid[i]
     end
 
     text[8] = note_color .. "-- PULL --"
@@ -158,22 +162,30 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
         heal[i+8] = tank.all[i]
       end
     end
-    if (healer.all[7]) then
+    for i=7, DNASlots.heal do
+      if (healer.nodruid[i]) then
+        text[i+6] = note_color .. "Mage heal"
+        heal[i+6] = healer.nodruid[i]
+      end
+    end
+    --[==[
+    if (healer.nodruid[7]) then
       text[13] = note_color .. "Mage heal"
-      heal[13] = healer.all[7]
+      heal[13] = healer.nodruid[7]
     end
-    if (healer.all[8]) then
+    if (healer.nodruid[8]) then
       text[14] = note_color .. "Mage heal"
-      heal[14] = healer.all[8]
+      heal[14] = healer.nodruid[8]
     end
-    if (healer.all[9]) then
+    if (healer.nodruid[9]) then
       text[15] = note_color .. "Mage heal"
-      heal[15] = healer.all[9]
+      heal[15] = healer.nodruid[9]
     end
-    if (healer.all[10]) then
+    if (healer.nodruid[10]) then
       text[16] = note_color .. "Mage heal"
-      heal[16] = healer.all[10]
+      heal[16] = healer.nodruid[10]
     end
+    ]==]--
   end
 
   if (isItem(assign, "Firemaw")) then
@@ -241,7 +253,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
       heal[i+5] = healer.all[i+6]
     end
 
-    text[10] = "Tanks: Equip shields!"
+    text[10] = "TANKS: Equip Shields and use Free Action Pots!"
   end
 
   if (isItem(assign, "Ebonroc")) then
@@ -286,9 +298,14 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     else
       heal[4] = healer.priest[3] .. "," .. healer.paladin[2]
     end
-
     text[6] = note_color .. "Rest of healers on range side."
     text[7] = note_color .. "Paladins/Druids cleanse poison."
+    for i=1, total.mages do
+      if (raid.mage[i]) then
+        text[i+8] = note_color .. "DECURSE"
+        heal[i+8] = raid.mage[i]
+      end
+    end
   end
 
   if (isItem(assign, "Nefarian")) then

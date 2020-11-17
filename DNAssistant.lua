@@ -19,54 +19,55 @@ All of this is because Blizz uses LUA which is a fucking piece of shit garbage c
 hooksecurefunc
 ]==]--
 
-local packet = {}
+local packet={}
 
-local raidSlot = {}
-local raidSlot_h = 20
-local tankSlot = {}
-local healSlot = {}
-local healSlotUp = {}
-local healSlotDown = {}
+local raidSlot={}
+local raidSlot_h=20
+local tankSlot={}
+local healSlot={}
+local healSlotUp={}
+local healSlotDown={}
+local slotDialogNo={}
 
 local raidSelection = nil
 
-local DNAFrameMainBottomTab = {}
+local DNAFrameMainBottomTab={}
 
-local viewFrameBotTab = {}
+local viewFrameBotTab={}
 
 local page={}
-local pageBanner = {}
-local pageBossIcon = {}
+local pageBanner={}
+local pageBossIcon={}
 
 local DNAMiniMap={}
 
 local pageDKPView={}
-local pageDKPViewScrollChild_colOne = {}
-local pageDKPViewScrollChild_colTwo = {}
+local pageDKPViewScrollChild_colOne={}
+local pageDKPViewScrollChild_colTwo={}
 local pageDKPViewScrollChild_colThree= {}
 
 local version_checked = 0
 
 local ddSelection = nil
 
---local pageTab = {}
-local ddBossList = {}
-local ddBossListText = {}
-local DNAFrameInstance = {}
+--local pageTab={}
+local ddBossList={}
+local ddBossListText={}
+local DNAFrameInstance={}
 local DNAFrameInstanceText={}
 local DNAFrameInstanceScript={}
 local DNAFrameInstanceGlow={}
 
-local DNAFrameView = {}
-local DNAFrameViewBG = {}
+local DNAFrameView={}
+local DNAFrameViewBG={}
 
 local DNAFrameClassAssignEdit={}
 --local DNAFrameClassAssignHidden={}
 
-local pageRaidDetailsColOne = {}
-local pageRaidDetailsColTwo = {}
+local pageRaidDetailsColOne={}
+local pageRaidDetailsColTwo={}
 
-local DNAFrameAssignTabIcon = {}
+local DNAFrameAssignTabIcon={}
 local DNAFrameAssignMapGroupID={}
 
 local DNAFrameAssignPersonal_w = 320 --MIN WIDTH, length may depend on the string length
@@ -161,8 +162,8 @@ end
 
 local windowOpen = false
 
-local swapQueue = {}
-local prevQueue = {}
+local swapQueue={}
+local prevQueue={}
 local function resetSwapQueues()
   prevQueue["T"] = 0
   swapQueue["T"] = 0
@@ -232,7 +233,7 @@ function raidReadyMember(member, isReady)
 end
 
 --alpha sort the member matrix
-local DNARaidMemberSorted = {}
+local DNARaidMemberSorted={}
 function DN:UpdateRaidRoster()
   local k=0
   --clear all entries, then rebuild raid
@@ -551,11 +552,11 @@ DNAFrameAssignPersonal:Hide()
 --DNAFrameAssignMe:Hide()
 DNAFrameAssignPersonalMark = DNAFrameAssignPersonal:CreateTexture(nil, "ARTWORK")
 DNAFrameAssignPersonalMark:SetSize(16, 16)
-DNAFrameAssignPersonalMark:SetPoint("TOPLEFT", 10, -22)
+DNAFrameAssignPersonalMark:SetPoint("TOPLEFT", 6, -22)
 DNAFrameAssignPersonalMark:SetTexture("")
 DNAFrameAssignPersonalColOne = DNAFrameAssignPersonal:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignPersonalColOne:SetFont(DNAGlobal.font, 12, "OUTLINE")
-DNAFrameAssignPersonalColOne:SetPoint("TOPLEFT", 30, -25)
+DNAFrameAssignPersonalColOne:SetPoint("TOPLEFT", 25, -25)
 DNAFrameAssignPersonalColOne:SetText("")
 DNAFrameAssignPersonalColTwo = DNAFrameAssignPersonal:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignPersonalColTwo:SetFont(DNAGlobal.font, 12, "OUTLINE")
@@ -748,16 +749,16 @@ local function buildRaidAssignments(packet, author, source)
   tank.main={}
   tank.banish={}
   tank.all={}
-  local heal = {}
+  local heal={}
   local healer={}
-  healer.all = {}
+  healer.all={}
   healer.priest={}
   healer.paladin={}
   healer.druid ={}
   healer.nodruid ={}
   local boss=""
-  local mark = {}
-  local text = {}
+  local mark={}
+  local text={}
   local NUM_ADDS = 0
   local raid={}
   raid.warrior={}
@@ -783,6 +784,15 @@ local function buildRaidAssignments(packet, author, source)
   clearFrameAssign()
   clearFrameAssignPersonal()
   DNAFrameAssignPersonal:Hide()
+
+  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+    --showing changes??
+  else
+    for i = 1, DNASlots.heal do
+      healSlotUp[i]:Hide()
+      healSlotDown[i]:Hide()
+    end
+  end
 
   if (total.raid < 8) then
     --DNAFrameViewScrollChild_mark[3]:SetTexture("Interface/DialogFrame/UI-Dialog-Icon-AlertNew")
@@ -1131,7 +1141,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (string.sub(netpacket, 1, 1) == "{") then
         netpacket = netpacket .. "EOL"
         netpacket = string.gsub(netpacket, '}EOL', "")
-        local filteredPacket = {}
+        local filteredPacket={}
         packetChunk = split(netpacket, "}")
         for x=1, table.getn(packetChunk) do
           filteredPacket[x] = string.gsub(packetChunk[x], "{", "")
@@ -1213,7 +1223,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       --[==[
       if (string.sub(netpacket, 1, 1) == "_") then
         if (DNA[player.combine]["LOOTLOG"][date_day] == nil) then
-          DNA[player.combine]["LOOTLOG"][date_day] = {}
+          DNA[player.combine]["LOOTLOG"][date_day]={}
         end
         netpacket = string.gsub(netpacket, "_", "")
 
@@ -1267,16 +1277,16 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   end
 end)
 
-SLASH_DNA1 = "/DNA"
+SLASH_DNA1 = "/dna"
 function SlashCmdList.DNA(msg)
-  --print("DEBUG: " .. slash input)
+  --print("DEBUG: " .. msg)
 end
 
 --build the cached array
 getRaidComp()
 
 function DN:SetVars()
-  local getsave = {}
+  local getsave={}
   for k,v in pairs(DNA[player.combine]["ASSIGN"]) do
     getsave.key = k
     getsave.role = string.gsub(k, "[^a-zA-Z]", "") --remove numbers
@@ -1322,7 +1332,6 @@ function DN:SetVars()
         healSlotDown[getsave.slot]:Show()
       end
     end
-
     healSlotUp[1]:Hide()
     healSlotDown[DNASlots.heal]:Hide()
 
@@ -1368,7 +1377,6 @@ function DN:SetVars()
   end
 end
 
---local DNAFrameMain = CreateFrame("Frame", DNAFrameMain, UIParent, "BasicFrameTemplateWithInset")
 local DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
 DNAFrameMain:SetWidth(DNAGlobal.width)
 DNAFrameMain:SetHeight(DNAGlobal.height)
@@ -1548,7 +1556,7 @@ for i = 1, MAX_FRAME_LINES do
   DNAFrameViewScrollChild_tank[i] = DNAViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
   DNAFrameViewScrollChild_tank[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   DNAFrameViewScrollChild_tank[i]:SetText("")
-  DNAFrameViewScrollChild_tank[i]:SetPoint("TOPLEFT", 30, (-i*18)+10)
+  DNAFrameViewScrollChild_tank[i]:SetPoint("TOPLEFT", 25, (-i*18)+10)
 
   DNAFrameViewScrollChild_heal[i] = DNAViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
   DNAFrameViewScrollChild_heal[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
@@ -1742,7 +1750,7 @@ function DN:Notification(msg)
 end
 
 --[==[
-local SecureCmdList = {}
+local SecureCmdList={}
 SecureCmdList["MAINTANKON"] = function(msg)
 	local action, target = SecureCmdOptionParse(msg);
 	if ( action ) then
@@ -1756,7 +1764,7 @@ SecureCmdList["MAINTANKON"] = function(msg)
 	end
 end
 
-local secureScript = {}
+local secureScript={}
 secureScript["test"] = CreateFrame('Button', nil, DNAFrameMain, 'InsecureActionButtonTemplate')
 secureScript["test"]:SetAttribute('type', 'macro')
 secureScript["test"]:SetAttribute('macrotext', '/mt krizzu')
@@ -1876,7 +1884,7 @@ local function bottomTab(name, pos_x, text_pos_x)
   botBorder:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
   botBorder:SetSize(100, 35)
   botBorder:SetPoint("TOPLEFT", 0, -14)
-  DNAFrameMainBottomTabScript = {}
+  DNAFrameMainBottomTabScript={}
   DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name], "UIPanelButtonTemplate")
   DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name])
   DNAFrameMainBottomTabScript[name]:SetSize(85, 30)
@@ -1901,8 +1909,8 @@ end
 -- BO PAGE ASSIGN
 local DNARaidScrollFrame_w = 140
 local DNARaidScrollFrame_h = 406
-local raidSlotOrgPoint_x = {}
-local raidSlotOrgPoint_y = {}
+local raidSlotOrgPoint_x={}
+local raidSlotOrgPoint_y={}
 local memberDrag = nil
 local thisClass = nil
 
@@ -1998,8 +2006,44 @@ function raidSlotFrame(parentFrame, i, y)
   end)
 end
 
-local tankSlotOrgPoint_x = {}
-local tankSlotOrgPoint_y = {}
+slotDialog = CreateFrame("Frame", nil, DNAFrameMain)
+slotDialog:SetWidth(400)
+slotDialog:SetHeight(80)
+slotDialog:SetPoint("CENTER", 0, 20)
+slotDialog:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+slotDialog.text = slotDialog:CreateFontString(nil, "ARTWORK")
+slotDialog.text:SetFont(DNAGlobal.font, 13, "OUTLINE")
+slotDialog.text:SetPoint("CENTER", slotDialog, "CENTER", 0, 20)
+slotDialog.text:SetText("Clear out the Healing queue?")
+slotDialog:SetFrameLevel(30)
+slotDialogNo = CreateFrame("Button", nil, slotDialog, "UIPanelButtonTemplate")
+slotDialogNo:SetSize(100, 24)
+slotDialogNo:SetPoint("CENTER", -60, -10)
+slotDialogNo.text = slotDialogNo:CreateFontString(nil, "ARTWORK")
+slotDialogNo.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+slotDialogNo.text:SetPoint("CENTER", slotDialogNo, "CENTER", 0, 0)
+slotDialogNo.text:SetText("No")
+slotDialogNo:SetScript('OnClick', function()
+  slotDialog:Hide()
+end)
+slotDialogYes = CreateFrame("Button", nil, slotDialog, "UIPanelButtonTemplate")
+slotDialogYes:SetSize(100, 24)
+slotDialogYes:SetPoint("CENTER", 60, -10)
+slotDialogYes.text = slotDialogYes:CreateFontString(nil, "ARTWORK")
+slotDialogYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+slotDialogYes.text:SetPoint("CENTER", slotDialogYes, "CENTER", 0, 0)
+slotDialogYes.text:SetText("Yes")
+slotDialogYes:SetScript('OnClick', function()
+end)
+slotDialog:Hide()
+
+local tankSlotOrgPoint_x={}
+local tankSlotOrgPoint_y={}
 local tankSlotframe = CreateFrame("Frame", tankSlotframe, page["Assignment"], "InsetFrameTemplate")
 tankSlotframe:SetWidth(DNARaidScrollFrame_w+6)
 tankSlotframe:SetHeight((DNASlots.tank*20)+4)
@@ -2104,42 +2148,50 @@ end
 
 
 local function closeGaps(remove)
-  local healSlots = {}
-  for i = 1, DNASlots.heal do
-    if ((healSlot[i].text:GetText() ~= "Empty") and (healSlot[i].text:GetText() ~= remove)) then
-      table.insert(healSlots, healSlot[i].text:GetText())
+  local healSlots={}
+  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+    for i = 1, DNASlots.heal do
+      if ((healSlot[i].text:GetText() ~= "Empty") and (healSlot[i].text:GetText() ~= remove)) then
+        table.insert(healSlots, healSlot[i].text:GetText())
+      end
     end
+    for i = 1, DNASlots.heal do
+      healSlot[i].text:SetText("Empty") --quick recycle
+    end
+    for i, v in ipairs(healSlots) do
+      healSlot[i].text:SetText(v)
+    end
+    DN:UpdateRaidRoster()
+    DN:RaidSendAssignments()
+    --resetSwapQueues()
+  else
+    DN:Notification("You do not have raid permission to modify assignments.   [E2]", true)
   end
-  for i = 1, DNASlots.heal do
-    healSlot[i].text:SetText("Empty") --quick recycle
-  end
-  for i, v in ipairs(healSlots) do
-    healSlot[i].text:SetText(v)
-  end
-  DN:UpdateRaidRoster()
-  DN:RaidSendAssignments()
-  --resetSwapQueues()
 end
 
 local function shiftSlot(current, pos)
-  local shiftFrom= healSlot[current].text:GetText()
-  if (pos == "up") then
-    local shiftTo = healSlot[current-1].text:GetText()
-    healSlot[current-1].text:SetText(shiftFrom)
-    healSlot[current].text:SetText(shiftTo)
+  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+    local shiftFrom= healSlot[current].text:GetText()
+    if (pos == "up") then
+      local shiftTo = healSlot[current-1].text:GetText()
+      healSlot[current-1].text:SetText(shiftFrom)
+      healSlot[current].text:SetText(shiftTo)
+    else
+      local shiftTo = healSlot[current+1].text:GetText()
+      healSlot[current+1].text:SetText(shiftFrom)
+      healSlot[current].text:SetText(shiftTo)
+    end
+    DN:UpdateRaidRoster()
+    DN:RaidSendAssignments()
+    healSlotUp[1]:Hide()
+    healSlotDown[DNASlots.heal]:Hide()
   else
-    local shiftTo = healSlot[current+1].text:GetText()
-    healSlot[current+1].text:SetText(shiftFrom)
-    healSlot[current].text:SetText(shiftTo)
+    DN:Notification("You do not have raid permission to modify assignments.   [E3]", true)
   end
-  DN:UpdateRaidRoster()
-  DN:RaidSendAssignments()
-  healSlotUp[1]:Hide()
-  healSlotDown[DNASlots.heal]:Hide()
 end
 
-local healSlotOrgPoint_x = {}
-local healSlotOrgPoint_y = {}
+local healSlotOrgPoint_x={}
+local healSlotOrgPoint_y={}
 local healSlotframe = CreateFrame("Frame", healSlotframe, page["Assignment"], "InsetFrameTemplate")
 healSlotframe:SetWidth(DNARaidScrollFrame_w+6)
 healSlotframe:SetHeight((DNASlots.heal*20)-2)
@@ -2153,6 +2205,16 @@ healSlotframe.icon:SetTexture(DNAGlobal.dir .. "images/role_heal")
 healSlotframe.icon:SetPoint("TOPLEFT", 20, 20)
 healSlotframe.icon:SetSize(20, 20)
 healSlotframe:SetFrameLevel(2)
+healSlotframe.clear = CreateFrame("Button", nil, healSlotframe, "UIPanelButtonTemplate")
+healSlotframe.clear:SetPoint("TOPLEFT", DNARaidScrollFrame_w-20, 18)
+healSlotframe.clear:SetSize(20, 18)
+healSlotframe.clearIcon = healSlotframe.clear:CreateTexture(nil, "OVERLAY")
+healSlotframe.clearIcon:SetTexture("Interface/Buttons/CancelButton-Up")
+healSlotframe.clearIcon:SetPoint("CENTER", -1, -2)
+healSlotframe.clearIcon:SetSize(31, 31)
+healSlotframe.clear:SetScript("OnClick", function()
+  slotDialog:Show()
+end)
 
 for i = 1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotframe)
@@ -2326,7 +2388,7 @@ local function viewFrameBottomTab(name, pos_x, text_pos_x)
   viewFrameBotBorder[name]:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
   viewFrameBotBorder[name]:SetSize(100, 35)
   viewFrameBotBorder[name]:SetPoint("TOPLEFT", 0, -14)
-  local viewFrameBotTabScript = {}
+  local viewFrameBotTabScript={}
   viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name], "UIPanelButtonTemplate")
   viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name])
   viewFrameBotTabScript[name]:SetSize(85, 30)
@@ -2453,6 +2515,8 @@ btnShareDis:SetScript("OnClick", function()
   end
 end)
 
+btnShareDis:Hide()
+
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
 
@@ -2501,7 +2565,7 @@ btnPostRaidDis.text:SetText(btnPostRaid_t)
 btnPostRaidDis.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaidDis:SetScript("OnClick", function()
   if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [E3]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [E5]", true)
   else
     DN:Notification("You are not in a raid!   [E3]", true)
   end
@@ -2570,6 +2634,7 @@ end
 
 SlashCmdList["DNA"] = function(msg)
   DNAOpenWindow()
+  print(msg)
 end
 
 --[==[
