@@ -366,7 +366,7 @@ local function clearFrameAssignPersonal()
   DNAFrameAssignPersonalColTwo:SetText("")
   DNAFrameAssignPersonalClass:SetText("")
   --reset the window positioning, similar to a chat bubble
-  DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
+  DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w) --default
   DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
   DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
 end
@@ -603,13 +603,13 @@ DNAFrameAssignScrollBG:SetPoint("TOPLEFT", 20, -70)
 
 DNAFrameAssign.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameAssignPage["assign"], "UIPanelScrollFrameTemplate")
 DNAFrameAssign.ScrollFrame:SetPoint("TOPLEFT", DNAFrameAssignPage["assign"], "TOPLEFT", 6, -75)
-DNAFrameAssign.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameAssignPage["assign"], "BOTTOMRIGHT", 6, 85)
+DNAFrameAssign.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameAssignPage["assign"], "BOTTOMRIGHT", -25, 85)
 local DNAFrameAssignScrollChild = CreateFrame("Frame", nil, DNAFrameAssign.ScrollFrame)
 DNAFrameAssignScrollChild:SetSize(DNAFrameAssign_w-40, DNAFrameAssign_h-80)
 DNAFrameAssign.ScrollFrame:SetScrollChild(DNAFrameAssignScrollChild)
 DNAFrameAssign.ScrollFrame.ScrollBar:ClearAllPoints()
 DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameAssign.ScrollFrame, "TOPRIGHT", -175, -15)
-DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameAssign.ScrollFrame, "BOTTOMRIGHT", 100, 14)
+DNAFrameAssign.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameAssign.ScrollFrame, "BOTTOMRIGHT", 160, 14)
 --[==[
 DNAFrameAssignScrollChild.bg = DNAFrameAssignScrollChild:CreateTexture(nil, "ARTWORK")
 DNAFrameAssignScrollChild.bg:SetAllPoints(true)
@@ -956,7 +956,7 @@ local function buildRaidAssignments(packet, author, source)
               print(string.len(filter_row)) --increase the width of the window
             end
             if (string.len(filter_row) > 40) then
-              DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row))
+              DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row)+40)
               DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
               DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
             end
@@ -1560,13 +1560,13 @@ DNAFrameViewMR:SetSize(24, 316)
 
 DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
 DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
-DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", -20, 5)
+DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", -25, 5)
 local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
 DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
 DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
 DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
 DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 66, 14)
+DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 76, 14)
 DNAFrameViewMR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
 DNAFrameViewMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNAFrameViewMR:SetPoint("TOPLEFT", 354, -2)
@@ -2686,7 +2686,7 @@ local function DNAOpenWindow()
   else
     windowOpen = true
     DNAFrameMain:Show()
-    --DNAFrameAssign:Show()
+    DNAFrameAssign:Show()
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
     DN:SetVars()
