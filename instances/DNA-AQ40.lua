@@ -31,7 +31,8 @@ local bossList = {
   {"Stinger Pack",       DNAGlobal.dir .. "images/boss_wasps", 1},
   {"Princess Huhuran",   "Interface/EncounterJournal/UI-EJ-BOSS-Princess Huhuran", 0},
   {"Twin Emperors",      "Interface/EncounterJournal/UI-EJ-BOSS-Twin Emperors", 0},
-  {"Champion Pack",      "Interface/EncounterJournal/UI-EJ-BOSS-General Rajaxx", 0},
+  {"Champion Pack",      "Interface/EncounterJournal/UI-EJ-BOSS-General Rajaxx", 1},
+  {"Obsidian Pack",      "Interface/EncounterJournal/UI-EJ-BOSS-Moam", 1},
   {"C'Thun",             "Interface/EncounterJournal/UI-EJ-BOSS-CThun", 0}
 }
 
@@ -261,9 +262,11 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       heal[2] = heal[1]
     end
     for i=1, table.getn(priest_druids) do
-      text[i+3] = "Raid Heals"
+      text[i+3] = note_color .. "Raid Heals"
       heal[i+3] = priest_druids[i]
     end
+
+    text[10] = note_color .. "PRE POT NATURE POTS"
   end
 
   if (isItem(assign, "Twin Emperors")) then
@@ -334,6 +337,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       text[i] = tank_all_paladin[i]
       heal[i] = healer.all[i]
     end
+    text[6] = "-- BACKUP --"
     for i=1, 5 do
       mark[i+6] = DNARaidMarkers[i+1][2]
       if (tank_all_paladin[i+6]) then
@@ -341,10 +345,36 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       end
     end
 
-    for i=1, table.getn(raid.fearward) do
+    local num_fearwards = table.getn(raid.fearward)
+    for i=1, num_fearwards do
       mark[i+12] = icon_triangle
       text[i+12] = note_color .. "Fear Ward"
       heal[i+12] = raid.fearward[i]
+    end
+    for i=1, table.getn(raid.hunter) do
+      mark[i+12+num_fearwards] = "Interface/Icons/spell_nature_drowsy"
+      text[i+12+num_fearwards] = note_color .. "Tranq Shot"
+      heal[i+12+num_fearwards] = raid.hunter[i]
+    end
+  end
+
+
+  if (isItem(assign, "Obsidian Pack")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/aq40"
+    for i=1, NUM_ADDS do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      if (healer.paladin[i]) then
+        heal[i] = healer.paladin[i]
+      end
+    end
+
+    for i=1, total.priests do --any priest heals or dps
+      if (raid.priest[i]) then
+        text[i+NUM_ADDS+1] = note_color .. "MANA DRAIN"
+        heal[i+NUM_ADDS+1] = raid.priest[i]
+      end
     end
   end
 
