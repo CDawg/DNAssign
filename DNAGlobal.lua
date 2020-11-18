@@ -30,7 +30,6 @@ DNAGlobal.btn_h   = 25
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
---DNAGlobal.background="Interface/ACHIEVEMENTFRAME/UI-GuildAchievement-Parchment-Horizontal-Desaturated"
 DN = {}
 
 date_day = date("%y-%m-%d")
@@ -192,6 +191,9 @@ DNAClasses={
   "Warlock",
   "Hunter"
 }
+
+TANK="T"
+HEAL="H"
 
 netCode = {
   --packet codes

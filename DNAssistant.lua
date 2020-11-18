@@ -169,10 +169,10 @@ local windowOpen = false
 local swapQueue={}
 local prevQueue={}
 local function resetSwapQueues()
-  prevQueue["T"] = 0
-  swapQueue["T"] = 0
-  prevQueue["H"] = 0
-  swapQueue["H"] = 0
+  prevQueue[TANK] = 0
+  swapQueue[TANK] = 0
+  prevQueue[HEAL] = 0
+  swapQueue[HEAL] = 0
   if (DEBUG) then
     print("resetSwapQueues()")
   end
@@ -283,9 +283,14 @@ function DN:UpdateRaidRoster()
     end
     if (healSlot[i].text:GetText() ~= "Empty") then
       total.healers = total.healers +1
-      healSlotUp[i]:Show()
-      healSlotDown[i]:Show()
-      healSlotFrameClear:Show()
+      if (IsInRaid()) then
+        if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+          healSlotUp[i]:Show()
+          healSlotDown[i]:Show()
+          tankSlotFrameClear:Show()
+          healSlotFrameClear:Show()
+        end
+      end
       remove_slot = singleKeyFromValue(DNARaid["member"], healSlot[i].text:GetText())
       if (DNARaid["member"][remove_slot] == healSlot[i].text:GetText()) then
         DNARaid["member"][remove_slot] = nil
@@ -417,7 +422,7 @@ local function parsePacket(packet, netpacket)
     print("DEBUG: packet.slot " .. packet.slot)
     print("DEBUG: packet.name " .. packet.name)
   end
-  if (packet.role == "T") then
+  if (packet.role == TANK) then
     if ((packet.name == nil) or (packet.name == "Empty")) then
       tankSlot[packet.slot].text:SetText("Empty")
       tankSlot[packet.slot].icon:SetTexture("")
@@ -436,7 +441,7 @@ local function parsePacket(packet, netpacket)
       --SetPartyAssignment("MAINTANK", packet.name, 1)
     end
   end
-  if (packet.role == "H") then
+  if (packet.role == HEAL) then
     if ((packet.name == nil) or (packet.name == "Empty")) then
       healSlot[packet.slot].text:SetText("Empty")
       healSlot[packet.slot].icon:SetTexture("")
@@ -1313,7 +1318,7 @@ function DN:SetVars()
     getsave.slot = tonumber(getsave.slot)
     getsave.name = v
 
-    if (getsave.role == "T") then
+    if (getsave.role == TANK) then
       if ((getsave.name == nil) or (getsave.name == "Empty")) then
         tankSlot[getsave.slot].text:SetText("Empty")
         tankSlot[getsave.slot]:SetFrameLevel(2)
@@ -1330,7 +1335,7 @@ function DN:SetVars()
         DN:ClassColorText(tankSlot[getsave.slot].text, thisClass)
       end
     end
-    if (getsave.role == "H") then
+    if (getsave.role == HEAL) then
       if ((getsave.name == nil) or (getsave.name == "Empty")) then
         healSlot[getsave.slot].text:SetText("Empty")
         healSlot[getsave.slot]:SetFrameLevel(2)
@@ -1347,16 +1352,22 @@ function DN:SetVars()
         --thisClass = UnitClass(getsave.name)
         thisClass = DNARaid["class"][getsave.name]
         DN:ClassColorText(healSlot[getsave.slot].text, thisClass)
-        healSlotUp[getsave.slot]:Show()
-        healSlotDown[getsave.slot]:Show()
+        if (IsInRaid()) then
+          if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+            healSlotUp[getsave.slot]:Show()
+            healSlotDown[getsave.slot]:Show()
+          end
+        end
       end
     end
     healSlotUp[1]:Hide()
     healSlotDown[DNASlots.heal]:Hide()
 
     if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      tankSlotFrameClear:Show()
-      healSlotFrameClear:Show()
+      if (IsInRaid()) then
+        tankSlotFrameClear:Show()
+        healSlotFrameClear:Show()
+      end
     else
       for i = 1, DNASlots.heal do
         healSlotUp[i]:Hide()
@@ -2178,26 +2189,26 @@ for i = 1, DNASlots.tank do
       tankSlot[i]:StartMoving()
       tankSlot[i]:SetFrameStrata("DIALOG")
       resetSwapQueues()
-      swapQueue["T"] = i
+      swapQueue[TANK] = i
     end
   end)
   tankSlot[i]:SetScript("OnDragStop", function()
     tankSlot[i]:StopMovingOrSizing()
     tankSlot[i]:SetPoint("TOPLEFT", tankSlotOrgPoint_x[i], tankSlotOrgPoint_y[i])
-    updateSlotPos("T", i, "Empty")
+    updateSlotPos(TANK, i, "Empty")
   end)
   tankSlot[i]:SetScript('OnEnter', function()
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tankSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
-      if (swapQueue["T"] > 0) then
-        prevQueue["T"] = i
+      if (swapQueue[TANK] > 0) then
+        prevQueue[TANK] = i
       end
     end
-    if ((swapQueue["T"] > 0) and (prevQueue["T"] > 0)) then --swap positions
-      if (swapQueue["T"] ~= prevQueue["T"]) then --dupe check
-        if ((tankSlot[swapQueue["T"]].text:GetText() ~= "Empty") and (tankSlot[prevQueue["T"]].text:GetText() ~= "Empty")) then
-          updateSlotPos("T", swapQueue["T"], tankSlot[prevQueue["T"]].text:GetText() )
-          updateSlotPos("T", prevQueue["T"], tankSlot[swapQueue["T"]].text:GetText() )
+    if ((swapQueue[TANK] > 0) and (prevQueue[TANK] > 0)) then --swap positions
+      if (swapQueue[TANK] ~= prevQueue[TANK]) then --dupe check
+        if ((tankSlot[swapQueue[TANK]].text:GetText() ~= "Empty") and (tankSlot[prevQueue[TANK]].text:GetText() ~= "Empty")) then
+          updateSlotPos(TANK, swapQueue[TANK], tankSlot[prevQueue[TANK]].text:GetText() )
+          updateSlotPos(TANK, prevQueue[TANK], tankSlot[swapQueue[TANK]].text:GetText() )
         end
         resetSwapQueues()
         memberDrag = nil
@@ -2206,12 +2217,12 @@ for i = 1, DNASlots.tank do
       if (memberDrag) then
         for dupe = 1, DNASlots.tank do
           if (tankSlot[dupe].text:GetText() == memberDrag) then
-            updateSlotPos("T", dupe, "Empty")
-            updateSlotPos("T", i, memberDrag)
+            updateSlotPos(TANK, dupe, "Empty")
+            updateSlotPos(TANK, i, memberDrag)
             return true --print("DEBUG: duplicate slot")
           end
         end
-        updateSlotPos("T", i, memberDrag)
+        updateSlotPos(TANK, i, memberDrag)
       end
     end
   end)
@@ -2251,31 +2262,35 @@ local function closeGaps(remove)
 end
 
 local function shiftSlot(current, pos)
-  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-    local shiftFrom= healSlot[current].text:GetText()
-    if (pos == "up") then
-      local shiftTo = healSlot[current-1].text:GetText()
-      local cr, cg, cb, ca = healSlot[current-1].text:GetTextColor()
-      local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
-      healSlot[current-1].text:SetTextColor(sr, sg, sb)
-      healSlot[current-1].text:SetText(shiftFrom)
-      healSlot[current].text:SetText(shiftTo)
-      healSlot[current].text:SetTextColor(cr, cg, cb)
+  if (IsInRaid()) then
+    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+      local shiftFrom= healSlot[current].text:GetText()
+      if (pos == "up") then
+        local shiftTo = healSlot[current-1].text:GetText()
+        local cr, cg, cb, ca = healSlot[current-1].text:GetTextColor()
+        local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
+        healSlot[current-1].text:SetTextColor(sr, sg, sb)
+        healSlot[current-1].text:SetText(shiftFrom)
+        healSlot[current].text:SetText(shiftTo)
+        healSlot[current].text:SetTextColor(cr, cg, cb)
+      else
+        local shiftTo = healSlot[current+1].text:GetText()
+        local cr, cg, cb, ca = healSlot[current+1].text:GetTextColor()
+        local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
+        healSlot[current+1].text:SetText(shiftFrom)
+        healSlot[current+1].text:SetTextColor(sr, sg, sb)
+        healSlot[current].text:SetText(shiftTo)
+        healSlot[current].text:SetTextColor(cr, cg, cb)
+      end
+      DN:UpdateRaidRoster()
+      DN:RaidSendAssignments()
+      healSlotUp[1]:Hide()
+      healSlotDown[DNASlots.heal]:Hide()
     else
-      local shiftTo = healSlot[current+1].text:GetText()
-      local cr, cg, cb, ca = healSlot[current+1].text:GetTextColor()
-      local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
-      healSlot[current+1].text:SetText(shiftFrom)
-      healSlot[current+1].text:SetTextColor(sr, sg, sb)
-      healSlot[current].text:SetText(shiftTo)
-      healSlot[current].text:SetTextColor(cr, cg, cb)
+      DN:Notification("You do not have raid permission to modify assignments.   [P3]", true)
     end
-    DN:UpdateRaidRoster()
-    DN:RaidSendAssignments()
-    healSlotUp[1]:Hide()
-    healSlotDown[DNASlots.heal]:Hide()
   else
-    DN:Notification("You do not have raid permission to modify assignments.   [P3]", true)
+    DN:Notification("You are not in a raid!     [E7]", true)
   end
 end
 
@@ -2367,14 +2382,14 @@ for i = 1, DNASlots.heal do
       healSlot[i]:StartMoving()
       healSlot[i]:SetFrameStrata("DIALOG")
       resetSwapQueues()
-      swapQueue["H"] = i
+      swapQueue[HEAL] = i
       memberDrag = healSlot[i].text:GetText()
     end
   end)
   healSlot[i]:SetScript("OnDragStop", function()
     healSlot[i]:StopMovingOrSizing()
     healSlot[i]:SetPoint("TOPLEFT", healSlotOrgPoint_x[i], healSlotOrgPoint_y[i])
-    --updateSlotPos("H", i, "Empty")
+    --updateSlotPos(HEAL, i, "Empty")
     closeGaps(memberDrag)
   end)
   healSlot[i]:SetScript('OnEnter', function()
@@ -2382,7 +2397,7 @@ for i = 1, DNASlots.heal do
       healSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
     end
     if (memberDrag) then
-      updateSlotPos("H", i, memberDrag)
+      updateSlotPos(HEAL, i, memberDrag)
     end
   end)
 
@@ -2390,15 +2405,15 @@ for i = 1, DNASlots.heal do
   healSlot[i]:SetScript('OnEnter', function()
     if (healSlot[i].text:GetText() ~= "Empty") then
       healSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
-      if (swapQueue["H"] > 0) then
-        prevQueue["H"] = i
+      if (swapQueue[HEAL] > 0) then
+        prevQueue[HEAL] = i
       end
     end
-    if ((swapQueue["H"] > 0) and (prevQueue["H"] > 0)) then --swap positions
-      if (swapQueue["H"] ~= prevQueue["H"]) then --dupe check
-        if ((healSlot[swapQueue["H"]].text:GetText() ~= "Empty") and (healSlot[prevQueue["H"]].text:GetText() ~= "Empty")) then
-          updateSlotPos("H", swapQueue["H"], healSlot[prevQueue["H"]].text:GetText() )
-          updateSlotPos("H", prevQueue["H"], healSlot[swapQueue["H"]].text:GetText() )
+    if ((swapQueue[HEAL] > 0) and (prevQueue[HEAL] > 0)) then --swap positions
+      if (swapQueue[HEAL] ~= prevQueue[HEAL]) then --dupe check
+        if ((healSlot[swapQueue[HEAL]].text:GetText() ~= "Empty") and (healSlot[prevQueue[HEAL]].text:GetText() ~= "Empty")) then
+          updateSlotPos(HEAL, swapQueue[HEAL], healSlot[prevQueue[HEAL]].text:GetText() )
+          updateSlotPos(HEAL, prevQueue[HEAL], healSlot[swapQueue[HEAL]].text:GetText() )
         end
         resetSwapQueues()
         memberDrag = nil
@@ -2407,12 +2422,12 @@ for i = 1, DNASlots.heal do
       if (memberDrag) then
         for dupe = 1, DNASlots.heal do
           if (healSlot[dupe].text:GetText() == memberDrag) then
-            updateSlotPos("H", dupe, "Empty")
-            updateSlotPos("H", i, memberDrag)
+            updateSlotPos(HEAL, dupe, "Empty")
+            updateSlotPos(HEAL, i, memberDrag)
             return true --print("DEBUG: duplicate slot")
           end
         end
-        updateSlotPos("H", i, memberDrag)
+        updateSlotPos(HEAL, i, memberDrag)
       end
     end
   end)
@@ -2549,7 +2564,7 @@ function DN:RaidSendAssignments()
   largePacket = "{"
   for i = 1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= nil) then
-      largePacket = largePacket .. "T" .. i .. "," .. tankSlot[i].text:GetText() .. "}"
+      largePacket = largePacket .. TANK .. i .. "," .. tankSlot[i].text:GetText() .. "}"
     end
   end
   DN:SendPacket(largePacket, true)
@@ -2557,7 +2572,7 @@ function DN:RaidSendAssignments()
   largePacket = "{" --beginning key
   for i = 1, DNASlots.heal do
     if (healSlot[i].text:GetText() ~= nil) then
-      largePacket = largePacket .. "H" .. i .. "," .. healSlot[i].text:GetText() .. "}"
+      largePacket = largePacket .. HEAL .. i .. "," .. healSlot[i].text:GetText() .. "}"
     end
   end
   DN:SendPacket(largePacket, true)
@@ -2698,6 +2713,8 @@ local function raidPermissions()
     --btnShare:Show()
     btnPostRaid:Show()
     btnPostRaidDis:Hide()
+    tankSlotFrameClear:Show()
+    healSlotFrameClear:Show()
   else
     --btnShareDis:Show()
     btnShare:Hide()
@@ -2724,6 +2741,7 @@ local function DNAOpenWindow()
     raidDetails()
     resetSwapQueues() --sanity check on queues
   end
+  print(TANK)
 end
 
 SlashCmdList["DNA"] = function(msg)
