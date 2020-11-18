@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
@@ -212,6 +212,7 @@ netCode = {
   {"readyyes",  "0xEFRy"},
   {"readyno",   "0xEFNr"},
   {"postdkp",   "0xEFPd"},
+  {"author",    "0xEFAu"},
 }
 
 DNARaidMarkerText={

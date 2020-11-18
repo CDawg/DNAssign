@@ -63,25 +63,19 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     text[1] = note_color .. "- MIDDLE -"
     mark[2] = icon_diamond
     text[2] = tank.all[1]
-    heal[2] = tank.all[4] .. "," .. healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
+    heal[2] = tank.all[4] .. "," .. healer.priest[1] .. "," .. healer.paladin[1]
 
     text[4] = note_color .. "- LEFT -"
     mark[5] = icon_cross
     text[5] = tank.all[2]
-    heal[5] = tank.all[5] .. "," .. healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
+    heal[5] = tank.all[5] .. "," .. healer.priest[2] .. "," .. healer.paladin[2]
 
     text[7] = note_color .. "- RIGHT -"
     mark[8] = icon_triangle
     text[8] = tank.all[3]
-    if (healer.priest[5]) then
-      if (healer.priest[6]) then
-        heal[8] = tank.all[6] .. "," .. healer.priest[5] .. "," .. healer.priest[6] .. "," .. healer.paladin[3]
-      else
-        heal[8] = tank.all[6] .. "," .. healer.priest[5] .. "," .. healer.paladin[3] .. "," .. healer.paladin[4]
-      end
-    end
+    heal[8] = tank.all[6] .. "," .. healer.priest[3] .. "," .. healer.paladin[3]
 
-    text[10] = note_color .. "ROGUES: Mind dumbing poison offhand."
+    text[10] = note_color .. "|cffFFF569ROGUES|r: " .. note_color .. "Mind dumbing poison offhand."
     for i=1, total.rogues do
       if (raid.rogue[i]) then
         text[i+10] = note_color .. "KICKS"
@@ -89,7 +83,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       end
     end
 
-   text[total.rogues+12] = note_color .. "WARLOCKS: Curse of Tongues"
+   text[total.rogues+12] = note_color .. "|cff8787EDWARLOCKS|r: " .. note_color .. "Curse of Tongues"
   end
 
   if (isItem(assign, "Mindflayer Pack")) then
@@ -121,7 +115,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     end
 
     local extra_tanks = ""
-    for i=1, 3 do
+    for i=1, 2 do
       if (tank.all[i+3]) then
         extra_tanks = extra_tanks .. tank.all[i+3] .. ","
       end
@@ -131,7 +125,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     heal[NUM_BOSSES+table.getn(raid.fearward)+1] = extra_tanks
 
     local extra_rogues = ""
-    for i=1, 3 do
+    for i=1, 2 do
       if (raid.rogue[i]) then
         extra_rogues = extra_rogues .. raid.rogue[i] .. ","
       end
@@ -241,7 +235,14 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     for i=1, 4 do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+      heal[i] = healer.nodruid[i]
+    end
+
+    text[6] = note_color .. "Poison Cleanse"
+    if (healer.druid[1]) then
+      heal[6] = healer.druid[1]  .. "," ..  healer.paladin[1]
+    else
+      heal[6] = healer.paladin[1] .. "," .. healer.paladin[2]
     end
   end
 
@@ -283,7 +284,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
     if (warlock_assigned ~= 1) then
       mark[2] = icon_alert
-      text[2] = "|cffff0000 NO WARLOCKS IN THE TANK QUEUE!"
+      text[2] = "|cffff0000MISSING WARLOCKS IN THE TANK QUEUE!"
     end
 
     for i=1, table.getn(tank.main) do
@@ -324,7 +325,19 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       heal[8] = remaining_tank[2]
     end
 
-    text[10] = note_color .. "NO AOE!!!"
+    text[10] = note_color .. "TANKS: Greater Stoneshield Pots"
+    text[12] = note_color .. "NO AOE!!!"
+
+    --[==[
+    for i=1, 3 do
+      if (tank.all[i+4]) then
+        text[i+9] = "MELEE ABSORB"
+        heal[i+9] = tank.all[i+4]
+      end
+    end
+    text[14] = note_color .. "TANKS: Greater Stoneshield Pots"
+    text[15] = note_color .. "NO AOE!!!"
+    ]==]--
   end
 
   if (isItem(assign, "Champion Pack")) then
@@ -380,11 +393,9 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "C'Thun")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_cthun_groups"
-    --[==[
-    for i=1, table.getn(raid.range) do
-      text[i] = "Eye Tentacle"
-      heal[i] = raid.range[i]
-    end
-    ]==]--
+    text[2] = note_color .. "View the map for your group positioning and"
+    text[3] = note_color .. "your group number!"
+    text[5] = note_color .. "RANGE: Little Eye Tentacles"
+    text[7] = note_color .. "MELEE: Interrupts Large Eye Tentacles"
   end
 end

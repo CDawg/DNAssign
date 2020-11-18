@@ -125,7 +125,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
     DNABossMap = DNAGlobal.dir .. "images/bwl_goblinpack"
     NUM_ADDS = 3
     mark[1] = icon_alert
-    text[1] = "|cffff0000 NO AOE TANK IN TANK QUEUE!" --default message
+    text[1] = "|cffff0000 MISSING AOE TANK IN TANK QUEUE!" --default message
     for i=1, DNASlots.tank do
       if ((DNARaid["class"][tank.main[i]] == "Paladin") or (DNARaid["class"][tank.main[i]] == "Druid")) then
         text[1] = note_color .. "Whelps"

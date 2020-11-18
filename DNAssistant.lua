@@ -31,6 +31,7 @@ local healSlotUp={}
 local healSlotDown={}
 local tankSlotFrameClear={}
 local healSlotFrameClear={}
+local DNAFrameMainAuthor={}
 
 local raidSelection = nil
 
@@ -699,7 +700,7 @@ DNAFrameAssignAuthor = DNAFrameAssign:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignAuthor:SetFont(DNAGlobal.font, 12, "OUTLINE")
 DNAFrameAssignAuthor:SetText("")
 DNAFrameAssignAuthor:SetPoint("CENTER", 0, -205)
-DNAFrameAssignAuthor:SetTextColor(0.8, 0.8, 0.8)
+DNAFrameAssignAuthor:SetTextColor(1, 1, 1)
 
 local DNAFrameAssignTab={}
 
@@ -1171,6 +1172,18 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         end
       end
 
+      local getCode = multiKeyFromValue(netCode, "author")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          if (netpacket) then
+            DNAFrameMainAuthor:SetText("Last Update: " .. netpacket)
+            DNAFrameMainAuthor:Show()
+          end
+          return true
+        end
+      end
+
       local getCode = multiKeyFromValue(netCode, "posttoraid")
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
@@ -1542,22 +1555,6 @@ DNAFrameViewDARK = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -
 DNAFrameViewDARK:SetAllPoints(true)
 DNAFrameViewDARK:SetColorTexture(0, 0, 0, 0.8)
 
---[==[
-DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
-DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
-DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", 10, 5)
-local DNAViewScrollChildFrame = CreateFrame("Frame", nil, DNAFrameView.ScrollFrame)
-DNAViewScrollChildFrame:SetSize(viewFrame_w, viewFrame_h)
-DNAFrameView.ScrollFrame:SetScrollChild(DNAViewScrollChildFrame)
-DNAFrameView.ScrollFrame.ScrollBar:ClearAllPoints()
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAFrameView.ScrollFrame, "TOPRIGHT", -50, -16)
-DNAFrameView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAFrameView.ScrollFrame, "BOTTOMRIGHT", 6, 14)
-DNAFrameViewMR = DNAFrameView:CreateTexture(nil, "BACKGROUND", DNAFrameView, -1)
-DNAFrameViewMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
-DNAFrameViewMR:SetPoint("TOPLEFT", 354, -2)
-DNAFrameViewMR:SetSize(24, 316)
-]==]--
-
 DNAFrameView.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAFrameView, "UIPanelScrollFrameTemplate")
 DNAFrameView.ScrollFrame:SetPoint("TOPLEFT", DNAFrameView, "TOPLEFT", 5, -4)
 DNAFrameView.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAFrameView, "BOTTOMRIGHT", -25, 5)
@@ -1815,8 +1812,15 @@ local function updateSlotPos(role, i, name)
       end
       ]==]--
       DN:SendPacket(role .. i .. "," .. name, true)
+      local getCode = multiKeyFromValue(netCode, "author")
+      local sendCode
+      if (getCode) then
+        local sendCode = netCode[getCode][2]
+        DN:SendPacket(sendCode .. player.name, true)
+      end
       local getCode = multiKeyFromValue(netCode, "version")
-      DN:SendPacket(netCode[getCode][2] .. DNAGlobal.version, true)
+      local sendCode = netCode[getCode][2]
+      DN:SendPacket(sendCode .. DNAGlobal.version, true)
     else
       DN:Notification("You do not have raid permission to modify assignments.   [E1]", true)
     end
@@ -2056,6 +2060,13 @@ function raidSlotFrame(parentFrame, i, y)
     raidSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   end)
 end
+
+DNAFrameMainAuthor = page["Assignment"]:CreateFontString(nil, "ARTWORK")
+DNAFrameMainAuthor:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAFrameMainAuthor:SetPoint("TOPLEFT", 250, -DNAGlobal.height+30)
+DNAFrameMainAuthor:SetText("Last Update:")
+DNAFrameMainAuthor:SetTextColor(0.9, 0.9, 0.9)
+DNAFrameMainAuthor:Hide()
 
 local slotDialog = CreateFrame("Frame", nil, DNAFrameMain)
 slotDialog:SetWidth(400)
@@ -2538,6 +2549,13 @@ function DN:RaidSendAssignments()
     end
   end
   DN:SendPacket(largePacket, true)
+
+  local getCode = multiKeyFromValue(netCode, "author")
+  local sendCode
+  if (getCode) then
+    local sendCode = netCode[getCode][2]
+    DN:SendPacket(sendCode .. player.name, true)
+  end
 end
 
 local btnShare_x = 300
