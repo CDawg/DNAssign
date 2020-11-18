@@ -30,7 +30,8 @@ DNAGlobal.btn_h   = 25
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 --DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
-DNAGlobal.background="Interface/Garrison/GarrisonShipMissionParchment"
+--DNAGlobal.background="Interface/Garrison/GarrisonShipMissionParchment"
+DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment"
 DN = {}
 
 date_day = date("%y-%m-%d")
@@ -61,7 +62,7 @@ total.range = 0
 --
 total.raid = 0
 
-note_color = "|cffd0c1da" --extra note assignment color
+note_color = "|cffe2dbbf" --extra note assignment color
 
 --single array
 function singleKeyFromValue(_array, value)

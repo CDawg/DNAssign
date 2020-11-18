@@ -287,7 +287,6 @@ function DN:UpdateRaidRoster()
         if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
           healSlotUp[i]:Show()
           healSlotDown[i]:Show()
-          tankSlotFrameClear:Show()
           healSlotFrameClear:Show()
         end
       end
@@ -1420,11 +1419,13 @@ DNAFrameMain.title:SetHeight(34)
 DNAFrameMain.title:SetPoint("TOPLEFT", 0, 5)
 DNAFrameMain.title:SetFrameLevel(3)
 DNAFrameMain.title:SetBackdrop({
-  bgFile = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  bgFile = DNAGlobal.background,
   edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
   edgeSize = 26,
+  tile = true,
   insets = {left=2, right=2, top=2, bottom=2},
 })
+DNAFrameMain.title:SetBackdropColor(0.5, 0.5, 0.5)
 DNAFrameMain.text = DNAFrameMain.title:CreateFontString(nil, "ARTWORK")
 DNAFrameMain.text:SetFont(DNAGlobal.font, 15, "OUTLINE")
 DNAFrameMain.text:SetPoint("TOPLEFT", 20, -10)
@@ -1958,27 +1959,31 @@ resetSwapQueues()
 
 local clearQueuePrompt=""
 local function clearQueue()
-  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-    if (clearQueuePrompt == "Heal") then
-      healSlotFrame:Hide()
-      for i = 1, DNASlots.heal do
-        healSlot[i].text:SetText("Empty")
+  if (IsInRaid()) then
+    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+      if (clearQueuePrompt == "Heal") then
+        healSlotFrame:Hide()
+        for i = 1, DNASlots.heal do
+          healSlot[i].text:SetText("Empty")
+        end
+        healSlotFrameClear:Hide()
       end
-      healSlotFrameClear:Hide()
-    end
-    if (clearQueuePrompt == "Tank") then
-      tankSlotFrame:Hide()
-      for i = 1, DNASlots.tank do
-        tankSlot[i].text:SetText("Empty")
+      if (clearQueuePrompt == "Tank") then
+        tankSlotFrame:Hide()
+        for i = 1, DNASlots.tank do
+          tankSlot[i].text:SetText("Empty")
+        end
+        tankSlotFrameClear:Hide()
       end
-      tankSlotFrameClear:Hide()
+      DN:UpdateRaidRoster()
+      DN:RaidSendAssignments()
+      tankSlotFrame:Show()
+      healSlotFrame:Show()
+    else
+      DN:Notification("You do not have raid permission to modify assignments.   [P6]", true)
     end
-    DN:UpdateRaidRoster()
-    DN:RaidSendAssignments()
-    tankSlotFrame:Show()
-    healSlotFrame:Show()
   else
-    DN:Notification("You do not have raid permission to modify assignments.   [P6]", true)
+    DN:Notification("You are not in a raid!     [E8]", true)
   end
 end
 
@@ -2145,6 +2150,7 @@ tankSlotFrameClear:SetScript("OnClick", function()
   slotDialog.text:SetText("Clear out the Tank queue?\nThis will reset the raids assignments!")
   slotDialog:Show()
 end)
+tankSlotFrameClear:Hide()
 --[==[
 tankSlotFrame:SetScript('OnLeave', function()
   resetSwapQueues()
@@ -2321,6 +2327,7 @@ healSlotFrameClear:SetScript("OnClick", function()
   slotDialog.text:SetText("Clear out the Healer queue?\nThis will reset the raids assignments!")
   slotDialog:Show()
 end)
+healSlotFrameClear:Hide()
 
 for i = 1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame)
