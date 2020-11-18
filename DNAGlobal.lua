@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"

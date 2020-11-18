@@ -885,7 +885,7 @@ local function buildRaidAssignments(packet, author, source)
   --table.merge(raid.range, raid.mage)
 
   if ((total.tanks < 2) or (total.healers < 8)) then
-    DN:Notification("Not enough tanks and healers assigned!     [E12]", true)
+    DN:Notification("Not enough tanks and healers assigned!     [L1]", true)
     DNABossMap = ""
     return
   end
@@ -1822,10 +1822,10 @@ local function updateSlotPos(role, i, name)
       local sendCode = netCode[getCode][2]
       DN:SendPacket(sendCode .. DNAGlobal.version, true)
     else
-      DN:Notification("You do not have raid permission to modify assignments.   [E1]", true)
+      DN:Notification("You do not have raid permission to modify assignments.   [P1]", true)
     end
   else
-    return DN:Notification("You are not in a raid!   [E1]", true)
+    return DN:Notification("You are not in a raid!     [E1]", true)
   end
 end
 
@@ -1967,7 +1967,7 @@ local function clearQueue()
     tankSlotFrame:Show()
     healSlotFrame:Show()
   else
-    DN:Notification("You do not have raid permission to modify assignments.   [E6]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [P6]", true)
   end
 end
 
@@ -2242,7 +2242,11 @@ local function closeGaps(remove)
     DN:RaidSendAssignments()
     --resetSwapQueues()
   else
-    DN:Notification("You do not have raid permission to modify assignments.   [E2]", true)
+    if (IsInRaid()) then
+      DN:Notification("You do not have raid permission to modify assignments.   [P2]", true)
+    else
+      DN:Notification("You are not in a raid!     [E2]", true)
+    end
   end
 end
 
@@ -2263,7 +2267,7 @@ local function shiftSlot(current, pos)
     healSlotUp[1]:Hide()
     healSlotDown[DNASlots.heal]:Hide()
   else
-    DN:Notification("You do not have raid permission to modify assignments.   [E3]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [P3]", true)
   end
 end
 
@@ -2574,7 +2578,7 @@ btnShare:SetScript("OnClick", function()
     DN:UpdateRaidRoster()
     DN:RaidSendAssignments()
   else
-    DN:Notification("You are not in a raid!   [E3]", true)
+    DN:Notification("You are not in a raid!     [E3]", true)
   end
 end)
 btnShare:Hide()
@@ -2587,9 +2591,9 @@ btnShareDis.text:SetText(btnShare_t)
 btnShareDis.text:SetPoint("CENTER", btnShare)
 btnShareDis:SetScript("OnClick", function()
   if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [E4]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [P4]", true)
   else
-    DN:Notification("You are not in a raid!   [E4]", true)
+    DN:Notification("You are not in a raid!     [E4]", true)
   end
 end)
 
@@ -2612,7 +2616,7 @@ btnPostRaid.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaid:SetScript("OnClick", function()
   if (IsInRaid()) then
     if ((total.tanks < 2) or (total.healers < 8)) then
-      DN:Notification("Not enough tanks and healers assigned!     [E13]", true)
+      DN:Notification("Not enough tanks and healers assigned!     [L2]", true)
       return
     end
     DN:RaidSendAssignments()
@@ -2635,7 +2639,7 @@ btnPostRaid:SetScript("OnClick", function()
       --end
     end
   else
-    DN:Notification("You are not in a raid!   [E2]", true)
+    DN:Notification("You are not in a raid!     [E5]", true)
   end
 end)
 local btnPostRaidDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
@@ -2647,9 +2651,9 @@ btnPostRaidDis.text:SetText(btnPostRaid_t)
 btnPostRaidDis.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaidDis:SetScript("OnClick", function()
   if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [E5]", true)
+    DN:Notification("You do not have raid permission to modify assignments.   [P5]", true)
   else
-    DN:Notification("You are not in a raid!   [E3]", true)
+    DN:Notification("You are not in a raid!     [E6]", true)
   end
 end)
 -- EO PAGE ASSIGN
