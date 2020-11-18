@@ -393,7 +393,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
   if (isItem(assign, "C'Thun")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_cthun_groups"
-    mark[2] = "Interface/Buttons/UI-SpellbookIcon-PrevPage-Up"
+    mark[2] = icon_left
     text[2] = note_color .. "View the map for your group positioning and"
     text[3] = note_color .. "your group number!"
     text[5] = note_color .. "RANGE: Little Eye Tentacles"

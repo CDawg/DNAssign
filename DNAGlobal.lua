@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
@@ -29,7 +29,8 @@ DNAGlobal.btn_h   = 25
 
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
-DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
+--DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
+DNAGlobal.background="Interface/Garrison/GarrisonShipMissionParchment"
 DN = {}
 
 date_day = date("%y-%m-%d")
@@ -252,6 +253,10 @@ DNARaidMarkers={
   {"{moon}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5"},
   {"{star}",    "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1"},
   {"{alert}",   "Interface/DialogFrame/UI-Dialog-Icon-AlertNew"},
+  {"{up}",       DNAGlobal.dir .. "images/arrow-up"},
+  {"{down}",     DNAGlobal.dir .. "images/arrow-down"},
+  {"{left}",     DNAGlobal.dir .. "images/arrow-left"},
+  {"{right}",    DNAGlobal.dir .. "images/arrow-right"},
 }
 
 icon_boss    = DNARaidMarkers[1][2]
@@ -264,6 +269,10 @@ icon_diamond = DNARaidMarkers[7][2]
 icon_moon    = DNARaidMarkers[8][2]
 icon_star    = DNARaidMarkers[9][2]
 icon_alert   = DNARaidMarkers[10][2]
+icon_up      = DNARaidMarkers[11][2]
+icon_down    = DNARaidMarkers[12][2]
+icon_left    = DNARaidMarkers[13][2]
+icon_right   = DNARaidMarkers[14][2]
 
 function DN:ClassColorText(frame, class)
   local rgb={0.60, 0.60, 0.60} --offline gray

@@ -1420,7 +1420,7 @@ DNAFrameMain.title:SetHeight(34)
 DNAFrameMain.title:SetPoint("TOPLEFT", 0, 5)
 DNAFrameMain.title:SetFrameLevel(3)
 DNAFrameMain.title:SetBackdrop({
-  bgFile = "Interface/HelpFrame/DarkSandstone-Tile",
+  bgFile = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
   edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
   edgeSize = 26,
   insets = {left=2, right=2, top=2, bottom=2},
@@ -2741,12 +2741,10 @@ local function DNAOpenWindow()
     raidDetails()
     resetSwapQueues() --sanity check on queues
   end
-  print(TANK)
 end
 
 SlashCmdList["DNA"] = function(msg)
   DNAOpenWindow()
-  print(msg)
 end
 
 --[==[
