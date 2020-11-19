@@ -174,7 +174,7 @@ local function resetSwapQueues()
   prevQueue[HEAL] = 0
   swapQueue[HEAL] = 0
   if (DEBUG) then
-    print("resetSwapQueues()")
+    print("DEBUG: resetSwapQueues()")
   end
 end
 
@@ -784,9 +784,12 @@ local function buildRaidAssignments(packet, author, source)
   raid.druid={}
   raid.druid_dps={}
   raid.fearward={}
-  --raid.range={}
   local locked_assignments={}
   locked_assignments[player.name] = 0
+
+  if (DEBUG) then
+    print("DEBUG: buildRaidAssignments()")
+  end
 
   clearNotifications()
   DN:UpdateRaidRoster()
@@ -872,21 +875,12 @@ local function buildRaidAssignments(packet, author, source)
     end
     if (v == "Hunter") then
       table.insert(raid.hunter, k)
+      --table.sort()
     end
     if (v == "Mage") then
       table.insert(raid.mage, k)
     end
   end
-
-  table.merge(tank.all, tank.main)
-  table.merge(tank.all, raid.warrior_dps)
-  table.merge(tank.banish, raid.warlock)
-  table.merge(tank.banish, raid.warrior_dps) -- merge all tanks with warlocks
-  table.merge(healer.nodruid, healer.priest)
-  table.merge(healer.nodruid, healer.paladin)
-  --table.merge(raid.range, raid.hunter)
-  --table.merge(raid.range, raid.warlock)
-  --table.merge(raid.range, raid.mage)
 
   if ((total.tanks < 2) or (total.healers < 8)) then
     DN:Notification("Not enough tanks and healers assigned!     [L1]", true)
@@ -901,6 +895,33 @@ local function buildRaidAssignments(packet, author, source)
       num_fearwards = num_fearwards +1
       raid.fearward[num_fearwards] = raid.priest[i]
     end
+  end
+
+  --sort alpha, not by key
+  table.sort(raid.warrior)
+  table.sort(raid.warrior_dps)
+  table.sort(raid.mage)
+  table.sort(raid.paladin)
+  table.sort(raid.paladin_dps)
+  table.sort(raid.hunter)
+  table.sort(raid.rogue)
+  table.sort(raid.warlock)
+  table.sort(raid.priest)
+  table.sort(raid.priest_dps)
+  table.sort(raid.druid)
+  table.sort(raid.druid_dps)
+  table.sort(raid.fearward)
+
+  --sort before building the raid assignments
+  table.merge(tank.all, tank.main)
+  table.merge(tank.all, raid.warrior_dps)
+  table.merge(tank.banish, raid.warlock)
+  table.merge(tank.banish, raid.warrior_dps) -- merge all tanks with warlocks
+  table.merge(healer.nodruid, healer.priest)
+  table.merge(healer.nodruid, healer.paladin)
+
+  for k,v in pairs(tank.all) do
+    print("[" .. k .. "] " .. v)
   end
 
   DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
@@ -958,7 +979,7 @@ local function buildRaidAssignments(packet, author, source)
             locked_assignments[player.name] = 1
             DNAFrameAssignPersonal:Show()
             if (DEBUG) then
-              print(string.len(filter_row)) --increase the width of the window
+              print("DEBUG: Personal Window Width " .. string.len(filter_row)) --increase the width of the window
             end
             if (string.len(filter_row) > 40) then
               DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row)+40)
@@ -971,7 +992,6 @@ local function buildRaidAssignments(packet, author, source)
       DNAFrameViewScrollChild_heal[i]:SetText(filter_row)
       DNAFrameAssignScrollChild_heal[i]:SetText(filter_row)
     end
-
   end
 
   --class notes
@@ -1095,6 +1115,8 @@ DNAMain:RegisterEvent("ZONE_CHANGED")
 DNAMain:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 DNAMain:RegisterEvent("GROUP_ROSTER_UPDATE")
 DNAMain:RegisterEvent("PLAYER_ENTER_COMBAT")
+DNAMain:RegisterEvent("PLAYER_LEAVE_COMBAT")
+DNAMain:RegisterEvent("PLAYER_REGEN_ENABLED")
 DNAMain:RegisterEvent("PLAYER_REGEN_DISABLED")
 --DNAMain:RegisterEvent("PARTY_INVITE_REQUEST")
 DNAMain:RegisterEvent("CHAT_MSG_LOOT")
@@ -1137,9 +1159,15 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     DN:UpdateRaidRoster()
   end
 
-  if ((event == "PLAYER_ENTER_COMBAT") or (event== "PLAYER_REGEN_DISABLED")) then
+  if (event== "PLAYER_REGEN_DISABLED") then --entered combat
     raidReadyClear()
     --print("entered combat!")
+  end
+  if (event == "PLAYER_REGEN_ENABLED") then --left combat
+    if (DNACheckbox["HIDEASSIGNCOMBAT"]:GetChecked()) then
+      DNAFrameAssignPersonal:Hide()
+    end
+    print("left combat!")
   end
 
   if (event == "CHAT_MSG_ADDON") then
@@ -1379,6 +1407,10 @@ function DN:SetVars()
 
   if (DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] == "ON") then
     DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
+  end
+
+  if (DNA[player.combine]["CONFIG"]["HIDEASSIGNCOMBAT"] == "ON") then
+    DNACheckbox["HIDEASSIGNCOMBAT"]:SetChecked(true)
   end
 
   --[==[
@@ -1675,7 +1707,8 @@ end
 
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40)
 DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 60)
-DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page["Config"], 10, 80)
+DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Config"], 10, 80)
+DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page["Config"], 10, 100)
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Config"], 10, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page["DKP"])
