@@ -80,7 +80,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
       text[11] = "Decruse"
       heal[11] = raid.mage[3]
     end
-    text[13] = note_color .. "RESTO POTS"
+    --text[13] = note_color .. "RESTO POTS"
     mark[1] = DNABossIcon
   end
 
@@ -112,7 +112,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
         heal[i+NUM_ADDS+total.mages+2] = healer.priest[i+3]
       end
     end
-    text[13] = note_color .. "RESTO POTS"
+    --text[13] = note_color .. "RESTO POTS"
     mark[1] = DNABossIcon
   end
 

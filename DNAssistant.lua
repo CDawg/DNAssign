@@ -1240,12 +1240,10 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
           netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          --if (version_checked <= 0) then
-              if (DNAGlobal.version < netpacket) then
-                DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
-                version_checked = tonumber(netpacket)
-              end
-          --end
+            if (DNAGlobal.version < netpacket) then
+              DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
+              version_checked = tonumber(netpacket)
+            end
           return true
         end
       end
@@ -2618,10 +2616,14 @@ function DN:RaidSendAssignments()
   DN:SendPacket(largePacket, true)
 
   local getCode = multiKeyFromValue(netCode, "author")
-  local sendCode
   if (getCode) then
     local sendCode = netCode[getCode][2]
     DN:SendPacket(sendCode .. player.name, true)
+  end
+  local getCode = multiKeyFromValue(netCode, "version")
+  if (getCode) then
+    local sendCode = netCode[getCode][2]
+    DN:SendPacket(sendCode .. DNAGlobal.version, true)
   end
 end
 
