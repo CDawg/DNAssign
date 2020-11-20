@@ -920,8 +920,10 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(healer.nodruid, healer.priest)
   table.merge(healer.nodruid, healer.paladin)
 
-  for k,v in pairs(tank.all) do
-    print("[" .. k .. "] " .. v)
+  if (DEBUG) then
+    for k,v in pairs(tank.all) do
+      print("[" .. k .. "] " .. v)
+    end
   end
 
   DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
@@ -1167,7 +1169,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     if (DNACheckbox["HIDEASSIGNCOMBAT"]:GetChecked()) then
       DNAFrameAssignPersonal:Hide()
     end
-    print("left combat!")
   end
 
   if (event == "CHAT_MSG_ADDON") then
