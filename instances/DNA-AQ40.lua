@@ -196,23 +196,26 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       text[12] = tank.all[3]
       heal[12] = raid.hunter[3]
     end
-    local extra_rogues = ""
-    for i=1, 3 do
-      if (raid.rogue[i]) then
-        extra_rogues = extra_rogues .. raid.rogue[i] .. ","
-      end
+    if (raid.rogue[1]) then
+      mark[14] = DNARaidMarkers[2][2]
+      text[14] = raid.rogue[1]
     end
-    text[14] = note_color .. "Kick"
-    heal[14] = extra_rogues
-
+    if (raid.rogue[2]) then
+      mark[15] = DNARaidMarkers[3][2]
+      text[15] = raid.rogue[2]
+    end
+    if (raid.rogue[3]) then
+      mark[16] = DNARaidMarkers[4][2]
+      text[16] = raid.rogue[3]
+    end
     local extra_mages = ""
     for i=1, 3 do
       if (raid.mage[i]) then
         extra_mages = extra_mages .. raid.mage[i] .. ","
       end
     end
-    text[15] = note_color .. "Amplify Magic"
-    heal[15] = extra_mages
+    text[18] = note_color .. "Amplify Magic"
+    heal[18] = extra_mages
   end
 
   if (isItem(assign, "Fankriss")) then
@@ -360,7 +363,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
     local num_fearwards = table.getn(raid.fearward)
     for i=1, num_fearwards do
-      mark[i+12] = icon_triangle
+      mark[i+12] = icon_cross
       text[i+12] = note_color .. "Fear Ward"
       heal[i+12] = raid.fearward[i]
     end
@@ -383,11 +386,25 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
       end
     end
 
-    for i=1, total.priests do --any priest heals or dps
-      if (raid.priest[i]) then
-        text[i+NUM_ADDS+1] = note_color .. "MANA DRAIN"
-        heal[i+NUM_ADDS+1] = raid.priest[i]
-      end
+    if (raid.priest[1]) then
+      mark[1+NUM_ADDS+1] = icon_skull
+      text[1+NUM_ADDS+1] = note_color .. "MANA DRAIN"
+      heal[1+NUM_ADDS+1] = raid.priest[1]
+    end
+    if (raid.priest[2]) then
+      mark[1+NUM_ADDS+2] = icon_cross
+      text[1+NUM_ADDS+2] = note_color .. "MANA DRAIN"
+      heal[1+NUM_ADDS+2] = raid.priest[2]
+    end
+    if (raid.priest[3]) then
+      mark[1+NUM_ADDS+3] = icon_skull
+      text[1+NUM_ADDS+3] = note_color .. "MANA DRAIN"
+      heal[1+NUM_ADDS+3] = raid.priest[3]
+    end
+    if (raid.priest[4]) then
+      mark[1+NUM_ADDS+4] = icon_cross
+      text[1+NUM_ADDS+4] = note_color .. "MANA DRAIN"
+      heal[1+NUM_ADDS+4] = raid.priest[4]
     end
   end
 

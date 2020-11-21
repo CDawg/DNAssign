@@ -328,7 +328,7 @@ function DN:UpdateRaidRoster()
     total[lowerTextClass] = total[lowerTextClass] +1
   end
 
-  total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins
+  total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins + total.shamans
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
 
@@ -764,6 +764,7 @@ local function buildRaidAssignments(packet, author, source)
   healer.all={}
   healer.priest={}
   healer.paladin={}
+  healer.shaman={}
   healer.druid ={}
   healer.nodruid ={}
   local boss=""
@@ -776,6 +777,8 @@ local function buildRaidAssignments(packet, author, source)
   raid.mage={}
   raid.paladin={}
   raid.paladin_dps={}
+  raid.shaman={}
+  raid.shaman_dps={}
   raid.hunter={}
   raid.rogue={}
   raid.warlock={}
@@ -838,6 +841,9 @@ local function buildRaidAssignments(packet, author, source)
       if (DNARaid["class"][healer.all[i]] == "Priest") then
         table.insert(healer.priest, healer.all[i])
       end
+      if (DNARaid["class"][healer.all[i]] == "Shaman") then
+        table.insert(healer.shaman, healer.all[i])
+      end
     end
   end
 
@@ -860,6 +866,12 @@ local function buildRaidAssignments(packet, author, source)
         table.insert(raid.druid_dps, k) -- exclude tanks/healers
       end
       table.insert(raid.druid, k)
+    end
+    if (v == "Shaman") then
+      if (tContains(healer.all, k) == false) then
+        table.insert(raid.shaman_dps, k) -- exclude healers
+      end
+      table.insert(raid.shaman, k)
     end
     if (v == "Priest") then
       if (tContains(healer.all, k) == false) then
@@ -903,6 +915,8 @@ local function buildRaidAssignments(packet, author, source)
   table.sort(raid.mage)
   table.sort(raid.paladin)
   table.sort(raid.paladin_dps)
+  table.sort(raid.shaman)
+  table.sort(raid.shaman_dps)
   table.sort(raid.hunter)
   table.sort(raid.rogue)
   table.sort(raid.warlock)
@@ -919,6 +933,7 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(tank.banish, raid.warrior_dps) -- merge all tanks with warlocks
   table.merge(healer.nodruid, healer.priest)
   table.merge(healer.nodruid, healer.paladin)
+  table.merge(healer.nodruid, healer.shaman)
 
   if (DEBUG) then
     for k,v in pairs(tank.all) do
@@ -1096,6 +1111,10 @@ function raidDetails()
   DN:ClassColorText(pageRaidDetailsColOne[8], "Warrior")
   pageRaidDetailsColTwo[8]:SetText(total.warriors)
 
+  pageRaidDetailsColOne[9]:SetText("Shamans")
+  DN:ClassColorText(pageRaidDetailsColOne[9], "Shaman")
+  pageRaidDetailsColTwo[9]:SetText(total.shamans)
+
   --[==[
   pageRaidDetailsColOne[10]:SetText("Total Range")
   pageRaidDetailsColTwo[10]:SetText(total.range)
@@ -1133,7 +1152,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event == "PLAYER_LOGIN") then
     DN:BuildGlobalVars()
-    DN:SetVars()
+    DN:ProfileSaves()
     if (DEBUG) then
       print("DEBUG: " .. event)
     end
@@ -1335,7 +1354,9 @@ end
 --build the cached array
 getRaidComp()
 
-function DN:SetVars()
+local minimapIconPos={}
+
+function DN:ProfileSaves()
   local getsave={}
   for k,v in pairs(DNA[player.combine]["ASSIGN"]) do
     getsave.key = k
@@ -1424,6 +1445,13 @@ function DN:SetVars()
     DNAMiniMap:Hide()
   end
 
+  if (DNA[player.combine]["CONFIG"]["ICONPOS"]) then
+    minimapIconPos = split(DNA[player.combine]["CONFIG"]["ICONPOS"], ",")
+    if ((minimapIconPos[1]) and (minimapIconPos[2])) then
+      DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", minimapIconPos[1]+130, minimapIconPos[2]+22)
+    end
+  end
+
   if (DNA[player.combine]["CONFIG"]["RAIDCHAT"] == "ON") then
     DNACheckbox["RAIDCHAT"]:SetChecked(true)
   end
@@ -1440,7 +1468,7 @@ function DN:SetVars()
   end
 end
 
-local DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
+DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
 DNAFrameMain:SetWidth(DNAGlobal.width)
 DNAFrameMain:SetHeight(DNAGlobal.height)
 DNAFrameMain:SetPoint("CENTER", 20, 40)
@@ -2779,7 +2807,7 @@ local function DNAOpenWindow()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
-    DN:SetVars()
+    DN:ProfileSaves()
     raidPermissions()
     raidDetails()
     resetSwapQueues() --sanity check on queues
@@ -2821,12 +2849,15 @@ DNAMiniMap:SetScript("OnDragStart", function()
     DNAMiniMap:StartMoving()
     DNAMiniMap:SetScript("OnUpdate", UpdateMapButton)
 end)
+--minimapIconPos
 DNAMiniMap:SetScript("OnDragStop", function()
     DNAMiniMap:StopMovingOrSizing()
     DNAMiniMap:SetScript("OnUpdate", nil)
     local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
     if (DEBUG) then
-      print(math.ceil(xOfs) .. "," .. math.ceil(yOfs))
+      print("saved : " .. math.ceil(xOfs) .. "," .. math.ceil(yOfs))
+      print("actual: " .. 60 - (80 * cos(myIconPos)) .. "," .. (80 * sin(myIconPos)) - 56)
+      print("setval: " .. math.ceil(xOfs)+130 .. "," .. math.ceil(yOfs)+22)
     end
     DNA[player.combine]["CONFIG"]["ICONPOS"] = math.ceil(xOfs) .. "," .. math.ceil(yOfs)
     UpdateMapButton()
@@ -2835,4 +2866,55 @@ DNAMiniMap:ClearAllPoints()
 DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 60 - (80 * cos(myIconPos)),(80 * sin(myIconPos)) - 56)
 DNAMiniMap:SetScript("OnClick", function()
   DNAOpenWindow()
+end)
+
+local DNADialogMMIReset = CreateFrame("Frame", nil, UIParent)
+DNADialogMMIReset:SetWidth(400)
+DNADialogMMIReset:SetHeight(100)
+DNADialogMMIReset:SetPoint("CENTER", 0, 50)
+DNADialogMMIReset:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNADialogMMIReset.text = DNADialogMMIReset:CreateFontString(nil, "ARTWORK")
+DNADialogMMIReset.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADialogMMIReset.text:SetPoint("CENTER", DNADialogMMIReset, "CENTER", 0, 20)
+DNADialogMMIReset.text:SetText("Reset the minimap icon position?")
+DNADialogMMIReset:SetFrameLevel(150)
+DNADialogMMIReset:SetFrameStrata("FULLSCREEN_DIALOG")
+local DNADialogMMIResetNo = CreateFrame("Button", nil, DNADialogMMIReset, "UIPanelButtonTemplate")
+DNADialogMMIResetNo:SetSize(100, 24)
+DNADialogMMIResetNo:SetPoint("CENTER", -60, -20)
+DNADialogMMIResetNo.text = DNADialogMMIResetNo:CreateFontString(nil, "ARTWORK")
+DNADialogMMIResetNo.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADialogMMIResetNo.text:SetPoint("CENTER", DNADialogMMIResetNo, "CENTER", 0, 0)
+DNADialogMMIResetNo.text:SetText("No")
+DNADialogMMIResetNo:SetScript('OnClick', function()
+  DNADialogMMIReset:Hide()
+end)
+local DNADialogMMIResetYes = CreateFrame("Button", nil, DNADialogMMIReset, "UIPanelButtonTemplate")
+DNADialogMMIResetYes:SetSize(100, 24)
+DNADialogMMIResetYes:SetPoint("CENTER", 60, -20)
+DNADialogMMIResetYes.text = DNADialogMMIResetYes:CreateFontString(nil, "ARTWORK")
+DNADialogMMIResetYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADialogMMIResetYes.text:SetPoint("CENTER", DNADialogMMIResetYes, "CENTER", 0, 0)
+DNADialogMMIResetYes.text:SetText("Yes")
+DNADialogMMIResetYes:SetScript('OnClick', function()
+  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", -3, -6)
+  DNA[player.combine]["CONFIG"]["ICONPOS"] = "-133,-29"
+  DNADialogMMIReset:Hide()
+end)
+DNADialogMMIReset:Hide()
+
+local DNAMiniMapRestore = CreateFrame("Button", nil, page["Config"], "UIPanelButtonTemplate")
+DNAMiniMapRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
+DNAMiniMapRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+50)
+DNAMiniMapRestore.text = DNAMiniMapRestore:CreateFontString(nil, "ARTWORK")
+DNAMiniMapRestore.text:SetFont(DNAGlobal.font, 10, "OUTLINE")
+DNAMiniMapRestore.text:SetText("Reset Minimap Position")
+DNAMiniMapRestore.text:SetPoint("CENTER", DNAMiniMapRestore)
+DNAMiniMapRestore:SetScript("OnClick", function()
+  DNADialogMMIReset:Show()
 end)

@@ -4,6 +4,7 @@
 ## Author: Porthios of Myzrael (aka CDawg)
 ## SavedVariables:DNA
 ## OptionalDeps: Blizzard_RaidUI, Blizzard_CompactRaidFrames
+## Version: 1.203
 
 DNAGlobal.lua
 instances\DNA-MC.lua

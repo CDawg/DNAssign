@@ -18,7 +18,7 @@ DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
 DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 201
+DNAGlobal.vminor  = 203
 DNAGlobal.width   = 980
 DNAGlobal.height  = 550
 --DNAGlobal.font    = "Fonts/ARIALN.TTF"
@@ -47,6 +47,7 @@ total.warriors= 0
 total.rogues = 0
 total.hunters = 0
 total.paladins= 0
+total.shamans= 0
 total.priests = 0
 total.warlocks= 0
 total.mages = 0
@@ -54,6 +55,7 @@ total.druids = 0
 total.warriors_dps = 0 --dps warrs called to OT
 total.druids_dps = 0 --dps druids called to OT
 total.paladins_dps = 0 --dps paladins called to OT
+total.shaman_dps = 0 --dps shamans called to OT
 --
 total.tanks = 0
 total.healers = 0
@@ -131,8 +133,6 @@ player.realm = GetRealmName()
 player.combine=player.name .. "-" .. player.realm
 
 DNACheckbox = {}
-DNACheckbox["AUTOPROMOTE"] = {}
-DNACheckbox["DEBUG"] = {}
 
 DNASlots = {}
 DNASlots.tank = 6
@@ -191,7 +191,8 @@ DNAClasses={
   "Rogue",
   "Mage",
   "Warlock",
-  "Hunter"
+  "Hunter",
+  "Shaman"
 }
 
 TANK="T"
@@ -208,6 +209,7 @@ netCode = {
   {"Rogue",   "0xEFRo"},
   {"Warlock", "0xEFLo"},
   {"Paladin", "0xEFPa"},
+  {"Shaman",  "0xEFSh"},
   {"Priest",  "0xEFPr"},
   {"Mage",    "0xEFMa"},
   --app codes
@@ -295,6 +297,9 @@ function DN:ClassColorText(frame, class)
   if (class == "Paladin") then
     rgb={0.96, 0.55, 0.73}
   end
+  if (class == "Shaman") then
+    rgb={0.00, 0.44, 0.87}
+  end
   if (class == "Mage") then
     rgb={0.25, 0.78, 0.92}
   end
@@ -326,6 +331,9 @@ function DN:ClassColorAppend(name, class)
   end
   if (class == "Paladin") then
     rgb="F58CBA"
+  end
+  if (class == "Shaman") then
+    rgb="0070DD"
   end
   if (class == "Mage") then
     rgb="40C7EB"
@@ -367,10 +375,6 @@ DNAFrameAssignBossIcon = {}
 DNAFrameAssignBossText = {}
 DNAFrameAssignBossMap = {}
 DNAFrameAssignAuthor = {}
-
-function testtesttest()
-  DN:Notification("not enough!", true)
-end
 
 function isItem(compare, item) --dropdown packets that are filtered from spaces
   local boss_icon = nil
