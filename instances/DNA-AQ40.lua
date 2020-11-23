@@ -18,7 +18,8 @@ local instanceDetails = {
   "Interface/GLUES/LoadingScreens/LoadScreenAhnQiraj40man",
   "Interface/EncounterJournal/UI-EJ-BOSS-CThun",
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-TempleofAhnQiraj",
-  "Interface/EncounterJournal/UI-EJ-BACKGROUND-TempleofAhnQiraj"
+  "Interface/EncounterJournal/UI-EJ-BACKGROUND-TempleofAhnQiraj",
+  DNAGlobal.dir .. "images/aq40"
 }
 local bossList = {
   {"Anubisath Sentinels",DNAGlobal.dir .. "images/boss_anubisath2", 1},

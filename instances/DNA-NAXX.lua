@@ -19,24 +19,26 @@ local instanceDetails = {
   "Interface/GLUES/LoadingScreens/LoadScreenNaxxramas",
   "Interface/EncounterJournal/UI-EJ-BOSS-KelThuzad",
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-Naxxramas",
-  "Interface/EncounterJournal/UI-EJ-BACKGROUND-Naxxramas"
+  "Interface/EncounterJournal/UI-EJ-BACKGROUND-Naxxramas",
+  DNAGlobal.dir .. "images/naxx"
 }
 local bossList = {
-  {"- Abomination Wing -","", 2},
-  {"Patchwerk",           "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 0},
-  {"Grobbulus",           "Interface/EncounterJournal/UI-EJ-BOSS-Grobbulus", 0},
-  {"Gluth",               "Interface/EncounterJournal/UI-EJ-BOSS-Gluth", 0},
-  {"Thaddius",            "Interface/EncounterJournal/UI-EJ-BOSS-Thaddius", 0},
-  {"- Plague Wing -",     "", 2}, --Noth > Heigan > Loatheb
-  {"Noth",               "Interface/EncounterJournal/UI-EJ-BOSS-Noth", 0},
-  {"Heigan",             "Interface/EncounterJournal/UI-EJ-BOSS-Heigan", 0},
-  {"Fankriss",           "Interface/EncounterJournal/UI-EJ-BOSS-Fankriss the Unyielding", 0},
-  {"Stinger Pack",       DNAGlobal.dir .. "images/boss_wasps", 1},
-  {"Princess Huhuran",   "Interface/EncounterJournal/UI-EJ-BOSS-Princess Huhuran", 0},
-  {"Twin Emperors",      "Interface/EncounterJournal/UI-EJ-BOSS-Twin Emperors", 0},
-  {"Champion Pack",      "Interface/EncounterJournal/UI-EJ-BOSS-General Rajaxx", 1},
-  {"Obsidian Pack",      "Interface/EncounterJournal/UI-EJ-BOSS-Moam", 1},
-  {"C'Thun",             "Interface/EncounterJournal/UI-EJ-BOSS-CThun", 0}
+  {"- Abomination Wing -", "", 2},
+  {"Patchwerk",            "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 0},
+  {"Grobbulus",            "Interface/EncounterJournal/UI-EJ-BOSS-Grobbulus", 0},
+  {"Gluth",                "Interface/EncounterJournal/UI-EJ-BOSS-Gluth", 0},
+  {"Thaddius",             "Interface/EncounterJournal/UI-EJ-BOSS-Thaddius", 0},
+  {"- Plague Wing -",      "", 2},
+  {"Noth The Plaguebringer","Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
+  {"Heigan The Unclean",   "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
+  {"Loatheb",              "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
+  {"- Spider Wing -",      "", 2},
+  {"Anub'Rekhan",          "Interface/EncounterJournal/UI-EJ-BOSS-AnubRekhan", 0},
+  {"Grand Widow Faerlina", "Interface/EncounterJournal/UI-EJ-BOSS-Grand Widow Faerlina", 0},
+  {"Maexxna",              "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 0},
+  {"- Death Knight Wing -","", 2},
+  {"Instructor Razuvious", "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 0},
+  {"The Four Horsemen",    "Interface/EncounterJournal/UI-EJ-BOSS-Four Horseman", 0},
 }
 
 table.insert(DNARaidBosses, bossList)

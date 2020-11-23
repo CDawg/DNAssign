@@ -120,7 +120,7 @@ local function getRaidComp()
 
       if (IsInRaid()) then
         if (invited[name] ~= 1) then
-          --debug(name .. " has joined")
+          debug(name .. " has joined")
           if (DNARaid["assist"][player.name] == 1) then
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
@@ -388,8 +388,11 @@ local function InstanceButtonToggle(name, icon)
   pageBanner.text:SetText(DNAInstance[instanceNum][2])
   pageBossIcon:SetTexture(DNAInstance[instanceNum][4])
   DNAFrameViewBG:SetTexture(DNAInstance[instanceNum][6])
+  DNAFrameViewBossMap:SetTexture(DNAInstance[instanceNum][7])
+  DNAFrameAssignBossMap:SetTexture(DNAInstance[instanceNum][7])
   clearFrameClassAssign()
   PlaySound(844)
+  debug("InstanceButtonToggle()")
 end
 
 --parse the incoming packet
@@ -573,7 +576,7 @@ DNAFrameAssignBossMapFrame:SetFrameLevel(200)
 DNAFrameAssignBossMap = DNAFrameAssignBossMapFrame:CreateTexture(nil, "OVERLAY", DNAFrameAssignBossMapFrame)
 DNAFrameAssignBossMap:SetSize(384, 300)
 DNAFrameAssignBossMap:SetPoint("TOPLEFT", 0, 0)
-DNAFrameAssignBossMap:SetTexture(DNAGlobal.dir .. "images/mc") --default
+DNAFrameAssignBossMap:SetTexture("")
 DNAFrameAssign:SetBackdrop({
   bgFile = DNAGlobal.background,
   edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
@@ -655,7 +658,7 @@ DNAFrameAssignReady:SetScript("OnClick", function()
   local getCode = multiKeyFromValue(netCode, "readyyes")
   DN:SendPacket(netCode[getCode][2] .. player.name, true)
   DNAFrameAssign:Hide()
-  debug("|cfffaff04You have marked yourself as Ready.")
+  print("|cfffaff04You have marked yourself as Ready.")
 end)
 
 DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
@@ -1154,11 +1157,12 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event== "PLAYER_REGEN_DISABLED") then --entered combat
     raidReadyClear()
-    --debug("entered combat!")
+    debug("Entered Combat!")
   end
   if (event == "PLAYER_REGEN_ENABLED") then --left combat
     if (DNACheckbox["HIDEASSIGNCOMBAT"]:GetChecked()) then
       DNAFrameAssignPersonal:Hide()
+      debug("Left Combat!")
     end
   end
 
@@ -1316,7 +1320,7 @@ end)
 
 SLASH_DNA1 = "/dna"
 function SlashCmdList.DNA(msg)
-  --debug(msg)
+  debug(msg)
 end
 
 --build the cached array
@@ -1626,7 +1630,7 @@ for i = 1, MAX_FRAME_LINES do
 end
 
 DNAFrameViewBossMap = DNAFrameView:CreateTexture(nil, "BACKGROUND")
-DNAFrameViewBossMap:SetTexture(DNAGlobal.dir .. "images/mc")
+DNAFrameViewBossMap:SetTexture("")
 DNAFrameViewBossMap:SetSize(380, 320)
 DNAFrameViewBossMap:SetPoint("TOPLEFT", 0, 0)
 DNAFrameViewBossMap:Hide()
@@ -2560,7 +2564,6 @@ for i, v in ipairs(DNAInstance) do
     raidSelection = self.value
     debug("ddBossList " .. self.value)
     buildRaidAssignments(self.value, nil, "dropdown")
-    --debug(multiKeyFromValue(netCode, "posttoraid"))
   end
   ddBossList[DNAInstance[i][1]]:Hide()
   ddBossList[DNAInstance[i][1]].initialize = function(self, level)
@@ -2828,9 +2831,9 @@ DNAMiniMap:SetScript("OnDragStop", function()
     DNAMiniMap:StopMovingOrSizing()
     DNAMiniMap:SetScript("OnUpdate", nil)
     local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
-    debug("saved : " .. math.ceil(xOfs) .. "," .. math.ceil(yOfs))
-    debug("actual: " .. 60 - (80 * cos(myIconPos)) .. "," .. (80 * sin(myIconPos)) - 56)
-    debug("setval: " .. math.ceil(xOfs)+130 .. "," .. math.ceil(yOfs)+22)
+    debug("MMI Saved : " .. math.ceil(xOfs) .. "," .. math.ceil(yOfs))
+    debug("MMI Actual: " .. 60 - (80 * cos(myIconPos)) .. "," .. (80 * sin(myIconPos)) - 56)
+    debug("MMI Setval: " .. math.ceil(xOfs)+130 .. "," .. math.ceil(yOfs)+22)
     DNA[player.combine]["CONFIG"]["ICONPOS"] = math.ceil(xOfs) .. "," .. math.ceil(yOfs)
     UpdateMapButton()
 end)

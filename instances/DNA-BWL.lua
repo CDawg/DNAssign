@@ -18,7 +18,8 @@ local instanceDetails = {
   "Interface/GLUES/LoadingScreens/LoadScreenBlackWingLair",
   "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian",
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-BlackwingLair",
-  "Interface/EncounterJournal/UI-EJ-BACKGROUND-BlackwingLair"
+  "Interface/EncounterJournal/UI-EJ-BACKGROUND-BlackwingLair",
+  DNAGlobal.dir .. "images/bwl_goblinpack"
 }
 local bossList = {
   {"Razorgore",           "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed", 0},
