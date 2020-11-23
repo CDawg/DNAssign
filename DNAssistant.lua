@@ -87,11 +87,9 @@ local function getGuildComp()
       local filterRealm = string.match(name, "(.*)-")
       DNAGuild["member"] = filterRealm
       DNAGuild["rank"][filterRealm] = rank
-      --print(filterRealm .. " = " .. rank)
+      --debug(filterRealm .. " = " .. rank)
     end
-    if (DEBUG) then
-      print("getGuildComp()")
-    end
+    debug("getGuildComp()")
   end
 end
 
@@ -122,7 +120,7 @@ local function getRaidComp()
 
       if (IsInRaid()) then
         if (invited[name] ~= 1) then
-          --print("DEBUG: " .. name .. " has joined")
+          --debug(name .. " has joined")
           if (DNARaid["assist"][player.name] == 1) then
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
@@ -159,9 +157,8 @@ local function getRaidComp()
 
   if (DEBUG) then
     buildDebugRaid() --fake raid
-    print("DEBUG: getRaidComp() total:" .. total.raid)
+    debug("getRaidComp() total:" .. total.raid)
   end
-
 end
 
 local windowOpen = false
@@ -173,9 +170,7 @@ local function resetSwapQueues()
   swapQueue[TANK] = 0
   prevQueue[HEAL] = 0
   swapQueue[HEAL] = 0
-  if (DEBUG) then
-    print("DEBUG: resetSwapQueues()")
-  end
+  debug("resetSwapQueues()")
 end
 
 local function DNACloseWindow()
@@ -331,10 +326,7 @@ function DN:UpdateRaidRoster()
   total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins + total.shamans
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
-
-  if (DEBUG) then
-    print("DEBUG: DN:UpdateRaidRoster()")
-  end
+  debug("DN:UpdateRaidRoster()")
 end
 
 local function clearFrameView()
@@ -343,9 +335,7 @@ local function clearFrameView()
     DNAFrameViewScrollChild_tank[i]:SetText("")
     DNAFrameViewScrollChild_heal[i]:SetText("")
   end
-  if (DEBUG) then
-    print("DEBUG: clearFrameView()")
-  end
+  debug("clearFrameView()")
 end
 
 local function clearFrameAssign()
@@ -354,9 +344,7 @@ local function clearFrameAssign()
     DNAFrameAssignScrollChild_tank[i]:SetText("")
     DNAFrameAssignScrollChild_heal[i]:SetText("")
   end
-  if (DEBUG) then
-    print("DEBUG: clearFrameAssign()")
-  end
+  debug("clearFrameAssign()")
 end
 
 local function clearFrameClassAssign()
@@ -416,11 +404,9 @@ local function parsePacket(packet, netpacket)
     packet.slot = tonumber(packet.slot)
     packet.name = packet.split[2]
   end
-  if (DEBUG) then
-    print("DEBUG: packet.role " .. packet.role)
-    print("DEBUG: packet.slot " .. packet.slot)
-    print("DEBUG: packet.name " .. packet.name)
-  end
+  debug("packet.role " .. packet.role)
+  debug("packet.slot " .. packet.slot)
+  debug("packet.name " .. packet.name)
   if (packet.role == TANK) then
     if ((packet.name == nil) or (packet.name == "Empty")) then
       tankSlot[packet.slot].text:SetText("Empty")
@@ -669,7 +655,7 @@ DNAFrameAssignReady:SetScript("OnClick", function()
   local getCode = multiKeyFromValue(netCode, "readyyes")
   DN:SendPacket(netCode[getCode][2] .. player.name, true)
   DNAFrameAssign:Hide()
-  print("|cfffaff04You have marked yourself as Ready.")
+  debug("|cfffaff04You have marked yourself as Ready.")
 end)
 
 DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
@@ -790,9 +776,7 @@ local function buildRaidAssignments(packet, author, source)
   local locked_assignments={}
   locked_assignments[player.name] = 0
 
-  if (DEBUG) then
-    print("DEBUG: buildRaidAssignments()")
-  end
+  debug("buildRaidAssignments()")
 
   clearNotifications()
   DN:UpdateRaidRoster()
@@ -935,12 +919,6 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(healer.nodruid, healer.paladin)
   table.merge(healer.nodruid, healer.shaman)
 
-  if (DEBUG) then
-    for k,v in pairs(tank.all) do
-      print("[" .. k .. "] " .. v)
-    end
-  end
-
   DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
@@ -977,7 +955,7 @@ local function buildRaidAssignments(packet, author, source)
       filterHealer[i] = string.gsub(heal[i], ',', " / ")
       filter_row = ""
       for n=1, table.getn(healer_row) do
-        --print("DEBUG :" .. healer_row[n])
+        --debug("DEBUG :" .. healer_row[n])
         if (n > 1) then
           filter_row = filter_row .. " / " .. DN:ClassColorAppend(healer_row[n], DNARaid["class"][healer_row[n]])
         else
@@ -995,9 +973,7 @@ local function buildRaidAssignments(packet, author, source)
             DNAFrameAssignPersonalColTwo:SetText(filter_row)
             locked_assignments[player.name] = 1
             DNAFrameAssignPersonal:Show()
-            if (DEBUG) then
-              print("DEBUG: Personal Window Width " .. string.len(filter_row)) --increase the width of the window
-            end
+            debug("Personal Window Width " .. string.len(filter_row)) --increase the width of the window
             if (string.len(filter_row) > 40) then
               DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row)+40)
               DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
@@ -1145,17 +1121,13 @@ DNAMain:RegisterEvent("CHAT_MSG_LOOT")
 DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if ((event == "ADDON_LOADED") and (prefix == "DNA")) then
     DN:BuildGlobalVars()
-    if (DEBUG) then
-      print("DEBUG: " .. event)
-    end
+    debug(event)
   end
 
   if (event == "PLAYER_LOGIN") then
     DN:BuildGlobalVars()
     DN:ProfileSaves()
-    if (DEBUG) then
-      print("DEBUG: " .. event)
-    end
+    debug(event)
   end
 
   --[==[
@@ -1182,7 +1154,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event== "PLAYER_REGEN_DISABLED") then --entered combat
     raidReadyClear()
-    --print("entered combat!")
+    --debug("entered combat!")
   end
   if (event == "PLAYER_REGEN_ENABLED") then --left combat
     if (DNACheckbox["HIDEASSIGNCOMBAT"]:GetChecked()) then
@@ -1192,9 +1164,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event == "CHAT_MSG_ADDON") then
     if (prefix == DNAGlobal.prefix) then
-      if (DEBUG) then
-        print("DEBUG: Reading netpacket " .. netpacket)
-      end
+      debug("Reading netpacket " .. netpacket)
 
       --parse incoming large packet chunk
       if (string.sub(netpacket, 1, 1) == "{") then
@@ -1241,10 +1211,8 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
           netpacket = string.gsub(netpacket, netCode[getCode][2], "")
           local raid_assignment = split(netpacket, ",")
-          if (DEBUG) then
-            print(raid_assignment[1])
-            print(raid_assignment[2])
-          end
+          debug(raid_assignment[1])
+          debug(raid_assignment[2])
           buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
           DNAFrameAssign:Show()
           raidReadyClear()
@@ -1312,10 +1280,10 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (string.sub(netpacket, 1, 1) == "@") then --DKP
         netpacket = string.gsub(netpacket, "@", "")
         --DNAFrameAssign:Show()
-        --print("DKP Pushed: " .. netpacket)
+        --debug("DKP Pushed: " .. netpacket)
         packetChunk = split(netpacket, "}")
         packetLength= strlen(netpacket)
-        --print(packetLength)
+        --debug(packetLength)
         local DKPName={}
         local DKPNum={}
         for x=1, table.getn(packetChunk) do
@@ -1348,7 +1316,7 @@ end)
 
 SLASH_DNA1 = "/dna"
 function SlashCmdList.DNA(msg)
-  --print("DEBUG: " .. msg)
+  --debug(msg)
 end
 
 --build the cached array
@@ -2285,7 +2253,7 @@ for i = 1, DNASlots.tank do
           if (tankSlot[dupe].text:GetText() == memberDrag) then
             updateSlotPos(TANK, dupe, "Empty")
             updateSlotPos(TANK, i, memberDrag)
-            return true --print("DEBUG: duplicate slot")
+            return true
           end
         end
         updateSlotPos(TANK, i, memberDrag)
@@ -2491,7 +2459,7 @@ for i = 1, DNASlots.heal do
           if (healSlot[dupe].text:GetText() == memberDrag) then
             updateSlotPos(HEAL, dupe, "Empty")
             updateSlotPos(HEAL, i, memberDrag)
-            return true --print("DEBUG: duplicate slot")
+            return true
           end
         end
         updateSlotPos(HEAL, i, memberDrag)
@@ -2590,11 +2558,9 @@ for i, v in ipairs(DNAInstance) do
     ddBossListText[DNAInstance[i][1]]:SetText(self.value)
     clearFrameView()
     raidSelection = self.value
-    if (DEBUG) then
-      print("DEBUG: ddBossList " .. self.value)
-    end
+    debug("ddBossList " .. self.value)
     buildRaidAssignments(self.value, nil, "dropdown")
-    --print(multiKeyFromValue(netCode, "posttoraid"))
+    --debug(multiKeyFromValue(netCode, "posttoraid"))
   end
   ddBossList[DNAInstance[i][1]]:Hide()
   ddBossList[DNAInstance[i][1]].initialize = function(self, level)
@@ -2608,10 +2574,18 @@ for i, v in ipairs(DNAInstance) do
         info.text = ddVal[1]
         info.value= ddVal[1]
         info.icon = ""
-        info.fontObject = GameFontNormalLeft
+        info.fontObject = GameFontNormal
+        --info.notClickable = false
         info.colorCode = "|cffffffff"
+        info.justifyH = "LEFT"
+        info.disabled = false
         if (ddVal[3] == 1) then
           info.colorCode = "|cfff2bd63"
+        end
+        if (ddVal[3] == 2) then
+          info.disabled = true
+          --info.colorCode = "|cff868686"
+          info.justifyH = "CENTER"
         end
         if (ddVal[2]) then
           info.icon = ddVal[2] --bossicon
@@ -2773,7 +2747,7 @@ secBtn.text:SetText("| tank test |")
 secBtn:SetAttribute("type", "macro")
 secBtn:SetAttribute("macrotext", "/mt Krizzu")
 secBtn:SetScript("OnClick", function()
-  print("test")
+  debug("test")
 end)
 ]==]--
 
@@ -2854,11 +2828,9 @@ DNAMiniMap:SetScript("OnDragStop", function()
     DNAMiniMap:StopMovingOrSizing()
     DNAMiniMap:SetScript("OnUpdate", nil)
     local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
-    if (DEBUG) then
-      print("saved : " .. math.ceil(xOfs) .. "," .. math.ceil(yOfs))
-      print("actual: " .. 60 - (80 * cos(myIconPos)) .. "," .. (80 * sin(myIconPos)) - 56)
-      print("setval: " .. math.ceil(xOfs)+130 .. "," .. math.ceil(yOfs)+22)
-    end
+    debug("saved : " .. math.ceil(xOfs) .. "," .. math.ceil(yOfs))
+    debug("actual: " .. 60 - (80 * cos(myIconPos)) .. "," .. (80 * sin(myIconPos)) - 56)
+    debug("setval: " .. math.ceil(xOfs)+130 .. "," .. math.ceil(yOfs)+22)
     DNA[player.combine]["CONFIG"]["ICONPOS"] = math.ceil(xOfs) .. "," .. math.ceil(yOfs)
     UpdateMapButton()
 end)

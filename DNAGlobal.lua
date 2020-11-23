@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name    = "Destructive Nature Assistant"
@@ -65,6 +65,12 @@ total.range = 0
 total.raid = 0
 
 note_color = "|cffe2dbbf" --extra note assignment color
+
+function debug(msg)
+  if (DEBUG) then
+    return print("DEBUG: " .. msg)
+  end
+end
 
 --single array
 function singleKeyFromValue(_array, value)
