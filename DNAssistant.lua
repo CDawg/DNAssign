@@ -2673,8 +2673,8 @@ btnShareDis:Hide()
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
 
---DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], DNAGlobal.width-260, DNAGlobal.height-107)
---DNACheckbox["READYCHECK"]:SetChecked(true)
+DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], DNAGlobal.width-260, DNAGlobal.height-107)
+DNACheckbox["READYCHECK"]:SetChecked(true)
 
 local btnPostRaid_t = "Post to Raid"
 local btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
@@ -2705,9 +2705,9 @@ btnPostRaid:SetScript("OnClick", function()
 
       local getCode = multiKeyFromValue(netCode, "posttoraid")
       DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
-      --if (DNACheckbox["READYCHECK"]:GetChecked()) then
+      if (DNACheckbox["READYCHECK"]:GetChecked()) then
         DoReadyCheck()
-      --end
+      end
     end
   else
     DN:Notification("You are not in a raid!     [E5]", true)

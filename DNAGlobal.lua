@@ -158,6 +158,13 @@ function DN:PromoteToAssistant(name)
   PromoteToAssistant(name)
 end
 
+function DN:SetupDefaultVars() --called only when a new profile is created
+  DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
+  DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] = "ON"
+  DNACheckbox["RAIDCHAT"]:SetChecked(true)
+  DNA[player.combine]["CONFIG"]["RAIDCHAT"] = "ON"
+end
+
 function DN:BuildGlobalVars()
   if (DNA == nil) then
     DNA = {}
@@ -174,6 +181,7 @@ function DN:BuildGlobalVars()
       DNA[player.combine]["LOOTLOG"] = {}
     end
     DN:ChatNotification("Creating Raid Profile: " .. player.combine)
+    DN:SetupDefaultVars()
   else
     DN:ChatNotification("Loading Raid Profile: " .. player.combine)
   end
