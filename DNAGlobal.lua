@@ -12,15 +12,15 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
 DNAGlobal.dir    = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor = 1
-DNAGlobal.vminor = 211
+DNAGlobal.vminor = 204
 DNAGlobal.width  = 980
-DNAGlobal.height = 550
+DNAGlobal.height = 600
 --DNAGlobal.font   = "Fonts/ARIALN.TTF"
 --DNAGlobal.font   = DNAGlobal.dir .. "Fonts/Verdana.ttf"
 DNAGlobal.font   = "Fonts/FRIZQT__.TTF"
@@ -29,9 +29,9 @@ DNAGlobal.btn_h  = 25
 
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
-DNAGlobal.background = "Interface/FrameGeneral/UI-Background-Rock"
+--DNAGlobal.background = "Interface/FrameGeneral/UI-Background-Rock"
 --DNAGlobal.background = "Interface/Garrison/GarrisonShipMissionParchment"
---DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment"
+DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment"
 DN = {}
 
 date_day = date("%y-%m-%d")
@@ -59,6 +59,7 @@ total.shaman_dps = 0 --dps shamans called to OT
 --
 total.tanks = 0
 total.healers = 0
+total.cc = 0
 total.melee = 0
 total.range = 0
 --
@@ -143,6 +144,7 @@ DNACheckbox = {}
 DNASlots = {}
 DNASlots.tank = 6
 DNASlots.heal = 12
+DNASlots.cc   = 6
 
 MAX_FRAME_LINES = 25 --also setup the same for the assign window
 
@@ -211,6 +213,7 @@ DNAClasses={
 
 TANK="T"
 HEAL="H"
+CC = "C"
 
 netCode = {
   --packet codes

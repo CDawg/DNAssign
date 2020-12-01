@@ -20,7 +20,6 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-BlackwingLair",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-BlackwingLair",
   DNAGlobal.dir .. "images/bwl_goblinpack",
-  "Interface/Garrison/GarrisonMissionParchment", --background
 }
 local bossList = {
   {"Razorgore",           "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed", 0},
@@ -43,7 +42,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
+function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
   if (isItem(assign, "Razorgore")) then

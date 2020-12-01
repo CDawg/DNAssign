@@ -1,4 +1,4 @@
-## Interface: 11305
+## Interface: 11306
 ## Title: |cff00ffffDestructive Nature Assistant
 ## Notes: Destructive Nature Assistant
 ## Author: Porthios of Myzrael (aka CDawg)

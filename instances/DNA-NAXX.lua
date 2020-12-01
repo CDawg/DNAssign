@@ -20,7 +20,6 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-Naxxramas",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-Naxxramas",
   DNAGlobal.dir .. "images/naxx",
-  "Interface/Garrison/GarrisonShipMissionParchment", --background
 }
 local bossList = {
   {"- Abomination Wing -",   "", 2},
@@ -55,7 +54,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer)
+function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc)
   if (isItem(assign, "Trash Wing:Abomination")) then
     NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"

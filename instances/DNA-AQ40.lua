@@ -20,7 +20,6 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-TempleofAhnQiraj",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-TempleofAhnQiraj",
   DNAGlobal.dir .. "images/aq40",
-  "Interface/BankFrame/Bank-Background", --background
 }
 local bossList = {
   {"Anubisath Sentinels",DNAGlobal.dir .. "images/boss_anubisath2", 1},
@@ -41,7 +40,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
+function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc)
 
   if (isItem(assign, "Anubisath Sentinels")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
@@ -128,6 +127,9 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
 
     local extra_rogues = ""
     for i=1, 2 do
+      if (cc.main[i]) then
+        extra_rogues = extra_rogues .. cc.main[i] .. ","
+      end
       if (raid.rogue[i]) then
         extra_rogues = extra_rogues .. raid.rogue[i] .. ","
       end
@@ -179,7 +181,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     text[6] = tank.all[4]
     heal[6] = healer.priest[3]
     mark[7] = DNARaidMarkers[4][2]
-    text[7] = tank.all[3]
+    text[7] = tank.all[5]
     heal[7] = healer.priest[4]
 
     text[9] = "-- ADD PULLS -- "
@@ -195,20 +197,35 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
     end
     if (raid.hunter[3]) then
       mark[12] = DNARaidMarkers[4][2]
-      text[12] = tank.all[3]
+      text[12] = tank.all[5]
       heal[12] = raid.hunter[3]
     end
-    if (raid.rogue[1]) then
+    if (cc.main[1]) then
       mark[14] = DNARaidMarkers[2][2]
-      text[14] = raid.rogue[1]
+      text[14] = cc.main[1]
+    else
+      if (raid.rogue[1]) then
+        mark[14] = DNARaidMarkers[2][2]
+        text[14] = raid.rogue[1]
+      end
     end
-    if (raid.rogue[2]) then
+    if (cc.main[2]) then
       mark[15] = DNARaidMarkers[3][2]
-      text[15] = raid.rogue[2]
+      text[15] = cc.main[2]
+    else
+      if (raid.rogue[2]) then
+        mark[15] = DNARaidMarkers[3][2]
+        text[15] = raid.rogue[2]
+      end
     end
-    if (raid.rogue[3]) then
+    if (cc.main[3]) then
       mark[16] = DNARaidMarkers[4][2]
-      text[16] = raid.rogue[3]
+      text[16] = cc.main[3]
+    else
+      if (raid.rogue[3]) then
+        mark[16] = DNARaidMarkers[4][2]
+        text[16] = raid.rogue[3]
+      end
     end
     local extra_mages = ""
     for i=1, 3 do
