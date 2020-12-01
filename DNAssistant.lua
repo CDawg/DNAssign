@@ -119,9 +119,9 @@ local function getRaidComp()
       end
 
       if (IsInRaid()) then
-        if (invited[name] ~= 1) then
+        if (invited[name] ~= 1) then --already invited attempt
           debug(name .. " has joined")
-          if (DNARaid["assist"][player.name] == 1) then
+          if (DNARaid["assist"][player.name] == 2) then --is raid lead
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
                 if (DNAGuild["rank"][name] ~= nil) then --no guild rank or permission
@@ -182,7 +182,7 @@ end
 
 local DNAFrameAssignNotReady={}
 
-function raidReadyClear()
+function DN:RaidReadyClear()
   for i=1, MAX_RAID_MEMBERS do
     raidSlot[i].ready:SetTexture("")
   end
@@ -192,7 +192,7 @@ function raidReadyClear()
   for i=1, DNASlots.heal do
     healSlot[i].ready:SetTexture("")
   end
-  --DNAFrameAssignNotReady:SetBackdropColor(0.6, 0.5, 0.5, 1)
+  debug("DN:RaidReadyClear()")
 end
 
 function raidReadyMember(member, isReady)
@@ -364,7 +364,7 @@ local function clearFrameAssignPersonal()
   DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
 end
 
-local function InstanceButtonToggle(name, icon)
+function DN:InstanceButtonToggle(name, icon)
   local instanceNum = multiKeyFromValue(DNAInstance, name)
   for i, v in ipairs(DNAInstance) do
     DNAFrameInstance[DNAInstance[i][1]]:SetBackdrop({
@@ -390,15 +390,23 @@ local function InstanceButtonToggle(name, icon)
   DNAFrameViewBG:SetTexture(DNAInstance[instanceNum][6])
   DNAFrameViewBossMap:SetTexture(DNAInstance[instanceNum][7])
   DNAFrameAssignBossMap:SetTexture(DNAInstance[instanceNum][7])
+  DNAFrameMain:SetBackdrop({
+    bgFile = DNAInstance[instanceNum][8],
+    edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+    edgeSize = 26,
+    tile = true,
+    tileSize = 450,
+    insets = {left=4, right=4, top=20, bottom=4},
+  })
   clearFrameClassAssign()
   PlaySound(844)
-  debug("InstanceButtonToggle()")
+  debug("DN:InstanceButtonToggle()")
 end
 
 --parse the incoming packet
-local function parsePacket(packet, netpacket)
+function DN:ParsePacket(packet, netpacket)
   DN:UpdateRaidRoster()
-  raidReadyClear() -- there was a change to the roster, people may not be ready
+  DN:RaidReadyClear() -- there was a change to the roster, people may not be ready
   packet.split = split(netpacket, ",")
   for i = 1, table.getn(packet.split) do
     --packet.role = packet.split[1]
@@ -420,15 +428,17 @@ local function parsePacket(packet, netpacket)
       DN:ClassColorText(tankSlot[packet.slot].text, "Empty")
     else
       tankSlot[packet.slot].text:SetText(packet.name)
+      tankSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
       tankSlot[packet.slot]:SetFrameLevel(4)
       tankSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
       tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
       thisClass = DNARaid["class"][packet.name]
       DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
-      --DN:PromoteToAssistant(packet.name)
       --SetPartyAssignment("MAINTANK", packet.name, 1)
+      --debug("MAINTANK = " .. packet.name)
     end
   end
+
   if (packet.role == HEAL) then
     if ((packet.name == nil) or (packet.name == "Empty")) then
       healSlot[packet.slot].text:SetText("Empty")
@@ -439,6 +449,7 @@ local function parsePacket(packet, netpacket)
       DN:ClassColorText(healSlot[packet.slot].text, "Empty")
     else
       healSlot[packet.slot].text:SetText(packet.name)
+      healSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
       healSlot[packet.slot]:SetFrameLevel(4)
       healSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
       healSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
@@ -452,6 +463,7 @@ local function parsePacket(packet, netpacket)
   DNA[player.combine]["ASSIGN"][packet.role .. packet.slot] = packet.name
   DN:UpdateRaidRoster()
   clearFrameView()
+  debug("DN:ParsePacket()")
 end
 
 -- assignment window --
@@ -925,6 +937,7 @@ local function buildRaidAssignments(packet, author, source)
   DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer)
   DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
+  DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer)
 
   for i=1, MAX_FRAME_LINES do
     if (mark[i]) then
@@ -1105,6 +1118,24 @@ function raidDetails()
   pageRaidDetailsColTwo[10]:SetText(total.raid)
 end
 
+function DN:AlignSlotText()
+  for i=1, DNASlots.tank do
+    if (tankSlot[i].text:GetText() == "Empty") then
+      tankSlot[i].text:ClearAllPoints()
+      tankSlot[i].text:SetPoint("CENTER", 0, 0)
+      debug(tankSlot[i].text:GetText())
+    end
+  end
+  for i=1, DNASlots.heal do
+    if (healSlot[i].text:GetText() == "Empty") then
+      healSlot[i].text:ClearAllPoints()
+      healSlot[i].text:SetPoint("CENTER", 0, 0)
+      debug(healSlot[i].text:GetText())
+    end
+  end
+  debug("DN:AlignSlotText()")
+end
+
 local DNAMain = CreateFrame("Frame")
 DNAMain:RegisterEvent("ADDON_LOADED")
 DNAMain:RegisterEvent("PLAYER_LOGIN")
@@ -1156,7 +1187,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   end
 
   if (event== "PLAYER_REGEN_DISABLED") then --entered combat
-    raidReadyClear()
+    DN:RaidReadyClear()
     debug("Entered Combat!")
   end
   if (event == "PLAYER_REGEN_ENABLED") then --left combat
@@ -1169,6 +1200,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if (event == "CHAT_MSG_ADDON") then
     if (prefix == DNAGlobal.prefix) then
       debug("Reading netpacket " .. netpacket)
+      DN:AlignSlotText()
 
       --parse incoming large packet chunk
       if (string.sub(netpacket, 1, 1) == "{") then
@@ -1178,9 +1210,9 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         packetChunk = split(netpacket, "}")
         for x=1, table.getn(packetChunk) do
           filteredPacket[x] = string.gsub(packetChunk[x], "{", "")
-          parsePacket(packet, filteredPacket[x])
+          DN:ParsePacket(packet, filteredPacket[x])
         end
-         raidReadyClear()
+        DN:RaidReadyClear()
         return true
       end
 
@@ -1219,7 +1251,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           debug(raid_assignment[2])
           buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
           DNAFrameAssign:Show()
-          raidReadyClear()
+          DN:RaidReadyClear()
           return true
         end
       end
@@ -1313,7 +1345,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       ]==]--
 
       --single slot update, parse individual packets
-      parsePacket(packet, netpacket)
+      DN:ParsePacket(packet, netpacket)
     end
   end
 end)
@@ -1346,6 +1378,7 @@ function DN:ProfileSaves()
         DN:ClassColorText(tankSlot[getsave.slot].text, "Empty")
       else
         tankSlot[getsave.slot].text:SetText(getsave.name)
+        tankSlot[getsave.slot].text:SetPoint("TOPLEFT", 20, -4)
         tankSlot[getsave.slot]:SetFrameLevel(3)
         tankSlot[getsave.slot]:SetBackdropColor(1, 1, 1, 0.6)
         tankSlot[getsave.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
@@ -1365,6 +1398,7 @@ function DN:ProfileSaves()
         healSlotDown[getsave.slot]:Hide()
       else
         healSlot[getsave.slot].text:SetText(getsave.name)
+        healSlot[getsave.slot].text:SetPoint("TOPLEFT", 20, -4)
         healSlot[getsave.slot]:SetFrameLevel(3)
         healSlot[getsave.slot]:SetBackdropColor(1, 1, 1, 0.6)
         healSlot[getsave.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
@@ -1430,14 +1464,14 @@ function DN:ProfileSaves()
 
   if (DNA[player.combine]["CONFIG"]["RAID"]) then
     local instanceNum = multiKeyFromValue(DNAInstance, DNA[player.combine]["CONFIG"]["RAID"])
-    InstanceButtonToggle(DNAInstance[instanceNum][1], DNAInstance[instanceNum][5])
+    DN:InstanceButtonToggle(DNAInstance[instanceNum][1], DNAInstance[instanceNum][5])
     for i, v in ipairs(DNAInstance) do
       ddBossList[DNAInstance[i][1]]:Hide()
-      --ddBossListText[DNAInstance[i][1]]:SetText("Select a boss")
       DN:Notification("Please select a boss or trash pack!          [E8]", true)
     end
     ddBossList[DNAInstance[instanceNum][1]]:Show()
   end
+  debug("DN:ProfileSaves()")
 end
 
 DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
@@ -1882,7 +1916,7 @@ DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-5)
 DNAFrameInstanceBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameInstanceBG:SetFrameLevel(2)
 
-local function instanceButton(name, pos_y, longtext, icon)
+function DN:InstanceButton(name, pos_y, longtext, icon)
   DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
   DNAFrameInstance[name]:SetSize(140, 80)
   DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+64)
@@ -1903,10 +1937,10 @@ local function instanceButton(name, pos_y, longtext, icon)
     end
     local instanceNum = multiKeyFromValue(DNAInstance, name)
     clearFrameView()
-    InstanceButtonToggle(name, icon)
+    DN:InstanceButtonToggle(name, icon)
     DNA[player.combine]["CONFIG"]["RAID"] = name
     ddBossList[name]:Show()
-    ddBossListText[name]:SetText("Select a boss")
+    ddBossListText[name]:SetText("")
   end)
   DNAFrameInstanceGlow[name] = DNAFrameInstance[name]:CreateTexture(nil, "BACKGROUND", DNAFrameInstance[name], -5)
   DNAFrameInstanceGlow[name]:SetTexture("Interface/ExtraButton/ChampionLight")
@@ -1916,10 +1950,10 @@ local function instanceButton(name, pos_y, longtext, icon)
 end
 
 for i, v in ipairs(DNAInstance) do
-  instanceButton(DNAInstance[i][1], i*100, DNAInstance[i][2], DNAInstance[i][5]) --draw all tabs
+  DN:InstanceButton(DNAInstance[i][1], i*100, DNAInstance[i][2], DNAInstance[i][5]) --draw all tabs
 end
 
-InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
+DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
 
 local pages = {
   {"Assignment", 10},
@@ -2089,8 +2123,8 @@ function raidSlotFrame(parentFrame, i, y)
   raidSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
   raidSlot[i].icon:SetSize(12, 12)
   raidSlot[i].text = raidSlot[i]:CreateFontString(nil, "ARTWORK")
-  raidSlot[i].text:SetFont(DNAGlobal.font, 12, "OUTLINE")
-  raidSlot[i].text:SetPoint("CENTER", raidSlot[i], "CENTER", 0, 0)
+  raidSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  raidSlot[i].text:SetPoint("TOPLEFT", 20, -4)
   raidSlot[i].text:SetText("Empty")
   raidSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
   raidSlot[i].ready = raidSlot[i]:CreateTexture(nil, "OVERLAY")
@@ -2200,8 +2234,8 @@ for i = 1, DNASlots.tank do
   tankSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
   tankSlot[i].icon:SetSize(12, 12)
   tankSlot[i].text = tankSlot[i]:CreateFontString(tankSlot[i], "ARTWORK")
-  tankSlot[i].text:SetFont(DNAGlobal.font, 12, "OUTLINE")
-  tankSlot[i].text:SetPoint("CENTER", tankSlot[i], "TOPLEFT", 70, -10)
+  tankSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  tankSlot[i].text:SetPoint("CENTER", 0, 0)
   tankSlot[i].text:SetText("Empty")
   tankSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
   tankSlot[i]:SetBackdrop({
@@ -2373,8 +2407,8 @@ for i = 1, DNASlots.heal do
   healSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
   healSlot[i].icon:SetSize(12, 12)
   healSlot[i].text = healSlot[i]:CreateFontString(healSlot[i], "ARTWORK")
-  healSlot[i].text:SetFont(DNAGlobal.font, 12, "OUTLINE")
-  healSlot[i].text:SetPoint("CENTER", healSlot[i], "TOPLEFT", 70, -10)
+  healSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  healSlot[i].text:SetPoint("CENTER", 0, 0)
   healSlot[i].text:SetText("Empty")
   healSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
   healSlotUp[i] = CreateFrame("Button", nil, healSlot[i], "UIPanelButtonTemplate")
@@ -2601,8 +2635,6 @@ for i, v in ipairs(DNAInstance) do
   UIDropDownMenu_SetWidth(ddBossList[DNAInstance[i][1]], 160)
 end
 
---ddBossListText[DNARaidBosses[1][1]]:SetText("Select a boss")
-
 local largePacket = nil
 function DN:RaidSendAssignments()
   largePacket = "{"
@@ -2691,8 +2723,7 @@ btnPostRaid:SetScript("OnClick", function()
       return
     end
     DN:RaidSendAssignments()
-    if (raidSelection == nil) then
-      --DNAFrameViewScrollChild_tank[3]:SetText("Please select a boss or trash pack!")
+    if ((raidSelection == nil) or (raidSelection == "")) then
       DN:Notification("Please select a boss or trash pack!          [E9]", true)
     else
       --class notes
@@ -2843,6 +2874,14 @@ DNAMiniMap:SetScript("OnClick", function()
   DNAOpenWindow()
 end)
 
+function DN:ResetMiniMapIcon()
+  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", -3, -6)
+  DNA[player.combine]["CONFIG"]["ICONPOS"] = "-133,-29"
+  DNA[player.combine]["CONFIG"]["HIDEICON"] = "OFF"
+  DNACheckbox["HIDEICON"]:SetChecked(false)
+  DNAMiniMap:Show()
+end
+
 local DNADialogMMIReset = CreateFrame("Frame", nil, UIParent)
 DNADialogMMIReset:SetWidth(400)
 DNADialogMMIReset:SetHeight(100)
@@ -2877,19 +2916,68 @@ DNADialogMMIResetYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 DNADialogMMIResetYes.text:SetPoint("CENTER", DNADialogMMIResetYes, "CENTER", 0, 0)
 DNADialogMMIResetYes.text:SetText("Yes")
 DNADialogMMIResetYes:SetScript('OnClick', function()
-  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", -3, -6)
-  DNA[player.combine]["CONFIG"]["ICONPOS"] = "-133,-29"
+  DN:ResetMiniMapIcon()
   DNADialogMMIReset:Hide()
 end)
 DNADialogMMIReset:Hide()
 
 local DNAMiniMapRestore = CreateFrame("Button", nil, page["Config"], "UIPanelButtonTemplate")
 DNAMiniMapRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
-DNAMiniMapRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+50)
+DNAMiniMapRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+80)
 DNAMiniMapRestore.text = DNAMiniMapRestore:CreateFontString(nil, "ARTWORK")
 DNAMiniMapRestore.text:SetFont(DNAGlobal.font, 10, "OUTLINE")
 DNAMiniMapRestore.text:SetText("Reset Minimap Position")
 DNAMiniMapRestore.text:SetPoint("CENTER", DNAMiniMapRestore)
 DNAMiniMapRestore:SetScript("OnClick", function()
   DNADialogMMIReset:Show()
+end)
+
+local DNADialogWTFReset = CreateFrame("Frame", nil, UIParent)
+DNADialogWTFReset:SetWidth(400)
+DNADialogWTFReset:SetHeight(100)
+DNADialogWTFReset:SetPoint("CENTER", 0, 50)
+DNADialogWTFReset:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNADialogWTFReset.text = DNADialogWTFReset:CreateFontString(nil, "ARTWORK")
+DNADialogWTFReset.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADialogWTFReset.text:SetPoint("CENTER", DNADialogMMIReset, "CENTER", 0, 20)
+DNADialogWTFReset.text:SetText("Reset all defaults?\nThis will delete your current profile for\n|cfff2c983" .. player.combine .. ".")
+DNADialogWTFReset:SetFrameLevel(150)
+DNADialogWTFReset:SetFrameStrata("FULLSCREEN_DIALOG")
+local DNADialogWTFResetNo = CreateFrame("Button", nil, DNADialogWTFReset, "UIPanelButtonTemplate")
+DNADialogWTFResetNo:SetSize(100, 24)
+DNADialogWTFResetNo:SetPoint("CENTER", -60, -20)
+DNADialogWTFResetNo.text = DNADialogWTFResetNo:CreateFontString(nil, "ARTWORK")
+DNADialogWTFResetNo.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADialogWTFResetNo.text:SetPoint("CENTER", DNADialogWTFResetNo, "CENTER", 0, 0)
+DNADialogWTFResetNo.text:SetText("No")
+DNADialogWTFResetNo:SetScript('OnClick', function()
+  DNADialogWTFReset:Hide()
+end)
+local DNADialogWTFResetYes = CreateFrame("Button", nil, DNADialogWTFReset, "UIPanelButtonTemplate")
+DNADialogWTFResetYes:SetSize(100, 24)
+DNADialogWTFResetYes:SetPoint("CENTER", 60, -20)
+DNADialogWTFResetYes.text = DNADialogWTFResetYes:CreateFontString(nil, "ARTWORK")
+DNADialogWTFResetYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADialogWTFResetYes.text:SetPoint("CENTER", DNADialogWTFResetYes, "CENTER", 0, 0)
+DNADialogWTFResetYes.text:SetText("Yes")
+DNADialogWTFResetYes:SetScript('OnClick', function()
+  DNA[player.combine] = nil
+  ReloadUI()
+end)
+DNADialogWTFReset:Hide()
+
+local DNAWTFRestore = CreateFrame("Button", nil, page["Config"], "UIPanelButtonTemplate")
+DNAWTFRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
+DNAWTFRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+50)
+DNAWTFRestore.text = DNAWTFRestore:CreateFontString(nil, "ARTWORK")
+DNAWTFRestore.text:SetFont(DNAGlobal.font, 10, "OUTLINE")
+DNAWTFRestore.text:SetText("Restore All Defaults")
+DNAWTFRestore.text:SetPoint("CENTER", DNAWTFRestore)
+DNAWTFRestore:SetScript("OnClick", function()
+  DNADialogWTFReset:Show()
 end)

@@ -19,7 +19,8 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-BOSS-CThun",
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-TempleofAhnQiraj",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-TempleofAhnQiraj",
-  DNAGlobal.dir .. "images/aq40"
+  DNAGlobal.dir .. "images/aq40",
+  "Interface/BankFrame/Bank-Background", --background
 }
 local bossList = {
   {"Anubisath Sentinels",DNAGlobal.dir .. "images/boss_anubisath2", 1},

@@ -19,19 +19,23 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian",
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-BlackwingLair",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-BlackwingLair",
-  DNAGlobal.dir .. "images/bwl_goblinpack"
+  DNAGlobal.dir .. "images/bwl_goblinpack",
+  "Interface/Garrison/GarrisonMissionParchment", --background
 }
 local bossList = {
   {"Razorgore",           "Interface/EncounterJournal/UI-EJ-BOSS-Razorgore the Untamed", 0},
   {"Vaelestraz",          "Interface/EncounterJournal/UI-EJ-BOSS-Vaelastrasz the Corrupt", 0},
+  {"- Second Floor -",    "", 2},
   {"Dragon Pack",         "Interface/EncounterJournal/UI-EJ-BOSS-Overlord Wyrmthalak", 1},
   {"Suppression Room",    "Interface/EncounterJournal/UI-EJ-BOSS-Flamebender Kagraz", 1},
   {"Goblin Pack",         "Interface/EncounterJournal/UI-EJ-BOSS-Pauli Rocketspark", 1},
   {"Firemaw",             "Interface/EncounterJournal/UI-EJ-BOSS-Firemaw", 0},
   {"Small Wyrmguards (4)","Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer", 1},
+  {"- Third Floor -",     "", 2},
   {"Large Wyrmguards (3)","Interface/EncounterJournal/UI-EJ-BOSS-Broodlord Lashlayer", 1},
   {"Ebonroc",             "Interface/EncounterJournal/UI-EJ-BOSS-Ebonroc", 0},
   {"Flamegor",            "Interface/EncounterJournal/UI-EJ-BOSS-Flamegor", 0},
+  {"- Fourth Floor -",    "", 2},
   {"Chromaggus",          "Interface/EncounterJournal/UI-EJ-BOSS-Chromaggus", 0},
   {"Nefarian",            "Interface/EncounterJournal/UI-EJ-BOSS-Nefarian", 0}
 }

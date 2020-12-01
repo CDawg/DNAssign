@@ -15,23 +15,23 @@ the copyright holders.
 DEBUG = false
 
 DNAGlobal = {}
-DNAGlobal.name    = "Destructive Nature Assistant"
-DNAGlobal.dir     = "Interface/AddOns/DNAssistant/"
-DNAGlobal.vmajor  = 1
-DNAGlobal.vminor  = 203
-DNAGlobal.width   = 980
-DNAGlobal.height  = 550
---DNAGlobal.font    = "Fonts/ARIALN.TTF"
---DNAGlobal.font    = DNAGlobal.dir .. "Fonts/Verdana.ttf"
-DNAGlobal.font    = "Fonts/FRIZQT__.TTF"
-DNAGlobal.btn_w   = 130
-DNAGlobal.btn_h   = 25
+DNAGlobal.name   = "Destructive Nature Assistant"
+DNAGlobal.dir    = "Interface/AddOns/DNAssistant/"
+DNAGlobal.vmajor = 1
+DNAGlobal.vminor = 211
+DNAGlobal.width  = 980
+DNAGlobal.height = 550
+--DNAGlobal.font   = "Fonts/ARIALN.TTF"
+--DNAGlobal.font   = DNAGlobal.dir .. "Fonts/Verdana.ttf"
+DNAGlobal.font   = "Fonts/FRIZQT__.TTF"
+DNAGlobal.btn_w  = 130
+DNAGlobal.btn_h  = 25
 
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
---DNAGlobal.background="Interface/FrameGeneral/UI-Background-Rock"
---DNAGlobal.background="Interface/Garrison/GarrisonShipMissionParchment"
-DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment"
+DNAGlobal.background = "Interface/FrameGeneral/UI-Background-Rock"
+--DNAGlobal.background = "Interface/Garrison/GarrisonShipMissionParchment"
+--DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment"
 DN = {}
 
 date_day = date("%y-%m-%d")

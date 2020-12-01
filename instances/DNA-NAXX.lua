@@ -12,7 +12,6 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
---[==[
 local instanceDetails = {
   "Naxx",
   "Naxxramas",
@@ -20,33 +19,238 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-BOSS-KelThuzad",
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-Naxxramas",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-Naxxramas",
-  DNAGlobal.dir .. "images/naxx"
+  DNAGlobal.dir .. "images/naxx",
+  "Interface/Garrison/GarrisonShipMissionParchment", --background
 }
 local bossList = {
-  {"- Abomination Wing -", "", 2},
-  {"Patchwerk",            "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 0},
-  {"Grobbulus",            "Interface/EncounterJournal/UI-EJ-BOSS-Grobbulus", 0},
-  {"Gluth",                "Interface/EncounterJournal/UI-EJ-BOSS-Gluth", 0},
-  {"Thaddius",             "Interface/EncounterJournal/UI-EJ-BOSS-Thaddius", 0},
-  {"- Plague Wing -",      "", 2},
-  {"Noth The Plaguebringer","Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
-  {"Heigan The Unclean",   "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
-  {"Loatheb",              "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
-  {"- Spider Wing -",      "", 2},
-  {"Anub'Rekhan",          "Interface/EncounterJournal/UI-EJ-BOSS-AnubRekhan", 0},
-  {"Grand Widow Faerlina", "Interface/EncounterJournal/UI-EJ-BOSS-Grand Widow Faerlina", 0},
-  {"Maexxna",              "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 0},
-  {"- Death Knight Wing -","", 2},
-  {"Instructor Razuvious", "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 0},
-  {"The Four Horsemen",    "Interface/EncounterJournal/UI-EJ-BOSS-Four Horseman", 0},
+  {"- Abomination Wing -",   "", 2},
+  {"Trash Wing:Abomination", "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 1},
+  {"Patchwerk",              "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 0},
+  {"Grobbulus",              "Interface/EncounterJournal/UI-EJ-BOSS-Grobbulus", 0},
+  {"Gluth",                  "Interface/EncounterJournal/UI-EJ-BOSS-Gluth", 0},
+  {"Thaddius",               "Interface/EncounterJournal/UI-EJ-BOSS-Thaddius", 0},
+
+  {"- Plague Wing -",        "", 2},
+  {"Trash Wing:Plague",      "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 1},
+  {"Noth The Plaguebringer", "Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
+  {"Heigan The Unclean",     "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
+  {"Loatheb",                "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
+
+  {"- Spider Wing -",        "", 2},
+  {"Trash Wing:Spider",      "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 1},
+  {"Anub'Rekhan",            "Interface/EncounterJournal/UI-EJ-BOSS-AnubRekhan", 0},
+  {"Grand Widow Faerlina",   "Interface/EncounterJournal/UI-EJ-BOSS-Grand Widow Faerlina", 0},
+  {"Maexxna",                "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 0},
+
+  {"- Death Knight Wing -",  "", 2},
+  {"Trash Wing:Death Knight","Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 1},
+  {"Instructor Razuvious",   "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 0},
+  {"The Four Horsemen",      "Interface/EncounterJournal/UI-EJ-BOSS-Four Horseman", 0},
+
+  {"- Frostwyrm Lair -",     "", 2},
+  {"Sapphiron",              "Interface/EncounterJournal/UI-EJ-BOSS-Sapphiron", 0},
+  {"Kel'Thuzad",             "Interface/EncounterJournal/UI-EJ-BOSS-KelThuzad", 0},
 }
 
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer)
-  if (isItem(assign, "Patchwerk")) then
-    DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
+function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer)
+  if (isItem(assign, "Trash Wing:Abomination")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
   end
+
+  if (isItem(assign, "Patchwerk")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Grobbulus")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Gluth")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Thaddius")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Trash Wing:Plague")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+  if (isItem(assign, "Noth The Plaguebringer")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+  if (isItem(assign, "Heigan The Unclean")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+  if (isItem(assign, "Loatheb")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Trash Wing:Spider")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Anub'Rekhan")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Grand Widow Faerlina")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Grand Widow Faerlina")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Maexxna")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Trash Wing:Death Knight")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Trash Wing:Death Knight")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Instructor Razuvious")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "The Four Horsemen")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Sapphiron")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_sapp_kel"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Kel'Thuzad")) then
+    NUM_ADDS = 3
+    DNABossMap = DNAGlobal.dir .. "images/naxx_sapp_kel"
+    for i=1, NUM_ADDS+1 do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
 end
-]==]--
