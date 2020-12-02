@@ -289,7 +289,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[i+3] = priest_druids[i]
     end
 
-    text[10] = note_color .. "PRE POT NATURE POTS"
+    text[13] = note_color .. "PRE POT NATURE POTS"
   end
 
   if (isItem(assign, "Twin Emperors")) then

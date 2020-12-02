@@ -343,6 +343,7 @@ function DN:UpdateRaidRoster()
       raidSlot[k]:Show()
       thisClass = DNARaid["class"][v]
       DN:ClassColorText(raidSlot[k].text, thisClass)
+      --DN:ToolTip(raidSlot[k], v, true)
     end
   end
 
@@ -1077,7 +1078,7 @@ local function buildRaidAssignments(packet, author, source)
   if (my_class) then
     local class_message = DNAFrameClassAssignEdit[my_class]:GetText()
     if (class_message ~= "") then
-      class_message = string.gsub(class_message, "%.", "\n") --ad a carriage return?
+      class_message = string.gsub(class_message, "%.", "\n") --add a carriage return?
       local max_class_message_length = class_message:sub(1, 80)
       if (string.len(max_class_message_length)) then
         DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
@@ -1605,6 +1606,8 @@ DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
   DNACloseWindow()
 end)
+DN:ToolTip(DNAFrameMainClose, "Close", false)
+
 DNAFrameMain:EnableKeyboard(true)
 tinsert(UISpecialFrames, "DNAFrameMain")
 DNAFrameMain.enter = CreateFrame("EditBox", nil, DNAFrameMain)
@@ -2464,6 +2467,7 @@ for i = 1, DNASlots.tank do
     memberDrag = nil
   end)
 end
+DN:ToolTip(tankSlotFrameClear, "Clear Tank Queue", false)
 
 local healSlotOrgPoint_x={}
 local healSlotOrgPoint_y={}
@@ -2493,6 +2497,7 @@ healSlotFrameClear:SetScript("OnClick", function()
   slotDialog:Show()
 end)
 healSlotFrameClear:Hide()
+DN:ToolTip(healSlotFrameClear, "Clear Healer Queue", false)
 
 for i = 1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame)
@@ -2516,6 +2521,7 @@ for i = 1, DNASlots.heal do
   healSlotUp[i]:SetScript("OnClick", function()
     shiftSlot(i, "up")
   end)
+  DN:ToolTip(healSlotUp[i], "Move Up", false)
   local healSlotUpIcon = healSlotUp[i]:CreateTexture(nil, "OVERLAY")
   healSlotUpIcon:SetTexture("Interface/MainMenuBar/UI-MainMenu-ScrollUpButton-Up")
   healSlotUpIcon:SetPoint("TOPLEFT", -3, 5)
@@ -2526,6 +2532,7 @@ for i = 1, DNASlots.heal do
   healSlotDown[i]:SetScript("OnClick", function()
     shiftSlot(i, "down")
   end)
+  DN:ToolTip(healSlotDown[i], "Move Down", false)
   local healSlotDownIcon = healSlotDown[i]:CreateTexture(nil, "OVERLAY")
   healSlotDownIcon:SetTexture("Interface/MainMenuBar/UI-MainMenu-ScrollDownButton-Up")
   healSlotDownIcon:SetPoint("TOPLEFT", -3, 5)
@@ -2728,6 +2735,7 @@ for i = 1, DNASlots.cc do
     memberDrag = nil
   end)
 end
+DN:ToolTip(ccSlotFrameClear, "Clear Designated Queue")
 
 --build all 40 first
 for i = 1, MAX_RAID_MEMBERS do

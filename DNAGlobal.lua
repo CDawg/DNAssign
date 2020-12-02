@@ -18,7 +18,7 @@ DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
 DNAGlobal.dir    = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor = 1
-DNAGlobal.vminor = 204
+DNAGlobal.vminor = 205
 DNAGlobal.width  = 980
 DNAGlobal.height = 600
 --DNAGlobal.font   = "Fonts/ARIALN.TTF"
@@ -392,6 +392,51 @@ DNAFrameAssignBossIcon = {}
 DNAFrameAssignBossText = {}
 DNAFrameAssignBossMap = {}
 DNAFrameAssignAuthor = {}
+
+DNATooltip = CreateFrame("Frame", nil, UIParent)
+DNATooltip:SetWidth(25)
+DNATooltip:SetHeight(25)
+DNATooltip:SetPoint("CENTER", 0, 0)
+DNATooltip:SetFrameStrata("DIALOG")
+DNATooltip:SetFrameLevel(500)
+DNATooltipFrame = CreateFrame("Frame", nil, DNATooltip)
+DNATooltipFrame:SetWidth(25)
+DNATooltipFrame:SetHeight(25)
+DNATooltipFrame:SetPoint("TOPLEFT", 30, -15)
+DNATooltip.text = DNATooltipFrame:CreateFontString(nil, "OVERLAY")
+DNATooltip.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNATooltip.text:SetPoint("CENTER", 0, 0)
+DNATooltip.text:SetText("Hello World")
+DNATooltipFrame:SetBackdrop({
+  bgFile = "Interface/ToolTips/UI-Tooltip-Background",
+  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNATooltipFrame:SetBackdropColor(0.2, 0.2, 0.2, 1)
+DNATooltip:Hide()
+
+function DN:ToolTip(frame, msg, offset)
+  frame:SetScript("OnEnter", function()
+    local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint() --parent
+    local strlength = string.len(msg)
+    DNATooltip:Show()
+    if (offset) then
+      DNATooltip:SetPoint("CENTER", 300, 500)
+    else
+      DNATooltip:SetPoint(point, frame, relativeTo, xOfs+30, yOfs)
+    end
+    DNATooltipFrame:SetWidth(strlength*10)
+    DNATooltip.text:SetText(msg)
+    --debug(strlength)
+  end)
+  frame:SetScript("OnLeave", function()
+    DNATooltip:Hide()
+  end)
+end
+function DN:ClearToolTip()
+  DNATooltip:Hide()
+end
 
 function isItem(compare, item) --dropdown packets that are filtered from spaces
   local boss_icon = nil

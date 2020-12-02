@@ -279,30 +279,33 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
       heal[i] = healer.nodruid[i]
     end
     text[7] = "-- Rogue Kicks / Warrior Pummels/Bashes -- "
-    if (raid.rogue[1]) then
+    local extra_rogues = {}
+    table.merge(extra_rogues, cc.main)
+    table.merge(extra_rogues, raid.rogue)
+    if (extra_rogues[1]) then
       mark[8] = DNARaidMarkers[2][2]
-      text[8] = raid.rogue[1]
+      text[8] = extra_rogues[1]
       if (raid.warrior_dps[1]) then
         heal[8] = raid.warrior_dps[1]
       end
     end
-    if (raid.rogue[2]) then
+    if (extra_rogues[2]) then
       mark[9] = DNARaidMarkers[3][2]
-      text[9] = raid.rogue[2]
+      text[9] = extra_rogues[2]
       if (raid.warrior_dps[2]) then
         heal[9] = raid.warrior_dps[2]
       end
     end
-    if (raid.rogue[3]) then
+    if (extra_rogues[3]) then
       mark[10] = DNARaidMarkers[4][2]
-      text[10] = raid.rogue[3]
+      text[10] = extra_rogues[3]
       if (raid.warrior_dps[3]) then
         heal[10] = raid.warrior_dps[3]
       end
     end
-    if (raid.rogue[4]) then
+    if (extra_rogues[4]) then
       mark[11] = DNARaidMarkers[5][2]
-      text[11] = raid.rogue[4]
+      text[11] = extra_rogues[4]
       if (raid.warrior_dps[4]) then
         heal[11] = raid.warrior_dps[4]
       end
