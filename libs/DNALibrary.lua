@@ -27,9 +27,12 @@ function singleKeyFromValue(_array, value)
   return nil
 end
 --matrix array
-function multiKeyFromValue(_array, value)
+function multiKeyFromValue(_array, value, index)
+  if ((index == nil) or (index == 0)) then
+    index = 1
+  end
   for k,v in pairs(_array) do
-    if v[1]==value then return k end
+    if v[index]==value then return k end
   end
   return nil
 end

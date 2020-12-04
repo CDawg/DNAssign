@@ -37,6 +37,7 @@ local bossList = {
 
   {"- Spider Wing -",        "", 2},
   {"Trash Wing:Spider",      "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 1},
+  --{"Trash Ghouls",           "Interface/EncounterJournal/UI-EJ-BOSS-Timmy the Cruel", 1},
   {"Anub'Rekhan",            "Interface/EncounterJournal/UI-EJ-BOSS-AnubRekhan", 0},
   {"Grand Widow Faerlina",   "Interface/EncounterJournal/UI-EJ-BOSS-Grand Widow Faerlina", 0},
   {"Maexxna",                "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 0},
@@ -56,9 +57,9 @@ table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc)
   if (isItem(assign, "Trash Wing:Abomination")) then
-    NUM_ADDS = 3
+    NUM_ADDS = 8
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
-    for i=1, NUM_ADDS+1 do
+    for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
@@ -106,14 +107,15 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Trash Wing:Plague")) then
-    NUM_ADDS = 3
+    NUM_ADDS = 8
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
-    for i=1, NUM_ADDS+1 do
+    for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
   end
+
   if (isItem(assign, "Noth The Plaguebringer")) then
     NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
@@ -123,6 +125,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[i] = healer.all[i]
     end
   end
+
   if (isItem(assign, "Heigan The Unclean")) then
     NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
@@ -132,6 +135,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[i] = healer.all[i]
     end
   end
+
   if (isItem(assign, "Loatheb")) then
     NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
@@ -143,9 +147,19 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Trash Wing:Spider")) then
-    NUM_ADDS = 3
+    NUM_ADDS = 8
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
-    for i=1, NUM_ADDS+1 do
+    for i=1, NUM_ADDS do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Trash Ghouls")) then
+    NUM_ADDS = 5
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
@@ -153,7 +167,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Anub'Rekhan")) then
-    NUM_ADDS = 3
+    NUM_ADDS = 2
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     for i=1, NUM_ADDS+1 do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -163,29 +177,25 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Grand Widow Faerlina")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
-  end
-
-  if (isItem(assign, "Grand Widow Faerlina")) then
-    NUM_ADDS = 3
-    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    --heal[1] = healer.all[i]
+    mark[2] = icon_skull
+    text[2] = tank.all[2]
+    mark[3] = icon_cross
+    text[3] = tank.all[3]
+    --heal[2] = healer.all[i]
   end
 
   if (isItem(assign, "Maexxna")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
-    for i=1, NUM_ADDS+1 do
+  end
+
+  if (isItem(assign, "Trash Wing:Death Knight")) then
+    NUM_ADDS = 8
+    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
@@ -193,63 +203,23 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Trash Wing:Death Knight")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
-  end
-
-  if (isItem(assign, "Trash Wing:Death Knight")) then
-    NUM_ADDS = 3
-    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
   end
 
   if (isItem(assign, "Instructor Razuvious")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
   end
 
   if (isItem(assign, "The Four Horsemen")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
   end
 
   if (isItem(assign, "Sapphiron")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_sapp_kel"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
   end
 
   if (isItem(assign, "Kel'Thuzad")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_sapp_kel"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
   end
 
 end

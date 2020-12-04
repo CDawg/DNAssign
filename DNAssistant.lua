@@ -1104,10 +1104,14 @@ local function buildRaidAssignments(packet, author, source)
         if (text[i]) then
           text[i] = string.gsub(text[i], note_color, "")
           if (mark[i]) then
-            this_key = singleKeyFromValue(DNARaidMarkerText, mark[i])
+            this_key = multiKeyFromValue(DNARaidMarkers, mark[i], 2)
           end
-          if (DNARaidMarkerIcon[this_key]) then
-            text_line = text_line .. DNARaidMarkerIcon[this_key] .. " "
+          if ((this_key == nil) or (this_key == 0)) then
+            this_key = 1
+          end
+          --debug(this_key)
+          if (DNARaidMarkers[this_key][1]) then
+            text_line = text_line .. DNARaidMarkers[this_key][1] .. " "
           else
             text_line = text_line
           end

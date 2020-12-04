@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
@@ -194,32 +194,8 @@ netCode = {
   {"author",    "0xEFAu"},
 }
 
-DNARaidMarkerText={
-  "",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_8",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_7",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_4",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_2",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_6",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_3",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_5",
-  "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_1",
-}
-
-DNARaidMarkerIcon={
-  "",
-  "{skull}",
-  "{cross}",
-  "{triangle}",
-  "{circle}",
-  "{square}",
-  "{diamond}",
-  "{moon}",
-  "{star}",
-}
-
 DNARaidMarkers={
-  {"",   ""}, --leave blank for boss icons that are dynamic
+  {"",   ""},   --leave blank for boss icons that are dynamic
   {"{skull}",   "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_8"},
   {"{cross}",   "Interface/TARGETINGFRAME/UI-RaidTargetingIcon_7"},
   {"{triangle}","Interface/TARGETINGFRAME/UI-RaidTargetingIcon_4"},
