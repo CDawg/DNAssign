@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
@@ -67,73 +67,6 @@ total.raid = 0
 
 note_color = "|cffe2dbbf" --extra note assignment color
 
-function debug(msg)
-  if (DEBUG) then
-    return print("DEBUG: " .. msg)
-  end
-end
-
---single array
-function singleKeyFromValue(_array, value)
-  for k,v in pairs(_array) do
-    if v==value then return k end
-  end
-  return nil
-end
---matrix array
-function multiKeyFromValue(_array, value)
-  for k,v in pairs(_array) do
-    if v[1]==value then return k end
-  end
-  return nil
-end
-
-function reindexArray(input, reval)
-  local n=#input
-  for i=1,n do
-    if reval[input[i]] then
-      input[i]=nil
-    end
-  end
-  local j=0
-  for i=1,n do
-    if input[i]~=nil then
-      j=j+1
-      input[j]=input[i]
-    end
-  end
-  for i=j+1,n do
-    input[i]=nil
-  end
-end
-
-function split(s, delimiter)
-  result = {}
-  for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-    table.insert(result, match)
-  end
-  return result
-end
-
-function isempty(s)
-  return s == nil or s == ''
-end
-
-function table.merge(t1, t2)
- for k,v in ipairs(t2) do
-    table.insert(t1, v)
- end
-  return t1
-end
-
-function removeValueFromArray(array, value)
-  if (value) then
-    remove_key = singleKeyFromValue(array, value)
-    array[remove_key] = nil
-    reindexArray(array, array)
-  end
-end
-
 player = {}
 player.name = UnitName("player")
 player.realm = GetRealmName()
@@ -147,6 +80,7 @@ DNASlots.heal = 12
 DNASlots.cc   = 6
 
 MAX_FRAME_LINES = 25 --also setup the same for the assign window
+MAX_DKP_LINES = 120
 
 DNAInstance = {}
 DNARaidBosses = {}
@@ -182,6 +116,9 @@ function DN:BuildGlobalVars()
     if (DNA[player.combine]["LOOTLOG"] == nil) then
       DNA[player.combine]["LOOTLOG"] = {}
     end
+    if (DNA[player.combine]["DKP"] == nil) then
+      DNA[player.combine]["DKP"] = {}
+    end
     DN:ChatNotification("Creating Raid Profile: " .. player.combine)
     DN:SetupDefaultVars()
   else
@@ -196,7 +133,26 @@ function DN:SendPacket(packet, filtered)
   else
     filteredPacket = packet
   end
-  C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "RAID")
+  if (IsInRaid()) then
+    C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "RAID")
+  else
+    if (DEBUG) then
+      C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
+      debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
+    end
+  end
+end
+
+swapQueue={}
+prevQueue={}
+function DN:ResetQueueTransposing()
+  prevQueue[TANK]=0
+  swapQueue[TANK]=0
+  prevQueue[HEAL]=0
+  swapQueue[HEAL]=0
+  prevQueue[CC] = 0
+  swapQueue[CC] = 0
+  --debug("DN:ResetQueueTransposing()")
 end
 
 DNAClasses={

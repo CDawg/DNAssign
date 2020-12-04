@@ -6,6 +6,7 @@
 ## OptionalDeps: Blizzard_RaidUI, Blizzard_CompactRaidFrames
 ## Version: 1.203
 
+libs\DNALibrary.lua
 DNAGlobal.lua
 instances\DNA-MC.lua
 instances\DNA-BWL.lua

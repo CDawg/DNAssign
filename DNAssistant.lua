@@ -168,20 +168,8 @@ end
 
 local windowOpen = false
 
-local swapQueue={}
-local prevQueue={}
-local function resetSwapQueues()
-  prevQueue[TANK]=0
-  swapQueue[TANK]=0
-  prevQueue[HEAL]=0
-  swapQueue[HEAL]=0
-  prevQueue[CC] = 0
-  swapQueue[CC] = 0
-  debug("resetSwapQueues()")
-end
-
 local function DNACloseWindow()
-  resetSwapQueues() --sanity check on queues
+  DN:ResetQueueTransposing() --sanity check on queues
   DNAFrameMain:Hide()
   windowOpen = false
   PlaySound(88)
@@ -248,6 +236,23 @@ function raidReadyMember(member, isReady)
         ccSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-NotReady")
       end
     end
+  end
+end
+
+function DN:RaidPermission()
+  if (DEBUG) then
+    return true
+  end
+  if (IsInRaid()) then
+    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+      return true
+    else
+      DN:Notification("You do not have raid permission to modify assignments.", true)
+      return false
+    end
+  else
+    DN:Notification("You are not in a raid.", true)
+    return false
   end
 end
 
@@ -855,7 +860,7 @@ local function buildRaidAssignments(packet, author, source)
 
   debug("buildRaidAssignments()")
 
-  clearNotifications()
+  DN:ClearNotifications()
   DN:UpdateRaidRoster()
   clearFrameView() --clear out the current text
   clearFrameAssign()
@@ -1140,7 +1145,7 @@ local function buildRaidAssignments(packet, author, source)
   raidSelection = packet
 end
 
-function raidDetails()
+function DN:RaidDetails()
   pageRaidDetailsColOne[1]:SetText("Druids")
   DN:ClassColorText(pageRaidDetailsColOne[1], "Druid")
   pageRaidDetailsColTwo[1]:SetText(total.druids)
@@ -1193,21 +1198,21 @@ function DN:AlignSlotText()
     if (tankSlot[i].text:GetText() == "Empty") then
       tankSlot[i].text:ClearAllPoints()
       tankSlot[i].text:SetPoint("CENTER", 0, 0)
-      debug(tankSlot[i].text:GetText())
+      --debug("tankSlot " .. tankSlot[i].text:GetText())
     end
   end
   for i=1, DNASlots.heal do
     if (healSlot[i].text:GetText() == "Empty") then
       healSlot[i].text:ClearAllPoints()
       healSlot[i].text:SetPoint("CENTER", 0, 0)
-      debug(healSlot[i].text:GetText())
+      --debug("healSlot " .. healSlot[i].text:GetText())
     end
   end
   for i=1, DNASlots.cc do
     if (ccSlot[i].text:GetText() == "Empty") then
       ccSlot[i].text:ClearAllPoints()
       ccSlot[i].text:SetPoint("CENTER", 0, 0)
-      debug(ccSlot[i].text:GetText())
+      --debug("ccSlot " .. ccSlot[i].text:GetText())
     end
   end
   debug("DN:AlignSlotText()")
@@ -1277,6 +1282,13 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if (event == "CHAT_MSG_ADDON") then
     if (prefix == DNAGlobal.prefix) then
       debug("Reading netpacket " .. netpacket)
+
+      if (string.sub(netpacket, 1, 1) == "@") then --DKP
+        local DKPPacket = string.gsub(netpacket, "@", "")
+        --pageDKPViewScrollChild_colOne[1]:SetText(DKPPacket)
+        return true
+      end
+
       DN:AlignSlotText()
 
       --parse incoming large packet chunk
@@ -1387,36 +1399,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           end
         end
         table.insert(DNA[player.combine]["LOOTLOG"][date_day], {netpacket .. "," .. timestamp})
-        return true
-      end
-
-      if (string.sub(netpacket, 1, 1) == "@") then --DKP
-        netpacket = string.gsub(netpacket, "@", "")
-        --DNAFrameAssign:Show()
-        --debug("DKP Pushed: " .. netpacket)
-        packetChunk = split(netpacket, "}")
-        packetLength= strlen(netpacket)
-        --debug(packetLength)
-        local DKPName={}
-        local DKPNum={}
-        for x=1, table.getn(packetChunk) do
-          DKPName[x] = split(packetChunk[x], "=")
-          if (DKPName[x][1] ~= nil) then
-            DKPNum[x] = split(DKPName[x][1], ",")
-            pageDKPViewScrollChild_colOne[x]:SetText(DKPName[x][1])
-          end
-        end
-        for x=1, table.getn(DKPName) do
-          if (DKPName[x][2] ~= nil) then
-            DKPNum[x] = split(DKPName[x][2], ",")
-          end
-          if (DKPNum[x][1] ~= nil) then
-            pageDKPViewScrollChild_colTwo[x]:SetText(DKPNum[x][1])
-          end
-          if (DKPNum[x][2] ~= nil) then
-            pageDKPViewScrollChild_colThree[x]:SetText(DKPNum[x][2])
-          end
-        end
         return true
       end
       ]==]--
@@ -1855,7 +1837,7 @@ pageDKPEdit:SetCursorPosition(0)
 pageDKPEdit:SetJustifyH("LEFT")
 pageDKPEdit:SetJustifyV("CENTER")
 pageDKPEdit:SetTextColor(1, 1, 1)
-pageDKPEdit:Hide()
+--pageDKPEdit:Hide()
 
 local btnPostDKP = CreateFrame("Button", nil, page["DKP"], "UIPanelButtonTemplate")
 btnPostDKP:SetSize(120, 28)
@@ -1867,12 +1849,48 @@ btnPostDKP.text:SetPoint("CENTER", btnPostDKP)
 btnPostDKP:SetScript("OnClick", function()
   if (UnitIsGroupLeader(player.name)) then
     if (pageDKPEdit:GetText()) then
-      local getCode = multiKeyFromValue(netCode, "postdkp")
-      DN:SendPacket(netCode[getCode][2] .. player.name, true)
+      --local getCode = multiKeyFromValue(netCode, "postdkp")
+      --DN:SendPacket(netCode[getCode][2] .. player.name, true)
+      --DN:SendPacket("@" .. player.name, true)
+      --DN:SendPacket("@" .. DKP, true)
+      if (pageDKPEdit:GetText()) then
+        local DKP = pageDKPEdit:GetText()
+        packetChunk = split(DKP, "}")
+        packetLength= strlen(DKP)
+        local DKPName={}
+        local DKPNum={}
+        for x=1, table.getn(packetChunk) do
+          DKPName[x] = split(packetChunk[x], "=")
+          if (DKPName[x][1] ~= nil) then
+            DKPNum[x] = split(DKPName[x][1], ",")
+            --pageDKPViewScrollChild_colOne[x]:SetText(DKPName[x][1])
+          end
+        end
+        for x=1, table.getn(DKPName) do
+          local DKPAdd = {}
+          if ((DKPName[x][1]) and (DKPName[x][2])) then
+            --[==[
+            DKPAdd = split(DKPName[x][2], ",")
+            local DKPTotal = 0
+            if ((DKPAdd[1]) and (DKPAdd[2])) then
+              DKPTotal = tonumber(DKPAdd[1]) + tonumber(DKPAdd[2])
+            end
+            print("@" .. DKPName[x][1] .. "," .. DKPName[x][2] .. "," .. DKPTotal)
+            ]==]--
+            --C_Timer.After(x, DN:SendPacket("@" .. DKPName[x][1] .. "," .. DKPName[x][2], true))
+            local floatAppend = x
+            floatAppend = tonumber(floatAppend)
+            print(floatAppend)
+            --C_Timer.NewTimer(floatAppend, function() print(DKPName[x][1]) end)
+            C_Timer.NewTimer(floatAppend, function() DN:SendPacket("@" .. x .. "," .. DKPName[x][1] .. "," .. DKPName[x][2], true) end)
+            --DN:SendPacket("@" .. DKPName[x][1] .. "," .. DKPName[x][2], true)
+          end
+        end
+      end
     end
   end
 end)
-btnPostDKP:Hide()
+--btnPostDKP:Hide()
 
 local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Raid Builder"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(194, DNAGlobal.height-5)
@@ -1915,7 +1933,7 @@ pageDKPView.ScrollFrame.ScrollBar:ClearAllPoints()
 pageDKPView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", pageDKPView.ScrollFrame, "TOPRIGHT", -150, 0)
 pageDKPView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", pageDKPView.ScrollFrame, "BOTTOMRIGHT", 106, 0)
 
-for i = 1, 256 do
+for i = 1, MAX_DKP_LINES do
   pageDKPViewScrollChild_colOne[i] = pageDKPViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
   pageDKPViewScrollChild_colOne[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageDKPViewScrollChild_colOne[i]:SetText("")
@@ -1932,13 +1950,13 @@ for i = 1, 256 do
   pageDKPViewScrollChild_colThree[i]:SetPoint("TOPLEFT", 200, (-i*18)+10)
 end
 
-function clearNotifications()
+function DN:ClearNotifications()
   DNAFrameMainNotifText:SetText("")
   DNAFrameMainNotif:Hide()
 end
 
 function DN:Notification(msg)
-  clearNotifications()
+  DN:ClearNotifications()
   DNAFrameMainNotifText:SetText(msg)
   DNAFrameMainNotif:Show()
 end
@@ -1974,30 +1992,17 @@ sbtn:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -100, -100); -- (point, frame,
 
 --send the network data, then save after
 local function updateSlotPos(role, i, name)
-  if (IsInRaid()) then
-    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      --[==[
-      if (name ~= "Empty") then
-        --TargetUnit(name)
-        ClearPartyAssignment("MAINTANK", name)
-        --SetPartyAssignment("MAINTANK", name) --security issue has been disabled in LUA
-      end
-      ]==]--
-      DN:SendPacket(role .. i .. "," .. name, true)
-      local getCode = multiKeyFromValue(netCode, "author")
-      local sendCode
-      if (getCode) then
-        local sendCode = netCode[getCode][2]
-        DN:SendPacket(sendCode .. player.name, true)
-      end
-      local getCode = multiKeyFromValue(netCode, "version")
+  if (DN:RaidPermission()) then
+    DN:SendPacket(role .. i .. "," .. name, true)
+    local getCode = multiKeyFromValue(netCode, "author")
+    local sendCode
+    if (getCode) then
       local sendCode = netCode[getCode][2]
-      DN:SendPacket(sendCode .. DNAGlobal.version, true)
-    else
-      DN:Notification("You do not have raid permission to modify assignments.   [P1]", true)
+      DN:SendPacket(sendCode .. player.name, true)
     end
-  else
-    return DN:Notification("You are not in a raid!     [E1]", true)
+    local getCode = multiKeyFromValue(netCode, "version")
+    local sendCode = netCode[getCode][2]
+    DN:SendPacket(sendCode .. DNAGlobal.version, true)
   end
 end
 
@@ -2025,7 +2030,7 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
   DNAFrameInstanceScript[name]:SetSize(140, 80)
   DNAFrameInstanceScript[name]:SetPoint("CENTER", 0, 2)
   DNAFrameInstanceScript[name]:SetScript("OnClick", function()
-    clearNotifications()
+    DN:ClearNotifications()
     for i, v in ipairs(DNAInstance) do
       ddBossList[DNAInstance[i][1]]:Hide() --hide all dropdowns
     end
@@ -2052,10 +2057,10 @@ DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
 local pages = {
   {"Assignment", 10},
   {"Raid Builder", 100},
-  {"Config", 190},
   --{"DKP", 190},
+  --{"Config", 280},
+  {"Config", 190},
   --{"Loot Log", 280},
-  --{"Config", 370},
 }
 
 local function bottomTabToggle(name)
@@ -2091,7 +2096,7 @@ local function bottomTab(name, pos_x, text_pos_x)
   DNAFrameMainBottomTabScript[name]:SetSize(85, 30)
   DNAFrameMainBottomTabScript[name]:SetPoint("CENTER", 0, 0)
   DNAFrameMainBottomTabScript[name]:SetScript("OnClick", function()
-    clearNotifications()
+    DN:ClearNotifications()
     bottomTabToggle(name)
   end)
 end
@@ -2115,43 +2120,37 @@ local raidSlotOrgPoint_y={}
 local memberDrag = nil
 local thisClass = nil
 
-resetSwapQueues()
+DN:ResetQueueTransposing()
 
 local clearQueuePrompt=""
 local function clearQueue()
-  if (IsInRaid()) then
-    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      if (clearQueuePrompt == "Heal") then
-        healSlotFrame:Hide()
-        for i = 1, DNASlots.heal do
-          healSlot[i].text:SetText("Empty")
-        end
-        healSlotFrameClear:Hide()
+  if (DN:RaidPermission()) then
+    if (clearQueuePrompt == "Heal") then
+      healSlotFrame:Hide()
+      for i = 1, DNASlots.heal do
+        healSlot[i].text:SetText("Empty")
       end
-      if (clearQueuePrompt == "Tank") then
-        tankSlotFrame:Hide()
-        for i = 1, DNASlots.tank do
-          tankSlot[i].text:SetText("Empty")
-        end
-        tankSlotFrameClear:Hide()
-      end
-      if (clearQueuePrompt == "CC") then
-        ccSlotFrame:Hide()
-        for i = 1, DNASlots.cc do
-          ccSlot[i].text:SetText("Empty")
-        end
-        ccSlotFrameClear:Hide()
-      end
-      DN:UpdateRaidRoster()
-      DN:RaidSendAssignments()
-      tankSlotFrame:Show()
-      healSlotFrame:Show()
-      ccSlotFrame:Show()
-    else
-      DN:Notification("You do not have raid permission to modify assignments.   [P6]", true)
+      healSlotFrameClear:Hide()
     end
-  else
-    DN:Notification("You are not in a raid!     [E8]", true)
+    if (clearQueuePrompt == "Tank") then
+      tankSlotFrame:Hide()
+      for i = 1, DNASlots.tank do
+        tankSlot[i].text:SetText("Empty")
+      end
+      tankSlotFrameClear:Hide()
+    end
+    if (clearQueuePrompt == "CC") then
+      ccSlotFrame:Hide()
+      for i = 1, DNASlots.cc do
+        ccSlot[i].text:SetText("Empty")
+      end
+      ccSlotFrameClear:Hide()
+    end
+    DN:UpdateRaidRoster()
+    DN:RaidSendAssignments()
+    tankSlotFrame:Show()
+    healSlotFrame:Show()
+    ccSlotFrame:Show()
   end
 end
 
@@ -2182,10 +2181,10 @@ DNARaidScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNARaidScrollFrame.MR:SetPoint("TOPLEFT", 135, 0)
 DNARaidScrollFrame.MR:SetSize(24, DNARaidScrollFrame_h-10)
 DNARaidScrollFrame:SetScript("OnEnter", function()
-  resetSwapQueues()
+  DN:ResetQueueTransposing()
 end)
 DNARaidScrollFrame:SetScript("OnLeave", function()
-  resetSwapQueues()
+  DN:ResetQueueTransposing()
 end)
 
 function raidSlotFrame(parentFrame, i, y)
@@ -2201,13 +2200,13 @@ function raidSlotFrame(parentFrame, i, y)
     raidSlot[i]:SetParent(page["Assignment"])
     raidSlot[i]:SetFrameStrata("DIALOG")
     memberDrag = raidSlot[i].text:GetText()
-    resetSwapQueues()
+    DN:ResetQueueTransposing()
   end)
   raidSlot[i]:SetScript("OnDragStop", function()
     raidSlot[i]:StopMovingOrSizing()
     raidSlot[i]:SetParent(parentFrame)
     raidSlot[i]:SetPoint("TOPLEFT", raidSlotOrgPoint_x[i], raidSlotOrgPoint_y[i])
-    resetSwapQueues()
+    DN:ResetQueueTransposing()
   end)
   raidSlot[i]:SetBackdrop({
     bgFile = "Interface/Collections/CollectionsBackgroundTile",
@@ -2294,7 +2293,7 @@ slotDialog:Hide()
 
 local function closeGaps(remove)
   local healSlots={}
-  if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+  if (DN:RaidPermission()) then
     for i = 1, DNASlots.heal do
       if ((healSlot[i].text:GetText() ~= "Empty") and (healSlot[i].text:GetText() ~= remove)) then
         table.insert(healSlots, healSlot[i].text:GetText())
@@ -2308,46 +2307,33 @@ local function closeGaps(remove)
     end
     DN:UpdateRaidRoster()
     DN:RaidSendAssignments()
-    --resetSwapQueues()
-  else
-    if (IsInRaid()) then
-      DN:Notification("You do not have raid permission to modify assignments.   [P2]", true)
-    else
-      DN:Notification("You are not in a raid!     [E2]", true)
-    end
   end
 end
 
 local function shiftSlot(current, pos)
-  if (IsInRaid()) then
-    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      local shiftFrom= healSlot[current].text:GetText()
-      if (pos == "up") then
-        local shiftTo = healSlot[current-1].text:GetText()
-        local cr, cg, cb, ca = healSlot[current-1].text:GetTextColor()
-        local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
-        healSlot[current-1].text:SetTextColor(sr, sg, sb)
-        healSlot[current-1].text:SetText(shiftFrom)
-        healSlot[current].text:SetText(shiftTo)
-        healSlot[current].text:SetTextColor(cr, cg, cb)
-      else
-        local shiftTo = healSlot[current+1].text:GetText()
-        local cr, cg, cb, ca = healSlot[current+1].text:GetTextColor()
-        local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
-        healSlot[current+1].text:SetText(shiftFrom)
-        healSlot[current+1].text:SetTextColor(sr, sg, sb)
-        healSlot[current].text:SetText(shiftTo)
-        healSlot[current].text:SetTextColor(cr, cg, cb)
-      end
-      DN:UpdateRaidRoster()
-      DN:RaidSendAssignments()
-      healSlotUp[1]:Hide()
-      healSlotDown[DNASlots.heal]:Hide()
+  if (DN:RaidPermission()) then
+    local shiftFrom= healSlot[current].text:GetText()
+    if (pos == "up") then
+      local shiftTo = healSlot[current-1].text:GetText()
+      local cr, cg, cb, ca = healSlot[current-1].text:GetTextColor()
+      local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
+      healSlot[current-1].text:SetTextColor(sr, sg, sb)
+      healSlot[current-1].text:SetText(shiftFrom)
+      healSlot[current].text:SetText(shiftTo)
+      healSlot[current].text:SetTextColor(cr, cg, cb)
     else
-      DN:Notification("You do not have raid permission to modify assignments.   [P3]", true)
+      local shiftTo = healSlot[current+1].text:GetText()
+      local cr, cg, cb, ca = healSlot[current+1].text:GetTextColor()
+      local sr, sg, sb, sa = healSlot[current].text:GetTextColor()
+      healSlot[current+1].text:SetText(shiftFrom)
+      healSlot[current+1].text:SetTextColor(sr, sg, sb)
+      healSlot[current].text:SetText(shiftTo)
+      healSlot[current].text:SetTextColor(cr, cg, cb)
     end
-  else
-    DN:Notification("You are not in a raid!     [E7]", true)
+    DN:UpdateRaidRoster()
+    DN:RaidSendAssignments()
+    healSlotUp[1]:Hide()
+    healSlotDown[DNASlots.heal]:Hide()
   end
 end
 
@@ -2379,11 +2365,7 @@ tankSlotFrameClear:SetScript("OnClick", function()
   slotDialog:Show()
 end)
 tankSlotFrameClear:Hide()
---[==[
-tankSlotFrame:SetScript('OnLeave', function()
-  resetSwapQueues()
-end)
-]==]--
+
 for i = 1, DNASlots.tank do
   tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotFrame)
   tankSlot[i]:SetWidth(DNARaidScrollFrame_w)
@@ -2422,7 +2404,7 @@ for i = 1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= "Empty") then
       tankSlot[i]:StartMoving()
       tankSlot[i]:SetFrameStrata("DIALOG")
-      resetSwapQueues()
+      DN:ResetQueueTransposing()
       swapQueue[TANK] = i
     end
   end)
@@ -2444,7 +2426,7 @@ for i = 1, DNASlots.tank do
           updateSlotPos(TANK, swapQueue[TANK], tankSlot[prevQueue[TANK]].text:GetText() )
           updateSlotPos(TANK, prevQueue[TANK], tankSlot[swapQueue[TANK]].text:GetText() )
         end
-        resetSwapQueues()
+        DN:ResetQueueTransposing()
         memberDrag = nil
       end
     else
@@ -2560,7 +2542,7 @@ for i = 1, DNASlots.heal do
       healSlotDown[i]:Hide()
       healSlot[i]:StartMoving()
       healSlot[i]:SetFrameStrata("DIALOG")
-      resetSwapQueues()
+      DN:ResetQueueTransposing()
       swapQueue[HEAL] = i
       memberDrag = healSlot[i].text:GetText()
     end
@@ -2579,39 +2561,6 @@ for i = 1, DNASlots.heal do
       updateSlotPos(HEAL, i, memberDrag)
     end
   end)
-
-  --[==[
-  healSlot[i]:SetScript('OnEnter', function()
-    if (healSlot[i].text:GetText() ~= "Empty") then
-      healSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
-      if (swapQueue[HEAL] > 0) then
-        prevQueue[HEAL] = i
-      end
-    end
-    if ((swapQueue[HEAL] > 0) and (prevQueue[HEAL] > 0)) then --swap positions
-      if (swapQueue[HEAL] ~= prevQueue[HEAL]) then --dupe check
-        if ((healSlot[swapQueue[HEAL]].text:GetText() ~= "Empty") and (healSlot[prevQueue[HEAL]].text:GetText() ~= "Empty")) then
-          updateSlotPos(HEAL, swapQueue[HEAL], healSlot[prevQueue[HEAL]].text:GetText() )
-          updateSlotPos(HEAL, prevQueue[HEAL], healSlot[swapQueue[HEAL]].text:GetText() )
-        end
-        resetSwapQueues()
-        memberDrag = nil
-      end
-    else
-      if (memberDrag) then
-        for dupe = 1, DNASlots.heal do
-          if (healSlot[dupe].text:GetText() == memberDrag) then
-            updateSlotPos(HEAL, dupe, "Empty")
-            updateSlotPos(HEAL, i, memberDrag)
-            return true
-          end
-        end
-        updateSlotPos(HEAL, i, memberDrag)
-      end
-    end
-  end)
-  ]==]--
-
   healSlot[i]:SetScript('OnLeave', function()
     if (healSlot[i].text:GetText() ~= "Empty") then
       healSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
@@ -2690,7 +2639,7 @@ for i = 1, DNASlots.cc do
     if (ccSlot[i].text:GetText() ~= "Empty") then
       ccSlot[i]:StartMoving()
       ccSlot[i]:SetFrameStrata("DIALOG")
-      resetSwapQueues()
+      DN:ResetQueueTransposing()
       swapQueue[CC] = i
     end
   end)
@@ -2712,7 +2661,7 @@ for i = 1, DNASlots.cc do
           updateSlotPos(CC, swapQueue[CC], ccSlot[prevQueue[CC]].text:GetText() )
           updateSlotPos(CC, prevQueue[CC], ccSlot[swapQueue[CC]].text:GetText() )
         end
-        resetSwapQueues()
+        DN:ResetQueueTransposing()
         memberDrag = nil
       end
     else
@@ -2742,7 +2691,6 @@ for i = 1, MAX_RAID_MEMBERS do
   raidSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
   raidSlot[i]:Hide()
 end
-
 
 local function viewFrameBottomTabToggle(name)
   viewFrameBotTab["Markers"]:SetFrameLevel(2)
@@ -2905,13 +2853,10 @@ btnShare.text = btnShare:CreateFontString(nil, "ARTWORK")
 btnShare.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnShare.text:SetText(btnShare_t)
 btnShare.text:SetPoint("CENTER", btnShare)
-
 btnShare:SetScript("OnClick", function()
-  if (IsInRaid()) then
+  if (DN:RaidPermission()) then
     DN:UpdateRaidRoster()
     DN:RaidSendAssignments()
-  else
-    DN:Notification("You are not in a raid!     [E3]", true)
   end
 end)
 btnShare:Hide()
@@ -2923,11 +2868,7 @@ btnShareDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnShareDis.text:SetText(btnShare_t)
 btnShareDis.text:SetPoint("CENTER", btnShare)
 btnShareDis:SetScript("OnClick", function()
-  if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [P4]", true)
-  else
-    DN:Notification("You are not in a raid!     [E4]", true)
-  end
+  DN:RaidPermission()
 end)
 
 btnShareDis:Hide()
@@ -2947,7 +2888,7 @@ btnPostRaid.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnPostRaid.text:SetText(btnPostRaid_t)
 btnPostRaid.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaid:SetScript("OnClick", function()
-  if (IsInRaid()) then
+  if (DN:RaidPermission()) then
     if ((total.tanks < 2) or (total.healers < 8)) then
       DN:Notification("Not enough tanks and healers assigned!     [L2]", true)
       return
@@ -2970,8 +2911,6 @@ btnPostRaid:SetScript("OnClick", function()
         DoReadyCheck()
       end
     end
-  else
-    DN:Notification("You are not in a raid!     [E5]", true)
   end
 end)
 local btnPostRaidDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
@@ -2982,11 +2921,7 @@ btnPostRaidDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnPostRaidDis.text:SetText(btnPostRaid_t)
 btnPostRaidDis.text:SetPoint("CENTER", btnPostRaid)
 btnPostRaidDis:SetScript("OnClick", function()
-  if (IsInRaid()) then
-    DN:Notification("You do not have raid permission to modify assignments.   [P5]", true)
-  else
-    DN:Notification("You are not in a raid!     [E6]", true)
-  end
+  DN:RaidPermission()
 end)
 -- EO PAGE ASSIGN
 
@@ -3015,8 +2950,8 @@ secBtn:SetScript("OnClick", function()
 end)
 ]==]--
 
-local function raidPermissions()
-  clearNotifications()
+function DN:PermissionVisibility()
+  DN:ClearNotifications()
   if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
     btnShareDis:Hide()
     --btnShare:Show()
@@ -3024,6 +2959,7 @@ local function raidPermissions()
     btnPostRaidDis:Hide()
     tankSlotFrameClear:Show()
     healSlotFrameClear:Show()
+    ccSlotFrameClear:Show()
   else
     --btnShareDis:Show()
     btnShare:Hide()
@@ -3046,9 +2982,9 @@ local function DNAOpenWindow()
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
     DN:ProfileSaves()
-    raidPermissions()
-    raidDetails()
-    resetSwapQueues() --sanity check on queues
+    DN:PermissionVisibility()
+    DN:RaidDetails()
+    DN:ResetQueueTransposing() --sanity check on queues
   end
 end
 
