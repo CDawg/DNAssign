@@ -210,6 +210,17 @@ DNARaidMarkers={
   {"{left}",     DNAGlobal.dir .. "images/arrow-left"},
   {"{right}",    DNAGlobal.dir .. "images/arrow-right"},
 }
+icon = {}
+for i=1, table.getn(DNARaidMarkers) do
+  local icon_mark = DNARaidMarkers[i][1]
+  if (icon_mark ~= "") then
+    icon_str = string.gsub(icon_mark, "{", "")
+    icon_str = string.gsub(icon_str, "}", "")
+    icon[icon_str] = DNARaidMarkers[i][2]
+  end
+end
+
+debug(icon.diamond)
 
 icon_boss    = DNARaidMarkers[1][2]
 icon_skull   = DNARaidMarkers[2][2]

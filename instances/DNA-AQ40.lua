@@ -62,17 +62,17 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
   if (isItem(assign, "Prophet Skeram")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
     text[1] = note_color .. "- MIDDLE -"
-    mark[2] = icon_diamond
+    mark[2] = icon.diamond
     text[2] = tank.all[1]
     heal[2] = tank.all[4] .. "," .. healer.priest[1] .. "," .. healer.paladin[1]
 
     text[4] = note_color .. "- LEFT -"
-    mark[5] = icon_cross
+    mark[5] = icon.cross
     text[5] = tank.all[2]
     heal[5] = tank.all[5] .. "," .. healer.priest[2] .. "," .. healer.paladin[2]
 
     text[7] = note_color .. "- RIGHT -"
-    mark[8] = icon_triangle
+    mark[8] = icon.triangle
     text[8] = tank.all[3]
     heal[8] = tank.all[6] .. "," .. healer.priest[3] .. "," .. healer.paladin[3]
 
@@ -105,12 +105,12 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[i] = healer.nodruid[i] .. "," .. healer.nodruid[i+3]
     end
 
-    mark[3] = icon_triangle
+    mark[3] = icon.triangle
     text[3] = tank.all[3]
     heal[3] = healer.nodruid[3] .. "," .. healer.nodruid[6]
 
     for i=1, table.getn(raid.fearward) do
-      mark[i+NUM_BOSSES] = icon_triangle
+      mark[i+NUM_BOSSES] = icon.triangle
       text[i+NUM_BOSSES] = note_color .. "Fear Ward"
       heal[i+NUM_BOSSES] = raid.fearward[i]
     end
@@ -121,7 +121,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
         extra_tanks = extra_tanks .. tank.all[i+3] .. ","
       end
     end
-    mark[NUM_BOSSES+table.getn(raid.fearward)+1] = icon_triangle
+    mark[NUM_BOSSES+table.getn(raid.fearward)+1] = icon.triangle
     text[NUM_BOSSES+table.getn(raid.fearward)+1] = note_color .. "Yauj Interrupts"
     heal[NUM_BOSSES+table.getn(raid.fearward)+1] = extra_tanks
 
@@ -134,7 +134,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
         extra_rogues = extra_rogues .. raid.rogue[i] .. ","
       end
     end
-    mark[NUM_BOSSES+table.getn(raid.fearward)+2] = icon_triangle
+    mark[NUM_BOSSES+table.getn(raid.fearward)+2] = icon.triangle
     text[NUM_BOSSES+table.getn(raid.fearward)+2] = note_color .. "Yauj Interrupts"
     heal[NUM_BOSSES+table.getn(raid.fearward)+2] = extra_rogues
 
@@ -305,7 +305,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
     end
 
     if (warlock_assigned ~= 1) then
-      mark[2] = icon_alert
+      mark[2] = icon.alert
       text[2] = "|cffff0000MISSING WARLOCKS IN THE TANK QUEUE!"
     end
 
@@ -382,7 +382,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
 
     local num_fearwards = table.getn(raid.fearward)
     for i=1, num_fearwards do
-      mark[i+12] = icon_cross
+      mark[i+12] = icon.cross
       text[i+12] = note_color .. "Fear Ward"
       heal[i+12] = raid.fearward[i]
     end
@@ -406,22 +406,22 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
     end
 
     if (raid.priest[1]) then
-      mark[1+NUM_ADDS+1] = icon_skull
+      mark[1+NUM_ADDS+1] = icon.skull
       text[1+NUM_ADDS+1] = note_color .. "MANA DRAIN"
       heal[1+NUM_ADDS+1] = raid.priest[1]
     end
     if (raid.priest[2]) then
-      mark[1+NUM_ADDS+2] = icon_cross
+      mark[1+NUM_ADDS+2] = icon.cross
       text[1+NUM_ADDS+2] = note_color .. "MANA DRAIN"
       heal[1+NUM_ADDS+2] = raid.priest[2]
     end
     if (raid.priest[3]) then
-      mark[1+NUM_ADDS+3] = icon_skull
+      mark[1+NUM_ADDS+3] = icon.skull
       text[1+NUM_ADDS+3] = note_color .. "MANA DRAIN"
       heal[1+NUM_ADDS+3] = raid.priest[3]
     end
     if (raid.priest[4]) then
-      mark[1+NUM_ADDS+4] = icon_cross
+      mark[1+NUM_ADDS+4] = icon.cross
       text[1+NUM_ADDS+4] = note_color .. "MANA DRAIN"
       heal[1+NUM_ADDS+4] = raid.priest[4]
     end
@@ -429,7 +429,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "C'Thun")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_cthun_groups"
-    mark[2] = icon_left
+    mark[2] = icon.left
     text[2] = note_color .. "View the map for your group positioning and"
     text[3] = note_color .. "your group number!"
     text[5] = note_color .. "RANGE: Little Eye Tentacles"

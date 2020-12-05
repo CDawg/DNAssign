@@ -1129,7 +1129,6 @@ local function buildRaidAssignments(packet, author, source)
   end
 
   pageBossIcon:SetTexture(DNABossIcon)
-  --pageBossMap:SetTexture(DNABossIcon)
   if (DNABossIcon) then
     DNAFrameAssignBossIcon:SetTexture(DNABossIcon)
   end
