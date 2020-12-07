@@ -117,25 +117,26 @@ local function getRaidComp()
       if (rank > 0) then
         DNARaid["assist"][name] = 1
       end
-      --[==[
+      rankLead = ""
       if (rank > 1) then
         raidLead = name
+        debug("Raid Lead: " .. raidLead)
       end
-      ]==]--
 
       if (IsInRaid()) then
         if (invited[name] ~= 1) then --already invited attempt
           debug(name .. " has joined")
-          if (DNARaid["assist"][player.name] == 2) then --is raid lead
+          --if (DNARaid["assist"][player.name] == 1) then --has assistance
+          if (raidLead == player.name) then
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
                 if (DNAGuild["rank"][name] ~= nil) then --no guild rank or permission
-                  if ((DNAGuild["rank"][name] == "Officer") or ((DNAGuild["rank"][name] == "Alt Officer"))) then
+                  if ((DNAGuild["rank"][name] == "Guild Master") or (DNAGuild["rank"][name] == "Guild Leader") or (DNAGuild["rank"][name] == "Guild Lead") or (DNAGuild["rank"][name] == "Officer") or (DNAGuild["rank"][name] == "Alt Officer")) then
                     if (DNARaid["assist"][name] ~= 1) then --has not been promoted yet
                       if (UnitIsGroupAssistant(name) == false) then
-                        if (DNACheckbox["AUTOPROMOTE"]:GetChecked()) then
+                        --if (DNACheckbox["AUTOPROMOTE"]:GetChecked()) then
                           DN:PromoteToAssistant(name)
-                        end
+                        --end
                       end
                     end
                   end
@@ -596,6 +597,9 @@ DNAFrameAssignPersonal:SetScript("OnDragStart", function()
 end)
 DNAFrameAssignPersonal:SetScript("OnDragStop", function()
   DNAFrameAssignPersonal:StopMovingOrSizing()
+  local point, relativeTo, relativePoint, xOfs, yOfs = DNAFrameAssignPersonal:GetPoint()
+  debug("PAW Pos: " .. point .. "," .. xOfs .. "," .. yOfs)
+  DNA[player.combine]["CONFIG"]["PAWPOS"] = point .. "," .. xOfs .. "," .. yOfs
 end)
 DNAFrameAssignPersonal:SetBackdropColor(0, 0, 0, 1)
 DNAFrameAssignPersonal.header = CreateFrame("Frame", nil, DNAFrameAssignPersonal)
@@ -1415,7 +1419,7 @@ end)
 --build the cached array
 getRaidComp()
 
-local minimapIconPos={}
+--local minimapIconPos={}
 
 function DN:ProfileSaves()
   local getsave={}
@@ -1523,16 +1527,30 @@ function DN:ProfileSaves()
   end
   ]==]--
 
-  if (DNA[player.combine]["CONFIG"]["HIDEICON"] == "ON") then
-    DNACheckbox["HIDEICON"]:SetChecked(true)
+  if (DNA[player.combine]["CONFIG"]["MMICONHIDE"] == "ON") then
+    DNACheckbox["MMICONHIDE"]:SetChecked(true)
     DNAMiniMap:Hide()
   end
 
-  if (DNA[player.combine]["CONFIG"]["ICONPOS"]) then
-    minimapIconPos = split(DNA[player.combine]["CONFIG"]["ICONPOS"], ",")
-    if ((minimapIconPos[1]) and (minimapIconPos[2])) then
-      DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", minimapIconPos[1]+130, minimapIconPos[2]+22)
-    end
+  --[==[
+  if (DNA[player.combine]["CONFIG"]["MMICONUNLOCK"] == "ON") then
+    DNACheckbox["MMICONUNLOCK"]:SetChecked(true)
+  end
+  ]==]--
+
+  if (DNA[player.combine]["CONFIG"]["MMICONPOS"]) then
+    local minimapIconPos = {}
+    minimapIconPos = split(DNA[player.combine]["CONFIG"]["MMICONPOS"], ",")
+    DNAMiniMap:ClearAllPoints()
+    DNAMiniMap:SetPoint(minimapIconPos[1], tonumber(minimapIconPos[2]), tonumber(minimapIconPos[3]))
+  end
+
+  if (DNA[player.combine]["CONFIG"]["PAWPOS"]) then
+    local DNAFrameAssignPersonalPos = {}
+    DNAFrameAssignPersonalPos = split(DNA[player.combine]["CONFIG"]["PAWPOS"], ",")
+    debug("DNAFrameAssignPersonalPos: " .. DNAFrameAssignPersonalPos[1] .. "," .. tonumber(DNAFrameAssignPersonalPos[2]) .. "," .. tonumber(DNAFrameAssignPersonalPos[3]))
+    DNAFrameAssignPersonal:ClearAllPoints()
+    DNAFrameAssignPersonal:SetPoint(DNAFrameAssignPersonalPos[1], tonumber(DNAFrameAssignPersonalPos[2]), tonumber(DNAFrameAssignPersonalPos[3]))
   end
 
   if (DNA[player.combine]["CONFIG"]["RAIDCHAT"] == "ON") then
@@ -1591,7 +1609,7 @@ DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
   DNACloseWindow()
 end)
-DN:ToolTip(DNAFrameMainClose, "Close", false)
+DN:ToolTip(DNAFrameMainClose, "Close")
 
 DNAFrameMain:EnableKeyboard(true)
 tinsert(UISpecialFrames, "DNAFrameMain")
@@ -1793,7 +1811,7 @@ for i, v in ipairs(DNAClasses) do
   DNAFrameClassAssignTextbox(v, (i*26)-10)
 end
 
-function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
+function DN:CheckBox(checkID, checkName, parentFrame, posX, posY, tooltip)
   local check_static = CreateFrame("CheckButton", nil, parentFrame, "ChatConfigCheckButtonTemplate")
   check_static:SetPoint("TOPLEFT", posX+10, -posY-40)
   check_static.text = check_static:CreateFontString(nil,"ARTWORK")
@@ -1804,23 +1822,36 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY)
   check_static:SetScript("OnClick", function()
     if (DNA[player.combine]["CONFIG"][checkID] == "ON") then
       DNA[player.combine]["CONFIG"][checkID] = "OFF"
-      if (checkID == "HIDEICON") then
+      if (checkID == "MMICONHIDE") then
         DNAMiniMap:Show()
+      end
+      if (checkID == "MMICONUNLOCK") then
+        DN:ResetMiniMapIcon()
+        debug("UNLOCKICON disabled")
       end
     else
       DNA[player.combine]["CONFIG"][checkID] = "ON"
-      if (checkID == "HIDEICON") then
+      if (checkID == "MMICONHIDE") then
         DNAMiniMap:Hide()
+      end
+      if (checkID == "MMICONUNLOCK") then
+        --DNAMiniMap:SetParent(UIParent)
+        --DNAMiniMap:SetPoint("CENTER", 10, 10)
+        debug("UNLOCKICON enabled")
       end
     end
   end)
   DNACheckbox[checkID] = check_static
+  if (tooltip) then
+    DN:ToolTip(DNACheckbox[checkID], tooltip, 110, -10)
+  end
 end
 
-DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40)
-DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 60)
-DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Config"], 10, 80)
-DN:CheckBox("HIDEICON", "Hide The Minimap Icon", page["Config"], 10, 100)
+DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40, "Auto Promote guild officers to raid assistants\nMust be Raid Lead.")
+DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 60, "Post to Raid chat as well as the screen assignments.")
+DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Config"], 10, 80, "Hide the Personal Assignments once combat has ended.")
+DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Config"], 10, 100, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
+--DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Config"], 10, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Config"], 10, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page["DKP"])
@@ -2105,12 +2136,12 @@ local function bottomTab(name, pos_x, text_pos_x)
 end
 
 function tabInactive(name)
-  tabBorder[name]:SetTexture("Interface/AddOns/DNAssistant/images/sidetab")
+  tabBorder[name]:SetTexture(DNAGlobal.dir .. "/images/sidetab")
   sideTab[name]:SetFrameLevel(0)
   sideTab[name].text:SetTextColor(0.7, 0.7, 0.7)
 end
 function tabActive(name)
-  tabBorder[name]:SetTexture("Interface/AddOns/DNAssistant/images/sidetab_sel")
+  tabBorder[name]:SetTexture(DNAGlobal.dir .. "/images/sidetab_sel")
   sideTab[name]:SetFrameLevel(5)
   sideTab[name].text:SetTextColor(1, 1, 0.5)
 end
@@ -2452,7 +2483,7 @@ for i = 1, DNASlots.tank do
     memberDrag = nil
   end)
 end
-DN:ToolTip(tankSlotFrameClear, "Clear Tank Queue", false)
+DN:ToolTip(tankSlotFrameClear, "Clear Tank Queue")
 
 local healSlotOrgPoint_x={}
 local healSlotOrgPoint_y={}
@@ -2482,7 +2513,7 @@ healSlotFrameClear:SetScript("OnClick", function()
   slotDialog:Show()
 end)
 healSlotFrameClear:Hide()
-DN:ToolTip(healSlotFrameClear, "Clear Healer Queue", false)
+DN:ToolTip(healSlotFrameClear, "Clear Healer Queue")
 
 for i = 1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame)
@@ -2506,7 +2537,7 @@ for i = 1, DNASlots.heal do
   healSlotUp[i]:SetScript("OnClick", function()
     shiftSlot(i, "up")
   end)
-  DN:ToolTip(healSlotUp[i], "Move Up", false)
+  DN:ToolTip(healSlotUp[i], "Move Up")
   local healSlotUpIcon = healSlotUp[i]:CreateTexture(nil, "OVERLAY")
   healSlotUpIcon:SetTexture("Interface/MainMenuBar/UI-MainMenu-ScrollUpButton-Up")
   healSlotUpIcon:SetPoint("TOPLEFT", -3, 5)
@@ -2517,7 +2548,7 @@ for i = 1, DNASlots.heal do
   healSlotDown[i]:SetScript("OnClick", function()
     shiftSlot(i, "down")
   end)
-  DN:ToolTip(healSlotDown[i], "Move Down", false)
+  DN:ToolTip(healSlotDown[i], "Move Down")
   local healSlotDownIcon = healSlotDown[i]:CreateTexture(nil, "OVERLAY")
   healSlotDownIcon:SetTexture("Interface/MainMenuBar/UI-MainMenu-ScrollDownButton-Up")
   healSlotDownIcon:SetPoint("TOPLEFT", -3, 5)
@@ -2984,10 +3015,25 @@ local function DNAOpenWindow()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
-    DN:ProfileSaves()
+    --DN:ProfileSaves()
     DN:PermissionVisibility()
     DN:RaidDetails()
     DN:ResetQueueTransposing() --sanity check on queues
+
+    --clean up old values
+    if (DNA[player.combine]["CONFIG"]["UNLOCKICON"]) then
+      DNA[player.combine]["CONFIG"]["UNLOCKICON"] = nil
+    end
+    if (DNA[player.combine]["CONFIG"]["ICONPOS"]) then
+      DNA[player.combine]["CONFIG"]["ICONPOS"] = nil
+    end
+    if (DNA[player.combine]["CONFIG"]["HIDEICON"]) then
+      DNA[player.combine]["CONFIG"]["HIDEICON"] = nil
+    end
+    if (DNA[player.combine]["CONFIG"]["INDICON"]) then
+      DNA[player.combine]["CONFIG"]["INDICON"] = nil
+    end
+
   end
 end
 
@@ -3025,11 +3071,16 @@ local myIconPos = 40
 local function UpdateMapButton()
   local Xpoa, Ypoa = GetCursorPosition()
   local Xmin, Ymin = Minimap:GetLeft(), Minimap:GetBottom()
+  local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
   Xpoa = Xmin - Xpoa / Minimap:GetEffectiveScale() + 70
   Ypoa = Ypoa / Minimap:GetEffectiveScale() - Ymin - 70
   myIconPos = math.deg(math.atan2(Ypoa, Xpoa))
-  DNAMiniMap:ClearAllPoints()
-  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 60 - (80 * cos(myIconPos)), (80 * sin(myIconPos)) - 56)
+  --if (DNA[player.combine]["CONFIG"]["MMICONUNLOCK"] ~= "ON") then --default and off
+    DNAMiniMap:ClearAllPoints()
+    DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 60 - (80 * cos(myIconPos)), (80 * sin(myIconPos)) - 56)
+  --end
+  debug("MMI UpdateMapButton: " .. point .. "," .. xOfs .. "," .. yOfs)
+  DNA[player.combine]["CONFIG"]["MMICONPOS"] = point .. "," .. xOfs .. "," .. yOfs
 end
 DNAMiniMap:RegisterForDrag("LeftButton")
 DNAMiniMap:SetScript("OnDragStart", function()
@@ -3038,28 +3089,31 @@ DNAMiniMap:SetScript("OnDragStart", function()
 end)
 --minimapIconPos
 DNAMiniMap:SetScript("OnDragStop", function()
-    DNAMiniMap:StopMovingOrSizing()
-    DNAMiniMap:SetScript("OnUpdate", nil)
-    local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
-    debug("MMI Saved : " .. math.ceil(xOfs) .. "," .. math.ceil(yOfs))
-    debug("MMI Actual: " .. 60 - (80 * cos(myIconPos)) .. "," .. (80 * sin(myIconPos)) - 56)
-    debug("MMI Setval: " .. math.ceil(xOfs)+130 .. "," .. math.ceil(yOfs)+22)
-    DNA[player.combine]["CONFIG"]["ICONPOS"] = math.ceil(xOfs) .. "," .. math.ceil(yOfs)
-    UpdateMapButton()
+  DNAMiniMap:StopMovingOrSizing()
+  DNAMiniMap:SetScript("OnUpdate", nil)
+  --UpdateMapButton()
 end)
-DNAMiniMap:ClearAllPoints()
-DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 60 - (80 * cos(myIconPos)),(80 * sin(myIconPos)) - 56)
+
 DNAMiniMap:SetScript("OnClick", function()
   DNAOpenWindow()
 end)
 
+function DN:DefaulMiniMapPos()
+  DNAMiniMap:SetPoint("TOPLEFT",-7,-12)
+end
+
 function DN:ResetMiniMapIcon()
-  DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", -3, -6)
-  DNA[player.combine]["CONFIG"]["ICONPOS"] = "-133,-29"
-  DNA[player.combine]["CONFIG"]["HIDEICON"] = "OFF"
-  DNACheckbox["HIDEICON"]:SetChecked(false)
+  DNAMiniMap:ClearAllPoints()
+  DN:DefaulMiniMapPos()
+  DNA[player.combine]["CONFIG"]["MMICONPOS"] = "TOPLEFT,-7,-12"
+  DNA[player.combine]["CONFIG"]["MMICONHIDE"] = "OFF"
+  --DNA[player.combine]["CONFIG"]["MMICONUNLOCK"] = "OFF"
+  DNACheckbox["MMICONHIDE"]:SetChecked(false)
+  --DNACheckbox["MMICONUNLOCK"]:SetChecked(false)
   DNAMiniMap:Show()
 end
+DNAMiniMap:ClearAllPoints()
+DN:DefaulMiniMapPos()
 
 local DNADialogMMIReset = CreateFrame("Frame", nil, UIParent)
 DNADialogMMIReset:SetWidth(400)

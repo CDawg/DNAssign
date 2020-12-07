@@ -12,13 +12,13 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
 DNAGlobal.dir    = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor = 1
-DNAGlobal.vminor = 205
+DNAGlobal.vminor = 206
 DNAGlobal.width  = 980
 DNAGlobal.height = 600
 --DNAGlobal.font   = "Fonts/ARIALN.TTF"
@@ -359,19 +359,25 @@ DNATooltipFrame:SetBackdrop({
 DNATooltipFrame:SetBackdropColor(0.2, 0.2, 0.2, 1)
 DNATooltip:Hide()
 
-function DN:ToolTip(frame, msg, offset)
+function DN:ToolTip(frame, msg, offset_x, offset_y)
   frame:SetScript("OnEnter", function()
     local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint() --parent
     local strlength = string.len(msg)
     DNATooltip:Show()
-    if (offset) then
-      DNATooltip:SetPoint("CENTER", 300, 500)
-    else
-      DNATooltip:SetPoint(point, frame, relativeTo, xOfs+30, yOfs)
-    end
     DNATooltipFrame:SetWidth(strlength*10)
     DNATooltip.text:SetText(msg)
     --debug(strlength)
+    if ((offset_x) and (offset_y)) then
+      if (strlength >= 60) then
+        strlength = 65
+      end
+      DNATooltip:SetParent(frame)
+      DNATooltip:SetPoint(point, offset_x, offset_y)
+      DNATooltipFrame:SetWidth(strlength*7)
+      DNATooltipFrame:SetHeight(50)
+    else
+      DNATooltip:SetPoint(point, frame, relativeTo)
+    end
   end)
   frame:SetScript("OnLeave", function()
     DNATooltip:Hide()
