@@ -180,12 +180,32 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
-    --heal[1] = healer.all[i]
+    --heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
+
     mark[2] = icon.skull
-    text[2] = tank.all[2]
+    text[2] = tank.all[4]
+    --heal[2] = healer.all[4]
     mark[3] = icon.cross
-    text[3] = tank.all[3]
-    --heal[2] = healer.all[i]
+    text[3] = tank.all[5]
+    --heal[3] = healer.all[5]
+
+    mark[5] = icon.triangle
+    text[5] = tank.all[2]
+    --heal[5] = healer.all[6]
+    mark[6] = icon.diamond
+    text[6] = tank.all[2]
+    --heal[6] = healer.all[6]
+
+    mark[8] = icon.star
+    text[8] = tank.all[3]
+    --heal[8] = healer.all[7]
+    mark[9] = icon.square
+    text[9] = tank.all[3]
+    --heal[9] = healer.all[7]
+
+    text[11] = note_color .. "Burn down skull and cross (Followers)."
+    text[12] = note_color .. "2 Worshippers tanked left side away from boss."
+    text[13] = note_color .. "2 Worshippers tanked right side away from boss."
   end
 
   if (isItem(assign, "Maexxna")) then
