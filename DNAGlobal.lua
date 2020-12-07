@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
@@ -219,23 +219,6 @@ for i=1, table.getn(DNARaidMarkers) do
     icon[icon_str] = DNARaidMarkers[i][2]
   end
 end
-
-debug(icon.diamond)
-
-icon_boss    = DNARaidMarkers[1][2]
-icon_skull   = DNARaidMarkers[2][2]
-icon_cross   = DNARaidMarkers[3][2]
-icon_triangle= DNARaidMarkers[4][2]
-icon_circle  = DNARaidMarkers[5][2]
-icon_square  = DNARaidMarkers[6][2]
-icon_diamond = DNARaidMarkers[7][2]
-icon_moon    = DNARaidMarkers[8][2]
-icon_star    = DNARaidMarkers[9][2]
-icon_alert   = DNARaidMarkers[10][2]
-icon_up      = DNARaidMarkers[11][2]
-icon_down    = DNARaidMarkers[12][2]
-icon_left    = DNARaidMarkers[13][2]
-icon_right   = DNARaidMarkers[14][2]
 
 function DN:ClassColorText(frame, class)
   local rgb={0.60, 0.60, 0.60} --offline gray

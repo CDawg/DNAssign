@@ -347,28 +347,28 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
 
     mark[1] = DNABossIcon
 
-    mark[6] = icon_square
+    mark[6] = icon.square
     if (raid.mage[1]) then
       text[6] = raid.mage[1]
     else
       text[6] = tank.all[6]
       heal[6] = healer.all[6]
     end
-    mark[7] = icon_diamond
+    mark[7] = icon.diamond
     if (raid.mage[2]) then
       text[7] = raid.mage[2]
     else
       text[7] = tank.all[7]
       heal[7] = healer.all[7]
     end
-    mark[8] = icon_moon
+    mark[8] = icon.moon
     if (raid.mage[3]) then
       text[8] = raid.mage[3]
     else
       text[8] = tank.all[8]
       heal[8] = healer.all[8]
     end
-    mark[9] = icon_star
+    mark[9] = icon.star
     if (raid.mage[4]) then
       text[9] = raid.mage[4]
     else

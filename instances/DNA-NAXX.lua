@@ -181,9 +181,9 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
     --heal[1] = healer.all[i]
-    mark[2] = icon_skull
+    mark[2] = icon.skull
     text[2] = tank.all[2]
-    mark[3] = icon_cross
+    mark[3] = icon.cross
     text[3] = tank.all[3]
     --heal[2] = healer.all[i]
   end

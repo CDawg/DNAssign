@@ -94,8 +94,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
       text[i] = tank.all[i]
       heal[i] = dpack_heals[i] -- don't assign druids
     end
-    mark[4] = icon_circle
-    mark[5] = icon_square
+    mark[4] = icon.circle
+    mark[5] = icon.square
     if (raid.hunter[1]) then
       text[4] = raid.hunter[1]
     else
@@ -107,7 +107,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
       text[5] = tank.all[5]
     end
     if (raid.druid[1]) then
-      mark[6] = icon_diamond
+      mark[6] = icon.diamond
       text[6] = raid.druid[1]
       heal[6] = dpack_heals[4]
       if (heal[6] == healer.all[4]) then
@@ -115,7 +115,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
       end
     end
     if (raid.druid[2]) then
-      mark[7] = icon_moon
+      mark[7] = icon.moon
       text[7] = raid.druid[2]
       heal[7] = dpack_heals[6]
       if (heal[7] == healer.all[6]) then
@@ -128,7 +128,7 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
   if (isItem(assign, "Suppression Room")) then
     DNABossMap = DNAGlobal.dir .. "images/bwl_goblinpack"
     NUM_ADDS = 3
-    mark[1] = icon_alert
+    mark[1] = icon.alert
     text[1] = "|cffff0000 MISSING AOE TANK IN TANK QUEUE!" --default message
     for i=1, DNASlots.tank do
       if ((DNARaid["class"][tank.main[i]] == "Paladin") or (DNARaid["class"][tank.main[i]] == "Druid")) then
