@@ -15,7 +15,9 @@ the copyright holders.
 
 function debug(msg)
   if (DEBUG) then
-    return print("DEBUG: " .. msg)
+    if (msg) then
+      return print("DEBUG: " .. msg)
+    end
   end
 end
 

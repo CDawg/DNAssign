@@ -15,8 +15,6 @@ PLEASE NOTE: If you modify the instance dropdown boss names and call for the msg
 The compressed network packets will read as "LavaPack" and not "Lava Pack".
 All of this is because Blizz uses LUA which is a fucking piece of shit garbage code from hell and whoever invented it needs to get his nuts cut off!
 - Porthios of Myzrael
-
-hooksecurefunc
 ]==]--
 
 local packet={}
@@ -96,7 +94,39 @@ local function getGuildComp()
   end
 end
 
-local function getRaidComp()
+local function DNABuildAttendance()
+  if (DNA["ATTENDANCE"] == nil) then
+    DNA["ATTENDANCE"] = {}
+  end
+  if (DNA["ATTENDANCE"][date_day] == nil) then
+    DNA["ATTENDANCE"][date_day] = {}
+  end
+  local inInstance, instanceType = IsInInstance()
+  if (inInstance) then
+    if (instanceType == "Raid") then
+      local instanceName = GetInstanceInfo()
+      if (instanceName) then
+        for i=1, MAX_RAID_MEMBERS do
+          local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+          local attendees={}
+          if ((name) and (class)) then
+            if (DNA["ATTENDANCE"][date_day][instanceName] == nil) then
+              DNA["ATTENDANCE"][date_day][instanceName] = {}
+            end
+            if (DNA["ATTENDANCE"][date_day][instanceName][name] == nil) then
+              DNA["ATTENDANCE"][date_day][instanceName][name] = {}
+            end
+            if (DNA["ATTENDANCE"][date_day][instanceName][name][class] == nil) then
+              DNA["ATTENDANCE"][date_day][instanceName][name][class] = {}
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+local function DNAGetRaidComp()
   total.raid = GetNumGroupMembers()
   --clear entries and rebuild to always get an accurate count on classes,races,names,etc...
   for k,v in pairs(DNARaid["class"]) do
@@ -108,7 +138,7 @@ local function getRaidComp()
 
   getGuildComp()
 
-  for i = 1, MAX_RAID_MEMBERS do
+  for i=1, MAX_RAID_MEMBERS do
     local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
 
     if (name) then
@@ -163,7 +193,7 @@ local function getRaidComp()
 
   if (DEBUG) then
     buildDebugRaid() --fake raid
-    debug("getRaidComp() total:" .. total.raid)
+    debug("DNAGetRaidComp() total:" .. total.raid)
   end
 end
 
@@ -262,11 +292,11 @@ local DNARaidMemberSorted={}
 function DN:UpdateRaidRoster()
   local k=0
   --clear all entries, then rebuild raid
-  for i = 1, MAX_RAID_MEMBERS do
+  for i=1, MAX_RAID_MEMBERS do
     DNARaid["member"][i] = nil
   end
-  getRaidComp()
-  for i = 1, MAX_RAID_MEMBERS do
+  DNAGetRaidComp()
+  for i=1, MAX_RAID_MEMBERS do
     DNARaidMemberSorted[i] = nil
     raidSlot[i].text:SetText("")
     raidSlot[i]:Hide()
@@ -276,7 +306,7 @@ function DN:UpdateRaidRoster()
   for k,v in pairs(total) do
     total[k] = 0
   end
-  for i = 1, DNASlots.tank do
+  for i=1, DNASlots.tank do
     tankSlot[i].icon:SetTexture("")
     for k, v in pairs(DNARaid["assist"]) do
       if ((tankSlot[i].text:GetText() == k) and (v == 1)) then
@@ -293,7 +323,7 @@ function DN:UpdateRaidRoster()
     end
   end
 
-  for i = 1, DNASlots.heal do
+  for i=1, DNASlots.heal do
     healSlot[i].icon:SetTexture("")
     healSlotUp[i]:Hide()
     healSlotDown[i]:Hide()
@@ -320,7 +350,7 @@ function DN:UpdateRaidRoster()
   healSlotUp[1]:Hide()
   healSlotDown[DNASlots.heal]:Hide()
 
-  for i = 1, DNASlots.cc do
+  for i=1, DNASlots.cc do
     ccSlot[i].icon:SetTexture("")
     for k, v in pairs(DNARaid["assist"]) do
       if ((ccSlot[i].text:GetText() == k) and (v == 1)) then
@@ -353,7 +383,7 @@ function DN:UpdateRaidRoster()
     end
   end
 
-  for i = 1, table.getn(DNARaidMemberSorted) do
+  for i=1, table.getn(DNARaidMemberSorted) do
     raidSlot[i].icon:SetTexture("")
     for k, v in pairs(DNARaid["assist"]) do
       if ((raidSlot[i].text:GetText() == k) and (v == 1)) then
@@ -370,11 +400,12 @@ function DN:UpdateRaidRoster()
   total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins + total.shamans
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
+
   debug("DN:UpdateRaidRoster()")
 end
 
 local function clearFrameView()
-  for i = 1, MAX_FRAME_LINES do
+  for i=1, MAX_FRAME_LINES do
     DNAFrameViewScrollChild_mark[i]:SetTexture("")
     DNAFrameViewScrollChild_tank[i]:SetText("")
     DNAFrameViewScrollChild_heal[i]:SetText("")
@@ -383,7 +414,7 @@ local function clearFrameView()
 end
 
 local function clearFrameAssign()
-  for i = 1, MAX_FRAME_LINES do
+  for i=1, MAX_FRAME_LINES do
     DNAFrameAssignScrollChild_mark[i]:SetTexture("")
     DNAFrameAssignScrollChild_tank[i]:SetText("")
     DNAFrameAssignScrollChild_heal[i]:SetText("")
@@ -454,7 +485,7 @@ function DN:ParsePacket(packet, netpacket)
   DN:UpdateRaidRoster()
   DN:RaidReadyClear() -- there was a change to the roster, people may not be ready
   packet.split = split(netpacket, ",")
-  for i = 1, table.getn(packet.split) do
+  for i=1, table.getn(packet.split) do
     --packet.role = packet.split[1]
     packet.role = string.gsub(packet.split[1], "[^a-zA-Z]", "")
     packet.slot = string.gsub(packet.split[1], packet.role, "")
@@ -696,7 +727,7 @@ end)
 DNAFrameAssign:SetScript("OnDragStop", function()
     DNAFrameAssign:StopMovingOrSizing()
 end)
-for i = 1, MAX_FRAME_LINES do
+for i=1, MAX_FRAME_LINES do
   DNAFrameAssignScrollChild_mark[i] = DNAFrameAssignScrollChild:CreateTexture(nil, "ARTWORK")
   DNAFrameAssignScrollChild_mark[i]:SetSize(16, 16)
   DNAFrameAssignScrollChild_mark[i]:SetPoint("TOPLEFT", 20, (-i*18)+12)
@@ -820,7 +851,7 @@ DNAFrameAssign:Hide()
 
 local DNAFrameAssignTab={}
 
-DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing...")
+DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing by " .. DNAGlobal.author)
 
 -- BUILD THE RAID PER BOSS
 local function buildRaidAssignments(packet, author, source)
@@ -876,7 +907,7 @@ local function buildRaidAssignments(packet, author, source)
     healSlotFrameClear:Show()
     ccSlotFrameClear:Show()
   else
-    for i = 1, DNASlots.heal do
+    for i=1, DNASlots.heal do
       healSlotUp[i]:Hide()
       healSlotDown[i]:Hide()
     end
@@ -980,7 +1011,7 @@ local function buildRaidAssignments(packet, author, source)
 
   --fear warders
   local num_fearwards = 0
-  for i = 1, MAX_RAID_MEMBERS do
+  for i=1, MAX_RAID_MEMBERS do
     if ((DNARaid["class"][raid.priest[i]] == "Priest") and (DNARaid["race"][raid.priest[i]] == "Dwarf")) then
       num_fearwards = num_fearwards +1
       raid.fearward[num_fearwards] = raid.priest[i]
@@ -1225,6 +1256,24 @@ function DN:AlignSlotText()
   debug("DN:AlignSlotText()")
 end
 
+local attendance = {}
+local function DNAGetAttendanceLogs()
+  if (DNA["ATTENDANCE"]) then
+    for day,v in pairs(DNA["ATTENDANCE"]) do
+      for instance,v in pairs(DNA["ATTENDANCE"][day]) do
+        attendance[day .. " " .. instance] = {}
+        for name,v in pairs(DNA["ATTENDANCE"][day][instance]) do
+          attendance[day .. " " .. instance][name] = {}
+          for class,v in pairs(DNA["ATTENDANCE"][day][instance][name]) do
+            attendance[day .. " " .. instance][name] = class
+          end
+        end
+      end
+    end
+    debug("DNAGetAttendanceLogs()")
+  end
+end
+
 local DNAMain = CreateFrame("Frame")
 DNAMain:RegisterEvent("ADDON_LOADED")
 DNAMain:RegisterEvent("PLAYER_LOGIN")
@@ -1250,6 +1299,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if (event == "PLAYER_LOGIN") then
     DN:BuildGlobalVars()
     DN:ProfileSaves()
+    DNAGetAttendanceLogs()
     debug(event)
   end
 
@@ -1277,6 +1327,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event== "PLAYER_REGEN_DISABLED") then --entered combat
     DN:RaidReadyClear()
+    DNABuildAttendance()
     debug("Entered Combat!")
   end
   if (event == "PLAYER_REGEN_ENABLED") then --left combat
@@ -1417,7 +1468,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 end)
 
 --build the cached array
-getRaidComp()
+DNAGetRaidComp()
 
 --local minimapIconPos={}
 
@@ -1502,7 +1553,7 @@ function DN:ProfileSaves()
         ccSlotFrameClear:Show()
       end
     else
-      for i = 1, DNASlots.heal do
+      for i=1, DNASlots.heal do
         healSlotUp[i]:Hide()
         healSlotDown[i]:Hide()
       end
@@ -1566,6 +1617,7 @@ function DN:ProfileSaves()
     end
     ddBossList[DNAInstance[instanceNum][1]]:Show()
   end
+
   debug("DN:ProfileSaves()")
 end
 
@@ -1743,7 +1795,7 @@ DNAFrameViewMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNAFrameViewMR:SetPoint("TOPLEFT", 354, -2)
 DNAFrameViewMR:SetSize(24, 316)
 
-for i = 1, MAX_FRAME_LINES do
+for i=1, MAX_FRAME_LINES do
   DNAFrameViewScrollChild_mark[i] = DNAViewScrollChildFrame:CreateTexture(nil, "ARTWORK")
   DNAFrameViewScrollChild_mark[i]:SetSize(16, 16)
   DNAFrameViewScrollChild_mark[i]:SetPoint("TOPLEFT", 5, (-i*18)+13)
@@ -1931,7 +1983,7 @@ DNAFrameRaidDetailsBG:SetSize(194, DNAGlobal.height-5)
 DNAFrameRaidDetailsBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameRaidDetailsBG:SetFrameLevel(2)
 
-for i = 1, 50 do
+for i=1, 50 do
   pageRaidDetailsColOne[i] = page["Raid Builder"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColOne[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColOne[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 20, (-i*14)-24)
@@ -1967,7 +2019,7 @@ pageDKPView.ScrollFrame.ScrollBar:ClearAllPoints()
 pageDKPView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", pageDKPView.ScrollFrame, "TOPRIGHT", -150, 0)
 pageDKPView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", pageDKPView.ScrollFrame, "BOTTOMRIGHT", 106, 0)
 
-for i = 1, MAX_DKP_LINES do
+for i=1, MAX_DKP_LINES do
   pageDKPViewScrollChild_colOne[i] = pageDKPViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
   pageDKPViewScrollChild_colOne[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageDKPViewScrollChild_colOne[i]:SetText("")
@@ -2088,13 +2140,143 @@ end
 
 DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
 
+local DNARaidScrollFrame_w = 140
+local DNARaidScrollFrame_h = 520
+local DNAAttendanceScrollFrame_w = 200
+local DNAAttendanceScrollFrame_h = 520
+
+page["Attendance"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Attendance"]:SetWidth(DNAGlobal.width)
+page["Attendance"]:SetHeight(DNAGlobal.height)
+page["Attendance"]:SetPoint("TOPLEFT", 0, 0)
+
+local DNAAttendanceScrollFrame = CreateFrame("Frame", pageAttendanceScrollFrame, page["Attendance"], "InsetFrameTemplate")
+DNAAttendanceScrollFrame:SetWidth(DNAAttendanceScrollFrame_w+20)
+DNAAttendanceScrollFrame:SetHeight(DNAAttendanceScrollFrame_h)
+DNAAttendanceScrollFrame:SetPoint("TOPLEFT", 10, -50)
+DNAAttendanceScrollFrame:SetFrameLevel(5)
+DNAAttendanceScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceScrollFrame, "UIPanelScrollFrameTemplate")
+DNAAttendanceScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceScrollFrame, "TOPLEFT", 3, -3)
+DNAAttendanceScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNAAttendanceScrollFrameScrollChildFrame = CreateFrame("Frame", DNAAttendanceScrollFrameScrollChildFrame, DNAAttendanceScrollFrame.ScrollFrame)
+DNAAttendanceScrollFrameScrollChildFrame:SetSize(DNAAttendanceScrollFrame_w, DNAAttendanceScrollFrame_h)
+DNAAttendanceScrollFrame.ScrollFrame:SetScrollChild(DNAAttendanceScrollFrameScrollChildFrame)
+DNAAttendanceScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAAttendanceScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAAttendanceScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNAAttendanceScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAAttendanceScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNAAttendanceScrollFrame.MR = DNAAttendanceScrollFrame:CreateTexture(nil, "BACKGROUND", DNAAttendanceScrollFrame, -2)
+DNAAttendanceScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAAttendanceScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceScrollFrame_w-5, 0)
+DNAAttendanceScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
+
+local DNAAttendanceNameScrollFrame = CreateFrame("Frame", pageAttendanceScrollFrame, page["Attendance"], "InsetFrameTemplate")
+DNAAttendanceNameScrollFrame:SetWidth(DNARaidScrollFrame_w+20)
+DNAAttendanceNameScrollFrame:SetHeight(DNAAttendanceScrollFrame_h)
+DNAAttendanceNameScrollFrame:SetPoint("TOPLEFT", 250, -50)
+DNAAttendanceNameScrollFrame:SetFrameLevel(5)
+DNAAttendanceNameScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceNameScrollFrame, "UIPanelScrollFrameTemplate")
+DNAAttendanceNameScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceNameScrollFrame, "TOPLEFT", 3, -3)
+DNAAttendanceNameScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceNameScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNAAttendanceNameScrollFrameScrollChildFrame = CreateFrame("Frame", DNAAttendanceNameScrollFrameScrollChildFrame, DNAAttendanceNameScrollFrame.ScrollFrame)
+DNAAttendanceNameScrollFrameScrollChildFrame:SetSize(DNARaidScrollFrame_w, DNAAttendanceScrollFrame_h)
+DNAAttendanceNameScrollFrame.ScrollFrame:SetScrollChild(DNAAttendanceNameScrollFrameScrollChildFrame)
+DNAAttendanceNameScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAAttendanceNameScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAAttendanceNameScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNAAttendanceNameScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAAttendanceNameScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNAAttendanceNameScrollFrame.MR = DNAAttendanceNameScrollFrame:CreateTexture(nil, "BACKGROUND", DNAAttendanceNameScrollFrame, -2)
+DNAAttendanceNameScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAAttendanceNameScrollFrame.MR:SetPoint("TOPLEFT", DNARaidScrollFrame_w-5, 0)
+DNAAttendanceNameScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
+
+local attendanceLogNameSlotOrgPoint_x={}
+local attendanceLogNameSlotOrgPoint_y={}
+local attendanceLogNameSlot={}
+function attendanceSlotNameFrame(i, name)
+  attendanceLogNameSlot[i] = CreateFrame("button", attendanceLogNameSlot[i], DNAAttendanceNameScrollFrameScrollChildFrame)
+  attendanceLogNameSlotOrgPoint_x[i] = 0
+  attendanceLogNameSlotOrgPoint_y[i] = (-i*18)+attendanceLogSlot_h-4
+  attendanceLogNameSlot[i]:SetBackdrop({
+    bgFile = "Interface/Collections/CollectionsBackgroundTile",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  attendanceLogNameSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  attendanceLogNameSlot[i]:SetWidth(DNAAttendanceScrollFrame_w-5)
+  attendanceLogNameSlot[i]:SetHeight(attendanceLogNameSlot_h)
+  attendanceLogNameSlot[i]:SetPoint("TOPLEFT", attendanceLogNameSlotOrgPoint_x[i], attendanceLogNameSlotOrgPoint_y[i])
+  attendanceLogNameSlot[i].text = attendanceLogNameSlot[i]:CreateFontString(nil, "ARTWORK")
+  attendanceLogNameSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  attendanceLogNameSlot[i].text:SetPoint("TOPLEFT", 5, -4)
+  local name_trunc = strsub(name, 1, 28)
+  attendanceLogNameSlot[i].text:SetText(name_trunc)
+  attendanceLogNameSlot[i]:SetScript('OnEnter', function()
+    attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  attendanceLogNameSlot[i]:SetScript('OnLeave', function()
+    attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
+  attendanceLogNameSlot[i]:SetScript('OnClick', function()
+    attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
+    print(name)
+  end)
+end
+
+attendanceLogSlotOrgPoint_x={}
+attendanceLogSlotOrgPoint_y={}
+attendanceLogSlot={}
+local attendanceLogSlot_h = 20
+function attendanceSlotFrame(i, name)
+  attendanceLogSlot[i] = CreateFrame("button", attendanceLogSlot[i], DNAAttendanceScrollFrameScrollChildFrame)
+  attendanceLogSlotOrgPoint_x[i] = 0
+  attendanceLogSlotOrgPoint_y[i] = (-i*18)+attendanceLogSlot_h-4
+  attendanceLogSlot[i]:SetBackdrop({
+    bgFile = "Interface/Collections/CollectionsBackgroundTile",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  attendanceLogSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  attendanceLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  attendanceLogSlot[i]:SetWidth(DNAAttendanceScrollFrame_w-5)
+  attendanceLogSlot[i]:SetHeight(attendanceLogSlot_h)
+  attendanceLogSlot[i]:SetPoint("TOPLEFT", attendanceLogSlotOrgPoint_x[i], attendanceLogSlotOrgPoint_y[i])
+  attendanceLogSlot[i].text = attendanceLogSlot[i]:CreateFontString(nil, "ARTWORK")
+  attendanceLogSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  attendanceLogSlot[i].text:SetPoint("TOPLEFT", 5, -4)
+  local name_trunc = strsub(name, 1, 28)
+  attendanceLogSlot[i].text:SetText(name_trunc)
+  attendanceLogSlot[i]:SetScript('OnEnter', function()
+    attendanceLogSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  attendanceLogSlot[i]:SetScript('OnLeave', function()
+    attendanceLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
+  attendanceLogSlot[i]:SetScript('OnClick', function()
+    attendanceLogSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
+    print(name)
+    for k,v in pairs(attendance[name]) do
+      print(k .. v)
+
+    end
+  end)
+end
+
+--[==[
+for k,v in ipairs(DNA["ATTENDANCE"][date_day][instanceName]) do
+  --DNA["ATTENDANCE"][date_day][instanceName][name][class]
+  debug("att log " .. v)
+end
+]==]--
+
 local pages = {
   {"Assignment", 10},
   {"Raid Builder", 100},
   --{"DKP", 190},
-  --{"Config", 280},
-  {"Config", 190},
-  --{"Loot Log", 280},
+  {"Attendance", 190},
+  {"Config", 280},
+  --{"Loot Log", 310},
 }
 
 local function bottomTabToggle(name)
@@ -2147,8 +2329,6 @@ function tabActive(name)
 end
 
 -- BO PAGE ASSIGN
-local DNARaidScrollFrame_w = 140
-local DNARaidScrollFrame_h = 520
 local raidSlotOrgPoint_x={}
 local raidSlotOrgPoint_y={}
 local memberDrag = nil
@@ -2161,21 +2341,21 @@ local function clearQueue()
   if (DN:RaidPermission()) then
     if (clearQueuePrompt == "Heal") then
       healSlotFrame:Hide()
-      for i = 1, DNASlots.heal do
+      for i=1, DNASlots.heal do
         healSlot[i].text:SetText("Empty")
       end
       healSlotFrameClear:Hide()
     end
     if (clearQueuePrompt == "Tank") then
       tankSlotFrame:Hide()
-      for i = 1, DNASlots.tank do
+      for i=1, DNASlots.tank do
         tankSlot[i].text:SetText("Empty")
       end
       tankSlotFrameClear:Hide()
     end
     if (clearQueuePrompt == "CC") then
       ccSlotFrame:Hide()
-      for i = 1, DNASlots.cc do
+      for i=1, DNASlots.cc do
         ccSlot[i].text:SetText("Empty")
       end
       ccSlotFrameClear:Hide()
@@ -2212,8 +2392,8 @@ DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
 DNARaidScrollFrame.MR = DNARaidScrollFrame:CreateTexture(nil, "BACKGROUND", DNARaidScrollFrame, -2)
 DNARaidScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
-DNARaidScrollFrame.MR:SetPoint("TOPLEFT", 135, 0)
-DNARaidScrollFrame.MR:SetSize(24, DNARaidScrollFrame_h-10)
+DNARaidScrollFrame.MR:SetPoint("TOPLEFT", DNARaidScrollFrame_w-5, 0)
+DNARaidScrollFrame.MR:SetSize(24, DNARaidScrollFrame_h-5)
 DNARaidScrollFrame:SetScript("OnEnter", function()
   DN:ResetQueueTransposing()
 end)
@@ -2328,12 +2508,12 @@ slotDialog:Hide()
 local function closeGaps(remove)
   local healSlots={}
   if (DN:RaidPermission()) then
-    for i = 1, DNASlots.heal do
+    for i=1, DNASlots.heal do
       if ((healSlot[i].text:GetText() ~= "Empty") and (healSlot[i].text:GetText() ~= remove)) then
         table.insert(healSlots, healSlot[i].text:GetText())
       end
     end
-    for i = 1, DNASlots.heal do
+    for i=1, DNASlots.heal do
       healSlot[i].text:SetText("Empty") --quick recycle
     end
     for i, v in ipairs(healSlots) do
@@ -2400,7 +2580,7 @@ tankSlotFrameClear:SetScript("OnClick", function()
 end)
 tankSlotFrameClear:Hide()
 
-for i = 1, DNASlots.tank do
+for i=1, DNASlots.tank do
   tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotFrame)
   tankSlot[i]:SetWidth(DNARaidScrollFrame_w)
   tankSlot[i]:SetHeight(raidSlot_h)
@@ -2515,7 +2695,7 @@ end)
 healSlotFrameClear:Hide()
 DN:ToolTip(healSlotFrameClear, "Clear Healer Queue")
 
-for i = 1, DNASlots.heal do
+for i=1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame)
   healSlot[i]:SetWidth(DNARaidScrollFrame_w)
   healSlot[i]:SetHeight(raidSlot_h)
@@ -2635,7 +2815,7 @@ ccSlotFrameClear:SetScript("OnClick", function()
 end)
 ccSlotFrameClear:Hide()
 
-for i = 1, DNASlots.cc do
+for i=1, DNASlots.cc do
   ccSlot[i] = CreateFrame("Button", ccSlot[i], ccSlotFrame)
   ccSlot[i]:SetWidth(DNARaidScrollFrame_w)
   ccSlot[i]:SetHeight(raidSlot_h)
@@ -2721,7 +2901,7 @@ end
 DN:ToolTip(ccSlotFrameClear, "Clear Designated Queue")
 
 --build all 40 first
-for i = 1, MAX_RAID_MEMBERS do
+for i=1, MAX_RAID_MEMBERS do
   raidSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
   raidSlot[i]:Hide()
 end
@@ -2842,7 +3022,7 @@ end
 local largePacket = nil
 function DN:RaidSendAssignments()
   largePacket = "{"
-  for i = 1, DNASlots.tank do
+  for i=1, DNASlots.tank do
     if (tankSlot[i].text:GetText() ~= nil) then
       largePacket = largePacket .. TANK .. i .. "," .. tankSlot[i].text:GetText() .. "}"
     end
@@ -2850,7 +3030,7 @@ function DN:RaidSendAssignments()
   DN:SendPacket(largePacket, true)
 
   largePacket = "{" --beginning key
-  for i = 1, DNASlots.heal do
+  for i=1, DNASlots.heal do
     if (healSlot[i].text:GetText() ~= nil) then
       largePacket = largePacket .. HEAL .. i .. "," .. healSlot[i].text:GetText() .. "}"
     end
@@ -2858,7 +3038,7 @@ function DN:RaidSendAssignments()
   DN:SendPacket(largePacket, true)
 
   largePacket = "{"
-  for i = 1, DNASlots.cc do
+  for i=1, DNASlots.cc do
     if (ccSlot[i].text:GetText() ~= nil) then
       largePacket = largePacket .. CC .. i .. "," .. ccSlot[i].text:GetText() .. "}"
     end
@@ -2880,7 +3060,7 @@ end
 local btnShare_x = 300
 local btnShare_y = DNAGlobal.height-45
 local btnShare_t = "Push Assignments"
-local btnShare = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonTemplate")
+local btnShare = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
 btnShare:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShare:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShare.text = btnShare:CreateFontString(nil, "ARTWORK")
@@ -2894,7 +3074,7 @@ btnShare:SetScript("OnClick", function()
   end
 end)
 btnShare:Hide()
-local btnShareDis = CreateFrame("Button", nil, page[pages[1][1]], "UIPanelButtonGrayTemplate")
+local btnShareDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
 btnShareDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnShareDis:SetPoint("TOPLEFT", btnShare_x, -btnShare_y)
 btnShareDis.text = btnShareDis:CreateFontString(nil, "ARTWORK")
@@ -2999,7 +3179,7 @@ function DN:PermissionVisibility()
     btnShare:Hide()
     btnPostRaid:Hide()
     btnPostRaidDis:Show()
-    for i = 1, DNASlots.heal do
+    for i=1, DNASlots.heal do
       healSlotUp[i]:Hide()
       healSlotDown[i]:Hide()
     end
@@ -3016,6 +3196,20 @@ local function DNAOpenWindow()
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
     --DN:ProfileSaves()
+    DNAGetAttendanceLogs()
+    if (DNA["ATTENDANCE"]) then
+      local numAttendanceLogs = 0
+      local sortAttendance = {}
+      for k,v in pairs(attendance) do
+        table.insert(sortAttendance, k)
+      end
+      table.sort(sortAttendance, function(a,b) return a>b end)
+      for k,v in ipairs(sortAttendance) do
+        numAttendanceLogs = numAttendanceLogs + 1
+        attendanceSlotFrame(numAttendanceLogs, v)
+        --debug(v)
+      end
+    end
     DN:PermissionVisibility()
     DN:RaidDetails()
     DN:ResetQueueTransposing() --sanity check on queues
@@ -3033,15 +3227,12 @@ local function DNAOpenWindow()
     if (DNA[player.combine]["CONFIG"]["INDICON"]) then
       DNA[player.combine]["CONFIG"]["INDICON"] = nil
     end
-
   end
 end
 
---[==[
-SlashCmdList["DNA"] = function(msg)
-  DNAOpenWindow()
+for k,v in pairs(attendance) do
+  debug("attendanceSlot " .. k)
 end
-]==]--
 
 SLASH_DNA1 = "/dna"
 function DNASlashCommands(msg)
@@ -3093,7 +3284,6 @@ DNAMiniMap:SetScript("OnDragStop", function()
   DNAMiniMap:SetScript("OnUpdate", nil)
   --UpdateMapButton()
 end)
-
 DNAMiniMap:SetScript("OnClick", function()
   DNAOpenWindow()
 end)

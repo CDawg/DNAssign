@@ -26,16 +26,16 @@ DNAGlobal.height = 600
 DNAGlobal.font   = "Fonts/FRIZQT__.TTF"
 DNAGlobal.btn_w  = 130
 DNAGlobal.btn_h  = 25
-
 DNAGlobal.prefix  = "dnassist"
 DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
 --DNAGlobal.background = "Interface/FrameGeneral/UI-Background-Rock"
 --DNAGlobal.background = "Interface/Garrison/GarrisonShipMissionParchment"
 DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment"
+DNAGlobal.author = "Porthios of Myzrael"
 DN = {}
 
-date_day = date("%y-%m-%d")
-timestamp = date("%y-%m-%d %H:%M:%S")
+date_day = date("%Y-%m-%d")
+timestamp= date("%Y-%m-%d %H:%M:%S")
 
 player = {}
 player.name = UnitName("player")
