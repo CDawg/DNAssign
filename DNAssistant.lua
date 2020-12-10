@@ -53,6 +53,8 @@ local pageDKPViewScrollChild_colThree= {}
 
 local version_checked = 0
 
+local numAttendanceLogs = 0
+
 local ddSelection = nil
 
 --local pageTab={}
@@ -80,6 +82,15 @@ local DNAFrameAssignPersonal_h = 80
 
 local invited={}
 
+local pages = {
+  {"Assignment", 10},
+  {"Raid Builder", 100},
+  --{"DKP", 190},
+  {"Attendance", 190},
+  {"Config", 280},
+  --{"Loot Log", 310},
+}
+
 local function getGuildComp()
   if (IsInGuild()) then
     local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
@@ -103,12 +114,11 @@ local function DNABuildAttendance()
   end
   local inInstance, instanceType = IsInInstance()
   if (inInstance) then
-    if (instanceType == "Raid") then
+    if (instanceType == "raid") then
       local instanceName = GetInstanceInfo()
       if (instanceName) then
         for i=1, MAX_RAID_MEMBERS do
           local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
-          local attendees={}
           if ((name) and (class)) then
             if (DNA["ATTENDANCE"][date_day][instanceName] == nil) then
               DNA["ATTENDANCE"][date_day][instanceName] = {}
@@ -1261,11 +1271,12 @@ local function DNAGetAttendanceLogs()
   if (DNA["ATTENDANCE"]) then
     for day,v in pairs(DNA["ATTENDANCE"]) do
       for instance,v in pairs(DNA["ATTENDANCE"][day]) do
-        attendance[day .. " " .. instance] = {}
+        local instanceCombine = day .. "} " .. instance
+        attendance[instanceCombine] = {}
         for name,v in pairs(DNA["ATTENDANCE"][day][instance]) do
-          attendance[day .. " " .. instance][name] = {}
+          attendance[instanceCombine][name] = {}
           for class,v in pairs(DNA["ATTENDANCE"][day][instance][name]) do
-            attendance[day .. " " .. instance][name] = class
+            attendance[instanceCombine][name] = class
           end
         end
       end
@@ -1298,9 +1309,21 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event == "PLAYER_LOGIN") then
     DN:BuildGlobalVars()
-    DN:ProfileSaves()
+    DN:GetProfileVars()
     DNAGetAttendanceLogs()
-    debug(event)
+    if (DNA["ATTENDANCE"]) then
+      local sortAttendance = {}
+      for k,v in pairs(attendance) do
+        table.insert(sortAttendance, k)
+      end
+      table.sort(sortAttendance, function(a,b) return a>b end)
+      for k,v in ipairs(sortAttendance) do
+        numAttendanceLogs = numAttendanceLogs + 1
+        --create the number of log frames from the log count
+        local filterLogName = string.gsub(v, "}", "")
+        attendanceSlotFrame(numAttendanceLogs, filterLogName, v)
+      end
+    end
   end
 
   --[==[
@@ -1472,7 +1495,7 @@ DNAGetRaidComp()
 
 --local minimapIconPos={}
 
-function DN:ProfileSaves()
+function DN:GetProfileVars()
   local getsave={}
   for k,v in pairs(DNA[player.combine]["ASSIGN"]) do
     getsave.key = k
@@ -1618,7 +1641,7 @@ function DN:ProfileSaves()
     ddBossList[DNAInstance[instanceNum][1]]:Show()
   end
 
-  debug("DN:ProfileSaves()")
+  debug("DN:GetProfileVars()")
 end
 
 DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
@@ -2143,18 +2166,22 @@ DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5])
 local DNARaidScrollFrame_w = 140
 local DNARaidScrollFrame_h = 520
 local DNAAttendanceScrollFrame_w = 200
-local DNAAttendanceScrollFrame_h = 520
+local DNAAttendanceScrollFrame_h = 500
 
 page["Attendance"] = CreateFrame("Frame", nil, DNAFrameMain)
 page["Attendance"]:SetWidth(DNAGlobal.width)
 page["Attendance"]:SetHeight(DNAGlobal.height)
 page["Attendance"]:SetPoint("TOPLEFT", 0, 0)
 
-local DNAAttendanceScrollFrame = CreateFrame("Frame", pageAttendanceScrollFrame, page["Attendance"], "InsetFrameTemplate")
+local DNAAttendanceScrollFrame = CreateFrame("Frame", DNAAttendanceScrollFrame, page["Attendance"], "InsetFrameTemplate")
 DNAAttendanceScrollFrame:SetWidth(DNAAttendanceScrollFrame_w+20)
 DNAAttendanceScrollFrame:SetHeight(DNAAttendanceScrollFrame_h)
 DNAAttendanceScrollFrame:SetPoint("TOPLEFT", 10, -50)
 DNAAttendanceScrollFrame:SetFrameLevel(5)
+DNAAttendanceScrollFrame.text = DNAAttendanceScrollFrame:CreateFontString(nil, "ARTWORK")
+DNAAttendanceScrollFrame.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceScrollFrame.text:SetPoint("CENTER", DNAAttendanceScrollFrame, "TOPLEFT", 90, 10)
+DNAAttendanceScrollFrame.text:SetText("Attendance Logs")
 DNAAttendanceScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceScrollFrame, "UIPanelScrollFrameTemplate")
 DNAAttendanceScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceScrollFrame, "TOPLEFT", 3, -3)
 DNAAttendanceScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceScrollFrame, "BOTTOMRIGHT", 10, 4)
@@ -2169,83 +2196,157 @@ DNAAttendanceScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right
 DNAAttendanceScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceScrollFrame_w-5, 0)
 DNAAttendanceScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
 
-local DNAAttendanceNameScrollFrame = CreateFrame("Frame", pageAttendanceScrollFrame, page["Attendance"], "InsetFrameTemplate")
-DNAAttendanceNameScrollFrame:SetWidth(DNARaidScrollFrame_w+20)
-DNAAttendanceNameScrollFrame:SetHeight(DNAAttendanceScrollFrame_h)
-DNAAttendanceNameScrollFrame:SetPoint("TOPLEFT", 250, -50)
-DNAAttendanceNameScrollFrame:SetFrameLevel(5)
-DNAAttendanceNameScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceNameScrollFrame, "UIPanelScrollFrameTemplate")
-DNAAttendanceNameScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceNameScrollFrame, "TOPLEFT", 3, -3)
-DNAAttendanceNameScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceNameScrollFrame, "BOTTOMRIGHT", 10, 4)
-local DNAAttendanceNameScrollFrameScrollChildFrame = CreateFrame("Frame", DNAAttendanceNameScrollFrameScrollChildFrame, DNAAttendanceNameScrollFrame.ScrollFrame)
-DNAAttendanceNameScrollFrameScrollChildFrame:SetSize(DNARaidScrollFrame_w, DNAAttendanceScrollFrame_h)
-DNAAttendanceNameScrollFrame.ScrollFrame:SetScrollChild(DNAAttendanceNameScrollFrameScrollChildFrame)
-DNAAttendanceNameScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
-DNAAttendanceNameScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAAttendanceNameScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
-DNAAttendanceNameScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAAttendanceNameScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
-DNAAttendanceNameScrollFrame.MR = DNAAttendanceNameScrollFrame:CreateTexture(nil, "BACKGROUND", DNAAttendanceNameScrollFrame, -2)
-DNAAttendanceNameScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
-DNAAttendanceNameScrollFrame.MR:SetPoint("TOPLEFT", DNARaidScrollFrame_w-5, 0)
-DNAAttendanceNameScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
+local attendanceLogSlot = {}
+local DNAAttendanceDeleteAll = CreateFrame("Button", nil, DNAAttendanceScrollFrame, "UIPanelButtonTemplate")
+DNAAttendanceDeleteAll:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNAAttendanceDeleteAll:SetPoint("TOPLEFT", 35, -DNAAttendanceScrollFrame_h-5)
+DNAAttendanceDeleteAll:SetFrameLevel(5)
+DNAAttendanceDeleteAll.text = DNAAttendanceDeleteAll:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDeleteAll.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDeleteAll.text:SetPoint("CENTER", DNAAttendanceDeleteAll, "TOPLEFT", 68, -13)
+DNAAttendanceDeleteAll.text:SetText("Delete All")
+DNAAttendanceDeleteAll:SetScript("OnClick", function()
+  for i=1, numAttendanceLogs do
+    attendanceLogSlot[i]:Hide()
+  end
+end)
 
-local attendanceLogNameSlotOrgPoint_x={}
-local attendanceLogNameSlotOrgPoint_y={}
-local attendanceLogNameSlot={}
-function attendanceSlotNameFrame(i, name)
-  attendanceLogNameSlot[i] = CreateFrame("button", attendanceLogNameSlot[i], DNAAttendanceNameScrollFrameScrollChildFrame)
-  attendanceLogNameSlotOrgPoint_x[i] = 0
-  attendanceLogNameSlotOrgPoint_y[i] = (-i*18)+attendanceLogSlot_h-4
-  attendanceLogNameSlot[i]:SetBackdrop({
+local DNAAttendanceMemberScrollFrame_w = 200
+local DNAAttendanceMemberScrollFrame = CreateFrame("Frame", DNAAttendanceMemberScrollFrame, page["Attendance"], "InsetFrameTemplate")
+DNAAttendanceMemberScrollFrame:SetWidth(DNAAttendanceMemberScrollFrame_w+20)
+DNAAttendanceMemberScrollFrame:SetHeight(DNAAttendanceScrollFrame_h+20)
+DNAAttendanceMemberScrollFrame:SetPoint("TOPLEFT", 450, -50)
+DNAAttendanceMemberScrollFrame:SetFrameLevel(5)
+DNAAttendanceMemberScrollFrame.text = DNAAttendanceMemberScrollFrame:CreateFontString(nil, "ARTWORK")
+DNAAttendanceMemberScrollFrame.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceMemberScrollFrame.text:SetPoint("CENTER", DNAAttendanceMemberScrollFrame, "TOPLEFT", 70, 10)
+DNAAttendanceMemberScrollFrame.text:SetText("Members")
+DNAAttendanceMemberScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceMemberScrollFrame, "UIPanelScrollFrameTemplate")
+DNAAttendanceMemberScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame, "TOPLEFT", 3, -3)
+DNAAttendanceMemberScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceMemberScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNAAttendanceMemberScrollFrameChildFrame = CreateFrame("Frame", DNAAttendanceMemberScrollFrameChildFrame, DNAAttendanceMemberScrollFrame.ScrollFrame)
+DNAAttendanceMemberScrollFrameChildFrame:SetSize(DNAAttendanceMemberScrollFrame_w, DNAAttendanceScrollFrame_h+20)
+DNAAttendanceMemberScrollFrame.ScrollFrame:SetScrollChild(DNAAttendanceMemberScrollFrameChildFrame)
+DNAAttendanceMemberScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAAttendanceMemberScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNAAttendanceMemberScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAAttendanceMemberScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNAAttendanceMemberScrollFrame.MR = DNAAttendanceMemberScrollFrame:CreateTexture(nil, "BACKGROUND", DNAAttendanceMemberScrollFrame, -2)
+DNAAttendanceMemberScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAAttendanceMemberScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame_w-5, 0)
+DNAAttendanceMemberScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h+20)
+
+local DNAAttendanceDate = page["Attendance"]:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDate:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDate:SetPoint("TOPLEFT", 240, -60)
+DNAAttendanceDate:SetText("Select an attendance log")
+local DNAAttendanceInstance = page["Attendance"]:CreateFontString(nil, "ARTWORK")
+DNAAttendanceInstance:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceInstance:SetPoint("TOPLEFT", 236, -80)
+DNAAttendanceInstance:SetText("")
+local DNAAttendanceCount = page["Attendance"]:CreateFontString(nil, "ARTWORK")
+DNAAttendanceCount:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceCount:SetPoint("TOPLEFT", 240, -100)
+DNAAttendanceCount:SetText("")
+
+local attendanceLogMemberSlot={}
+local attendanceLogMemberSlotInvite={}
+local attendanceLogMemberSlotText={}
+local sortAttendanceName = {}
+
+--just create the 80 frames, then occupy data into them
+for i=1, MAX_RAID_MEMBERS*2 do
+  attendanceLogMemberSlot[i] = {}
+  attendanceLogMemberSlot[i] = CreateFrame("button", attendanceLogMemberSlot[i], DNAAttendanceMemberScrollFrameChildFrame)
+  attendanceLogMemberSlot[i]:SetWidth(DNAAttendanceMemberScrollFrame_w-5)
+  attendanceLogMemberSlot[i]:SetHeight(raidSlot_h)
+  attendanceLogMemberSlot[i]:SetBackdrop({
     bgFile = "Interface/Collections/CollectionsBackgroundTile",
     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
-  attendanceLogNameSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
-  attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-  attendanceLogNameSlot[i]:SetWidth(DNAAttendanceScrollFrame_w-5)
-  attendanceLogNameSlot[i]:SetHeight(attendanceLogNameSlot_h)
-  attendanceLogNameSlot[i]:SetPoint("TOPLEFT", attendanceLogNameSlotOrgPoint_x[i], attendanceLogNameSlotOrgPoint_y[i])
-  attendanceLogNameSlot[i].text = attendanceLogNameSlot[i]:CreateFontString(nil, "ARTWORK")
-  attendanceLogNameSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
-  attendanceLogNameSlot[i].text:SetPoint("TOPLEFT", 5, -4)
-  local name_trunc = strsub(name, 1, 28)
-  attendanceLogNameSlot[i].text:SetText(name_trunc)
-  attendanceLogNameSlot[i]:SetScript('OnEnter', function()
-    attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  attendanceLogMemberSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  attendanceLogMemberSlot[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
+  attendanceLogMemberSlotText[i] = {}
+  attendanceLogMemberSlotText[i] = attendanceLogMemberSlot[i]:CreateFontString(nil, "ARTWORK")
+  attendanceLogMemberSlotText[i]:SetFont(DNAGlobal.font, 11, "OUTLINE")
+  attendanceLogMemberSlotText[i]:SetPoint("TOPLEFT", 5, -4)
+  attendanceLogMemberSlotText[i]:SetText("")
+  --[==[
+  attendanceLogMemberSlot[i]:SetScript('OnEnter', function()
+    attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
   end)
-  attendanceLogNameSlot[i]:SetScript('OnLeave', function()
-    attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  attendanceLogMemberSlot[i]:SetScript('OnLeave', function()
+    attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   end)
-  attendanceLogNameSlot[i]:SetScript('OnClick', function()
-    attendanceLogNameSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
-    print(name)
+  attendanceLogMemberSlot[i]:SetScript('OnClick', function()
+    attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
+    --UnitInRaid( )
   end)
+  ]==]--
+  attendanceLogMemberSlotInvite[i] = CreateFrame("button", attendanceLogMemberSlotInvite[i], attendanceLogMemberSlot[i])
+  attendanceLogMemberSlotInvite[i]:SetWidth(80)
+  attendanceLogMemberSlotInvite[i]:SetHeight(raidSlot_h)
+  attendanceLogMemberSlotInvite[i]:SetPoint("TOPLEFT", 114, 0)
+  attendanceLogMemberSlotInvite[i]:SetBackdrop({
+    bgFile = "Interface/Collections/CollectionsBackgroundTile",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  attendanceLogMemberSlotInvite[i]:SetBackdropBorderColor(0.5, 1, 0.7, 0.60)
+  attendanceLogMemberSlotInvite[i]:SetBackdropColor(0.3, 1, 0.9, 1)
+  attendanceLogMemberSlotInvite[i].text = attendanceLogMemberSlotInvite[i]:CreateFontString(nil, "ARTWORK")
+  attendanceLogMemberSlotInvite[i].text:SetFont(DNAGlobal.font, 10, "OUTLINE")
+  attendanceLogMemberSlotInvite[i].text:SetPoint("CENTER", 2, 1)
+  attendanceLogMemberSlotInvite[i].text:SetText("Reinvite")
+  attendanceLogMemberSlotInvite[i]:SetScript('OnEnter', function()
+    attendanceLogMemberSlotInvite[i]:SetBackdropBorderColor(0.3, 1, 0.8, 1)
+  end)
+  attendanceLogMemberSlotInvite[i]:SetScript('OnLeave', function()
+    attendanceLogMemberSlotInvite[i]:SetBackdropBorderColor(0.5, 1, 0.7, 0.60)
+  end)
+  --attendanceLogMemberSlotInvite[i]:Hide()
+  attendanceLogMemberSlotInvite[i]:SetScript('OnClick', function()
+    local thisMember = attendanceLogMemberSlotText[i]:GetText()
+    InviteUnit(thisMember)
+  end)
+
+  attendanceLogMemberSlot[i]:Hide()
 end
 
-attendanceLogSlotOrgPoint_x={}
-attendanceLogSlotOrgPoint_y={}
-attendanceLogSlot={}
-local attendanceLogSlot_h = 20
-function attendanceSlotFrame(i, name)
+function setAttendanceSlotMemberFrame(i, member, class)
+  if (attendanceLogMemberSlot[i]) then
+    attendanceLogMemberSlotText[i]:SetText(member)
+    attendanceLogMemberSlot[i]:Show()
+    if (class) then
+      DN:ClassColorText(attendanceLogMemberSlotText[i], class)
+    end
+    local thisMember = attendanceLogMemberSlotText[i]:GetText()
+    if (thisMember == player.name) then
+      attendanceLogMemberSlotInvite[i]:Hide()
+    end
+  end
+end
+
+function attendanceSlotFrame(i, filteredName, name)
   attendanceLogSlot[i] = CreateFrame("button", attendanceLogSlot[i], DNAAttendanceScrollFrameScrollChildFrame)
-  attendanceLogSlotOrgPoint_x[i] = 0
-  attendanceLogSlotOrgPoint_y[i] = (-i*18)+attendanceLogSlot_h-4
   attendanceLogSlot[i]:SetBackdrop({
     bgFile = "Interface/Collections/CollectionsBackgroundTile",
     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
-  attendanceLogSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  attendanceLogSlot[i]:SetBackdropColor(1, 1, 1, 0.3)
   attendanceLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   attendanceLogSlot[i]:SetWidth(DNAAttendanceScrollFrame_w-5)
-  attendanceLogSlot[i]:SetHeight(attendanceLogSlot_h)
-  attendanceLogSlot[i]:SetPoint("TOPLEFT", attendanceLogSlotOrgPoint_x[i], attendanceLogSlotOrgPoint_y[i])
+  attendanceLogSlot[i]:SetHeight(raidSlot_h)
+  attendanceLogSlot[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
   attendanceLogSlot[i].text = attendanceLogSlot[i]:CreateFontString(nil, "ARTWORK")
   attendanceLogSlot[i].text:SetFont(DNAGlobal.font, 11, "OUTLINE")
   attendanceLogSlot[i].text:SetPoint("TOPLEFT", 5, -4)
-  local name_trunc = strsub(name, 1, 28)
+  local name_trunc = strsub(filteredName, 1, 28)
   attendanceLogSlot[i].text:SetText(name_trunc)
   attendanceLogSlot[i]:SetScript('OnEnter', function()
     attendanceLogSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
@@ -2254,30 +2355,30 @@ function attendanceSlotFrame(i, name)
     attendanceLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   end)
   attendanceLogSlot[i]:SetScript('OnClick', function()
-    attendanceLogSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
-    print(name)
-    for k,v in pairs(attendance[name]) do
-      print(k .. v)
-
+    for n=1, MAX_RAID_MEMBERS*2 do
+      attendanceLogMemberSlot[n]:Hide()
     end
+    for n=1, numAttendanceLogs do
+      attendanceLogSlot[n]:SetBackdropColor(1, 1, 1, 0.3)
+      attendanceLogSlot[n].text:SetTextColor(1, 1, 1)
+    end
+    attendanceLogSlot[i]:SetBackdropColor(1, 1, 0.3, 1)
+    attendanceLogSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
+    attendanceLogSlot[i].text:SetTextColor(1, 1, 0.6)
+    sortAttendanceName = {}
+    for k,v in pairs(attendance[name]) do
+      table.insert(sortAttendanceName, k)
+    end
+    table.sort(sortAttendanceName)
+    for k,v in ipairs(sortAttendanceName) do
+      setAttendanceSlotMemberFrame(k, v, attendance[name][v])
+    end
+    local filterLogName = split(name, "}")
+    DNAAttendanceDate:SetText(filterLogName[1])
+    DNAAttendanceInstance:SetText(filterLogName[2])
+    DNAAttendanceCount:SetText("Members: " .. table.getn(sortAttendanceName))
   end)
 end
-
---[==[
-for k,v in ipairs(DNA["ATTENDANCE"][date_day][instanceName]) do
-  --DNA["ATTENDANCE"][date_day][instanceName][name][class]
-  debug("att log " .. v)
-end
-]==]--
-
-local pages = {
-  {"Assignment", 10},
-  {"Raid Builder", 100},
-  --{"DKP", 190},
-  {"Attendance", 190},
-  {"Config", 280},
-  --{"Loot Log", 310},
-}
 
 local function bottomTabToggle(name)
   for i,v in pairs(pages) do
@@ -2307,7 +2408,6 @@ local function bottomTab(name, pos_x, text_pos_x)
   botBorder:SetSize(100, 35)
   botBorder:SetPoint("TOPLEFT", 0, -14)
   DNAFrameMainBottomTabScript={}
-  DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name], "UIPanelButtonTemplate")
   DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name])
   DNAFrameMainBottomTabScript[name]:SetSize(85, 30)
   DNAFrameMainBottomTabScript[name]:SetPoint("CENTER", 0, 0)
@@ -2407,7 +2507,6 @@ function raidSlotFrame(parentFrame, i, y)
   raidSlot[i]:SetMovable(true)
   raidSlot[i]:EnableMouse(true)
   raidSlot[i]:RegisterForDrag("LeftButton")
-  raidSlotOrgPoint_x[i] = 0
   raidSlotOrgPoint_y[i] = -y+17 --top padding
   raidSlot[i]:SetScript("OnDragStart", function()
     raidSlot[i]:StartMoving()
@@ -2419,7 +2518,7 @@ function raidSlotFrame(parentFrame, i, y)
   raidSlot[i]:SetScript("OnDragStop", function()
     raidSlot[i]:StopMovingOrSizing()
     raidSlot[i]:SetParent(parentFrame)
-    raidSlot[i]:SetPoint("TOPLEFT", raidSlotOrgPoint_x[i], raidSlotOrgPoint_y[i])
+    raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
     DN:ResetQueueTransposing()
   end)
   raidSlot[i]:SetBackdrop({
@@ -2432,7 +2531,7 @@ function raidSlotFrame(parentFrame, i, y)
   raidSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   raidSlot[i]:SetWidth(DNARaidScrollFrame_w-5)
   raidSlot[i]:SetHeight(raidSlot_h)
-  raidSlot[i]:SetPoint("TOPLEFT", raidSlotOrgPoint_x[i], raidSlotOrgPoint_y[i])
+  raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
   raidSlot[i].icon = raidSlot[i]:CreateTexture(nil, "OVERLAY")
   raidSlot[i].icon:SetTexture("")
   raidSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
@@ -2584,9 +2683,8 @@ for i=1, DNASlots.tank do
   tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotFrame)
   tankSlot[i]:SetWidth(DNARaidScrollFrame_w)
   tankSlot[i]:SetHeight(raidSlot_h)
-  tankSlotOrgPoint_x[i] = 3
   tankSlotOrgPoint_y[i] = (-i*18)+16 --top padding
-  tankSlot[i]:SetPoint("TOPLEFT", tankSlotOrgPoint_x[i], tankSlotOrgPoint_y[i])
+  tankSlot[i]:SetPoint("TOPLEFT", 3, tankSlotOrgPoint_y[i])
   tankSlot[i].icon = tankSlot[i]:CreateTexture(nil, "OVERLAY")
   tankSlot[i].icon:SetTexture("")
   tankSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
@@ -2624,7 +2722,7 @@ for i=1, DNASlots.tank do
   end)
   tankSlot[i]:SetScript("OnDragStop", function()
     tankSlot[i]:StopMovingOrSizing()
-    tankSlot[i]:SetPoint("TOPLEFT", tankSlotOrgPoint_x[i], tankSlotOrgPoint_y[i])
+    tankSlot[i]:SetPoint("TOPLEFT", 3, tankSlotOrgPoint_y[i])
     updateSlotPos(TANK, i, "Empty")
   end)
   tankSlot[i]:SetScript('OnEnter', function()
@@ -2699,9 +2797,8 @@ for i=1, DNASlots.heal do
   healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame)
   healSlot[i]:SetWidth(DNARaidScrollFrame_w)
   healSlot[i]:SetHeight(raidSlot_h)
-  healSlotOrgPoint_x[i] = 3
   healSlotOrgPoint_y[i] = (-i*18)+16
-  healSlot[i]:SetPoint("TOPLEFT", healSlotOrgPoint_x[i], healSlotOrgPoint_y[i])
+  healSlot[i]:SetPoint("TOPLEFT", 3, healSlotOrgPoint_y[i])
   healSlot[i].icon = healSlot[i]:CreateTexture(nil, "OVERLAY")
   healSlot[i].icon:SetTexture("")
   healSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
@@ -2763,7 +2860,7 @@ for i=1, DNASlots.heal do
   end)
   healSlot[i]:SetScript("OnDragStop", function()
     healSlot[i]:StopMovingOrSizing()
-    healSlot[i]:SetPoint("TOPLEFT", healSlotOrgPoint_x[i], healSlotOrgPoint_y[i])
+    healSlot[i]:SetPoint("TOPLEFT", 3, healSlotOrgPoint_y[i])
     --updateSlotPos(HEAL, i, "Empty")
     closeGaps(memberDrag)
   end)
@@ -2819,9 +2916,8 @@ for i=1, DNASlots.cc do
   ccSlot[i] = CreateFrame("Button", ccSlot[i], ccSlotFrame)
   ccSlot[i]:SetWidth(DNARaidScrollFrame_w)
   ccSlot[i]:SetHeight(raidSlot_h)
-  ccSlotOrgPoint_x[i] = 3
   ccSlotOrgPoint_y[i] = (-i*18)+16 --top padding
-  ccSlot[i]:SetPoint("TOPLEFT", ccSlotOrgPoint_x[i], ccSlotOrgPoint_y[i])
+  ccSlot[i]:SetPoint("TOPLEFT", 3, ccSlotOrgPoint_y[i])
   ccSlot[i].icon = ccSlot[i]:CreateTexture(nil, "OVERLAY")
   ccSlot[i].icon:SetTexture("")
   ccSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
@@ -2859,7 +2955,7 @@ for i=1, DNASlots.cc do
   end)
   ccSlot[i]:SetScript("OnDragStop", function()
     ccSlot[i]:StopMovingOrSizing()
-    ccSlot[i]:SetPoint("TOPLEFT", ccSlotOrgPoint_x[i], ccSlotOrgPoint_y[i])
+    ccSlot[i]:SetPoint("TOPLEFT", 3, ccSlotOrgPoint_y[i])
     updateSlotPos(CC, i, "Empty")
   end)
   ccSlot[i]:SetScript('OnEnter', function()
@@ -3144,7 +3240,7 @@ for i,v in pairs(pages) do
 end
 
 --default selection after drawn
-bottomTabToggle("Assignment")
+bottomTabToggle(pages[1][1])
 ddBossList[DNAInstance[1][1]]:Show() -- show first one
 
 --[==[
@@ -3195,21 +3291,8 @@ local function DNAOpenWindow()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
-    --DN:ProfileSaves()
-    DNAGetAttendanceLogs()
-    if (DNA["ATTENDANCE"]) then
-      local numAttendanceLogs = 0
-      local sortAttendance = {}
-      for k,v in pairs(attendance) do
-        table.insert(sortAttendance, k)
-      end
-      table.sort(sortAttendance, function(a,b) return a>b end)
-      for k,v in ipairs(sortAttendance) do
-        numAttendanceLogs = numAttendanceLogs + 1
-        attendanceSlotFrame(numAttendanceLogs, v)
-        --debug(v)
-      end
-    end
+    --DN:GetProfileVars()
+
     DN:PermissionVisibility()
     DN:RaidDetails()
     DN:ResetQueueTransposing() --sanity check on queues
@@ -3228,10 +3311,6 @@ local function DNAOpenWindow()
       DNA[player.combine]["CONFIG"]["INDICON"] = nil
     end
   end
-end
-
-for k,v in pairs(attendance) do
-  debug("attendanceSlot " .. k)
 end
 
 SLASH_DNA1 = "/dna"
