@@ -99,6 +99,8 @@ function DN:SetupDefaultVars() --called only when a new profile is created
   DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] = "ON"
   DNACheckbox["RAIDCHAT"]:SetChecked(true)
   DNA[player.combine]["CONFIG"]["RAIDCHAT"] = "ON"
+  DNACheckbox["LOGATTENDANCE"]:SetChecked(true)
+  DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] = "ON"
 end
 
 function DN:BuildGlobalVars()
@@ -123,6 +125,10 @@ function DN:BuildGlobalVars()
     DN:SetupDefaultVars()
   else
     DN:ChatNotification("Loading Raid Profile: " .. player.combine)
+    --it doesn't exist, enable it for the first time
+    if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == nil) then
+      DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] = "ON"
+    end
   end
 end
 
@@ -348,6 +354,7 @@ function DN:ToolTip(frame, msg, offset_x, offset_y)
     local strlength = string.len(msg)
     DNATooltip:Show()
     DNATooltipFrame:SetWidth(strlength*10)
+    DNATooltipFrame:SetHeight(25)
     DNATooltip.text:SetText(msg)
     --debug(strlength)
     if ((offset_x) and (offset_y)) then
@@ -359,6 +366,7 @@ function DN:ToolTip(frame, msg, offset_x, offset_y)
       DNATooltipFrame:SetWidth(strlength*7)
       DNATooltipFrame:SetHeight(50)
     else
+      DNATooltip:ClearAllPoints()
       DNATooltip:SetPoint(point, frame, relativeTo)
     end
   end)

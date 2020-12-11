@@ -85,10 +85,9 @@ local invited={}
 local pages = {
   {"Assignment", 10},
   {"Raid Builder", 100},
-  --{"DKP", 190},
-  {"Attendance", 190},
-  {"Config", 280},
-  --{"Loot Log", 310},
+  {"Raid Details", 190},
+  {"Attendance", 280},
+  {"Config", 370},
 }
 
 local function getGuildComp()
@@ -109,25 +108,27 @@ local function DNABuildAttendance()
   if (DNA["ATTENDANCE"] == nil) then
     DNA["ATTENDANCE"] = {}
   end
-  if (DNA["ATTENDANCE"][date_day] == nil) then
-    DNA["ATTENDANCE"][date_day] = {}
-  end
-  local inInstance, instanceType = IsInInstance()
-  if (inInstance) then
-    if (instanceType == "raid") then
-      local instanceName = GetInstanceInfo()
-      if (instanceName) then
-        for i=1, MAX_RAID_MEMBERS do
-          local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
-          if ((name) and (class)) then
-            if (DNA["ATTENDANCE"][date_day][instanceName] == nil) then
-              DNA["ATTENDANCE"][date_day][instanceName] = {}
-            end
-            if (DNA["ATTENDANCE"][date_day][instanceName][name] == nil) then
-              DNA["ATTENDANCE"][date_day][instanceName][name] = {}
-            end
-            if (DNA["ATTENDANCE"][date_day][instanceName][name][class] == nil) then
-              DNA["ATTENDANCE"][date_day][instanceName][name][class] = {}
+  if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == "ON") then
+    if (DNA["ATTENDANCE"][date_day] == nil) then
+      DNA["ATTENDANCE"][date_day] = {}
+    end
+    local inInstance, instanceType = IsInInstance()
+    if (inInstance) then
+      if (instanceType == "raid") then
+        local instanceName = GetInstanceInfo()
+        if (instanceName) then
+          for i=1, MAX_RAID_MEMBERS do
+            local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+            if ((name) and (class)) then
+              if (DNA["ATTENDANCE"][date_day][instanceName] == nil) then
+                DNA["ATTENDANCE"][date_day][instanceName] = {}
+              end
+              if (DNA["ATTENDANCE"][date_day][instanceName][name] == nil) then
+                DNA["ATTENDANCE"][date_day][instanceName][name] = {}
+              end
+              if (DNA["ATTENDANCE"][date_day][instanceName][name][class] == nil) then
+                DNA["ATTENDANCE"][date_day][instanceName][name][class] = {}
+              end
             end
           end
         end
@@ -1321,7 +1322,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         numAttendanceLogs = numAttendanceLogs + 1
         --create the number of log frames from the log count
         local filterLogName = string.gsub(v, "}", "")
-        attendanceSlotFrame(numAttendanceLogs, filterLogName, v)
+        attendanceLogSlotFrame(numAttendanceLogs, filterLogName, v)
       end
     end
   end
@@ -1594,6 +1595,10 @@ function DN:GetProfileVars()
     DNACheckbox["HIDEASSIGNCOMBAT"]:SetChecked(true)
   end
 
+  if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == "ON") then
+    DNACheckbox["LOGATTENDANCE"]:SetChecked(true)
+  end
+
   --[==[
   if (DNA[player.combine]["CONFIG"]["DEBUG"] == "ON") then
     DNACheckbox["DEBUG"]:SetChecked(true)
@@ -1765,6 +1770,11 @@ page["Raid Builder"]:SetWidth(DNAGlobal.width)
 page["Raid Builder"]:SetHeight(DNAGlobal.height)
 page["Raid Builder"]:SetPoint("TOPLEFT", 0, 0)
 
+page["Raid Details"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Raid Details"]:SetWidth(DNAGlobal.width)
+page["Raid Details"]:SetHeight(DNAGlobal.height)
+page["Raid Details"]:SetPoint("TOPLEFT", 0, 0)
+
 page["DKP"] = CreateFrame("Frame", nil, DNAFrameMain)
 page["DKP"]:SetWidth(DNAGlobal.width)
 page["DKP"]:SetHeight(DNAGlobal.height)
@@ -1922,10 +1932,11 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY, tooltip)
   end
 end
 
-DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40, "Auto Promote guild officers to raid assistants\nMust be Raid Lead.")
+DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
 DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 60, "Post to Raid chat as well as the screen assignments.")
-DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Config"], 10, 80, "Hide the Personal Assignments once combat has ended.")
-DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Config"], 10, 100, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
+DN:CheckBox("LOGATTENDANCE", "Log Raid Attendance", page["Config"], 10, 80, " Log Raid Attendance ")
+DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Config"], 10, 120, "Hide the Personal Assignments window once combat has ended.")
+DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Config"], 10, 160, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
 --DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Config"], 10, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Config"], 10, 80)
 
@@ -2001,19 +2012,19 @@ btnPostDKP:SetScript("OnClick", function()
 end)
 --btnPostDKP:Hide()
 
-local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Raid Builder"], "InsetFrameTemplate")
+local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Raid Details"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(194, DNAGlobal.height-5)
 DNAFrameRaidDetailsBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameRaidDetailsBG:SetFrameLevel(2)
 
 for i=1, 50 do
-  pageRaidDetailsColOne[i] = page["Raid Builder"]:CreateFontString(nil, "ARTWORK")
+  pageRaidDetailsColOne[i] = page["Raid Details"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColOne[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColOne[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 20, (-i*14)-24)
   pageRaidDetailsColOne[i]:SetText("")
   pageRaidDetailsColOne[i]:SetTextColor(1, 1, 1)
 
-  pageRaidDetailsColTwo[i] = page["Raid Builder"]:CreateFontString(nil, "ARTWORK")
+  pageRaidDetailsColTwo[i] = page["Raid Details"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColTwo[i]:SetFont(DNAGlobal.font, 12, "OUTLINE")
   pageRaidDetailsColTwo[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 110, (-i*14)-24)
   pageRaidDetailsColTwo[i]:SetText("")
@@ -2117,7 +2128,7 @@ end
 
 DNAFrameMain:Hide()
 page["DKP"]:Hide()
-page["Raid Builder"]:Hide()
+page["Raid Details"]:Hide()
 
 local DNAFrameInstanceBG = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
 DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-5)
@@ -2176,7 +2187,7 @@ page["Attendance"]:SetPoint("TOPLEFT", 0, 0)
 local DNAAttendanceScrollFrame = CreateFrame("Frame", DNAAttendanceScrollFrame, page["Attendance"], "InsetFrameTemplate")
 DNAAttendanceScrollFrame:SetWidth(DNAAttendanceScrollFrame_w+20)
 DNAAttendanceScrollFrame:SetHeight(DNAAttendanceScrollFrame_h)
-DNAAttendanceScrollFrame:SetPoint("TOPLEFT", 10, -50)
+DNAAttendanceScrollFrame:SetPoint("TOPLEFT", 20, -50)
 DNAAttendanceScrollFrame:SetFrameLevel(5)
 DNAAttendanceScrollFrame.text = DNAAttendanceScrollFrame:CreateFontString(nil, "ARTWORK")
 DNAAttendanceScrollFrame.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
@@ -2197,35 +2208,239 @@ DNAAttendanceScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceScrollFrame_w-5, 0)
 DNAAttendanceScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
 
 local attendanceLogSlot = {}
-local DNAAttendanceDeleteAll = CreateFrame("Button", nil, DNAAttendanceScrollFrame, "UIPanelButtonTemplate")
-DNAAttendanceDeleteAll:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
-DNAAttendanceDeleteAll:SetPoint("TOPLEFT", 35, -DNAAttendanceScrollFrame_h-5)
-DNAAttendanceDeleteAll:SetFrameLevel(5)
-DNAAttendanceDeleteAll.text = DNAAttendanceDeleteAll:CreateFontString(nil, "ARTWORK")
-DNAAttendanceDeleteAll.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
-DNAAttendanceDeleteAll.text:SetPoint("CENTER", DNAAttendanceDeleteAll, "TOPLEFT", 68, -13)
-DNAAttendanceDeleteAll.text:SetText("Delete All")
-DNAAttendanceDeleteAll:SetScript("OnClick", function()
+
+local DNADeleteAllAttendancePrompt = CreateFrame("Frame", nil, UIParent)
+DNADeleteAllAttendancePrompt:SetWidth(400)
+DNADeleteAllAttendancePrompt:SetHeight(100)
+DNADeleteAllAttendancePrompt:SetPoint("CENTER", 0, 50)
+DNADeleteAllAttendancePrompt:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNADeleteAllAttendancePrompt.text = DNADeleteAllAttendancePrompt:CreateFontString(nil, "ARTWORK")
+DNADeleteAllAttendancePrompt.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADeleteAllAttendancePrompt.text:SetPoint("CENTER", DNADeleteAllAttendancePrompt, "CENTER", 0, 20)
+DNADeleteAllAttendancePrompt.text:SetText("Delete all Attendance logs?\nThis will delete all attendance logs account wide and reload.")
+DNADeleteAllAttendancePrompt:SetFrameLevel(150)
+DNADeleteAllAttendancePrompt:SetFrameStrata("FULLSCREEN_DIALOG")
+local DNADeleteAllAttendancePromptYes = CreateFrame("Button", nil, DNADeleteAllAttendancePrompt, "UIPanelButtonTemplate")
+DNADeleteAllAttendancePromptYes:SetSize(100, 24)
+DNADeleteAllAttendancePromptYes:SetPoint("CENTER", 60, -20)
+DNADeleteAllAttendancePromptYes.text = DNADeleteAllAttendancePromptYes:CreateFontString(nil, "ARTWORK")
+DNADeleteAllAttendancePromptYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADeleteAllAttendancePromptYes.text:SetPoint("CENTER", DNADeleteAllAttendancePromptYes, "CENTER", 0, 0)
+DNADeleteAllAttendancePromptYes.text:SetText("Yes")
+DNADeleteAllAttendancePromptYes:SetScript('OnClick', function()
   for i=1, numAttendanceLogs do
     attendanceLogSlot[i]:Hide()
   end
+  DNA["ATTENDANCE"] = {}
+  ReloadUI()
 end)
+local DNADeleteAllAttendancePromptNo = CreateFrame("Button", nil, DNADeleteAllAttendancePrompt, "UIPanelButtonTemplate")
+DNADeleteAllAttendancePromptNo:SetSize(100, 24)
+DNADeleteAllAttendancePromptNo:SetPoint("CENTER", -60, -20)
+DNADeleteAllAttendancePromptNo.text = DNADeleteAllAttendancePromptNo:CreateFontString(nil, "ARTWORK")
+DNADeleteAllAttendancePromptNo.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADeleteAllAttendancePromptNo.text:SetPoint("CENTER", DNADeleteAllAttendancePromptNo, "CENTER", 0, 0)
+DNADeleteAllAttendancePromptNo.text:SetText("No")
+DNADeleteAllAttendancePromptNo:SetScript('OnClick', function()
+  DNADeleteAllAttendancePrompt:Hide()
+end)
+DNADeleteAllAttendancePrompt:Hide()
+
+local DNAAttendanceDeleteAllBtn = CreateFrame("Button", nil, DNAAttendanceScrollFrame, "UIPanelButtonTemplate")
+DNAAttendanceDeleteAllBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNAAttendanceDeleteAllBtn:SetPoint("TOPLEFT", 35, -DNAAttendanceScrollFrame_h-5)
+DNAAttendanceDeleteAllBtn:SetFrameLevel(5)
+DNAAttendanceDeleteAllBtn.text = DNAAttendanceDeleteAllBtn:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDeleteAllBtn.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDeleteAllBtn.text:SetPoint("CENTER", DNAAttendanceDeleteAllBtn, "TOPLEFT", 64, -13)
+DNAAttendanceDeleteAllBtn.text:SetText("Delete All Logs")
+DNAAttendanceDeleteAllBtn:SetScript("OnClick", function()
+  DNADeleteAllAttendancePrompt:Show()
+end)
+DNAAttendanceDeleteAllBtn:Hide()
+
+local DNAAttendanceDetailsFrame={}
+local DNAAttendanceMemberScrollFrame={}
+local DNAAttendanceDeleteLogBtn={}
+local DNAAttendanceExportLogBtn={}
+
+local attendanceLogDate = nil
+local attendanceLogName = nil
+local attendanceLogID = 0
+local sortAttendanceName = {}
+local DNADeleteSingleAttendancePrompt = CreateFrame("Frame", nil, UIParent)
+DNADeleteSingleAttendancePrompt:SetWidth(400)
+DNADeleteSingleAttendancePrompt:SetHeight(100)
+DNADeleteSingleAttendancePrompt:SetPoint("CENTER", 0, 50)
+DNADeleteSingleAttendancePrompt:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNADeleteSingleAttendancePrompt.text = DNADeleteSingleAttendancePrompt:CreateFontString(nil, "ARTWORK")
+DNADeleteSingleAttendancePrompt.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADeleteSingleAttendancePrompt.text:SetPoint("CENTER", DNADeleteSingleAttendancePrompt, "CENTER", 0, 20)
+DNADeleteSingleAttendancePrompt.text:SetText("Delete Attendance Log?")
+DNADeleteSingleAttendancePrompt:SetFrameLevel(150)
+DNADeleteSingleAttendancePrompt:SetFrameStrata("FULLSCREEN_DIALOG")
+local DNADeleteSingleAttendancePromptYes = CreateFrame("Button", nil, DNADeleteSingleAttendancePrompt, "UIPanelButtonTemplate")
+DNADeleteSingleAttendancePromptYes:SetSize(100, 24)
+DNADeleteSingleAttendancePromptYes:SetPoint("CENTER", 60, -20)
+DNADeleteSingleAttendancePromptYes.text = DNADeleteSingleAttendancePromptYes:CreateFontString(nil, "ARTWORK")
+DNADeleteSingleAttendancePromptYes.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADeleteSingleAttendancePromptYes.text:SetPoint("CENTER", DNADeleteSingleAttendancePromptYes, "CENTER", 0, 0)
+DNADeleteSingleAttendancePromptYes.text:SetText("Yes")
+DNADeleteSingleAttendancePromptYes:SetScript('OnClick', function()
+  if ((attendanceLogDate) and (attendanceLogName)) then
+    DNA["ATTENDANCE"][attendanceLogDate][attendanceLogName] = nil
+  end
+  if (attendanceLogID ~= 0) then
+    attendanceLogSlot[attendanceLogID]:Hide()
+  end
+  DNADeleteSingleAttendancePrompt:Hide()
+  DNAAttendanceDetailsFrame:Hide()
+  DNAAttendanceMemberScrollFrame:Hide()
+  DNAAttendanceDeleteLogBtn:Hide()
+  DNAAttendanceExportLogBtn:Hide()
+end)
+local DNADeleteSingleAttendancePromptNo = CreateFrame("Button", nil, DNADeleteSingleAttendancePrompt, "UIPanelButtonTemplate")
+DNADeleteSingleAttendancePromptNo:SetSize(100, 24)
+DNADeleteSingleAttendancePromptNo:SetPoint("CENTER", -60, -20)
+DNADeleteSingleAttendancePromptNo.text = DNADeleteSingleAttendancePromptNo:CreateFontString(nil, "ARTWORK")
+DNADeleteSingleAttendancePromptNo.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNADeleteSingleAttendancePromptNo.text:SetPoint("CENTER", DNADeleteSingleAttendancePromptNo, "CENTER", 0, 0)
+DNADeleteSingleAttendancePromptNo.text:SetText("No")
+DNADeleteSingleAttendancePromptNo:SetScript('OnClick', function()
+  DNADeleteSingleAttendancePrompt:Hide()
+end)
+DNADeleteSingleAttendancePrompt:Hide()
+
+DNAAttendanceDeleteLogBtn = CreateFrame("Button", nil, page["Attendance"], "UIPanelButtonTemplate")
+DNAAttendanceDeleteLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNAAttendanceDeleteLogBtn:SetPoint("TOPLEFT", 480, -60)
+DNAAttendanceDeleteLogBtn:SetFrameLevel(5)
+DNAAttendanceDeleteLogBtn.text = DNAAttendanceDeleteLogBtn:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDeleteLogBtn.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDeleteLogBtn.text:SetPoint("CENTER", DNAAttendanceDeleteLogBtn, "TOPLEFT", 68, -13)
+DNAAttendanceDeleteLogBtn.text:SetText("Delete Log")
+DNAAttendanceDeleteLogBtn:SetScript("OnClick", function()
+  if ((attendanceLogDate) and (attendanceLogName))then
+    debug(attendanceLogDate)
+    debug(attendanceLogName)
+  end
+  DNADeleteSingleAttendancePrompt.text:SetText("Delete Attendance log:\n|cfff2c983" .. attendanceLogDate .. " " ..  attendanceLogName .. "|cffffffff?")
+  DNADeleteSingleAttendancePrompt:Show()
+end)
+DNAAttendanceDeleteLogBtn:Hide()
+
+local DNAAttendanceExportWindowScrollFrame_w = 250
+local DNAAttendanceExportWindowScrollFrame_h = 300
+DNAAttendanceExportWindow = CreateFrame("Frame", DNAAttendanceExportWindow, UIParent, "BasicFrameTemplate")
+DNAAttendanceExportWindow:SetWidth(DNAAttendanceExportWindowScrollFrame_w+50)
+DNAAttendanceExportWindow:SetHeight(DNAAttendanceExportWindowScrollFrame_h+80)
+DNAAttendanceExportWindow:SetPoint("CENTER", 0, 100)
+DNAAttendanceExportWindow:SetFrameStrata("DIALOG")
+DNAAttendanceExportWindow.title = DNAAttendanceExportWindow:CreateFontString(nil, "ARTWORK")
+DNAAttendanceExportWindow.title:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceExportWindow.title:SetPoint("TOPLEFT", DNAAttendanceExportWindow, "TOPLEFT", 10, -6)
+DNAAttendanceExportWindow.title:SetText("Attendance Export")
+DNAAttendanceExportWindow.text = DNAAttendanceExportWindow:CreateFontString(nil, "ARTWORK")
+DNAAttendanceExportWindow.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceExportWindow.text:SetPoint("TOPLEFT", DNAAttendanceExportWindow, "TOPLEFT", 20, -DNAAttendanceExportWindowScrollFrame_h-50)
+DNAAttendanceExportWindow.text:SetText("Copy the data using CTRL+C")
+DNAAttendanceExportWindow:Hide()
+DNAAttendanceExportWindowScrollFrame = CreateFrame("Frame", DNAAttendanceExportWindowScrollFrame, DNAAttendanceExportWindow, "InsetFrameTemplate")
+DNAAttendanceExportWindowScrollFrame:SetWidth(DNAAttendanceExportWindowScrollFrame_w+20)
+DNAAttendanceExportWindowScrollFrame:SetHeight(DNAAttendanceExportWindowScrollFrame_h)
+DNAAttendanceExportWindowScrollFrame:SetPoint("TOPLEFT", 15, -30)
+DNAAttendanceExportWindowScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceExportWindowScrollFrame, "UIPanelScrollFrameTemplate")
+DNAAttendanceExportWindowScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceExportWindowScrollFrame, "TOPLEFT", 3, -3)
+DNAAttendanceExportWindowScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceExportWindowScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNAAttendanceExportWindowScrollFrameChildFrame = CreateFrame("Frame", DNAAttendanceExportWindowScrollFrameChildFrame, DNAAttendanceExportWindowScrollFrame.ScrollFrame)
+DNAAttendanceExportWindowScrollFrameChildFrame:SetSize(DNAAttendanceExportWindowScrollFrame_w, DNAAttendanceExportWindowScrollFrame_h)
+DNAAttendanceExportWindowScrollFrame.ScrollFrame:SetScrollChild(DNAAttendanceExportWindowScrollFrameChildFrame)
+DNAAttendanceExportWindowScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAAttendanceExportWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAAttendanceExportWindowScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNAAttendanceExportWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAAttendanceExportWindowScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNAAttendanceExportWindowScrollFrame.MR = DNAAttendanceExportWindowScrollFrame:CreateTexture(nil, "BACKGROUND", DNAAttendanceExportWindowScrollFrame, -2)
+DNAAttendanceExportWindowScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAAttendanceExportWindowScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceExportWindowScrollFrame_w-5, 0)
+DNAAttendanceExportWindowScrollFrame.MR:SetSize(24, DNAAttendanceExportWindowScrollFrame_h)
+--DNAAttendanceExportWindow:EnableKeyboard(true)
+DNAAttendanceExportWindow.data = CreateFrame("EditBox", nil, DNAAttendanceExportWindowScrollFrameChildFrame)
+DNAAttendanceExportWindow.data:SetWidth(DNAAttendanceExportWindowScrollFrame_w-10)
+DNAAttendanceExportWindow.data:SetHeight(20)
+DNAAttendanceExportWindow.data:SetFontObject(GameFontWhite)
+--DNAAttendanceExportWindow.data:SetBackdrop(GameTooltip:GetBackdrop())
+DNAAttendanceExportWindow.data:SetPoint("TOPLEFT", 5, 0)
+DNAAttendanceExportWindow.data:SetMultiLine(true)
+--DNAAttendanceExportWindow.data:ClearFocus(self)
+--DNAAttendanceExportWindow.data:SetAutoFocus(true)
+DNAAttendanceExportWindow.data:SetText("There was an error pulling the log")
+
+DNAAttendanceExportLogBtn = CreateFrame("Button", nil, page["Attendance"], "UIPanelButtonTemplate")
+DNAAttendanceExportLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNAAttendanceExportLogBtn:SetPoint("TOPLEFT", 480, -90)
+DNAAttendanceExportLogBtn:SetFrameLevel(5)
+DNAAttendanceExportLogBtn.text = DNAAttendanceExportLogBtn:CreateFontString(nil, "ARTWORK")
+DNAAttendanceExportLogBtn.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceExportLogBtn.text:SetPoint("CENTER", DNAAttendanceExportLogBtn, "TOPLEFT", 68, -13)
+DNAAttendanceExportLogBtn.text:SetText("Export Log")
+DNAAttendanceExportLogBtn:SetScript("OnClick", function()
+  DNAAttendanceExportWindow:Show()
+  if ((attendanceLogDate) and (attendanceLogName)) then
+    attendanceLogExportData = "Attendance Log\n"
+    attendanceLogExportData = attendanceLogExportData .. "Date: " .. attendanceLogDate .. "\n"
+    attendanceLogExportData = attendanceLogExportData .. "Raid: " .. attendanceLogName .. "\n"
+    if (table.getn(sortAttendanceName)) then
+       attendanceLogExportData = attendanceLogExportData .. "Total: " .. table.getn(sortAttendanceName) .. "\n"
+    end
+    attendanceLogExportData = attendanceLogExportData .. "\n"
+    for k,v in ipairs(sortAttendanceName) do
+      attendanceLogExportData = attendanceLogExportData .. v .. "\n"
+    end
+    attendanceLogExportData = attendanceLogExportData .. "\n"
+    DNAAttendanceExportWindow.data:SetText(attendanceLogExportData)
+    DNAAttendanceExportWindow.data:HighlightText()
+  end
+end)
+DNAAttendanceExportLogBtn:Hide()
 
 local DNAAttendanceMemberScrollFrame_w = 200
-local DNAAttendanceMemberScrollFrame = CreateFrame("Frame", DNAAttendanceMemberScrollFrame, page["Attendance"], "InsetFrameTemplate")
+local DNAAttendanceMemberScrollFrame_h = 350
+DNAAttendanceDetailsFrame = CreateFrame("Frame", DNAAttendanceDetailsFrame, page["Attendance"], "InsetFrameTemplate")
+DNAAttendanceDetailsFrame:SetWidth(DNAAttendanceMemberScrollFrame_w+20)
+DNAAttendanceDetailsFrame:SetHeight(150)
+DNAAttendanceDetailsFrame:SetPoint("TOPLEFT", 250, -50)
+DNAAttendanceDetailsFrame.date = DNAAttendanceDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDetailsFrame.date:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDetailsFrame.date:SetPoint("TOPLEFT", 10, -10)
+DNAAttendanceDetailsFrame.date:SetText("Select an attendance log")
+DNAAttendanceDetailsFrame.instance = DNAAttendanceDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDetailsFrame.instance:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDetailsFrame.instance:SetPoint("TOPLEFT", 10, -30)
+DNAAttendanceDetailsFrame.instance:SetText("")
+DNAAttendanceDetailsFrame.count = DNAAttendanceDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNAAttendanceDetailsFrame.count:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNAAttendanceDetailsFrame.count:SetPoint("TOPLEFT", 10, -50)
+DNAAttendanceDetailsFrame.count:SetText("")
+DNAAttendanceDetailsFrame:Hide()
+
+DNAAttendanceMemberScrollFrame = CreateFrame("Frame", DNAAttendanceMemberScrollFrame, page["Attendance"], "InsetFrameTemplate")
 DNAAttendanceMemberScrollFrame:SetWidth(DNAAttendanceMemberScrollFrame_w+20)
-DNAAttendanceMemberScrollFrame:SetHeight(DNAAttendanceScrollFrame_h+20)
-DNAAttendanceMemberScrollFrame:SetPoint("TOPLEFT", 450, -50)
-DNAAttendanceMemberScrollFrame:SetFrameLevel(5)
-DNAAttendanceMemberScrollFrame.text = DNAAttendanceMemberScrollFrame:CreateFontString(nil, "ARTWORK")
-DNAAttendanceMemberScrollFrame.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
-DNAAttendanceMemberScrollFrame.text:SetPoint("CENTER", DNAAttendanceMemberScrollFrame, "TOPLEFT", 70, 10)
-DNAAttendanceMemberScrollFrame.text:SetText("Members")
+DNAAttendanceMemberScrollFrame:SetHeight(DNAAttendanceMemberScrollFrame_h)
+DNAAttendanceMemberScrollFrame:SetPoint("TOPLEFT", 250, -200)
 DNAAttendanceMemberScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceMemberScrollFrame, "UIPanelScrollFrameTemplate")
 DNAAttendanceMemberScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame, "TOPLEFT", 3, -3)
 DNAAttendanceMemberScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceMemberScrollFrame, "BOTTOMRIGHT", 10, 4)
 local DNAAttendanceMemberScrollFrameChildFrame = CreateFrame("Frame", DNAAttendanceMemberScrollFrameChildFrame, DNAAttendanceMemberScrollFrame.ScrollFrame)
-DNAAttendanceMemberScrollFrameChildFrame:SetSize(DNAAttendanceMemberScrollFrame_w, DNAAttendanceScrollFrame_h+20)
+DNAAttendanceMemberScrollFrameChildFrame:SetSize(DNAAttendanceMemberScrollFrame_w, DNAAttendanceMemberScrollFrame_h)
 DNAAttendanceMemberScrollFrame.ScrollFrame:SetScrollChild(DNAAttendanceMemberScrollFrameChildFrame)
 DNAAttendanceMemberScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
 DNAAttendanceMemberScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
@@ -2233,25 +2448,12 @@ DNAAttendanceMemberScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNA
 DNAAttendanceMemberScrollFrame.MR = DNAAttendanceMemberScrollFrame:CreateTexture(nil, "BACKGROUND", DNAAttendanceMemberScrollFrame, -2)
 DNAAttendanceMemberScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNAAttendanceMemberScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame_w-5, 0)
-DNAAttendanceMemberScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h+20)
-
-local DNAAttendanceDate = page["Attendance"]:CreateFontString(nil, "ARTWORK")
-DNAAttendanceDate:SetFont(DNAGlobal.font, 12, "OUTLINE")
-DNAAttendanceDate:SetPoint("TOPLEFT", 240, -60)
-DNAAttendanceDate:SetText("Select an attendance log")
-local DNAAttendanceInstance = page["Attendance"]:CreateFontString(nil, "ARTWORK")
-DNAAttendanceInstance:SetFont(DNAGlobal.font, 12, "OUTLINE")
-DNAAttendanceInstance:SetPoint("TOPLEFT", 236, -80)
-DNAAttendanceInstance:SetText("")
-local DNAAttendanceCount = page["Attendance"]:CreateFontString(nil, "ARTWORK")
-DNAAttendanceCount:SetFont(DNAGlobal.font, 12, "OUTLINE")
-DNAAttendanceCount:SetPoint("TOPLEFT", 240, -100)
-DNAAttendanceCount:SetText("")
+DNAAttendanceMemberScrollFrame.MR:SetSize(24, DNAAttendanceMemberScrollFrame_h)
+DNAAttendanceMemberScrollFrame:Hide()
 
 local attendanceLogMemberSlot={}
 local attendanceLogMemberSlotInvite={}
 local attendanceLogMemberSlotText={}
-local sortAttendanceName = {}
 
 --just create the 80 frames, then occupy data into them
 for i=1, MAX_RAID_MEMBERS*2 do
@@ -2273,18 +2475,6 @@ for i=1, MAX_RAID_MEMBERS*2 do
   attendanceLogMemberSlotText[i]:SetFont(DNAGlobal.font, 11, "OUTLINE")
   attendanceLogMemberSlotText[i]:SetPoint("TOPLEFT", 5, -4)
   attendanceLogMemberSlotText[i]:SetText("")
-  --[==[
-  attendanceLogMemberSlot[i]:SetScript('OnEnter', function()
-    attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
-  end)
-  attendanceLogMemberSlot[i]:SetScript('OnLeave', function()
-    attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-  end)
-  attendanceLogMemberSlot[i]:SetScript('OnClick', function()
-    attendanceLogMemberSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
-    --UnitInRaid( )
-  end)
-  ]==]--
   attendanceLogMemberSlotInvite[i] = CreateFrame("button", attendanceLogMemberSlotInvite[i], attendanceLogMemberSlot[i])
   attendanceLogMemberSlotInvite[i]:SetWidth(80)
   attendanceLogMemberSlotInvite[i]:SetHeight(raidSlot_h)
@@ -2311,6 +2501,12 @@ for i=1, MAX_RAID_MEMBERS*2 do
   attendanceLogMemberSlotInvite[i]:SetScript('OnClick', function()
     local thisMember = attendanceLogMemberSlotText[i]:GetText()
     InviteUnit(thisMember)
+    if (IsInRaid()) then
+      DN:ChatNotification("Invited " .. thisMember .. " to Raid.")
+    else
+      DN:ChatNotification("Converted to Raid.")
+      ConvertToRaid()
+    end
   end)
 
   attendanceLogMemberSlot[i]:Hide()
@@ -2330,7 +2526,7 @@ function setAttendanceSlotMemberFrame(i, member, class)
   end
 end
 
-function attendanceSlotFrame(i, filteredName, name)
+function attendanceLogSlotFrame(i, filteredName, name)
   attendanceLogSlot[i] = CreateFrame("button", attendanceLogSlot[i], DNAAttendanceScrollFrameScrollChildFrame)
   attendanceLogSlot[i]:SetBackdrop({
     bgFile = "Interface/Collections/CollectionsBackgroundTile",
@@ -2374,9 +2570,20 @@ function attendanceSlotFrame(i, filteredName, name)
       setAttendanceSlotMemberFrame(k, v, attendance[name][v])
     end
     local filterLogName = split(name, "}")
-    DNAAttendanceDate:SetText(filterLogName[1])
-    DNAAttendanceInstance:SetText(filterLogName[2])
-    DNAAttendanceCount:SetText("Members: " .. table.getn(sortAttendanceName))
+    filterLogName[2] = string.gsub(filterLogName[2], " ", "", 1) --first space
+    DNAAttendanceDetailsFrame.date:SetText("|cfffffa8bDate:|r " .. filterLogName[1])
+    DNAAttendanceDetailsFrame.instance:SetText("|cfffffa8bInstance:|r " .. filterLogName[2])
+    DNAAttendanceDetailsFrame.count:SetText("|cfffffa8bMembers:|r " .. table.getn(sortAttendanceName))
+    DNAAttendanceDeleteLogBtn:Show()
+    DNAAttendanceExportLogBtn:Show()
+    DNAAttendanceDetailsFrame:Show()
+    DNAAttendanceMemberScrollFrame:Show()
+    attendanceLogDate = filterLogName[1]
+    attendanceLogName = filterLogName[2]
+    attendanceLogID = i
+    debug(attendanceLogDate)
+    debug(attendanceLogName)
+    debug(attendanceLogID)
   end)
 end
 
@@ -2389,6 +2596,8 @@ local function bottomTabToggle(name)
   DNAFrameMainBottomTab[name]:SetFrameStrata("MEDIUM")
   DNAFrameMainBottomTab[name].text:SetTextColor(1.0, 1.0, 0.5)
   page[name]:Show()
+
+  --assignment and raid builder are the same
 end
 
 local function bottomTab(name, pos_x, text_pos_x)
@@ -3309,6 +3518,9 @@ local function DNAOpenWindow()
     end
     if (DNA[player.combine]["CONFIG"]["INDICON"]) then
       DNA[player.combine]["CONFIG"]["INDICON"] = nil
+    end
+    if (numAttendanceLogs > 0) then
+      DNAAttendanceDeleteAllBtn:Show()
     end
   end
 end
