@@ -74,29 +74,41 @@ local DNAFrameClassAssignEdit={}
 local pageRaidDetailsColOne={}
 local pageRaidDetailsColTwo={}
 
+local DNARaidScrollFrame={}
+
 local DNAFrameAssignTabIcon={}
 local DNAFrameAssignMapGroupID={}
 
 local DNAFrameAssignPersonal_w = 320 --MIN WIDTH, length may depend on the string length
 local DNAFrameAssignPersonal_h = 80
 
+local pagePreBuildDisable={}
+local btnPostRaid={}
+local btnPostRaidDis={}
+local btnSaveRaid={}
+local btnSetRaid={}
+
 local invited={}
+
+local totalGuildMembers = 0
 
 local pages = {
   {"Assignment", 10},
-  {"Raid Builder", 100},
-  {"Raid Details", 190},
-  {"Attendance", 280},
-  {"Config", 370},
+  --{"Raid Builder", 100},
+  {"Raid Details", 100},
+  {"Attendance", 190},
+  {"Config", 280},
 }
 
 local function getGuildComp()
   if (IsInGuild()) then
+    totalGuildMembers = GetNumGuildMembers()
     local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
     for i=1, numTotalMembers do
       local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
       local filterRealm = string.match(name, "(.*)-")
       DNAGuild["member"] = filterRealm
+      DNAGuild["class"][filterRealm] = class
       DNAGuild["rank"][filterRealm] = rank
       --debug(filterRealm .. " = " .. rank)
     end
@@ -147,7 +159,7 @@ local function DNAGetRaidComp()
     DNARaid["assist"][k] = nil
   end
 
-  getGuildComp()
+  getGuildComp() --get guild ranks
 
   for i=1, MAX_RAID_MEMBERS do
     local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
@@ -197,20 +209,16 @@ local function DNAGetRaidComp()
     end
   end
 
-  -- Not in a raid, just place your name in the list as a placeholder
-  if (total.raid <= 0) then
-    DNARaid["member"][1] = player.name
-  end
-
   if (DEBUG) then
     buildDebugRaid() --fake raid
     debug("DNAGetRaidComp() total:" .. total.raid)
   end
+
 end
 
 local windowOpen = false
 
-local function DNACloseWindow()
+local function DNAClose()
   DN:ResetQueueTransposing() --sanity check on queues
   DNAFrameMain:Hide()
   windowOpen = false
@@ -220,7 +228,7 @@ end
 local DNAFrameAssignNotReady={}
 
 function DN:RaidReadyClear()
-  for i=1, MAX_RAID_MEMBERS do
+  for i=1, MAX_RAID_SLOTS do
     raidSlot[i].ready:SetTexture("")
   end
   for i=1, DNASlots.tank do
@@ -258,7 +266,7 @@ function raidReadyMember(member, isReady)
       end
     end
   else
-    for i=1, MAX_RAID_MEMBERS do
+    for i=1, MAX_RAID_SLOTS do
       if (raidSlot[i].text:GetText() == member) then
         raidSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-NotReady")
       end
@@ -285,6 +293,9 @@ function DN:RaidPermission()
   if (DEBUG) then
     return true
   end
+  if (onPage == "Raid Builder") then
+    return true
+  end
   if (IsInRaid()) then
     if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
       return true
@@ -303,11 +314,11 @@ local DNARaidMemberSorted={}
 function DN:UpdateRaidRoster()
   local k=0
   --clear all entries, then rebuild raid
-  for i=1, MAX_RAID_MEMBERS do
+  for i=1, MAX_RAID_SLOTS do
     DNARaid["member"][i] = nil
   end
   DNAGetRaidComp()
-  for i=1, MAX_RAID_MEMBERS do
+  for i=1, MAX_RAID_SLOTS do
     DNARaidMemberSorted[i] = nil
     raidSlot[i].text:SetText("")
     raidSlot[i]:Hide()
@@ -385,7 +396,7 @@ function DN:UpdateRaidRoster()
   table.sort(DNARaidMemberSorted)
   for k,v in ipairs(DNARaidMemberSorted) do
     --set text, get class color for each raid slot built
-    if (v ~= nil) then
+    if ((v ~= nil) and (v ~= "")) then
       raidSlot[k].text:SetText(v)
       raidSlot[k]:Show()
       thisClass = DNARaid["class"][v]
@@ -520,7 +531,11 @@ function DN:ParsePacket(packet, netpacket)
       tankSlot[packet.slot]:SetFrameLevel(4)
       tankSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
       tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-      thisClass = DNARaid["class"][packet.name]
+      if (DNAGuild["class"][packet.name]) then
+        thisClass = DNAGuild["class"][packet.name]
+      else
+        thisClass = DNARaid["class"][packet.name]
+      end
       DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
       --SetPartyAssignment("MAINTANK", packet.name, 1)
       --debug("MAINTANK = " .. packet.name)
@@ -1687,7 +1702,7 @@ DNAFrameMainCloseX:SetTexture("Interface/Buttons/UI-StopButton")
 DNAFrameMainCloseX:SetSize(14, 14)
 DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
-  DNACloseWindow()
+  DNAClose()
 end)
 DN:ToolTip(DNAFrameMainClose, "Close")
 
@@ -1704,16 +1719,16 @@ DNAFrameMain.enter:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -50, 0)
 DNAFrameMain.enter:ClearFocus(self)
 DNAFrameMain.enter:SetAutoFocus(false)
 DNAFrameMain.enter:Hide()
---[==[
-DNAFrameMain.enter:SetScript("OnEscapePressed", function()
-  DNACloseWindow()
-end)
-]==]--
 
 page["Assignment"] = CreateFrame("Frame", nil, DNAFrameMain)
 page["Assignment"]:SetWidth(DNAGlobal.width)
 page["Assignment"]:SetHeight(DNAGlobal.height)
 page["Assignment"]:SetPoint("TOPLEFT", 0, 0)
+--pagePreBuildDisable = CreateFrame("Frame", pagePreBuildDisable, page["Assignment"], "ThinBorderTemplate")
+pagePreBuildDisable = CreateFrame("Frame", pagePreBuildDisable, page["Assignment"])
+pagePreBuildDisable:SetWidth(100)
+pagePreBuildDisable:SetHeight(100)
+pagePreBuildDisable:SetPoint("TOPLEFT", 0, 0)
 
 local pageAssignBtnDiv={}
 for i=1, 5 do
@@ -2114,6 +2129,9 @@ sbtn:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", -100, -100); -- (point, frame,
 local function updateSlotPos(role, i, name)
   if (DN:RaidPermission()) then
     DN:SendPacket(role .. i .. "," .. name, true)
+    if (onPage == "Raid Builder") then
+      return true
+    end
     local getCode = multiKeyFromValue(netCode, "author")
     local sendCode
     if (getCode) then
@@ -2597,7 +2615,27 @@ local function bottomTabToggle(name)
   DNAFrameMainBottomTab[name].text:SetTextColor(1.0, 1.0, 0.5)
   page[name]:Show()
 
-  --assignment and raid builder are the same
+  pagePreBuildDisable:Hide()
+  btnSaveRaid:Hide()
+  btnSetRaid:Hide()
+
+  onPage = name
+  if (onPage == "Raid Builder") then
+    page["Raid Builder"]:Hide()
+    page["Assignment"]:Show()
+    --DNARaidScrollFrame.text:SetText("|cff45be35Guild")
+    btnSaveRaid:Show()
+    btnSetRaid:Show()
+    viewFrameBotTab["Class"]:Hide()
+    DN:UpdateRaidRoster()
+  end
+  if (onPage == "Assignment") then
+    pagePreBuildDisable:Show()
+    DNARaidScrollFrame.text:SetText("Raid")
+    viewFrameBotTab["Class"]:Show()
+    DN:UpdateRaidRoster()
+  end
+  debug("Page: " .. onPage)
 end
 
 local function bottomTab(name, pos_x, text_pos_x)
@@ -2677,7 +2715,7 @@ local function clearQueue()
   end
 end
 
-local DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page["Assignment"], "InsetFrameTemplate")
+DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page["Assignment"], "InsetFrameTemplate")
 DNARaidScrollFrame:SetWidth(DNARaidScrollFrame_w+20) --add scroll frame width
 DNARaidScrollFrame:SetHeight(DNARaidScrollFrame_h-4)
 DNARaidScrollFrame:SetPoint("TOPLEFT", 210, -50)
@@ -3070,8 +3108,8 @@ for i=1, DNASlots.heal do
   healSlot[i]:SetScript("OnDragStop", function()
     healSlot[i]:StopMovingOrSizing()
     healSlot[i]:SetPoint("TOPLEFT", 3, healSlotOrgPoint_y[i])
-    --updateSlotPos(HEAL, i, "Empty")
-    closeGaps(memberDrag)
+    updateSlotPos(HEAL, i, "Empty")
+    --closeGaps(memberDrag)
   end)
   healSlot[i]:SetScript('OnEnter', function()
     if (healSlot[i].text:GetText() ~= "Empty") then
@@ -3205,8 +3243,7 @@ for i=1, DNASlots.cc do
 end
 DN:ToolTip(ccSlotFrameClear, "Clear Designated Queue")
 
---build all 40 first
-for i=1, MAX_RAID_MEMBERS do
+for i=1, MAX_RAID_SLOTS do
   raidSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
   raidSlot[i]:Hide()
 end
@@ -3395,11 +3432,11 @@ btnShareDis:Hide()
 local btnPostRaid_x = DNAGlobal.width-260
 local btnPostRaid_y = DNAGlobal.height-45
 
-DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], DNAGlobal.width-260, DNAGlobal.height-107)
+DN:CheckBox("READYCHECK", "Ready Check", pagePreBuildDisable, DNAGlobal.width-260, DNAGlobal.height-107)
 DNACheckbox["READYCHECK"]:SetChecked(true)
 
 local btnPostRaid_t = "Post to Raid"
-local btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
+btnPostRaid = CreateFrame("Button", nil, pagePreBuildDisable, "UIPanelButtonTemplate")
 btnPostRaid:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnPostRaid:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaid.text = btnPostRaid:CreateFontString(nil, "ARTWORK")
@@ -3432,17 +3469,40 @@ btnPostRaid:SetScript("OnClick", function()
     end
   end
 end)
-local btnPostRaidDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
+local btnPostRaidDis = CreateFrame("Button", nil, pagePreBuildDisable, "UIPanelButtonGrayTemplate")
 btnPostRaidDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
 btnPostRaidDis:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaidDis.text = btnPostRaidDis:CreateFontString(nil, "ARTWORK")
 btnPostRaidDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnPostRaidDis.text:SetText(btnPostRaid_t)
-btnPostRaidDis.text:SetPoint("CENTER", btnPostRaid)
+btnPostRaidDis.text:SetPoint("CENTER", btnPostRaidDis)
 btnPostRaidDis:SetScript("OnClick", function()
   DN:RaidPermission()
 end)
 -- EO PAGE ASSIGN
+
+btnSaveRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
+btnSaveRaid:SetSize(DNAGlobal.btn_w+40, DNAGlobal.btn_h)
+btnSaveRaid:SetPoint("TOPLEFT", DNAGlobal.width-290, -500)
+btnSaveRaid.text = btnSaveRaid:CreateFontString(nil, "ARTWORK")
+btnSaveRaid.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+btnSaveRaid.text:SetText("Save Configuration")
+btnSaveRaid.text:SetPoint("CENTER", btnSaveRaid)
+btnSaveRaid:SetScript("OnClick", function()
+  debug("Save Raid")
+end)
+btnSaveRaid:Hide()
+btnSetRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
+btnSetRaid:SetSize(DNAGlobal.btn_w+40, DNAGlobal.btn_h)
+btnSetRaid:SetPoint("TOPLEFT", DNAGlobal.width-290, -530)
+btnSetRaid.text = btnSetRaid:CreateFontString(nil, "ARTWORK")
+btnSetRaid.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+btnSetRaid.text:SetText("Set Configuration")
+btnSetRaid.text:SetPoint("CENTER", btnSetRaid)
+btnSetRaid:SetScript("OnClick", function()
+  debug("Save Raid")
+end)
+btnSetRaid:Hide()
 
 for i,v in pairs(pages) do
   bottomTab(pages[i][1], pages[i][2])
@@ -3491,16 +3551,16 @@ function DN:PermissionVisibility()
   end
 end
 
-local function DNAOpenWindow()
+local function DNAOpen()
   if (windowOpen) then
-    DNACloseWindow()
+    DNAClose()
   else
     windowOpen = true
     DNAFrameMain:Show()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
     DN:UpdateRaidRoster()
-    --DN:GetProfileVars()
+    DN:GetProfileVars()
 
     DN:PermissionVisibility()
     DN:RaidDetails()
@@ -3527,7 +3587,7 @@ end
 
 SLASH_DNA1 = "/dna"
 function DNASlashCommands(msg)
-  DNACloseWindow()
+  DNAClose()
   if (msg == "debug") then
     DEBUG = true
     debug("DEBUG MODE ON")
@@ -3535,7 +3595,7 @@ function DNASlashCommands(msg)
     DEBUG = false
     debug("DEBUG MODE OFF")
   end
-  DNAOpenWindow()
+  DNAOpen()
 end
 SlashCmdList.DNA = DNASlashCommands
 
@@ -3576,7 +3636,7 @@ DNAMiniMap:SetScript("OnDragStop", function()
   --UpdateMapButton()
 end)
 DNAMiniMap:SetScript("OnClick", function()
-  DNAOpenWindow()
+  DNAOpen()
 end)
 
 function DN:DefaulMiniMapPos()

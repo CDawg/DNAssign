@@ -79,11 +79,14 @@ DNASlots.tank = 6
 DNASlots.heal = 12
 DNASlots.cc   = 6
 
+MAX_RAID_SLOTS = 600
 MAX_FRAME_LINES = 25 --also setup the same for the assign window
 MAX_DKP_LINES = 120
 
 DNAInstance = {}
 DNARaidBosses = {}
+
+onPage = "Assignment"
 
 function DN:ChatNotification(msg)
   print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
@@ -142,7 +145,7 @@ function DN:SendPacket(packet, filtered)
   if (IsInRaid()) then
     C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "RAID")
   else
-    if (DEBUG) then
+    if ((DEBUG) or (onPage == "Raid Builder")) then
       C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
       debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
     end
@@ -298,6 +301,7 @@ end
 
 DNAGuild={}
 DNAGuild["member"] = {}
+DNAGuild["class"] = {}
 DNAGuild["rank"] = {}
 
 DNARaid={}

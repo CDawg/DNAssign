@@ -31,13 +31,14 @@ local bossList = {
 
   {"- Plague Wing -",        "", 2},
   {"Trash Wing:Plague",      "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 1},
+  --{"Trash Wing:Ghouls",      "Interface/EncounterJournal/UI-EJ-BOSS-Timmy the Cruel", 1},
   {"Noth The Plaguebringer", "Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
   {"Heigan The Unclean",     "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
   {"Loatheb",                "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
 
   {"- Spider Wing -",        "", 2},
   {"Trash Wing:Spider",      "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 1},
-  --{"Trash Ghouls",           "Interface/EncounterJournal/UI-EJ-BOSS-Timmy the Cruel", 1},
+  {"Trash Wing:Ghouls",      "Interface/EncounterJournal/UI-EJ-BOSS-Timmy the Cruel", 1},
   {"Anub'Rekhan",            "Interface/EncounterJournal/UI-EJ-BOSS-AnubRekhan", 0},
   {"Grand Widow Faerlina",   "Interface/EncounterJournal/UI-EJ-BOSS-Grand Widow Faerlina", 0},
   {"Maexxna",                "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 0},
@@ -51,7 +52,6 @@ local bossList = {
   {"Sapphiron",              "Interface/EncounterJournal/UI-EJ-BOSS-Sapphiron", 0},
   {"Kel'Thuzad",             "Interface/EncounterJournal/UI-EJ-BOSS-KelThuzad", 0},
 }
-
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
@@ -148,6 +148,16 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Trash Wing:Spider")) then
     NUM_ADDS = 8
+    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    for i=1, NUM_ADDS do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
+  end
+
+  if (isItem(assign, "Trash Wing:Ghouls")) then
+    NUM_ADDS = 4
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]

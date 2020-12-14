@@ -178,19 +178,15 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
-    if (tank.all[3]) then
-      mark[2] = DNABossIcon
-      text[2] = tank.all[2]
-      heal[2] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
-    end
-    text[4] = "-- WINGBUFF / MELEE SIDE --"
-    mark[5] = DNABossIcon
-    text[5] = tank.all[3]
-    heal[5] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
+
+    text[3] = "-- WINGBUFF / MELEE SIDE --"
+    mark[4] = DNABossIcon
+    text[4] = tank.all[2]
+    heal[4] = healer.priest[3] .. "," .. healer.priest[4] .. "," .. healer.paladin[2]
 
     if (healer.druid[1]) then
-      text[8] = note_color .. "MELEE HEAL"
-      heal[8] = healer.druid[1]
+      text[6] = note_color .. "MELEE HEAL"
+      heal[6] = healer.druid[1]
     end
 
     local firemaw_heals = {}
@@ -205,8 +201,8 @@ function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
     removeValueFromArray(firemaw_heals, healer.priest[4])
     for i=1, table.getn(firemaw_heals) do
       if (firemaw_heals[i]) then
-        text[i+8] = note_color .. "RANGE HEAL"
-        heal[i+8] = firemaw_heals[i]
+        text[i+6] = note_color .. "RANGE HEAL"
+        heal[i+6] = firemaw_heals[i]
       end
     end
 
