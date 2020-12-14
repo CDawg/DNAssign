@@ -12,13 +12,13 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
 DNAGlobal.dir    = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor = 1
-DNAGlobal.vminor = 206
+DNAGlobal.vminor = 207
 DNAGlobal.width  = 980
 DNAGlobal.height = 600
 --DNAGlobal.font   = "Fonts/ARIALN.TTF"
