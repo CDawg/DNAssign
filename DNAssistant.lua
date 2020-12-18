@@ -88,8 +88,13 @@ local pagePreBuildDisable={}
 local btnPostRaid={}
 local btnPostRaidDis={}
 local btnSaveRaid={}
+local btnSaveRaidDis={}
 local btnLoadRaid={}
 local btnLoadRaidDis={}
+
+local currentViewTank={}
+local currentViewHeal={}
+local currentViewCC={}
 local preSetViewTank={}
 local preSetViewHeal={}
 local preSetViewCC={}
@@ -523,7 +528,6 @@ function DN:InstanceButtonToggle(name, icon)
   ]==]--
   clearFrameClassAssign()
   PlaySound(844)
-  --btnSaveRaid:Hide()
   debug("DN:InstanceButtonToggle(..., ...)")
 end
 
@@ -2849,26 +2853,6 @@ slotDialogYes:SetScript('OnClick', function()
 end)
 slotDialog:Hide()
 
-
-local function closeGaps(remove)
-  local healSlots={}
-  if (DN:RaidPermission()) then
-    for i=1, DNASlots.heal do
-      if ((healSlot[i].text:GetText() ~= "Empty") and (healSlot[i].text:GetText() ~= remove)) then
-        table.insert(healSlots, healSlot[i].text:GetText())
-      end
-    end
-    for i=1, DNASlots.heal do
-      healSlot[i].text:SetText("Empty") --quick recycle
-    end
-    for i, v in ipairs(healSlots) do
-      healSlot[i].text:SetText(v)
-    end
-    DN:UpdateRaidRoster()
-    DN:RaidSendAssignments()
-  end
-end
-
 local function shiftSlot(current, pos)
   if (DN:RaidPermission()) then
     local shiftFrom= healSlot[current].text:GetText()
@@ -3108,7 +3092,6 @@ for i=1, DNASlots.heal do
     healSlot[i]:StopMovingOrSizing()
     healSlot[i]:SetPoint("TOPLEFT", 3, healSlotOrgPoint_y[i])
     updateSlotPos(HEAL, i, "Empty")
-    --closeGaps(memberDrag)
   end)
   healSlot[i]:SetScript('OnEnter', function()
     if (healSlot[i].text:GetText() ~= "Empty") then
@@ -3293,12 +3276,33 @@ function viewPreset(selection)
   local presetText=""
   if (selection == "clear") then
     for i=1, DNASlots.tank do
+      currentViewTank[i]:SetText("")
+      thisTank = tankSlot[i].text:GetText()
+      if (thisTank ~= "Empty") then
+        currentViewTank[i]:SetText(thisTank)
+        thisClass = DNARaid["class"][thisTank]
+        DN:ClassColorText(currentViewTank[i], thisClass)
+      end
       preSetViewTank[i]:SetText("")
     end
     for i=1, DNASlots.heal do
+      currentViewHeal[i]:SetText("")
+      thisHeal = healSlot[i].text:GetText()
+      if (thisHeal ~= "Empty") then
+        currentViewHeal[i]:SetText(thisHeal)
+        thisClass = DNARaid["class"][thisHeal]
+        DN:ClassColorText(currentViewHeal[i], thisClass)
+      end
       preSetViewHeal[i]:SetText("")
     end
     for i=1, DNASlots.cc do
+      currentViewCC[i]:SetText("")
+      thisCC = ccSlot[i].text:GetText()
+      if (thisCC ~= "Empty") then
+        currentViewCC[i]:SetText(thisCC)
+        thisClass = DNARaid["class"][thisCC]
+        DN:ClassColorText(currentViewCC[i], thisClass)
+      end
       preSetViewCC[i]:SetText("")
     end
   else
@@ -3386,9 +3390,11 @@ for i, v in ipairs(DNAInstance) do
     raidSelection = self.value
     btnLoadRaid:Hide()
     btnLoadRaidDis:Show()
+    btnSaveRaidDis:Show()
     if ((tankSlot[1]:GetText() ~= "Empty") and (tankSlot[2]:GetText() ~= "Empty")) then
       if ((healSlot[1]:GetText() ~= "Empty") and (healSlot[2]:GetText() ~= "Empty")) then
         btnSaveRaid:Show()
+        btnSaveRaidDis:Hide()
       end
     end
     viewPreset("clear")
@@ -3637,7 +3643,7 @@ end
 
 btnSaveRaid = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonTemplate")
 btnSaveRaid:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnSaveRaid:SetPoint("TOPLEFT", 10, -80)
+btnSaveRaid:SetPoint("TOPLEFT", 10, -290)
 btnSaveRaid.text = btnSaveRaid:CreateFontString(nil, "ARTWORK")
 btnSaveRaid.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnSaveRaid.text:SetText("Save Configuration")
@@ -3669,9 +3675,18 @@ btnSaveRaid:SetScript("OnClick", function()
 end)
 btnSaveRaid:Hide()
 
+btnSaveRaidDis = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonGrayTemplate")
+btnSaveRaidDis:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
+btnSaveRaidDis:SetPoint("TOPLEFT", 10, -290)
+btnSaveRaidDis.text = btnSaveRaidDis:CreateFontString(nil, "ARTWORK")
+btnSaveRaidDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+btnSaveRaidDis.text:SetText("Save Configuration")
+btnSaveRaidDis.text:SetPoint("CENTER", btnSaveRaidDis)
+
+
 btnLoadRaid = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonTemplate")
 btnLoadRaid:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnLoadRaid:SetPoint("TOPLEFT", 10, -160)
+btnLoadRaid:SetPoint("TOPLEFT", 200, -290)
 btnLoadRaid.text = btnLoadRaid:CreateFontString(nil, "ARTWORK")
 btnLoadRaid.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnLoadRaid.text:SetText("Load Configuration")
@@ -3700,11 +3715,34 @@ btnLoadRaid:Hide()
 
 btnLoadRaidDis = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonGrayTemplate")
 btnLoadRaidDis:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnLoadRaidDis:SetPoint("TOPLEFT", 10, -160)
+btnLoadRaidDis:SetPoint("TOPLEFT", 200, -290)
 btnLoadRaidDis.text = btnLoadRaidDis:CreateFontString(nil, "ARTWORK")
 btnLoadRaidDis.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
 btnLoadRaidDis.text:SetText("Load Configuration")
 btnLoadRaidDis.text:SetPoint("CENTER", btnLoadRaidDis)
+
+
+for i=1, DNASlots.tank do
+  currentViewTank[i] = DNAFramePreset:CreateFontString(nil, "ARTWORK")
+  currentViewTank[i]:SetFont(DNAGlobal.font, 10, "OUTLINE")
+  currentViewTank[i]:SetText("")
+  currentViewTank[i]:SetPoint("TOPLEFT", 10, (-i*12)+5)
+  currentViewTank[i]:SetTextColor(0.5, 0.5, 0.5)
+end
+for i=1, DNASlots.heal do
+  currentViewHeal[i] = DNAFramePreset:CreateFontString(nil, "ARTWORK")
+  currentViewHeal[i]:SetFont(DNAGlobal.font, 10, "OUTLINE")
+  currentViewHeal[i]:SetText("")
+  currentViewHeal[i]:SetPoint("TOPLEFT", 10, (-i*12)-80)
+  currentViewHeal[i]:SetTextColor(0.5, 0.5, 0.5)
+end
+for i=1, DNASlots.cc do
+  currentViewCC[i] = DNAFramePreset:CreateFontString(nil, "ARTWORK")
+  currentViewCC[i]:SetFont(DNAGlobal.font, 10, "OUTLINE")
+  currentViewCC[i]:SetText("")
+  currentViewCC[i]:SetPoint("TOPLEFT", 10, (-i*12)-230)
+  currentViewCC[i]:SetTextColor(0.5, 0.5, 0.5)
+end
 
 for i=1, DNASlots.tank do
   preSetViewTank[i] = DNAFramePreset:CreateFontString(nil, "ARTWORK")

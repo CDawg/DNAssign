@@ -32,7 +32,7 @@ function buildDebugRaid()
   DNARaid["member"][15] = "Averglade"
   DNARaid["member"][16] = "Addontesterc"
   DNARaid["member"][17] = "Krizzu"
-  DNARaid["member"][18] = "Oogleboogle"
+  DNARaid["member"][18] = "Oogleboogle" --testing a fake character
   DNARaid["member"][19] = "Snibson"
   DNARaid["member"][20] = "Mandert"
   DNARaid["member"][21] = "Bibbi"
