@@ -20,6 +20,7 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-MoltenCore",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-MoltenCore",
   DNAGlobal.dir .. "images/mc",
+  "Interface/FrameGeneral/UI-Background-Rock",
 }
 local bossList = {
   {"MC:Trash",          "Interface/EncounterJournal/UI-EJ-BOSS-Baron Geddon", 1},

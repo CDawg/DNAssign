@@ -20,6 +20,7 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-Naxxramas",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-Naxxramas",
   DNAGlobal.dir .. "images/naxx",
+  "Interface/Garrison/GarrisonShipMissionParchment",
 }
 local bossList = {
   {"- Abomination Wing -",   "", 2},
@@ -180,10 +181,11 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     NUM_ADDS = 2
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
+      mark[i] = DNARaidMarkers[i][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
+    mark[1] = DNABossIcon
   end
 
   if (isItem(assign, "Grand Widow Faerlina")) then
