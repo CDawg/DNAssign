@@ -7,7 +7,7 @@
 ## Version: 1.203
 
 libs\DNALibrary.lua
-DNAGlobal.lua
+libs\DNAGlobal.lua
 instances\DNA-MC.lua
 instances\DNA-BWL.lua
 instances\DNA-AQ40.lua

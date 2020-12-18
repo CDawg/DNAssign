@@ -22,7 +22,7 @@ local instanceDetails = {
   DNAGlobal.dir .. "images/mc",
 }
 local bossList = {
-  {"Trash",             "Interface/EncounterJournal/UI-EJ-BOSS-Baron Geddon", 1},
+  {"MC:Trash",          "Interface/EncounterJournal/UI-EJ-BOSS-Baron Geddon", 1},
   {"Lucifron [1]",      "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron", 0},
   {"Lucifron [2]",      "Interface/EncounterJournal/UI-EJ-BOSS-Lucifron", 0},
   {"Dog Pack",          "Interface/EncounterJournal/UI-EJ-BOSS-Son of the Beast", 1},
@@ -42,7 +42,7 @@ table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
 
-  if (isItem(assign, "Trash")) then
+  if (isItem(assign, "MC:Trash")) then
     NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/mc"
     for i=1, NUM_ADDS+1 do

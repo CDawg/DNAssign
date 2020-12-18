@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
@@ -106,6 +106,7 @@ function DN:SetupDefaultVars() --called only when a new profile is created
   DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] = "ON"
 end
 
+--always load
 function DN:BuildGlobalVars()
   if (DNA == nil) then
     DNA = {}
@@ -123,6 +124,9 @@ function DN:BuildGlobalVars()
     end
     if (DNA[player.combine]["DKP"] == nil) then
       DNA[player.combine]["DKP"] = {}
+    end
+    if (DNA[player.combine]["SAVECONF"] == nil) then
+      DNA[player.combine]["SAVECONF"] = {}
     end
     DN:ChatNotification("Creating Raid Profile: " .. player.combine)
     DN:SetupDefaultVars()
