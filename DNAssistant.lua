@@ -528,7 +528,7 @@ function DN:InstanceButtonToggle(name, icon)
   clearFrameClassAssign()
   PlaySound(844)
   raidSelection=""
-  viewPreset("clear")
+  DN:PresetClear()
   debug("DN:InstanceButtonToggle(..., ...)")
 end
 
@@ -1416,8 +1416,8 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
+      DN:PresetClear()
       DN:AlignSlotText()
-      viewPreset("clear")
 
       --parse incoming large packet chunk
       if (string.sub(netpacket, 1, 1) == "{") then
@@ -3278,99 +3278,125 @@ local function viewFrameBottomTabToggle(name)
   end
 end
 
-function viewPreset(selection)
-  local getsave={}
-  local presetText=""
-  if ((selection == "clear") or (selection == "duplicate")) then
-    for i=1, DNASlots.tank do
+function DN:PresetDuplicate()
+  for i=1, DNASlots.tank do
+    currentViewTank[i]:SetText(tankSlot[i].text:GetText())
+    presetViewTank[i]:SetText(tankSlot[i].text:GetText())
+    thisClass = DNARaid["class"][tankSlot[i].text:GetText()]
+    DN:ClassColorText(currentViewTank[i], thisClass)
+    DN:ClassColorText(presetViewTank[i], thisClass)
+    if (tankSlot[i].text:GetText() == "Empty") then
       currentViewTank[i]:SetText("")
       presetViewTank[i]:SetText("")
-      --if (selection == "duplicate") then
-        thisTank = tankSlot[i].text:GetText()
-        if (thisTank ~= "Empty") then
-          currentViewTank[i]:SetText(thisTank)
-          if (selection == "duplicate") then
-            presetViewTank[i]:SetText(thisTank)
-          end
-          thisClass = DNARaid["class"][thisTank]
-          DN:ClassColorText(currentViewTank[i], thisClass)
-          DN:ClassColorText(presetViewTank[i], thisClass)
-        end
-      --end
     end
-    for i=1, DNASlots.heal do
+  end
+  for i=1, DNASlots.heal do
+    currentViewHeal[i]:SetText(healSlot[i].text:GetText())
+    presetViewHeal[i]:SetText(healSlot[i].text:GetText())
+    thisClass = DNARaid["class"][healSlot[i].text:GetText()]
+    DN:ClassColorText(currentViewHeal[i], thisClass)
+    DN:ClassColorText(presetViewHeal[i], thisClass)
+    if (healSlot[i].text:GetText() == "Empty") then
       currentViewHeal[i]:SetText("")
       presetViewHeal[i]:SetText("")
-      --if (selection == "duplicate") then
-        thisHeal = healSlot[i].text:GetText()
-        if (thisHeal ~= "Empty") then
-          currentViewHeal[i]:SetText(thisHeal)
-          if (selection == "duplicate") then
-            presetViewHeal[i]:SetText(thisHeal)
-          end
-          thisClass = DNARaid["class"][thisHeal]
-          DN:ClassColorText(currentViewHeal[i], thisClass)
-          DN:ClassColorText(presetViewHeal[i], thisClass)
-        end
-      --end
     end
-    for i=1, DNASlots.cc do
+  end
+  for i=1, DNASlots.cc do
+    currentViewCC[i]:SetText(ccSlot[i].text:GetText())
+    presetViewCC[i]:SetText(ccSlot[i].text:GetText())
+    thisClass = DNARaid["class"][ccSlot[i].text:GetText()]
+    DN:ClassColorText(currentViewCC[i], thisClass)
+    DN:ClassColorText(presetViewCC[i], thisClass)
+    if (ccSlot[i].text:GetText() == "Empty") then
       currentViewCC[i]:SetText("")
       presetViewCC[i]:SetText("")
-      --if (selection == "duplicate") then
-        thisCC = ccSlot[i].text:GetText()
-        if (thisCC ~= "Empty") then
-          currentViewCC[i]:SetText(thisCC)
-          if (selection == "duplicate") then
-            presetViewCC[i]:SetText(thisCC)
-          end
-          thisClass = DNARaid["class"][thisCC]
-          DN:ClassColorText(currentViewCC[i], thisClass)
-          DN:ClassColorText(presetViewCC[i], thisClass)
-        end
-      --end
     end
-    if (selection == "clear") then
-      noLoadRaidText:Show()
-    else
-      noLoadRaidText:Hide()
-    end
-  else
-    for k,v in pairs(DNA[player.combine]["SAVECONF"][selection]) do
-      getsave.key = k
-      getsave.role = string.gsub(k, "[^a-zA-Z]", "") --remove numbers
-      getsave.slot = string.gsub(k, getsave.role, "")
-      getsave.slot = tonumber(getsave.slot)
-      getsave.name = v
+  end
+  --btnLoadRaid:Hide()
+  --btnLoadRaidDis:Show()
+  --noLoadRaidText:Show()
+  --btnSaveRaidDis:Show()
+  debug("DN:PresetDuplicate()")
+end
 
-      if (getsave.role == TANK) then
-        if ((getsave.name ~= nil) and (getsave.name ~= "Empty")) then
-          presetViewTank[getsave.slot]:SetText(getsave.name)
+function DN:PresetClear()
+  for i=1, DNASlots.tank do
+    currentViewTank[i]:SetText("")
+    thisSlot = tankSlot[i].text:GetText()
+    if (thisSlot ~= "Empty") then
+      currentViewTank[i]:SetText(thisSlot)
+      thisClass = DNARaid["class"][thisSlot]
+      DN:ClassColorText(currentViewTank[i], thisClass)
+    end
+    presetViewTank[i]:SetText("")
+  end
+  for i=1, DNASlots.heal do
+    currentViewHeal[i]:SetText("")
+    thisSlot = healSlot[i].text:GetText()
+    if (thisSlot ~= "Empty") then
+      currentViewHeal[i]:SetText(thisSlot)
+      thisClass = DNARaid["class"][thisSlot]
+      DN:ClassColorText(currentViewHeal[i], thisClass)
+    end
+    presetViewHeal[i]:SetText("")
+  end
+  for i=1, DNASlots.cc do
+    currentViewCC[i]:SetText("")
+    thisSlot = ccSlot[i].text:GetText()
+    if (thisSlot ~= "Empty") then
+      currentViewCC[i]:SetText(thisSlot)
+      thisClass = DNARaid["class"][thisSlot]
+      DN:ClassColorText(currentViewCC[i], thisClass)
+    end
+    presetViewCC[i]:SetText("")
+  end
+  raidSelection = nil
+  btnLoadRaid:Hide()
+  btnLoadRaidDis:Show()
+  noLoadRaidText:Show()
+  btnSaveRaidDis:Show()
+  debug("DN:PresetClear()")
+end
+
+function DN:PresetSelect(selection)
+  local getsave={}
+  local presetText=""
+  for k,v in pairs(DNA[player.combine]["SAVECONF"][selection]) do
+    getsave.key = k
+    getsave.role = string.gsub(k, "[^a-zA-Z]", "") --remove numbers
+    getsave.slot = string.gsub(k, getsave.role, "")
+    getsave.slot = tonumber(getsave.slot)
+    getsave.name = v
+
+    if (getsave.role == TANK) then
+      if ((getsave.name ~= nil) and (getsave.name ~= "Empty")) then
+        presetViewTank[getsave.slot]:SetText(getsave.name)
+        thisClass = DNARaid["class"][getsave.name]
+        DN:ClassColorText(presetViewTank[getsave.slot], thisClass)
+      end
+    end
+    if (getsave.role == HEAL) then
+      if ((getsave.name ~= nil) and (getsave.name ~= "Empty")) then
+        presetViewHeal[getsave.slot]:SetText(getsave.name)
+        if (DNARaid["class"][getsave.name]) then
           thisClass = DNARaid["class"][getsave.name]
-          DN:ClassColorText(presetViewTank[getsave.slot], thisClass)
+          DN:ClassColorText(presetViewHeal[getsave.slot], thisClass)
         end
       end
-      if (getsave.role == HEAL) then
-        if ((getsave.name ~= nil) and (getsave.name ~= "Empty")) then
-          presetViewHeal[getsave.slot]:SetText(getsave.name)
-          if (DNARaid["class"][getsave.name]) then
-            thisClass = DNARaid["class"][getsave.name]
-            DN:ClassColorText(presetViewHeal[getsave.slot], thisClass)
-          end
-        end
-      end
-      if (getsave.role == CC) then
-        if ((getsave.name ~= nil) and (getsave.name ~= "Empty")) then
-          presetViewCC[getsave.slot]:SetText(getsave.name)
-          if (DNARaid["class"][getsave.name]) then
-            thisClass = DNARaid["class"][getsave.name]
-            DN:ClassColorText(presetViewCC[getsave.slot], thisClass)
-          end
+    end
+    if (getsave.role == CC) then
+      if ((getsave.name ~= nil) and (getsave.name ~= "Empty")) then
+        presetViewCC[getsave.slot]:SetText(getsave.name)
+        if (DNARaid["class"][getsave.name]) then
+          thisClass = DNARaid["class"][getsave.name]
+          DN:ClassColorText(presetViewCC[getsave.slot], thisClass)
         end
       end
     end
   end
-  debug("viewPreset('" .. selection .. "')")
+  healSlotUp[1]:Hide()
+  healSlotDown[DNASlots.heal]:Hide()
+  debug("DN:PresetSelect('" .. selection .. "')")
 end
 
 local function viewFrameBottomTab(name, pos_x, text_pos_x)
@@ -3418,12 +3444,9 @@ for i, v in ipairs(DNAInstance) do
   ddBossList[DNAInstance[i][1]].onClick = function(self, checked)
     ddBossListText[DNAInstance[i][1]]:SetText(self.value)
     clearFrameView()
+
+    DN:PresetClear()
     raidSelection = self.value
-    btnLoadRaid:Hide()
-    btnLoadRaidDis:Show()
-    noLoadRaidText:Show()
-    btnSaveRaidDis:Show()
-    viewPreset("clear")
     if ((tankSlot[1]:GetText() ~= "Empty") and (tankSlot[2]:GetText() ~= "Empty")) then
       if ((healSlot[1]:GetText() ~= "Empty") and (healSlot[2]:GetText() ~= "Empty")) then
         btnSaveRaid:Show()
@@ -3432,12 +3455,12 @@ for i, v in ipairs(DNAInstance) do
     end
     if (DNA[player.combine]["SAVECONF"] ~= nil) then
       if (DNA[player.combine]["SAVECONF"][raidSelection]) then
-        if (onPage == "Assignment") then
+        --if (onPage == "Assignment") then
           btnLoadRaid:Show()
           btnLoadRaidDis:Hide()
           noLoadRaidText:Hide()
-          viewPreset(raidSelection)
-        end
+          DN:PresetSelect(raidSelection)
+        --end
       end
     end
     debug("ddBossList " .. self.value)
@@ -3599,7 +3622,7 @@ btnPostRaidDis:SetScript("OnClick", function()
 end)
 -- EO PAGE ASSIGN
 
-local function loadRaidBuilder(selection)
+function DN:PresetLoad(selection)
   local getsave={}
   local preSetText=""
   for k,v in pairs(DNA[player.combine]["SAVECONF"][selection]) do
@@ -3671,6 +3694,11 @@ local function loadRaidBuilder(selection)
       end
     end
   end
+  healSlotUp[1]:Hide()
+  healSlotDown[DNASlots.heal]:Hide()
+  DN:PresetSelect(selection)
+  DN:AlignSlotText()
+  debug("DN:PresetLoad(".. selection ..")")
 end
 
 btnSaveRaid = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonTemplate")
@@ -3689,6 +3717,7 @@ btnSaveRaid:SetScript("OnClick", function()
       if (DNA[player.combine]["SAVECONF"] == nil) then
         DNA[player.combine]["SAVECONF"] = {}
       end
+      DN:PresetDuplicate()
       if (DNA[player.combine]["SAVECONF"][raidSelection] == nil) then
         DNA[player.combine]["SAVECONF"][raidSelection] = {}
       end
@@ -3701,7 +3730,6 @@ btnSaveRaid:SetScript("OnClick", function()
       for i=1, DNASlots.cc do
         DNA[player.combine]["SAVECONF"][raidSelection]["C" .. i] = ccSlot[i].text:GetText()
       end
-      viewPreset("duplicate")
       DN:ChatNotification("Raid Comp Saved: " .. raidSelection)
     end
   end
@@ -3736,7 +3764,7 @@ btnLoadRaid:SetScript("OnClick", function()
       else
         if (DN:RaidPermission()) then --need perms to set
           debug("Set Raid " .. raidSelection)
-          loadRaidBuilder(raidSelection)
+          DN:PresetLoad(raidSelection)
           DNA[player.combine]["ASSIGN"] = DNA[player.combine]["SAVECONF"][raidSelection]
           DN:ChatNotification("Raid Comp Loaded: " .. raidSelection)
         end
@@ -3748,7 +3776,7 @@ btnLoadRaid:Hide()
 
 noLoadRaidText = DNAFramePreset:CreateFontString(nil, "ARTWORK")
 noLoadRaidText:SetFont(DNAGlobal.font, 11, "OUTLINE")
-noLoadRaidText:SetText("No Saved Configurations!")
+noLoadRaidText:SetText("Configuration not saved!")
 noLoadRaidText:SetPoint("TOPLEFT", 195, -150)
 
 btnLoadRaidDis = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonGrayTemplate")
