@@ -3433,7 +3433,7 @@ viewFrameBottomTabToggle("Markers") --default enabled
 
 for i, v in ipairs(DNAInstance) do
   --local icon = _G[button:GetName().."Icon"]
-  ddBossList[DNAInstance[i][1]] = CreateFrame("frame", nil, page["Assignment"], "UIDropDownMenuTemplate")
+  ddBossList[DNAInstance[i][1]] = CreateFrame("Frame", nil, page["Assignment"], "UIDropDownMenuTemplate")
   ddBossList[DNAInstance[i][1]]:SetPoint("TOPLEFT", 680, -90)
   --ddBossList[DNAInstance[i][1]].displayMode = "MENU"
   ddBossListText[DNAInstance[i][1]] = ddBossList[DNAInstance[i][1]]:CreateFontString(nil, "ARTWORK")
