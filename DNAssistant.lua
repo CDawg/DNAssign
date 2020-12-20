@@ -1417,6 +1417,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
 
       DN:AlignSlotText()
+      viewPreset("clear")
 
       --parse incoming large packet chunk
       if (string.sub(netpacket, 1, 1) == "{") then
