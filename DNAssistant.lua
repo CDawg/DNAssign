@@ -3601,8 +3601,8 @@ btnPostRaid:SetScript("OnClick", function()
           DN:SendPacket(netCode[getCode][2] .. DNAFrameClassAssignEdit[v]:GetText(), false)
         end
       end
-
       local getCode = multiKeyFromValue(netCode, "posttoraid")
+      viewFrameBottomTabToggle("Markers") --default enabled
       DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
       if (DNACheckbox["READYCHECK"]:GetChecked()) then
         DoReadyCheck()
@@ -3763,10 +3763,11 @@ btnLoadRaid:SetScript("OnClick", function()
         return
       else
         if (DN:RaidPermission()) then --need perms to set
-          debug("Set Raid " .. raidSelection)
-          DN:PresetLoad(raidSelection)
+          debug("Load Preset " .. raidSelection)
           DNA[player.combine]["ASSIGN"] = DNA[player.combine]["SAVECONF"][raidSelection]
+          DN:PresetLoad(raidSelection)
           DN:ChatNotification("Raid Comp Loaded: " .. raidSelection)
+          DN:PresetDuplicate()
         end
       end
     end
