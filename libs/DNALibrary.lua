@@ -58,6 +58,16 @@ function reindexArray(input, reval)
   end
 end
 
+function reindexArraySafe(array)
+  local n=0
+  local newArray={}
+  for i,v in pairs(array) do
+    n=n+1
+    newArray[n] = v
+  end
+  return newArray
+end
+
 function split(s, delimiter)
   result = {}
   for match in (s..delimiter):gmatch("(.-)"..delimiter) do

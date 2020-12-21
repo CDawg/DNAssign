@@ -118,22 +118,48 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Noth The Plaguebringer")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
+
+    text[2] = note_color .. "SOUTH WEST"
+    heal[2] = tank.all[2] .. "," .. healer.priest[3]
+
+    text[3] = note_color .. "SOUTH EAST"
+    heal[3] = tank.all[3] .. "," .. healer.priest[4]
+
+    text[4] = note_color .. "NORTH EAST"
+    if (healer.priest[5]) then
+      heal[4] = tank.all[4] .. "," .. healer.priest[5]
+    else
+      heal[4] = tank.all[4] .. "," .. healer.paladin[2]
     end
   end
 
   if (isItem(assign, "Heigan The Unclean")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+    local remainder_heals = {}
+    table.merge(remainder_heals, healer.all)
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," ..  healer.priest[3] .. "," .. healer.paladin[1]
+    removeValueFromArray(remainder_heals, healer.priest[1])
+    removeValueFromArray(remainder_heals, healer.priest[2])
+    removeValueFromArray(remainder_heals, healer.priest[3])
+    removeValueFromArray(remainder_heals, healer.paladin[1])
+
+    for i=1, 4 do
+      if (remainder_heals[i]) then
+        text[i+2] = note_color .. "RAID DISPEL"
+        heal[i+2] = remainder_heals[i]
+      end
+    end
+    for i=5, 9 do
+      if (remainder_heals[i]) then
+        text[i+3] = note_color .. "RAID HEAL"
+        heal[i+3] = remainder_heals[i]
+      end
     end
   end
 
@@ -178,7 +204,6 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Anub'Rekhan")) then
-    NUM_ADDS = 2
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     local remainder_heals = {}
     table.merge(remainder_heals, healer.all)
@@ -189,22 +214,19 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     removeValueFromArray(remainder_heals, healer.priest[2])
     removeValueFromArray(remainder_heals, healer.priest[3])
     removeValueFromArray(remainder_heals, healer.paladin[1])
+
     mark[2] = icon.skull
     text[2] = tank.all[2]
     heal[2] = healer.priest[4] .. "," .. healer.paladin[2]
     removeValueFromArray(remainder_heals, healer.priest[4])
     removeValueFromArray(remainder_heals, healer.paladin[2])
+
     mark[3] = icon.cross
     text[3] = tank.all[3]
-    if (healer.priest[5]) then
-      heal[3] = healer.priest[5] .. "," .. healer.paladin[3]
-      removeValueFromArray(remainder_heals, healer.priest[5])
-      removeValueFromArray(remainder_heals, healer.paladin[3])
-    else
-      heal[3] = healer.paladin[4] .. "," .. healer.paladin[5]
-      removeValueFromArray(remainder_heals, healer.paladin[4])
-      removeValueFromArray(remainder_heals, healer.paladin[5])
-    end
+    heal[3] = remainder_heals[1] .. "," .. remainder_heals[2]
+    removeValueFromArray(remainder_heals, remainder_heals[1])
+    removeValueFromArray(remainder_heals, remainder_heals[2])
+    remainder_heals = reindexArraySafe(remainder_heals)
 
     for i=1, table.getn(remainder_heals) do
       text[i+4] = note_color .. "RAID HEAL"
@@ -216,30 +238,48 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Grand Widow Faerlina")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    local remainder_heals = {}
+    table.merge(remainder_heals, healer.all)
+    --[==[
+    if ((cc.main[1] == nil) or (cc.main[1] == "Empty")) then
+      mark[2] = icon.alert
+      text[2] = "|cffff0000MISSING MINDCONTROL IN THE DESIGNATED QUEUE!"
+      return
+    end
+    ]==]--
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
-    --heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
+    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
+    removeValueFromArray(remainder_heals, healer.priest[1])
+    removeValueFromArray(remainder_heals, healer.priest[2])
+    removeValueFromArray(remainder_heals, healer.paladin[1])
 
     mark[2] = icon.skull
     text[2] = tank.all[4]
-    --heal[2] = healer.all[4]
+    heal[2] = healer.priest[3] .. "," .. healer.paladin[2]
+    removeValueFromArray(remainder_heals, healer.priest[3])
+    removeValueFromArray(remainder_heals, healer.paladin[2])
+
     mark[3] = icon.cross
     text[3] = tank.all[5]
-    --heal[3] = healer.all[5]
+    heal[3] = healer.priest[4] .. "," .. healer.paladin[3]
+    removeValueFromArray(remainder_heals, healer.priest[4])
+    removeValueFromArray(remainder_heals, healer.paladin[3])
 
     mark[5] = icon.triangle
     text[5] = tank.all[2]
-    --heal[5] = healer.all[6]
+    heal[5] = remainder_heals[1]
+
     mark[6] = icon.diamond
     text[6] = tank.all[2]
-    --heal[6] = healer.all[6]
+    heal[6] = remainder_heals[2]
 
     mark[8] = icon.star
     text[8] = tank.all[3]
-    --heal[8] = healer.all[7]
+    heal[8] = remainder_heals[3]
     mark[9] = icon.square
     text[9] = tank.all[3]
-    --heal[9] = healer.all[7]
+    heal[9] = remainder_heals[4]
 
     text[11] = note_color .. "Burn down skull and cross (Followers)."
     text[12] = note_color .. "2 Worshippers tanked left side away from boss."
@@ -248,6 +288,14 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Maexxna")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = note_color .. "ALL HEALERS"
+
+    text[3] = note_color .. "WEB HEALER"
+    heal[3] = healer.priest[1]
+    text[4] = note_color .. "WEB HEALER"
+    heal[4] = healer.priest[2]
   end
 
   if (isItem(assign, "Trash Wing:Death Knight")) then

@@ -3731,6 +3731,7 @@ btnSaveRaid:SetScript("OnClick", function()
         DNA[player.combine]["SAVECONF"][raidSelection]["C" .. i] = ccSlot[i].text:GetText()
       end
       DN:ChatNotification("Raid Comp Saved: " .. raidSelection)
+      noLoadRaidText:Hide()
     end
   end
 end)

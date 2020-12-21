@@ -39,7 +39,7 @@ function buildDebugRaid()
   DNARaid["member"][22] = "Lefti"
   DNARaid["member"][23] = "Corr"
   DNARaid["member"][24] = "Valency"
-  DNARaid["member"][25] = "Nutty"
+  DNARaid["member"][25] = "Twizzy"
   DNARaid["member"][26] = "Zatos"
   DNARaid["member"][27] = "Muppot"
   DNARaid["member"][28] = "Gaelic"
@@ -49,7 +49,7 @@ function buildDebugRaid()
   DNARaid["member"][32] = "Sleapy"
   DNARaid["member"][33] = "Stumpymcaxe"
   DNARaid["member"][34] = "Cahonez"
-  DNARaid["member"][35] = "Avarius"
+  DNARaid["member"][35] = "Devonwatnuts"
   DNARaid["member"][36] = "Vye"
   DNARaid["member"][37] = "Nightling"
   DNARaid["member"][38] = "Kelvarn"
@@ -78,7 +78,7 @@ function buildDebugRaid()
   DNARaid["class"]["Lefti"] = "Priest"
   DNARaid["class"]["Corr"] = "Paladin"
   DNARaid["class"]["Valency"] = "Warlock"
-  DNARaid["class"]["Nutty"] = "Paladin"
+  DNARaid["class"]["Twizzy"] = "Paladin"
   DNARaid["class"]["Zatos"] = "Priest"
   DNARaid["class"]["Muppot"] = "Warlock"
   DNARaid["class"]["Gaelic"] = "Paladin"
@@ -88,7 +88,7 @@ function buildDebugRaid()
   DNARaid["class"]["Mairakus"] = "Warrior"
   DNARaid["class"]["Stumpymcaxe"] = "Warrior"
   DNARaid["class"]["Cahonez"] = "Rogue"
-  DNARaid["class"]["Avarius"] = "Warrior"
+  DNARaid["class"]["Devonwatnuts"] = "Warrior"
   DNARaid["class"]["Vye"] = "Rogue"
   DNARaid["class"]["Measles"] = "Warlock"
   DNARaid["class"]["Nightling"] = "Druid"
@@ -117,7 +117,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Lefti"] = 5
   DNARaid["groupid"]["Corr"] = 5
   DNARaid["groupid"]["Valency"] = 5
-  DNARaid["groupid"]["Nutty"] = 5
+  DNARaid["groupid"]["Twizzy"] = 5
   DNARaid["groupid"]["Zatos"] = 5
   DNARaid["groupid"]["Muppot"] = 6
   DNARaid["groupid"]["Gaelic"] = 6
@@ -127,7 +127,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Mairakus"] = 7
   DNARaid["groupid"]["Stumpymcaxe"] = 7
   DNARaid["groupid"]["Cahonez"] = 7
-  DNARaid["groupid"]["Avarius"] = 7
+  DNARaid["groupid"]["Devonwatnuts"] = 7
   DNARaid["groupid"]["Vye"] = 7
   DNARaid["groupid"]["Measles"] = 8
   DNARaid["groupid"]["Nightling"] = 8
