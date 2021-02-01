@@ -3864,6 +3864,8 @@ function DN:PermissionVisibility()
   end
 end
 
+DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5]) --toggle first button
+
 local function DNAOpen()
   if (windowOpen) then
     DNAClose()

@@ -31,8 +31,7 @@ local bossList = {
   {"Thaddius",               "Interface/EncounterJournal/UI-EJ-BOSS-Thaddius", 0},
 
   {"- Plague Wing -",        "", 2},
-  {"Trash Wing:Plague",      "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 1},
-  --{"Trash Wing:Ghouls",      "Interface/EncounterJournal/UI-EJ-BOSS-Timmy the Cruel", 1},
+  {"Trash Wing:Plague",      "Interface/EncounterJournal/UI-EJ-BOSS-Viscidus", 1},
   {"Noth The Plaguebringer", "Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
   {"Heigan The Unclean",     "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
   {"Loatheb",                "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
@@ -58,7 +57,7 @@ table.insert(DNAInstance, instanceDetails)
 
 function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc)
   if (isItem(assign, "Trash Wing:Abomination")) then
-    NUM_ADDS = 8
+    NUM_ADDS = 4
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -68,39 +67,46 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Patchwerk")) then
-    NUM_ADDS = 3
+    NUM_TANKS = 4
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = healer.all[1] .. "," .. healer.all[2]
+    mark[2] = DNABossIcon
+    text[2] = tank.all[2]
+    heal[2] = healer.all[3] .. "," .. healer.all[4] .. "," .. healer.all[5]
+    mark[3] = DNABossIcon
+    text[3] = tank.all[3]
+    heal[3] = healer.all[6] .. "," .. healer.all[7] .. "," .. healer.all[8]
+    mark[4] = DNABossIcon
+    text[4] = tank.all[4]
+    if (healer.all[9]) then
+      heal[4] = healer.all[9] .. "," .. healer.all[10] .. "," .. healer.all[11]
     end
   end
 
   if (isItem(assign, "Grobbulus")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
+    mark[1] = DNABossIcon
+    text[1] = tank.all[1]
+    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
+
+    text[3] = "-- SLIMES --"
+    text[4] = tank.all[2]
+    heal[4] = healer.paladin[2]
+
+    text[6] = "-- DISPELLS --"
+    text[7] = healer.paladin[3]
   end
 
   if (isItem(assign, "Gluth")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
   end
 
   if (isItem(assign, "Thaddius")) then
     NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
-    for i=1, NUM_ADDS+1 do
+    for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
@@ -108,12 +114,22 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Trash Wing:Plague")) then
-    NUM_ADDS = 8
+    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
+    end
+    if (tank.main[4]) then
+      mark[4] = DNARaidMarkers[5][2]
+      text[4] = tank.main[4]
+      heal[4] = healer.all[4]
+    end
+    if (tank.main[5]) then
+      mark[5] = DNARaidMarkers[6][2]
+      text[5] = tank.main[5]
+      heal[5] = healer.all[5]
     end
   end
 
@@ -247,43 +263,39 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       return
     end
     ]==]--
+
+    removeValueFromArray(remainder_heals, healer.priest[1]) --remove the first priest for MC
+
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
-    heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
-    removeValueFromArray(remainder_heals, healer.priest[1])
-    removeValueFromArray(remainder_heals, healer.priest[2])
-    removeValueFromArray(remainder_heals, healer.paladin[1])
-
+    heal[1] = remainder_heals[1] .. "," .. remainder_heals[2] .. "," .. remainder_heals[3]
     mark[2] = icon.skull
     text[2] = tank.all[4]
-    heal[2] = healer.priest[3] .. "," .. healer.paladin[2]
-    removeValueFromArray(remainder_heals, healer.priest[3])
-    removeValueFromArray(remainder_heals, healer.paladin[2])
-
+    heal[2] = remainder_heals[4]
     mark[3] = icon.cross
     text[3] = tank.all[5]
-    heal[3] = healer.priest[4] .. "," .. healer.paladin[3]
-    removeValueFromArray(remainder_heals, healer.priest[4])
-    removeValueFromArray(remainder_heals, healer.paladin[3])
+    heal[3] = remainder_heals[5]
 
     mark[5] = icon.triangle
     text[5] = tank.all[2]
-    heal[5] = remainder_heals[1]
-
+    heal[5] = remainder_heals[6]
     mark[6] = icon.diamond
     text[6] = tank.all[2]
-    heal[6] = remainder_heals[2]
-
+    heal[6] = remainder_heals[6]
     mark[8] = icon.star
     text[8] = tank.all[3]
-    heal[8] = remainder_heals[3]
+    heal[8] = remainder_heals[7]
     mark[9] = icon.square
     text[9] = tank.all[3]
-    heal[9] = remainder_heals[4]
+    heal[9] = remainder_heals[7]
 
-    text[11] = note_color .. "Burn down skull and cross (Followers)."
-    text[12] = note_color .. "2 Worshippers tanked left side away from boss."
-    text[13] = note_color .. "2 Worshippers tanked right side away from boss."
+    mark[11] = "Interface/Icons/spell_shadow_shadowworddominate"
+    text[11] = note_color .. "Mind Control"
+    heal[11] = healer.priest[1]
+
+    text[13] = note_color .. "Burn down skull and cross (Followers)."
+    text[14] = note_color .. "2 Worshippers tanked left side away from boss."
+    text[15] = note_color .. "2 Worshippers tanked right side away from boss."
   end
 
   if (isItem(assign, "Maexxna")) then
