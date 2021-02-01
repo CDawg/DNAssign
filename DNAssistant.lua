@@ -517,6 +517,7 @@ function DN:InstanceButtonToggle(name, icon)
   DNAFrameViewBG:SetTexture(DNAInstance[instanceNum][6])
   DNAFrameViewBossMap:SetTexture(DNAInstance[instanceNum][7])
   DNAFrameAssignBossMap:SetTexture(DNAInstance[instanceNum][7])
+  --[==[
   DNAFrameMain:SetBackdrop({
     bgFile = DNAInstance[instanceNum][8],
     edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
@@ -525,6 +526,7 @@ function DN:InstanceButtonToggle(name, icon)
     tileSize = 500,
     insets = {left=4, right=4, top=20, bottom=4},
   })
+  ]==]--
   clearFrameClassAssign()
   PlaySound(844)
   raidSelection=""

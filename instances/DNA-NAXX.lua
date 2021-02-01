@@ -180,13 +180,10 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Loatheb")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
-    for i=1, NUM_ADDS+1 do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
+    mark[1] = DNABossIcon
+    text[1] = tank.main[1]
+    heal[1] = "HEALER ROTATION"
   end
 
   if (isItem(assign, "Trash Wing:Spider")) then
@@ -256,13 +253,6 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     local remainder_heals = {}
     table.merge(remainder_heals, healer.all)
-    --[==[
-    if ((cc.main[1] == nil) or (cc.main[1] == "Empty")) then
-      mark[2] = icon.alert
-      text[2] = "|cffff0000MISSING MINDCONTROL IN THE DESIGNATED QUEUE!"
-      return
-    end
-    ]==]--
 
     removeValueFromArray(remainder_heals, healer.priest[1]) --remove the first priest for MC
 
@@ -311,7 +301,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
   end
 
   if (isItem(assign, "Trash Wing:Death Knight")) then
-    NUM_ADDS = 8
+    NUM_ADDS = 4
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
