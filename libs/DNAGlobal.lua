@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name   = "Destructive Nature Assistant"
@@ -84,7 +84,7 @@ MAX_DKP_LINES = 120
 DNAInstance = {}
 DNARaidBosses = {}
 
-onPage = "Assignment"
+onPage = "Assignment" --firstpage
 
 function DN:ChatNotification(msg)
   print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
@@ -98,6 +98,8 @@ end
 function DN:SetupDefaultVars() --called only when a new profile is created
   DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
   DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] = "ON"
+  DNACheckbox["AUTOPROMOTEC"]:SetChecked(true)
+  DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] = "ON"
   DNACheckbox["RAIDCHAT"]:SetChecked(true)
   DNA[player.combine]["CONFIG"]["RAIDCHAT"] = "ON"
   DNACheckbox["LOGATTENDANCE"]:SetChecked(true)
@@ -133,6 +135,12 @@ function DN:BuildGlobalVars()
     --it doesn't exist, enable it for the first time
     if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == nil) then
       DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] = "ON"
+    end
+    if (DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] == nil) then
+      DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] = "ON"
+    end
+    if (DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] == nil) then
+      DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] = "ON"
     end
   end
 end
@@ -400,3 +408,91 @@ function isItem(compare, item) --dropdown packets that are filtered from spaces
     return false
   end
 end
+
+
+packet={}
+
+raidSlot={}
+raidSlot_h=20
+tankSlot={}
+healSlot={}
+ccSlot = {}
+tankSlotFrame={}
+healSlotFrame={}
+ccSlotFrame={}
+healSlotUp={}
+healSlotDown={}
+tankSlotFrameClear={}
+healSlotFrameClear={}
+ccSlotFrameClear={}
+DNAFrameMainAuthor={}
+
+raidSelection = nil
+
+DNAFrameMainBottomTab={}
+
+viewFrameBotTab={}
+
+page={}
+pageBanner={}
+pageBossIcon={}
+
+DNAMiniMap={}
+
+pageDKPView={}
+pageDKPViewScrollChild_colOne={}
+pageDKPViewScrollChild_colTwo={}
+pageDKPViewScrollChild_colThree= {}
+
+version_checked = 0
+
+numAttendanceLogs = 0
+
+ddSelection = nil
+
+--pageTab={}
+ddBossList={}
+ddBossListText={}
+DNAFrameInstance={}
+DNAFrameInstanceText={}
+DNAFrameInstanceScript={}
+DNAFrameInstanceGlow={}
+
+DNAFrameView={}
+DNAFrameViewBG={}
+
+DNAFrameClassAssignEdit={}
+--DNAFrameClassAssignHidden={}
+
+pageRaidDetailsColOne={}
+pageRaidDetailsColTwo={}
+
+DNARaidScrollFrame={}
+
+DNAFrameAssignTabIcon={}
+DNAFrameAssignMapGroupID={}
+
+DNAFrameAssignPersonal_w = 320 --MIN WIDTH, length may depend on the string length
+DNAFrameAssignPersonal_h = 80
+
+DNAFramePreset={}
+
+pagePreBuildDisable={}
+btnPostRaid={}
+btnPostRaidDis={}
+btnSaveRaid={}
+btnSaveRaidDis={}
+btnLoadRaid={}
+btnLoadRaidDis={}
+noLoadRaidText={}
+
+currentViewTank={}
+currentViewHeal={}
+currentViewCC={}
+presetViewTank={}
+presetViewHeal={}
+presetViewCC={}
+
+raidInvited={}
+
+totalGuildMembers = 0

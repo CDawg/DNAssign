@@ -69,17 +69,17 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
     end
     if (raid.mage[1]) then
       mark[9] = "Interface/Icons/spell_nature_removecurse"
-      text[9] = "Decruse"
+      text[9] = "Decurse"
       heal[9] = raid.mage[1]
     end
     if (raid.mage[2]) then
       mark[10] = "Interface/Icons/spell_nature_removecurse"
-      text[10] = "Decruse"
+      text[10] = "Decurse"
       heal[10] = raid.mage[2]
     end
     if (raid.mage[3]) then
       mark[11] = "Interface/Icons/spell_nature_removecurse"
-      text[11] = "Decruse"
+      text[11] = "Decurse"
       heal[11] = raid.mage[3]
     end
     --text[13] = note_color .. "RESTO POTS"
@@ -97,12 +97,12 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
     for i=1, total.mages+total.druids do
       if (raid.mage[i]) then
         mark[i+NUM_ADDS+2] = "Interface/Icons/spell_nature_removecurse"
-        text[i+NUM_ADDS+2] = "Decruse"
+        text[i+NUM_ADDS+2] = "Decurse"
         heal[i+NUM_ADDS+2] = raid.mage[i]
       end
       if (raid.druid[i]) then
         mark[i+NUM_ADDS+2] = "Interface/Icons/spell_holy_removecurse"
-        text[i+NUM_ADDS+2] = "Decruse"
+        text[i+NUM_ADDS+2] = "Decurse"
         heal[i+NUM_ADDS+2] = raid.druid[i]
       end
     end

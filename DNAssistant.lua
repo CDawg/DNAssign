@@ -17,99 +17,12 @@ All of this is because Blizz uses LUA which is a fucking piece of shit garbage c
 - Porthios of Myzrael
 ]==]--
 
-local packet={}
-
-local raidSlot={}
-local raidSlot_h=20
-local tankSlot={}
-local healSlot={}
-local ccSlot = {}
-local tankSlotFrame={}
-local healSlotFrame={}
-local ccSlotFrame={}
-local healSlotUp={}
-local healSlotDown={}
-local tankSlotFrameClear={}
-local healSlotFrameClear={}
-local ccSlotFrameClear={}
-local DNAFrameMainAuthor={}
-
-local raidSelection = nil
-
-local DNAFrameMainBottomTab={}
-
-local viewFrameBotTab={}
-
-local page={}
-local pageBanner={}
-local pageBossIcon={}
-
-local DNAMiniMap={}
-
-local pageDKPView={}
-local pageDKPViewScrollChild_colOne={}
-local pageDKPViewScrollChild_colTwo={}
-local pageDKPViewScrollChild_colThree= {}
-
-local version_checked = 0
-
-local numAttendanceLogs = 0
-
-local ddSelection = nil
-
---local pageTab={}
-local ddBossList={}
-local ddBossListText={}
-local DNAFrameInstance={}
-local DNAFrameInstanceText={}
-local DNAFrameInstanceScript={}
-local DNAFrameInstanceGlow={}
-
-local DNAFrameView={}
-local DNAFrameViewBG={}
-
-local DNAFrameClassAssignEdit={}
---local DNAFrameClassAssignHidden={}
-
-local pageRaidDetailsColOne={}
-local pageRaidDetailsColTwo={}
-
-local DNARaidScrollFrame={}
-
-local DNAFrameAssignTabIcon={}
-local DNAFrameAssignMapGroupID={}
-
-local DNAFrameAssignPersonal_w = 320 --MIN WIDTH, length may depend on the string length
-local DNAFrameAssignPersonal_h = 80
-
-local DNAFramePreset={}
-
-local pagePreBuildDisable={}
-local btnPostRaid={}
-local btnPostRaidDis={}
-local btnSaveRaid={}
-local btnSaveRaidDis={}
-local btnLoadRaid={}
-local btnLoadRaidDis={}
-local noLoadRaidText={}
-
-local currentViewTank={}
-local currentViewHeal={}
-local currentViewCC={}
-local presetViewTank={}
-local presetViewHeal={}
-local presetViewCC={}
-
-local raidInvited={}
-
-local totalGuildMembers = 0
-
 local DNAPages = {
   {"Assignment", 10},
   --{"Raid Builder", 100},
   {"Raid Details", 100},
   {"Attendance", 190},
-  {"Config", 280},
+  {"Settings", 280},
 }
 
 local function getGuildComp()
@@ -198,12 +111,10 @@ local function DNAGetRaidComp()
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
                 if (DNAGuild["rank"][name] ~= nil) then --no guild rank or permission
-                  if ((DNAGuild["rank"][name] == "Guild Master") or (DNAGuild["rank"][name] == "Guild Leader") or (DNAGuild["rank"][name] == "Guild Lead") or (DNAGuild["rank"][name] == "Officer") or (DNAGuild["rank"][name] == "Alt Officer")) then
+                  if ((DNAGuild["rank"][name] == "Guild Master") or (DNAGuild["rank"][name] == "Guild Leader") or (DNAGuild["rank"][name] == "Guild Lead") or (DNAGuild["rank"][name] == "Class Lead") or (DNAGuild["rank"][name] == "Officer") or (DNAGuild["rank"][name] == "Alt Officer")) then
                     if (DNARaid["assist"][name] ~= 1) then --has not been promoted yet
                       if (UnitIsGroupAssistant(name) == false) then
-                        --if (DNACheckbox["AUTOPROMOTE"]:GetChecked()) then
-                          DN:PromoteToAssistant(name)
-                        --end
+                        DN:PromoteToAssistant(name)
                       end
                     end
                   end
@@ -487,8 +398,23 @@ local function clearFrameAssignPersonal()
   DNAFrameAssignPersonalClass:SetText("")
   --reset the window positioning, similar to a chat bubble
   DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w) --default
-  DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
   DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
+  debug("clearFrameAssignPersonal()")
+  if (DNACheckbox["SMALLASSIGNCOMBAT"]:GetChecked()) then
+    DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w -140)
+    DNAFrameAssignPersonal:SetHeight(DNAFrameAssignPersonal_h /2)
+    DNAFrameAssignPersonal.header:SetHeight(9)
+    DNAFrameAssignPersonal.headerText:SetFont(DNAGlobal.font, 6, "OUTLINE")
+    DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-12, 2)
+    DNAFrameAssignPersonal.close:SetWidth(12)
+    DNAFrameAssignPersonal.close:SetHeight(12)
+    DNAFrameAssignPersonalMark:SetSize(8, 8)
+    DNAFrameAssignPersonalColOne:SetFont(DNAGlobal.font, 6, "OUTLINE")
+    DNAFrameAssignPersonalColTwo:SetFont(DNAGlobal.font, 6, "OUTLINE")
+    DNAFrameAssignPersonalClass:SetFont(DNAGlobal.font, 6, "OUTLINE")
+    debug("size personal assignment window down")
+  end
+  DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
 end
 
 function DN:InstanceButtonToggle(name, icon)
@@ -716,6 +642,7 @@ DNAFrameAssignPersonal.close:SetBackdrop({
 DNAFrameAssignPersonal.close:SetScript("OnClick", function()
     DNAFrameAssignPersonal:Hide()
 end)
+
 DNAFrameAssignPersonal:Hide()
 
 --DNAFrameAssignMe:Hide()
@@ -1157,11 +1084,15 @@ local function buildRaidAssignments(packet, author, source)
             DNAFrameAssignPersonalColTwo:SetText(filter_row)
             locked_assignments[player.name] = 1
             DNAFrameAssignPersonal:Show()
-            debug("Personal Window Width " .. string.len(filter_row)) --increase the width of the window
+            --debug("Personal Window Width " .. string.len(filter_row)) --increase the width of the window
             if (string.len(filter_row) > 40) then
               DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(filter_row)+40)
-              DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
               DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
+              if (DNACheckbox["SMALLASSIGNCOMBAT"]:GetChecked()) then
+                DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w -140 + string.len(filter_row)+40 /2)
+                DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-12, 2)
+              end
+              DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
             end
           end
         end
@@ -1180,6 +1111,9 @@ local function buildRaidAssignments(packet, author, source)
       local max_class_message_length = class_message:sub(1, 80)
       if (string.len(max_class_message_length)) then
         DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w + string.len(max_class_message_length)*3)
+        if (DNACheckbox["SMALLASSIGNCOMBAT"]:GetChecked()) then
+          DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w -140 + string.len(max_class_message_length)*3)
+        end
         DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
         DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
       end
@@ -1639,8 +1573,15 @@ function DN:GetProfileVars()
     DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
   end
 
+  if (DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] == "ON") then
+    DNACheckbox["AUTOPROMOTEC"]:SetChecked(true)
+  end
+
   if (DNA[player.combine]["CONFIG"]["HIDEASSIGNCOMBAT"] == "ON") then
     DNACheckbox["HIDEASSIGNCOMBAT"]:SetChecked(true)
+  end
+  if (DNA[player.combine]["CONFIG"]["SMALLASSIGNCOMBAT"] == "ON") then
+    DNACheckbox["SMALLASSIGNCOMBAT"]:SetChecked(true)
   end
 
   if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == "ON") then
@@ -1833,15 +1774,34 @@ page["Loot Log"]:SetWidth(DNAGlobal.width)
 page["Loot Log"]:SetHeight(DNAGlobal.height)
 page["Loot Log"]:SetPoint("TOPLEFT", 0, 0)
 
-page["Config"] = CreateFrame("Frame", nil, DNAFrameMain)
-page["Config"]:SetWidth(DNAGlobal.width)
-page["Config"]:SetHeight(DNAGlobal.height)
-page["Config"]:SetPoint("TOPLEFT", 0, 0)
+page["Settings"] = CreateFrame("Frame", nil, DNAFrameMain)
+page["Settings"]:SetWidth(DNAGlobal.width)
+page["Settings"]:SetHeight(DNAGlobal.height)
+page["Settings"]:SetPoint("TOPLEFT", 0, 0)
 
-local profileMessage = page["Config"]:CreateFontString(nil, "ARTWORK")
+function DNAFrameBorder(title, frame, x, y, w, h)
+  --local DNAFrameBackBorder={}
+  DNAFrameBackBorder = CreateFrame("Frame", nil, frame)
+  DNAFrameBackBorder:SetSize(w, h)
+  DNAFrameBackBorder:SetPoint("TOPLEFT", x, -y)
+  DNAFrameBackBorder:SetBackdrop({
+    bgFile = "",
+    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  DNAFrameBackBorderText = DNAFrameBackBorder:CreateFontString(nil,"ARTWORK")
+  DNAFrameBackBorderText:SetFont("Fonts\\ARIALN.ttf", 13, "OUTLINE")
+  DNAFrameBackBorderText:SetPoint("TOPLEFT", DNAFrameBackBorder, "TOPLEFT", 5, 13)
+  --DNAFrameBackBorderText:SetTextColor(0.9, 0.7, 0.7)
+  DNAFrameBackBorderText:SetText("|cffffe885" .. title)
+end
+
+DNAFrameBorder("PROFILE", page["Settings"], 20, 50, 350, 30)
+local profileMessage = page["Settings"]:CreateFontString(nil, "ARTWORK")
 profileMessage:SetFont(DNAGlobal.font, 13, "OUTLINE")
-profileMessage:SetText("|cffffe885Profile:|r " .. player.combine)
-profileMessage:SetPoint("TOPLEFT", 30, -50)
+profileMessage:SetText(player.combine)
+profileMessage:SetPoint("TOPLEFT", 30, -60)
 
 local viewFrame_w = 400
 local viewFrame_h = 400
@@ -1990,13 +1950,30 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY, tooltip)
   end
 end
 
-DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Config"], 10, 40, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
-DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Config"], 10, 60, "Post to Raid chat as well as the screen assignments.")
-DN:CheckBox("LOGATTENDANCE", "Log Raid Attendance", page["Config"], 10, 80, " Log Raid Attendance ")
-DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Config"], 10, 120, "Hide the Personal Assignments window once combat has ended.")
-DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Config"], 10, 160, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
---DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Config"], 10, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
---DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Config"], 10, 80)
+DNAFrameBorder("AUTO PROMOTE", page["Settings"], 20, 110, 350, 100)
+DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Settings"], 20, 80, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
+DN:CheckBox("AUTOPROMOTEC", "Auto Promote Custom", page["Settings"], 20, 100, "Auto Promote custom to raid assistants.\nMust be Raid Lead.")
+DNAFrameAutopromoteCustom = CreateFrame("EditBox", nil, page["Settings"])
+DNAFrameAutopromoteCustom:SetSize(150, 22)
+DNAFrameAutopromoteCustom:SetFontObject(GameFontWhite)
+DNAFrameAutopromoteCustom:SetPoint("TOPLEFT", 30, -170)
+DNAFrameAutopromoteCustom:EnableKeyboard(true)
+DNAFrameAutopromoteCustom:ClearFocus(self)
+DNAFrameAutopromoteCustom:SetAutoFocus(false)
+DNAFrameAutopromoteCustom:SetBackdrop(GameTooltip:GetBackdrop())
+DNAFrameAutopromoteCustom:SetBackdropColor(0, 0, 0, 0.8)
+DNAFrameAutopromoteCustom:SetText(" Class Leads")
+
+DNAFrameBorder("RAID OPTIONS", page["Settings"], 20, 240, 350, 70)
+DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Settings"], 20, 210, "Post to Raid chat as well as the screen assignments.")
+DN:CheckBox("LOGATTENDANCE", "Log Raid Attendance", page["Settings"], 20, 230, " Log Raid Attendance ")
+
+DNAFrameBorder("DIALOG / UI", page["Settings"], 20, 340, 350, 110)
+DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Settings"], 20, 310, "Hide the Personal Assignments window once combat has ended.")
+DN:CheckBox("SMALLASSIGNCOMBAT", "Small Personal Assignment Window", page["Settings"], 20, 330, "Size down the Personal Assignments window.")
+DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Settings"], 20, 350, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
+--DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Settings"], 20, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
+--DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Settings"], 20, 80)
 
 pageDKPEdit = CreateFrame("EditBox", nil, page["DKP"])
 pageDKPEdit:SetWidth(200)
@@ -3843,7 +3820,6 @@ end
 bottomTabToggle(DNAPages[1][1])
 ddBossList[DNAInstance[1][1]]:Show() -- show first one
 
-
 function DN:PermissionVisibility()
   DN:ClearNotifications()
   if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
@@ -4012,9 +3988,9 @@ DNADialogMMIResetYes:SetScript('OnClick', function()
 end)
 DNADialogMMIReset:Hide()
 
-local DNAMiniMapRestore = CreateFrame("Button", nil, page["Config"], "UIPanelButtonTemplate")
+local DNAMiniMapRestore = CreateFrame("Button", nil, page["Settings"], "UIPanelButtonTemplate")
 DNAMiniMapRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
-DNAMiniMapRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+80)
+DNAMiniMapRestore:SetPoint("TOPLEFT", 34, -415)
 DNAMiniMapRestore.text = DNAMiniMapRestore:CreateFontString(nil, "ARTWORK")
 DNAMiniMapRestore.text:SetFont(DNAGlobal.font, 10, "OUTLINE")
 DNAMiniMapRestore.text:SetText("Reset Minimap Position")
@@ -4062,7 +4038,7 @@ DNADialogWTFResetYes:SetScript('OnClick', function()
 end)
 DNADialogWTFReset:Hide()
 
-local DNAWTFRestore = CreateFrame("Button", nil, page["Config"], "UIPanelButtonTemplate")
+local DNAWTFRestore = CreateFrame("Button", nil, page["Settings"], "UIPanelButtonTemplate")
 DNAWTFRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
 DNAWTFRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+50)
 DNAWTFRestore.text = DNAWTFRestore:CreateFontString(nil, "ARTWORK")
