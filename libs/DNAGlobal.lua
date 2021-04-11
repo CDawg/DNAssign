@@ -15,21 +15,24 @@ the copyright holders.
 DEBUG = true
 
 DNAGlobal = {}
-DNAGlobal.name   = "Destructive Nature Assistant"
-DNAGlobal.dir    = "Interface/AddOns/DNAssistant/"
-DNAGlobal.vmajor = 1
-DNAGlobal.vminor = 210
-DNAGlobal.width  = 980
-DNAGlobal.height = 600
---DNAGlobal.font   = DNAGlobal.dir .. "Fonts/verdana.ttf"
---DNAGlobal.font   = DNAGlobal.dir .. "Fonts/cooline.ttf"
-DNAGlobal.font   = "Fonts/FRIZQT__.TTF"
-DNAGlobal.btn_w  = 130
-DNAGlobal.btn_h  = 25
-DNAGlobal.prefix  = "dnassist"
-DNAGlobal.version = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
-DNAGlobal.background = "Interface/Garrison/GarrisonMissionParchment" --default
-DNAGlobal.author = "Porthios of Myzrael"
+DNAGlobal.name     = "Destructive Nature Assistant"
+DNAGlobal.dir      = "Interface/AddOns/DNAssistant/"
+DNAGlobal.vmajor   = 1
+DNAGlobal.vminor   = 210
+DNAGlobal.width    = 980
+DNAGlobal.height   = 600
+DNAGlobal.font     = DNAGlobal.dir .. "Fonts/verdana.ttf"
+--DNAGlobal.font     = "Fonts/ARIALN.ttf"
+--DNAGlobal.font     = "Fonts/FRIZQT__.TTF"
+DNAGlobal.fontSize = 12
+DNAGlobal.btn_w    = 130
+DNAGlobal.btn_h    = 25
+DNAGlobal.prefix   = "dnassist"
+DNAGlobal.version  = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
+DNAGlobal.backdrop = "Interface/Garrison/GarrisonMissionParchment" --default
+DNAGlobal.border   = "Interface/DialogFrame/UI-DialogBox-Border"
+DNAGlobal.author   = "Porthios of Myzrael"
+DNAGlobal.DKP      = 5
 DN = {}
 
 date_day = date("%Y-%m-%d")
@@ -42,33 +45,42 @@ player.combine=player.name .. "-" .. player.realm
 
 total = {}
 total.warriors= 0
-total.rogues = 0
+total.rogues  = 0
 total.hunters = 0
 total.paladins= 0
-total.shamans= 0
+total.shamans = 0
 total.priests = 0
 total.warlocks= 0
-total.mages = 0
-total.druids = 0
-total.warriors_dps = 0 --dps warrs called to OT
-total.druids_dps = 0 --dps druids called to OT
-total.paladins_dps = 0 --dps paladins called to OT
-total.shaman_dps = 0 --dps shamans called to OT
+total.mages   = 0
+total.druids  = 0
+total.warriors_dps= 0 --dps warrs called to OT
+total.druids_dps  = 0 --dps druids called to OT
+total.paladins_dps= 0 --dps paladins called to OT
+total.shaman_dps  = 0 --dps shamans called to OT
 --
 total.tanks = 0
-total.healers = 0
+total.healers= 0
 total.cc = 0
 total.melee = 0
 total.range = 0
 --
 total.raid = 0
 
-note_color = "|cffe2dbbf" --extra note assignment color
+expansionTabs = {
+  {"Classic", "Interface/GLUES/COMMON/GLUES-WOW-CLASSICLOGO"},
+  {"TBC",     "Interface/GLUES/COMMON/GLUES-WOW-BCLOGO"},
+}
 
-player = {}
-player.name = UnitName("player")
-player.realm = GetRealmName()
-player.combine=player.name .. "-" .. player.realm
+DNAPages = {
+  {"Assignment", 10},
+  {"Attendance", 100},
+  {"DKP",        190},
+  {"Settings",   280},
+  --{"Raid Builder", 100},
+  --{"Loot Log", 100},
+}
+
+note_color = "|cffe2dbbf" --extra note assignment color
 
 DNACheckbox = {}
 
@@ -350,7 +362,7 @@ DNATooltipFrame:SetWidth(25)
 DNATooltipFrame:SetHeight(25)
 DNATooltipFrame:SetPoint("TOPLEFT", 30, -15)
 DNATooltip.text = DNATooltipFrame:CreateFontString(nil, "OVERLAY")
-DNATooltip.text:SetFont(DNAGlobal.font, 12, "OUTLINE")
+DNATooltip.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
 DNATooltip.text:SetPoint("CENTER", 0, 0)
 DNATooltip.text:SetText("Hello World")
 DNATooltipFrame:SetBackdrop({
@@ -368,7 +380,7 @@ function DN:ToolTip(frame, msg, offset_x, offset_y)
     local strlength = string.len(msg)
     DNATooltip:Show()
     DNATooltipFrame:SetWidth(strlength*10)
-    DNATooltipFrame:SetHeight(25)
+    DNATooltipFrame:SetHeight(20)
     DNATooltip.text:SetText(msg)
     --debug(strlength)
     if ((offset_x) and (offset_y)) then

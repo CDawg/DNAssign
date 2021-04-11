@@ -8,9 +8,11 @@
 
 libs\DNALibrary.lua
 libs\DNAGlobal.lua
-instances\DNA-MC.lua
-instances\DNA-BWL.lua
-instances\DNA-AQ40.lua
-instances\DNA-NAXX.lua
+instances\Classic\DNA-MC.lua
+instances\Classic\DNA-BWL.lua
+instances\Classic\DNA-AQ40.lua
+instances\Classic\DNA-NAXX.lua
+instances\TBC\DNA-GRUUL.lua
+instances\TBC\DNA-MAG.lua
 debug\DebugRaid.lua
 DNAssistant.lua

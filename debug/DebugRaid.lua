@@ -41,7 +41,7 @@ function buildDebugRaid()
   DNARaid["member"][24] = "Valency"
   DNARaid["member"][25] = "Twizzy"
   DNARaid["member"][26] = "Zatos"
-  DNARaid["member"][27] = "Muppot"
+  DNARaid["member"][27] = "Destructive"
   DNARaid["member"][28] = "Gaelic"
   DNARaid["member"][29] = "Overthere"
   DNARaid["member"][30] = "Akilina"
@@ -51,7 +51,7 @@ function buildDebugRaid()
   DNARaid["member"][34] = "Cahonez"
   DNARaid["member"][35] = "Devonwatnuts"
   DNARaid["member"][36] = "Vye"
-  DNARaid["member"][37] = "Nightling"
+  DNARaid["member"][37] = "Totemgoat"
   DNARaid["member"][38] = "Kelvarn"
   DNARaid["member"][39] = "Measles"
 
@@ -80,7 +80,7 @@ function buildDebugRaid()
   DNARaid["class"]["Valency"] = "Warlock"
   DNARaid["class"]["Twizzy"] = "Paladin"
   DNARaid["class"]["Zatos"] = "Priest"
-  DNARaid["class"]["Muppot"] = "Warlock"
+  DNARaid["class"]["Destructive"] = "Warlock"
   DNARaid["class"]["Gaelic"] = "Paladin"
   DNARaid["class"]["Overthere"] = "Rogue"
   DNARaid["class"]["Akilina"] = "Warrior"
@@ -91,7 +91,7 @@ function buildDebugRaid()
   DNARaid["class"]["Devonwatnuts"] = "Warrior"
   DNARaid["class"]["Vye"] = "Rogue"
   DNARaid["class"]["Measles"] = "Warlock"
-  DNARaid["class"]["Nightling"] = "Druid"
+  DNARaid["class"]["Totemgoat"] = "Shaman"
   DNARaid["class"]["Kelvarn"] = "Priest"
   DNARaid["class"]["Addontesterc"] = "Paladin"
 
@@ -119,7 +119,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Valency"] = 5
   DNARaid["groupid"]["Twizzy"] = 5
   DNARaid["groupid"]["Zatos"] = 5
-  DNARaid["groupid"]["Muppot"] = 6
+  DNARaid["groupid"]["Destructive"] = 6
   DNARaid["groupid"]["Gaelic"] = 6
   DNARaid["groupid"]["Overthere"] = 6
   DNARaid["groupid"]["Akilina"] = 6
@@ -130,7 +130,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Devonwatnuts"] = 7
   DNARaid["groupid"]["Vye"] = 7
   DNARaid["groupid"]["Measles"] = 8
-  DNARaid["groupid"]["Nightling"] = 8
+  DNARaid["groupid"]["Totemgoat"] = 8
   DNARaid["groupid"]["Kelvarn"] = 8
   DNARaid["groupid"]["Averglade"] = 8
 

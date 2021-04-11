@@ -20,34 +20,38 @@ local instanceDetails = {
   "Interface/EncounterJournal/UI-EJ-DUNGEONBUTTON-Naxxramas",
   "Interface/EncounterJournal/UI-EJ-BACKGROUND-Naxxramas",
   DNAGlobal.dir .. "images/naxx",
-  "Interface/Garrison/GarrisonShipMissionParchment",
+  "Classic",
 }
 local bossList = {
-  {"- Abomination Wing -",   "", 2},
+  {"- The Abomination Quarter -","", 2},
   {"Trash Wing:Abomination", "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 1},
   {"Patchwerk",              "Interface/EncounterJournal/UI-EJ-BOSS-Patchwerk", 0},
   {"Grobbulus",              "Interface/EncounterJournal/UI-EJ-BOSS-Grobbulus", 0},
   {"Gluth",                  "Interface/EncounterJournal/UI-EJ-BOSS-Gluth", 0},
   {"Thaddius",               "Interface/EncounterJournal/UI-EJ-BOSS-Thaddius", 0},
 
-  {"- Plague Wing -",        "", 2},
+  {"", "", 2},
+  {"- The Plague Quarter -", "", 2},
   {"Trash Wing:Plague",      "Interface/EncounterJournal/UI-EJ-BOSS-Viscidus", 1},
   {"Noth The Plaguebringer", "Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
   {"Heigan The Unclean",     "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
   {"Loatheb",                "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
 
-  {"- Spider Wing -",        "", 2},
-  {"Trash Wing:Spider",      "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 1},
+  {"", "", 2},
+  {"- The Arachnid Quarter -","", 2},
+  {"Trash Wing:Spiders",     "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 1},
   {"Trash Wing:Ghouls",      "Interface/EncounterJournal/UI-EJ-BOSS-Timmy the Cruel", 1},
   {"Anub'Rekhan",            "Interface/EncounterJournal/UI-EJ-BOSS-AnubRekhan", 0},
   {"Grand Widow Faerlina",   "Interface/EncounterJournal/UI-EJ-BOSS-Grand Widow Faerlina", 0},
   {"Maexxna",                "Interface/EncounterJournal/UI-EJ-BOSS-Maexxna", 0},
 
-  {"- Death Knight Wing -",  "", 2},
-  {"Trash Wing:Death Knight","Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 1},
+  {"", "", 2},
+  {"- The Military Quarter -","", 2},
+  {"Trash Wing:Military",    "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 1},
   {"Instructor Razuvious",   "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 0},
   {"The Four Horsemen",      "Interface/EncounterJournal/UI-EJ-BOSS-Four Horseman", 0},
 
+  {"", "", 2},
   {"- Frostwyrm Lair -",     "", 2},
   {"Sapphiron",              "Interface/EncounterJournal/UI-EJ-BOSS-Sapphiron", 0},
   {"Kel'Thuzad",             "Interface/EncounterJournal/UI-EJ-BOSS-KelThuzad", 0},
@@ -121,16 +125,6 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
-    if (tank.main[4]) then
-      mark[4] = DNARaidMarkers[5][2]
-      text[4] = tank.main[4]
-      heal[4] = healer.all[4]
-    end
-    if (tank.main[5]) then
-      mark[5] = DNARaidMarkers[6][2]
-      text[5] = tank.main[5]
-      heal[5] = healer.all[5]
-    end
   end
 
   if (isItem(assign, "Noth The Plaguebringer")) then
@@ -139,17 +133,32 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     text[1] = tank.all[1]
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
 
-    text[2] = note_color .. "SOUTH WEST"
+    text[2] = note_color .. "ADD TANK"
     heal[2] = tank.all[2] .. "," .. healer.priest[3]
 
-    text[3] = note_color .. "SOUTH EAST"
+    text[3] = note_color .. "ADD TANK"
     heal[3] = tank.all[3] .. "," .. healer.priest[4]
 
-    text[4] = note_color .. "NORTH EAST"
+    text[4] = note_color .. "ADD TANK"
     if (healer.priest[5]) then
       heal[4] = tank.all[4] .. "," .. healer.priest[5]
     else
       heal[4] = tank.all[4] .. "," .. healer.paladin[2]
+    end
+
+    for i=1, total.mages do
+      if (raid.mage[i]) then
+        mark[i+5] = "Interface/Icons/spell_nature_removecurse"
+        text[i+5] = "Decurse"
+        heal[i+5] = raid.mage[i]
+      end
+    end
+    for i=1, total.druids do
+      if (raid.druid[i]) then
+        mark[i+5+total.mages] = "Interface/Icons/spell_nature_removecurse"
+        text[i+5+total.mages] = "Decurse"
+        heal[i+5+total.mages] = raid.druid[i]
+      end
     end
   end
 
@@ -186,7 +195,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     heal[1] = "HEALER ROTATION"
   end
 
-  if (isItem(assign, "Trash Wing:Spider")) then
+  if (isItem(assign, "Trash Wing:Spiders")) then
     NUM_ADDS = 8
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     for i=1, NUM_ADDS do
@@ -198,16 +207,6 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Trash Wing:Ghouls")) then
     NUM_ADDS = 4
-    DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
-    for i=1, NUM_ADDS do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
-  end
-
-  if (isItem(assign, "Trash Ghouls")) then
-    NUM_ADDS = 5
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
@@ -260,32 +259,32 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     text[1] = tank.all[1]
     heal[1] = remainder_heals[1] .. "," .. remainder_heals[2] .. "," .. remainder_heals[3]
     mark[2] = icon.skull
-    text[2] = tank.all[4]
+    text[2] = tank.all[2]
     heal[2] = remainder_heals[4]
     mark[3] = icon.cross
-    text[3] = tank.all[5]
+    text[3] = tank.all[3]
     heal[3] = remainder_heals[5]
 
     mark[5] = icon.triangle
-    text[5] = tank.all[2]
+    text[5] = tank.all[4]
     heal[5] = remainder_heals[6]
     mark[6] = icon.diamond
-    text[6] = tank.all[2]
+    text[6] = tank.all[4]
     heal[6] = remainder_heals[6]
     mark[8] = icon.star
-    text[8] = tank.all[3]
+    text[8] = tank.all[4]
     heal[8] = remainder_heals[7]
     mark[9] = icon.square
-    text[9] = tank.all[3]
+    text[9] = tank.all[4]
     heal[9] = remainder_heals[7]
 
     mark[11] = "Interface/Icons/spell_shadow_shadowworddominate"
     text[11] = note_color .. "Mind Control"
     heal[11] = healer.priest[1]
 
-    text[13] = note_color .. "Burn down skull and cross (Followers)."
-    text[14] = note_color .. "2 Worshippers tanked left side away from boss."
-    text[15] = note_color .. "2 Worshippers tanked right side away from boss."
+    text[13] = note_color .. "Burn down {skull} and {cross} (Followers)."
+    text[14] = note_color .. "Worshippers tanked away from boss."
+    --text[15] = note_color .. "2 Worshippers tanked right side away from boss."
   end
 
   if (isItem(assign, "Maexxna")) then
@@ -300,7 +299,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     heal[4] = healer.priest[2]
   end
 
-  if (isItem(assign, "Trash Wing:Death Knight")) then
+  if (isItem(assign, "Trash Wing:Military")) then
     NUM_ADDS = 4
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
     for i=1, NUM_ADDS do
@@ -308,10 +307,6 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       text[i] = tank.all[i]
       heal[i] = healer.all[i]
     end
-  end
-
-  if (isItem(assign, "Trash Wing:Death Knight")) then
-    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
   end
 
   if (isItem(assign, "Instructor Razuvious")) then
