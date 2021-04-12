@@ -23,7 +23,7 @@ local instanceDetails = {
   "TBC",
 }
 local bossList = {
-  {"Mag:Trash",          "Interface/EncounterJournal/UI-EJ-BOSS-Magtheridon", 1},
+  {"Magtheridon",          "Interface/EncounterJournal/UI-EJ-BOSS-Magtheridon", 0},
 }
 
 table.insert(DNARaidBosses, bossList)

@@ -23,7 +23,7 @@ function buildDebugRaid()
   DNARaid["member"][6] = "Grayleaf"
   DNARaid["member"][7] = "Droott"
   DNARaid["member"][8] = "Aquilla"
-  DNARaid["member"][9] = "Neilsbhor"
+  DNARaid["member"][9] = "Kharan"
   DNARaid["member"][10] = "Frosthunt"
   DNARaid["member"][11] = "Nanodel"
   DNARaid["member"][12] = "Crisis"
@@ -32,9 +32,9 @@ function buildDebugRaid()
   DNARaid["member"][15] = "Averglade"
   DNARaid["member"][16] = "Addontesterc"
   DNARaid["member"][17] = "Krizzu"
-  DNARaid["member"][18] = "Oogleboogle" --testing a fake character
+  DNARaid["member"][18] = "Ktee" --testing a fake character
   DNARaid["member"][19] = "Snibson"
-  DNARaid["member"][20] = "Mandert"
+  DNARaid["member"][20] = "Espoir"
   DNARaid["member"][21] = "Bibbi"
   DNARaid["member"][22] = "Lefti"
   DNARaid["member"][23] = "Corr"
@@ -49,7 +49,7 @@ function buildDebugRaid()
   DNARaid["member"][32] = "Sleapy"
   DNARaid["member"][33] = "Stumpymcaxe"
   DNARaid["member"][34] = "Cahonez"
-  DNARaid["member"][35] = "Devonwatnuts"
+  DNARaid["member"][35] = "Jadbin"
   DNARaid["member"][36] = "Vye"
   DNARaid["member"][37] = "Totemgoat"
   DNARaid["member"][38] = "Kelvarn"
@@ -63,17 +63,17 @@ function buildDebugRaid()
   DNARaid["class"]["Grayleaf"] = "Warrior"
   DNARaid["class"]["Droott"] = "Druid"
   DNARaid["class"]["Aquilla"] = "Mage"
-  DNARaid["class"]["Neilsbhor"] = "Mage"
+  DNARaid["class"]["Kharan"] = "Warrior"
   DNARaid["class"]["Frosthunt"] = "Hunter"
   DNARaid["class"]["Nanodel"] = "Hunter"
   DNARaid["class"]["Crisis"] = "Warrior"
+  DNARaid["class"]["Ktee"] = "Warrior"
   DNARaid["class"]["Whistper"] = "Hunter"
   DNARaid["class"]["Zarianna"] = "Paladin"
   DNARaid["class"]["Krizzu"] = "Mage"
-  DNARaid["class"]["Elderpen"] = "Warrior"
   DNARaid["class"]["Snibson"] = "Priest"
   DNARaid["class"]["Averglade"] = "Paladin"
-  DNARaid["class"]["Mandert"] = "Warrior"
+  DNARaid["class"]["Espoir"] = "Warrior"
   DNARaid["class"]["Bibbi"] = "Rogue"
   DNARaid["class"]["Lefti"] = "Priest"
   DNARaid["class"]["Corr"] = "Paladin"
@@ -88,7 +88,7 @@ function buildDebugRaid()
   DNARaid["class"]["Mairakus"] = "Warrior"
   DNARaid["class"]["Stumpymcaxe"] = "Warrior"
   DNARaid["class"]["Cahonez"] = "Rogue"
-  DNARaid["class"]["Devonwatnuts"] = "Warrior"
+  DNARaid["class"]["Jadbin"] = "Warrior"
   DNARaid["class"]["Vye"] = "Rogue"
   DNARaid["class"]["Measles"] = "Warlock"
   DNARaid["class"]["Totemgoat"] = "Shaman"
@@ -104,7 +104,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Grayleaf"] = 2
   DNARaid["groupid"]["Droott"] = 2
   DNARaid["groupid"]["Aquilla"] = 2
-  DNARaid["groupid"]["Neilsbhor"] = 2
+  DNARaid["groupid"]["Kharan"] = 2
   DNARaid["groupid"]["Frosthunt"] = 3
   DNARaid["groupid"]["Nanodel"] = 3
   DNARaid["groupid"]["Crisis"] = 3
@@ -112,7 +112,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Krizzu"] = 4
   DNARaid["groupid"]["Alectar"] = 4
   DNARaid["groupid"]["Snibson"] = 4
-  DNARaid["groupid"]["Mandert"] = 4
+  DNARaid["groupid"]["Espoir"] = 4
   DNARaid["groupid"]["Bibbi"] = 4
   DNARaid["groupid"]["Lefti"] = 5
   DNARaid["groupid"]["Corr"] = 5
@@ -127,7 +127,7 @@ function buildDebugRaid()
   DNARaid["groupid"]["Mairakus"] = 7
   DNARaid["groupid"]["Stumpymcaxe"] = 7
   DNARaid["groupid"]["Cahonez"] = 7
-  DNARaid["groupid"]["Devonwatnuts"] = 7
+  DNARaid["groupid"]["Jadbin"] = 7
   DNARaid["groupid"]["Vye"] = 7
   DNARaid["groupid"]["Measles"] = 8
   DNARaid["groupid"]["Totemgoat"] = 8

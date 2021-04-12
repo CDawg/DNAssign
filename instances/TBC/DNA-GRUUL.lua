@@ -23,8 +23,18 @@ local instanceDetails = {
   "TBC",
 }
 local bossList = {
-  {"Gruul",          "Interface/EncounterJournal/UI-EJ-BOSS-Gruul the Dragonkiller", 1},
+  {"Gruul",          "Interface/EncounterJournal/UI-EJ-BOSS-Gruul the Dragonkiller", 0},
 }
 
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
+
+if (isItem(assign, "Gruul")) then
+  NUM_ADDS = 3
+  --DNABossMap = DNAGlobal.dir .. "images/mc"
+  for i=1, NUM_ADDS+1 do
+    mark[i] = DNARaidMarkers[i+1][2]
+    text[i] = tank.all[i]
+    heal[i] = healer.all[i]
+  end
+end

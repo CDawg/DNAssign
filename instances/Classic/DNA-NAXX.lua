@@ -49,6 +49,7 @@ local bossList = {
   {"- The Military Quarter -","", 2},
   {"Trash Wing:Military",    "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 1},
   {"Instructor Razuvious",   "Interface/EncounterJournal/UI-EJ-BOSS-Instructor Razuvious", 0},
+  {"Gothik the Harvester",   "Interface/EncounterJournal/UI-EJ-BOSS-Gothik the Harvester", 0},
   {"The Four Horsemen",      "Interface/EncounterJournal/UI-EJ-BOSS-Four Horseman", 0},
 
   {"", "", 2},
@@ -313,8 +314,83 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
   end
 
+  if (isItem(assign, "Gothik the Harvester")) then
+    DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    if (raid.priest[1]) then
+      mark[1] = icon.triangle
+      text[1] = note_color .. "WAVE 8"
+      heal[1] = raid.priest[1]
+    end
+    if (raid.priest[2]) then
+      mark[2] = icon.star
+      text[2] = note_color .. "WAVE 11"
+      heal[2] = raid.priest[2]
+    end
+    if (raid.priest[3]) then
+      mark[3] = icon.square
+      text[3] = note_color .. "WAVE 13"
+      heal[3] = raid.priest[3]
+    end
+    if (raid.priest[4]) then
+      mark[4] = icon.cross
+      text[4] = note_color .. "WAVE 16"
+      heal[4] = raid.priest[4]
+    end
+    if (raid.priest[5]) then
+      mark[5] = icon.diamond
+      text[5] = note_color .. "WAVE 18"
+      heal[5] = raid.priest[5]
+    end
+  end
+
   if (isItem(assign, "The Four Horsemen")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    if ((cc.main[1]) and (cc.main[2])) then
+      mark[1] = icon.skull
+      text[1] = "PULL"
+      heal[1] = tank.all[1]
+      mark[2] = icon.skull
+      text[2] = "|cffa6e772SAFE ZONE"
+      heal[2] = tank.all[2]
+
+      mark[3] = icon.cross
+      text[3] = "PULL"
+      heal[3] = tank.all[3]
+      mark[4] = icon.cross
+      text[4] = "|cffa6e772SAFE ZONE"
+      heal[4] = tank.all[4]
+
+      mark[5] = icon.circle
+      text[5] = "PULL"
+      heal[5] = tank.all[5]
+      mark[6] = icon.circle
+      text[6] = "|cffa6e772SAFE ZONE"
+      heal[6] = tank.all[6]
+
+      mark[7] = icon.triangle
+      text[7] = "PULL"
+      heal[7] = cc.main[1]
+      mark[8] = icon.triangle
+      text[8] = "|cffa6e772SAFE ZONE"
+      heal[8] = cc.main[2]
+
+      mark[7] = icon.triangle
+      text[7] = "PULL"
+      heal[7] = cc.main[1]
+      mark[8] = icon.triangle
+      text[8] = "|cffa6e772SAFE ZONE"
+      heal[8] = cc.main[2]
+
+      mark[7] = icon.triangle
+      text[7] = "PULL"
+      heal[7] = cc.main[1]
+      mark[8] = icon.triangle
+      text[8] = "|cffa6e772SAFE ZONE"
+      heal[8] = cc.main[2]
+    else
+      mark[1] = icon.alert
+      text[1] = "|cffff0000MISSING TANKS IN DESIGNATED QUEUE!"
+    end
   end
 
   if (isItem(assign, "Sapphiron")) then

@@ -12,13 +12,13 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name     = "Destructive Nature Assistant"
 DNAGlobal.dir      = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor   = 1
-DNAGlobal.vminor   = 210
+DNAGlobal.vminor   = 224
 DNAGlobal.width    = 980
 DNAGlobal.height   = 600
 DNAGlobal.font     = DNAGlobal.dir .. "Fonts/verdana.ttf"
@@ -74,8 +74,9 @@ expansionTabs = {
 DNAPages = {
   {"Assignment", 10},
   {"Attendance", 100},
-  {"DKP",        190},
-  {"Settings",   280},
+  {"Settings",   190},
+  {"DKP",        280},
+  --{"Settings",   280},
   --{"Raid Builder", 100},
   --{"Loot Log", 100},
 }

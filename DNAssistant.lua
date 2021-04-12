@@ -437,7 +437,7 @@ function DN:InstanceButtonToggle(name, icon)
   DNAFrameAssignBossMap:SetTexture(DNAInstance[instanceNum][7])
 
   clearFrameClassAssign()
-  PlaySound(844)
+  PlaySound(840)
   raidSelection=""
   DN:PresetClear()
   debug("DN:InstanceButtonToggle(..., ...)")
@@ -1675,7 +1675,7 @@ for i,v in pairs(DNAPages) do
   page[v[1]]:SetHeight(DNAGlobal.height)
   page[v[1]]:SetPoint("TOPLEFT", 0, 0)
   page[v[1]]:Hide()
-  debug(v[1])
+  --debug(v[1])
 end
 
 --pagePreBuildDisable = CreateFrame("Frame", pagePreBuildDisable, page["Assignment"], "ThinBorderTemplate")
@@ -1685,12 +1685,14 @@ pagePreBuildDisable:SetHeight(100)
 pagePreBuildDisable:SetPoint("TOPLEFT", 0, 0)
 
 local pageAssignBtnDiv={}
+--[==[
 for i=1, 5 do
   pageAssignBtnDiv[i] = page["Assignment"]:CreateTexture(nil, "ARTWORK", page["Assignment"], 3)
   pageAssignBtnDiv[i]:SetTexture("Interface/DialogFrame/UI-DialogBox-Divider")
   pageAssignBtnDiv[i]:SetSize(256, 20)
   pageAssignBtnDiv[i]:SetPoint("TOPLEFT", 6, i*100-622)
 end
+]==]--
 
 local pageAssignRightDiv = page["Assignment"]:CreateTexture(nil, "ARTWORK")
 pageAssignRightDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
@@ -2115,7 +2117,7 @@ DNAFrameInstanceBG:SetFrameLevel(2)
 function DN:InstanceButton(name, pos_y, longtext, icon)
   DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
   DNAFrameInstance[name]:SetSize(140, 80)
-  DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+64)
+  DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+58)
 
   DNAFrameInstanceText[name] = DNAFrameInstance[name]:CreateFontString(nil, "OVERLAY")
   DNAFrameInstanceText[name]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -2147,14 +2149,14 @@ end
 
 --draw all tabs in order
 for i, v in ipairs(DNAInstance) do
-  DN:InstanceButton(DNAInstance[i][1], i*100, DNAInstance[i][2], DNAInstance[i][5])
+  DN:InstanceButton(DNAInstance[i][1], i*84, DNAInstance[i][2], DNAInstance[i][5])
 end
 
 local expInstanceButtonPos=1
 for i, v in ipairs(DNAInstance) do
   if (DNAInstance[i][8] == "TBC") then
     expInstanceButtonPos=expInstanceButtonPos+1
-    DNAFrameInstance[DNAInstance[i][1]]:SetPoint("TOPLEFT", 30, -(expInstanceButtonPos*100)+164)
+    DNAFrameInstance[DNAInstance[i][1]]:SetPoint("TOPLEFT", 30, -(expInstanceButtonPos*84)+142)
   end
 end
 
@@ -2626,24 +2628,17 @@ end
 local expTab = {}
 local tabBack = {}
 local tabLogo = {}
-local tabBorder = {}
 local expTab_w=42
 local expTab_h=30
 
 function expTabInactive()
   for i,v in pairs(expansionTabs) do
     expTab[v[1]]:SetFrameLevel(0)
-    tabBorder[v[1]]:SetPoint("TOPLEFT", 8, 0)
-    tabBack[v[1]]:SetPoint("TOPLEFT", 10, -4)
-    tabLogo[v[1]]:SetPoint("TOPLEFT", 10, -2)
   end
 end
 function expTabActive(name)
   expTabInactive() --reset all
   expTab[name]:SetFrameLevel(5)
-  tabBorder[name]:SetPoint("TOPLEFT", 0, 0)
-  tabBack[name]:SetPoint("TOPLEFT", 6, -4)
-  tabLogo[name]:SetPoint("TOPLEFT", 4, -2)
   for i, v in ipairs(DNAInstance) do
     DNAFrameInstance[DNAInstance[i][1]]:Hide()
   end
@@ -2656,22 +2651,28 @@ end
 
 function expansionTab(name, backdrop, pos_y)
   expTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
-  expTab[name]:SetPoint("TOPLEFT", -65, -pos_y)
-  expTab[name]:SetWidth(70)
-  expTab[name]:SetHeight(50)
+  expTab[name]:SetPoint("TOPLEFT", -31, -pos_y+55)
+  expTab[name]:SetWidth(50)
+  expTab[name]:SetHeight(94)
   expTab[name]:SetFrameLevel(0)
-  tabBack[name] = expTab[name]:CreateTexture(nil, "BACKGROUND", nil, 0)
-  tabBack[name]:SetTexture("Interface/Garrison/GarrisonMissionParchment")
-  tabBack[name]:SetSize(64, 42)
-  tabBack[name]:SetPoint("TOPLEFT", 10, -4)
-  tabLogo[name] = expTab[name]:CreateTexture(nil, "BORDER", nil, 0)
+  --[==[
+  expTab[name]:SetBackdrop({
+    bgFile="green",
+    edgeFile="",
+    edgeSize = 2,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  ]==]--
+  tabBack[name] = expTab[name]:CreateTexture(nil, "BORDER", nil, 0)
+  tabBack[name]:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
+  tabBack[name]:SetSize(100, 40)
+  tabBack[name]:SetPoint("TOPLEFT", -30, -28)
+  tabBack[name]:SetRotation(math.rad(270))
+  tabLogo[name] = expTab[name]:CreateTexture(nil, "OVERLAY", nil, 0)
   tabLogo[name]:SetTexture(backdrop)
   tabLogo[name]:SetSize(70, 45)
-  tabLogo[name]:SetPoint("TOPLEFT", 10, -2)
-  tabBorder[name] = expTab[name]:CreateTexture(nil, "BORDER", nil, 0)
-  tabBorder[name]:SetTexture("Interface/COMMON/GreyBorder64-Left")
-  tabBorder[name]:SetSize(70, 50)
-  tabBorder[name]:SetPoint("TOPLEFT", 8, 0)
+  tabLogo[name]:SetPoint("TOPLEFT", -10, -25)
+  tabLogo[name]:SetRotation(math.rad(90))
   tabScript = {}
   tabScript[name] = CreateFrame("Button", nil, expTab[name], nil)
   tabScript[name]:SetSize(expTab_w+20, expTab_h+10)
@@ -2679,21 +2680,11 @@ function expansionTab(name, backdrop, pos_y)
   tabScript[name]:SetScript("OnClick", function()
     expTabActive(name)
     DNA[player.combine]["CONFIG"]["EXP"] = name
-    --[==[
-    for i, v in ipairs(DNAInstance) do
-      DNAFrameInstance[DNAInstance[i][1]]:Hide()
-    end
-    for i, v in ipairs(DNAInstance) do
-      if (DNAInstance[i][8] == name) then
-        DNAFrameInstance[DNAInstance[i][1]]:Show()
-      end
-    end
-    ]==]--
   end)
 end
 
 for i,v in pairs(expansionTabs) do
-  expansionTab(v[1], v[2], i*50)
+  expansionTab(v[1], v[2], i*90)
 end
 expTabActive("Classic") --default
 
@@ -3848,6 +3839,8 @@ end
 for i,v in pairs(DNAPages) do
   bottomTab(DNAPages[i][1], DNAPages[i][2])
 end
+
+DNAFrameMainBottomTab["DKP"]:Hide() --DEBUG
 
 --default selection after drawn
 bottomTabToggle(DNAPages[1][1])
