@@ -455,72 +455,76 @@ function DN:ParsePacket(packet, netpacket)
     packet.slot = tonumber(packet.slot)
     packet.name = packet.split[2]
   end
-  debug("packet.role " .. packet.role)
-  debug("packet.slot " .. packet.slot)
-  debug("packet.name " .. packet.name)
-  if (packet.role == TANK) then
-    if ((packet.name == nil) or (packet.name == "Empty")) then
-      tankSlot[packet.slot].text:SetText("Empty")
-      tankSlot[packet.slot].icon:SetTexture("")
-      tankSlot[packet.slot]:SetFrameLevel(2)
-      tankSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
-      tankSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
-      DN:ClassColorText(tankSlot[packet.slot].text, "Empty")
-    else
-      tankSlot[packet.slot].text:SetText(packet.name)
-      tankSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
-      tankSlot[packet.slot]:SetFrameLevel(4)
-      tankSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
-      tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-      if (DNAGuild["class"][packet.name]) then
-        thisClass = DNAGuild["class"][packet.name]
+
+  if ((packet.role) and (packet.slot) and (packet.name)) then
+    if (packet.role == TANK) then
+      if ((packet.name == nil) or (packet.name == "Empty")) then
+        tankSlot[packet.slot].text:SetText("Empty")
+        tankSlot[packet.slot].icon:SetTexture("")
+        tankSlot[packet.slot]:SetFrameLevel(2)
+        tankSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
+        tankSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        DN:ClassColorText(tankSlot[packet.slot].text, "Empty")
       else
-        thisClass = DNARaid["class"][packet.name]
+        tankSlot[packet.slot].text:SetText(packet.name)
+        tankSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
+        tankSlot[packet.slot]:SetFrameLevel(4)
+        tankSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
+        tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+        if (DNAGuild["class"][packet.name]) then
+          thisClass = DNAGuild["class"][packet.name]
+        else
+          thisClass = DNARaid["class"][packet.name]
+        end
+        DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
+        --SetPartyAssignment("MAINTANK", packet.name, 1)
+        --debug("MAINTANK = " .. packet.name)
       end
-      DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
-      --SetPartyAssignment("MAINTANK", packet.name, 1)
-      --debug("MAINTANK = " .. packet.name)
     end
-  end
 
-  if (packet.role == HEAL) then
-    if ((packet.name == nil) or (packet.name == "Empty")) then
-      healSlot[packet.slot].text:SetText("Empty")
-      healSlot[packet.slot].icon:SetTexture("")
-      healSlot[packet.slot]:SetFrameLevel(2)
-      healSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
-      healSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
-      DN:ClassColorText(healSlot[packet.slot].text, "Empty")
-    else
-      healSlot[packet.slot].text:SetText(packet.name)
-      healSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
-      healSlot[packet.slot]:SetFrameLevel(4)
-      healSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
-      healSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-      --thisClass = UnitClass(packet.name)
-      thisClass = DNARaid["class"][packet.name]
-      DN:ClassColorText(healSlot[packet.slot].text, thisClass)
+    if (packet.role == HEAL) then
+      if ((packet.name == nil) or (packet.name == "Empty")) then
+        healSlot[packet.slot].text:SetText("Empty")
+        healSlot[packet.slot].icon:SetTexture("")
+        healSlot[packet.slot]:SetFrameLevel(2)
+        healSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
+        healSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        DN:ClassColorText(healSlot[packet.slot].text, "Empty")
+      else
+        healSlot[packet.slot].text:SetText(packet.name)
+        healSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
+        healSlot[packet.slot]:SetFrameLevel(4)
+        healSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
+        healSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+        --thisClass = UnitClass(packet.name)
+        thisClass = DNARaid["class"][packet.name]
+        DN:ClassColorText(healSlot[packet.slot].text, thisClass)
+      end
     end
-  end
 
-  if (packet.role == CC) then
-    if ((packet.name == nil) or (packet.name == "Empty")) then
-      ccSlot[packet.slot].text:SetText("Empty")
-      ccSlot[packet.slot].icon:SetTexture("")
-      ccSlot[packet.slot]:SetFrameLevel(2)
-      ccSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
-      ccSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
-      DN:ClassColorText(ccSlot[packet.slot].text, "Empty")
-    else
-      ccSlot[packet.slot].text:SetText(packet.name)
-      ccSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
-      ccSlot[packet.slot]:SetFrameLevel(4)
-      ccSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
-      ccSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-      --thisClass = UnitClass(packet.name)
-      thisClass = DNARaid["class"][packet.name]
-      DN:ClassColorText(ccSlot[packet.slot].text, thisClass)
+    if (packet.role == CC) then
+      if ((packet.name == nil) or (packet.name == "Empty")) then
+        ccSlot[packet.slot].text:SetText("Empty")
+        ccSlot[packet.slot].icon:SetTexture("")
+        ccSlot[packet.slot]:SetFrameLevel(2)
+        ccSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
+        ccSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        DN:ClassColorText(ccSlot[packet.slot].text, "Empty")
+      else
+        ccSlot[packet.slot].text:SetText(packet.name)
+        ccSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
+        ccSlot[packet.slot]:SetFrameLevel(4)
+        ccSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
+        ccSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+        --thisClass = UnitClass(packet.name)
+        thisClass = DNARaid["class"][packet.name]
+        DN:ClassColorText(ccSlot[packet.slot].text, thisClass)
+      end
     end
+
+    debug("packet.role " .. packet.role)
+    debug("packet.slot " .. packet.slot)
+    debug("packet.name " .. packet.name)
   end
 
   --update the saved
