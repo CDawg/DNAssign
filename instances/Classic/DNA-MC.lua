@@ -82,7 +82,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
       text[11] = "Decurse"
       heal[11] = raid.mage[3]
     end
-    --text[13] = note_color .. "RESTO POTS"
+    --text[13] = textcolor.note .. "RESTO POTS"
     mark[1] = DNABossIcon
   end
 
@@ -114,7 +114,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
         heal[i+NUM_ADDS+total.mages+2] = healer.priest[i+3]
       end
     end
-    --text[13] = note_color .. "RESTO POTS"
+    --text[13] = textcolor.note .. "RESTO POTS"
     mark[1] = DNABossIcon
   end
 
@@ -138,13 +138,13 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
     end
 
     if (raid.fearward[1]) then
-      text[3] = note_color .. "FEAR WARD PRIO TO TANK"
+      text[3] = textcolor.note .. "FEAR WARD PRIO TO TANK"
     end
 
     local num_fearwards = table.getn(raid.fearward)
     for i=1, num_fearwards do
       mark[i+4] = "Interface/Icons/spell_holy_excorcism"
-      text[i+4] = note_color .. "Fear Ward"
+      text[i+4] = textcolor.note .. "Fear Ward"
       heal[i+4] = raid.fearward[i]
     end
 
@@ -184,7 +184,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
       end
     end
 
-    text[NUM_ADDS+total.mages+5] = note_color .. "TANKS: Free Action Potions!"
+    text[NUM_ADDS+total.mages+5] = textcolor.note .. "TANKS: Free Action Potions!"
 
     mark[1] = DNABossIcon
   end
@@ -241,7 +241,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
       heal[i] = nodruid_heals[5]
     end
     if (raid.warlock[1]) then
-      text[11] = note_color .. "- BACKUP"
+      text[11] = textcolor.note .. "- BACKUP"
       heal[11] = raid.warlock[1]
     end
     mark[1] = DNABossIcon
@@ -320,7 +320,7 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
 
     for i=1, table.getn(remainder_heals) do
       if (remainder_heals[i]) then
-        text[i+11] = note_color .. "DISPELL"
+        text[i+11] = textcolor.note .. "DISPELL"
         heal[i+11] = remainder_heals[i]
       end
     end
@@ -405,11 +405,11 @@ function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
     removeValueFromArray(remainder_heals, healer.paladin[2])
     removeValueFromArray(remainder_heals, healer.priest[1])
 
-    text[5] = note_color .. "Melee Heals:"
+    text[5] = textcolor.note .. "Melee Heals:"
     heal[5] = remainder_heals[1] .. "," .. remainder_heals[2]
 
-    text[7] = note_color .. "Rest of the healers are raid heals."
-    --text[8] = note_color .. "Raid Heals:"
+    text[7] = textcolor.note .. "Rest of the healers are raid heals."
+    --text[8] = textcolor.note .. "Raid Heals:"
     --heal[8] = remainder_heals[3] .. "," .. remainder_heals[4] .. "," .. remainder_heals[5]
 
     --ConsoleExec("/range 10")

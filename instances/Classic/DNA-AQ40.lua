@@ -54,7 +54,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       if (raid.mage[i]) then
         --mark[i+NUM_ADDS+1] = "Interface/Icons/spell_holy_dizzy"
         mark[i+NUM_ADDS+1] = DNARaidMarkers[i+1][2]
-        text[i+NUM_ADDS+1] = note_color .. "Detect Magic"
+        text[i+NUM_ADDS+1] = textcolor.note .. "Detect Magic"
         heal[i+NUM_ADDS+1] = raid.mage[i]
       end
     end
@@ -62,30 +62,30 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Prophet Skeram")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"
-    text[1] = note_color .. "- MIDDLE -"
+    text[1] = textcolor.note .. "- MIDDLE -"
     mark[2] = icon.diamond
     text[2] = tank.all[1]
     heal[2] = tank.all[4] .. "," .. healer.priest[1] .. "," .. healer.paladin[1]
 
-    text[4] = note_color .. "- LEFT -"
+    text[4] = textcolor.note .. "- LEFT -"
     mark[5] = icon.cross
     text[5] = tank.all[2]
     heal[5] = tank.all[5] .. "," .. healer.priest[2] .. "," .. healer.paladin[2]
 
-    text[7] = note_color .. "- RIGHT -"
+    text[7] = textcolor.note .. "- RIGHT -"
     mark[8] = icon.triangle
     text[8] = tank.all[3]
     heal[8] = tank.all[6] .. "," .. healer.priest[3] .. "," .. healer.paladin[3]
 
-    text[10] = note_color .. "|cffFFF569ROGUES|r: " .. note_color .. "Mind dumbing poison offhand."
+    text[10] = textcolor.note .. "|cffFFF569ROGUES|r: " .. textcolor.note .. "Mind dumbing poison offhand."
     for i=1, total.rogues do
       if (raid.rogue[i]) then
-        text[i+10] = note_color .. "KICKS"
+        text[i+10] = textcolor.note .. "KICKS"
         heal[i+10] = raid.rogue[i]
       end
     end
 
-   text[total.rogues+12] = note_color .. "|cff8787EDWARLOCKS|r: " .. note_color .. "Curse of Tongues"
+   text[total.rogues+12] = textcolor.note .. "|cff8787EDWARLOCKS|r: " .. textcolor.note .. "Curse of Tongues"
   end
 
   if (isItem(assign, "Mindflayer Pack")) then
@@ -112,7 +112,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
 
     for i=1, table.getn(raid.fearward) do
       mark[i+NUM_BOSSES] = icon.triangle
-      text[i+NUM_BOSSES] = note_color .. "Fear Ward"
+      text[i+NUM_BOSSES] = textcolor.note .. "Fear Ward"
       heal[i+NUM_BOSSES] = raid.fearward[i]
     end
 
@@ -123,7 +123,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       end
     end
     mark[NUM_BOSSES+table.getn(raid.fearward)+1] = icon.triangle
-    text[NUM_BOSSES+table.getn(raid.fearward)+1] = note_color .. "Yauj Interrupts"
+    text[NUM_BOSSES+table.getn(raid.fearward)+1] = textcolor.note .. "Yauj Interrupts"
     heal[NUM_BOSSES+table.getn(raid.fearward)+1] = extra_tanks
 
     local extra_rogues = ""
@@ -136,7 +136,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       end
     end
     mark[NUM_BOSSES+table.getn(raid.fearward)+2] = icon.triangle
-    text[NUM_BOSSES+table.getn(raid.fearward)+2] = note_color .. "Yauj Interrupts"
+    text[NUM_BOSSES+table.getn(raid.fearward)+2] = textcolor.note .. "Yauj Interrupts"
     heal[NUM_BOSSES+table.getn(raid.fearward)+2] = extra_rogues
 
     local poison_cleanse = ""
@@ -150,7 +150,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
         poison_cleanse = poison_cleanse .. healer.paladin[i+2] .. ","
       end
     end
-    text[NUM_BOSSES+table.getn(raid.fearward)+4] = note_color .. "Poison Cleanse"
+    text[NUM_BOSSES+table.getn(raid.fearward)+4] = textcolor.note .. "Poison Cleanse"
     heal[NUM_BOSSES+table.getn(raid.fearward)+4] = poison_cleanse
   end
 
@@ -162,7 +162,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[i] = healer.all[i]
     end
 
-    text[10] = note_color .. "Extra marks are only for backup!"
+    text[10] = textcolor.note .. "Extra marks are only for backup!"
   end
 
   if (isItem(assign, "Battleguard Sartura")) then
@@ -234,7 +234,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
         extra_mages = extra_mages .. raid.mage[i] .. ","
       end
     end
-    text[18] = note_color .. "Amplify Magic"
+    text[18] = textcolor.note .. "Amplify Magic"
     heal[18] = extra_mages
   end
 
@@ -247,9 +247,9 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
     text[2] = tank.all[2]
     heal[2] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
 
-    text[4] = note_color .. "Boss Trash"
+    text[4] = textcolor.note .. "Boss Trash"
     heal[4] = tank.all[3]
-    text[5] = note_color .. "Boss Trash"
+    text[5] = textcolor.note .. "Boss Trash"
     heal[5] = tank.all[4]
   end
 
@@ -261,7 +261,7 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[i] = healer.nodruid[i]
     end
 
-    text[6] = note_color .. "Poison Cleanse"
+    text[6] = textcolor.note .. "Poison Cleanse"
     if (healer.druid[1]) then
       heal[6] = healer.druid[1]  .. "," ..  healer.paladin[1]
     else
@@ -286,11 +286,11 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
       heal[2] = heal[1]
     end
     for i=1, table.getn(priest_druids) do
-      text[i+3] = note_color .. "Raid Heals"
+      text[i+3] = textcolor.note .. "Raid Heals"
       heal[i+3] = priest_druids[i]
     end
 
-    text[13] = note_color .. "PRE POT NATURE POTS"
+    text[13] = textcolor.note .. "PRE POT NATURE POTS"
   end
 
   if (isItem(assign, "Twin Emperors")) then
@@ -339,17 +339,17 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
 
     if (remaining_tank[1]) then
       mark[7] = "Interface/EncounterJournal/UI-EJ-BOSS-Silithid Royalty"
-      text[7] = note_color .. "Bugs"
+      text[7] = textcolor.note .. "Bugs"
       heal[7] = remaining_tank[1]
     end
     if (remaining_tank[2]) then
       mark[8] = "Interface/EncounterJournal/UI-EJ-BOSS-Silithid Royalty"
-      text[8] = note_color .."Bugs"
+      text[8] = textcolor.note .."Bugs"
       heal[8] = remaining_tank[2]
     end
 
-    text[10] = note_color .. "TANKS: Greater Stoneshield Pots"
-    text[12] = note_color .. "NO AOE!!!"
+    text[10] = textcolor.note .. "TANKS: Greater Stoneshield Pots"
+    text[12] = textcolor.note .. "NO AOE!!!"
 
     --[==[
     for i=1, 3 do
@@ -358,8 +358,8 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
         heal[i+9] = tank.all[i+4]
       end
     end
-    text[14] = note_color .. "TANKS: Greater Stoneshield Pots"
-    text[15] = note_color .. "NO AOE!!!"
+    text[14] = textcolor.note .. "TANKS: Greater Stoneshield Pots"
+    text[15] = textcolor.note .. "NO AOE!!!"
     ]==]--
   end
 
@@ -384,12 +384,12 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
     local num_fearwards = table.getn(raid.fearward)
     for i=1, num_fearwards do
       mark[i+12] = icon.cross
-      text[i+12] = note_color .. "Fear Ward"
+      text[i+12] = textcolor.note .. "Fear Ward"
       heal[i+12] = raid.fearward[i]
     end
     for i=1, table.getn(raid.hunter) do
       mark[i+12+num_fearwards] = "Interface/Icons/spell_nature_drowsy"
-      text[i+12+num_fearwards] = note_color .. "Tranq Shot"
+      text[i+12+num_fearwards] = textcolor.note .. "Tranq Shot"
       heal[i+12+num_fearwards] = raid.hunter[i]
     end
   end
@@ -408,22 +408,22 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
 
     if (raid.priest[1]) then
       mark[1+NUM_ADDS+1] = icon.skull
-      text[1+NUM_ADDS+1] = note_color .. "MANA DRAIN"
+      text[1+NUM_ADDS+1] = textcolor.note .. "MANA DRAIN"
       heal[1+NUM_ADDS+1] = raid.priest[1]
     end
     if (raid.priest[2]) then
       mark[1+NUM_ADDS+2] = icon.cross
-      text[1+NUM_ADDS+2] = note_color .. "MANA DRAIN"
+      text[1+NUM_ADDS+2] = textcolor.note .. "MANA DRAIN"
       heal[1+NUM_ADDS+2] = raid.priest[2]
     end
     if (raid.priest[3]) then
       mark[1+NUM_ADDS+3] = icon.skull
-      text[1+NUM_ADDS+3] = note_color .. "MANA DRAIN"
+      text[1+NUM_ADDS+3] = textcolor.note .. "MANA DRAIN"
       heal[1+NUM_ADDS+3] = raid.priest[3]
     end
     if (raid.priest[4]) then
       mark[1+NUM_ADDS+4] = icon.cross
-      text[1+NUM_ADDS+4] = note_color .. "MANA DRAIN"
+      text[1+NUM_ADDS+4] = textcolor.note .. "MANA DRAIN"
       heal[1+NUM_ADDS+4] = raid.priest[4]
     end
   end
@@ -431,9 +431,9 @@ function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc
   if (isItem(assign, "C'Thun")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_cthun_groups"
     mark[2] = icon.left
-    text[2] = note_color .. "View the map for your group positioning and"
-    text[3] = note_color .. "your group number!"
-    text[5] = note_color .. "RANGE: Little Eye Tentacles"
-    text[7] = note_color .. "MELEE: Interrupts Large Eye Tentacles"
+    text[2] = textcolor.note .. "View the map for your group positioning and"
+    text[3] = textcolor.note .. "your group number!"
+    text[5] = textcolor.note .. "RANGE: Little Eye Tentacles"
+    text[7] = textcolor.note .. "MELEE: Interrupts Large Eye Tentacles"
   end
 end

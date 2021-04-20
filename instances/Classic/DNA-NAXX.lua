@@ -134,13 +134,13 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     text[1] = tank.all[1]
     heal[1] = healer.priest[1] .. "," .. healer.priest[2] .. "," .. healer.paladin[1]
 
-    text[2] = note_color .. "ADD TANK"
+    text[2] = textcolor.note .. "ADD TANK"
     heal[2] = tank.all[2] .. "," .. healer.priest[3]
 
-    text[3] = note_color .. "ADD TANK"
+    text[3] = textcolor.note .. "ADD TANK"
     heal[3] = tank.all[3] .. "," .. healer.priest[4]
 
-    text[4] = note_color .. "ADD TANK"
+    text[4] = textcolor.note .. "ADD TANK"
     if (healer.priest[5]) then
       heal[4] = tank.all[4] .. "," .. healer.priest[5]
     else
@@ -177,13 +177,13 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
     for i=1, 4 do
       if (remainder_heals[i]) then
-        text[i+2] = note_color .. "RAID DISPEL"
+        text[i+2] = textcolor.note .. "RAID DISPEL"
         heal[i+2] = remainder_heals[i]
       end
     end
     for i=5, 9 do
       if (remainder_heals[i]) then
-        text[i+3] = note_color .. "RAID HEAL"
+        text[i+3] = textcolor.note .. "RAID HEAL"
         heal[i+3] = remainder_heals[i]
       end
     end
@@ -242,11 +242,11 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     remainder_heals = reindexArraySafe(remainder_heals)
 
     for i=1, table.getn(remainder_heals) do
-      text[i+4] = note_color .. "RAID HEAL"
+      text[i+4] = textcolor.note .. "RAID HEAL"
       heal[i+4] = remainder_heals[i]
     end
 
-    text[10] = note_color .. "Use Slowfall/Levitate/Intercept if you get impaled!"
+    text[10] = textcolor.note .. "Use Slowfall/Levitate/Intercept if you get impaled!"
   end
 
   if (isItem(assign, "Grand Widow Faerlina")) then
@@ -280,23 +280,23 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     heal[9] = remainder_heals[7]
 
     mark[11] = "Interface/Icons/spell_shadow_shadowworddominate"
-    text[11] = note_color .. "Mind Control"
+    text[11] = textcolor.note .. "Mind Control"
     heal[11] = healer.priest[1]
 
-    text[13] = note_color .. "Burn down {skull} and {cross} (Followers)."
-    text[14] = note_color .. "Worshippers tanked away from boss."
-    --text[15] = note_color .. "2 Worshippers tanked right side away from boss."
+    text[13] = textcolor.note .. "Burn down {skull} and {cross} (Followers)."
+    text[14] = textcolor.note .. "Worshippers tanked away from boss."
+    --text[15] = textcolor.note .. "2 Worshippers tanked right side away from boss."
   end
 
   if (isItem(assign, "Maexxna")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_arachnid"
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
-    heal[1] = note_color .. "ALL HEALERS"
+    heal[1] = textcolor.note .. "ALL HEALERS"
 
-    text[3] = note_color .. "WEB HEALER"
+    text[3] = textcolor.note .. "WEB HEALER"
     heal[3] = healer.priest[1]
-    text[4] = note_color .. "WEB HEALER"
+    text[4] = textcolor.note .. "WEB HEALER"
     heal[4] = healer.priest[2]
   end
 
@@ -318,27 +318,27 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
     if (raid.priest[1]) then
       mark[1] = icon.triangle
-      text[1] = note_color .. "WAVE 8"
+      text[1] = textcolor.note .. "WAVE 8"
       heal[1] = raid.priest[1]
     end
     if (raid.priest[2]) then
       mark[2] = icon.star
-      text[2] = note_color .. "WAVE 11"
+      text[2] = textcolor.note .. "WAVE 11"
       heal[2] = raid.priest[2]
     end
     if (raid.priest[3]) then
       mark[3] = icon.square
-      text[3] = note_color .. "WAVE 13"
+      text[3] = textcolor.note .. "WAVE 13"
       heal[3] = raid.priest[3]
     end
     if (raid.priest[4]) then
       mark[4] = icon.cross
-      text[4] = note_color .. "WAVE 16"
+      text[4] = textcolor.note .. "WAVE 16"
       heal[4] = raid.priest[4]
     end
     if (raid.priest[5]) then
       mark[5] = icon.diamond
-      text[5] = note_color .. "WAVE 18"
+      text[5] = textcolor.note .. "WAVE 18"
       heal[5] = raid.priest[5]
     end
   end
@@ -350,42 +350,28 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       text[1] = "PULL"
       heal[1] = tank.all[1]
       mark[2] = icon.skull
-      text[2] = "|cffa6e772SAFE ZONE"
+      text[2] = textcolor.green .. "SAFE ZONE"
       heal[2] = tank.all[2]
 
       mark[3] = icon.cross
       text[3] = "PULL"
       heal[3] = tank.all[3]
       mark[4] = icon.cross
-      text[4] = "|cffa6e772SAFE ZONE"
+      text[4] = textcolor.green .. "SAFE ZONE"
       heal[4] = tank.all[4]
 
       mark[5] = icon.circle
       text[5] = "PULL"
       heal[5] = tank.all[5]
       mark[6] = icon.circle
-      text[6] = "|cffa6e772SAFE ZONE"
+      text[6] = textcolor.green .. "SAFE ZONE"
       heal[6] = tank.all[6]
 
       mark[7] = icon.triangle
       text[7] = "PULL"
       heal[7] = cc.main[1]
       mark[8] = icon.triangle
-      text[8] = "|cffa6e772SAFE ZONE"
-      heal[8] = cc.main[2]
-
-      mark[7] = icon.triangle
-      text[7] = "PULL"
-      heal[7] = cc.main[1]
-      mark[8] = icon.triangle
-      text[8] = "|cffa6e772SAFE ZONE"
-      heal[8] = cc.main[2]
-
-      mark[7] = icon.triangle
-      text[7] = "PULL"
-      heal[7] = cc.main[1]
-      mark[8] = icon.triangle
-      text[8] = "|cffa6e772SAFE ZONE"
+      text[8] = textcolor.green .. "SAFE ZONE"
       heal[8] = cc.main[2]
     else
       mark[1] = icon.alert

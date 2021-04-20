@@ -18,7 +18,7 @@ DNAGlobal = {}
 DNAGlobal.name     = "Destructive Nature Assistant"
 DNAGlobal.dir      = "Interface/AddOns/DNAssistant/"
 DNAGlobal.vmajor   = 1
-DNAGlobal.vminor   = 225
+DNAGlobal.vminor   = 227
 DNAGlobal.width    = 980
 DNAGlobal.height   = 600
 DNAGlobal.font     = DNAGlobal.dir .. "Fonts/verdana.ttf"
@@ -81,7 +81,13 @@ DNAPages = {
   --{"Loot Log", 100},
 }
 
-note_color = "|cffe2dbbf" --extra note assignment color
+textcolor={}
+textcolor.white ="|cffffffff"
+textcolor.note  ="|cffe2dbbf"
+textcolor.red   ="|cff912525"
+textcolor.green ="|cff76ed5e"
+textcolor.blue  ="|cff175aa8"
+textcolor.yellow="|cffdcdf36"
 
 DNACheckbox = {}
 

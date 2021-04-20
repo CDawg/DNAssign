@@ -716,7 +716,7 @@ DNAFrameAssignReady:SetHeight(28)
 DNAFrameAssignReady:SetPoint("TOPLEFT", 70, -DNAFrameAssign_h+65)
 DNAFrameAssignReady.text = DNAFrameAssignReady:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
-DNAFrameAssignReady.text:SetText("Ready        √")
+DNAFrameAssignReady.text:SetText("Ready")
 DNAFrameAssignReady.text:SetPoint("CENTER", DNAFrameAssignReady)
 DNAFrameAssignReady:SetBackdrop({
   bgFile = "Interface/Buttons/GREENGRAD64",
@@ -746,7 +746,7 @@ DNAFrameAssignNotReady:SetHeight(28)
 DNAFrameAssignNotReady:SetPoint("TOPLEFT", 210, -DNAFrameAssign_h+65)
 DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
-DNAFrameAssignNotReady.text:SetText("Not Ready     X")
+DNAFrameAssignNotReady.text:SetText("Not Ready")
 DNAFrameAssignNotReady.text:SetPoint("CENTER", DNAFrameAssignNotReady)
 DNAFrameAssignNotReady:SetBackdrop({
   bgFile = "Interface/Buttons/RedGrad64",
@@ -1109,7 +1109,13 @@ local function buildRaidAssignments(packet, author, source)
         local this_key = 0
         local text_line = ""
         if (text[i]) then
-          text[i] = string.gsub(text[i], note_color, "")
+         --filter the colors
+          text[i] = string.gsub(text[i], textcolor.white, "")
+          text[i] = string.gsub(text[i], textcolor.note, "")
+          text[i] = string.gsub(text[i], textcolor.red, "")
+          text[i] = string.gsub(text[i], textcolor.green, "")
+          text[i] = string.gsub(text[i], textcolor.blue, "")
+          text[i] = string.gsub(text[i], textcolor.yellow, "")
           if (mark[i]) then
             this_key = multiKeyFromValue(DNARaidMarkers, mark[i], 2)
           end
