@@ -16,4 +16,6 @@ raids\TBC\DNA-GRUUL.lua
 raids\TBC\DNA-MAG.lua
 core\DNADebug.lua
 DNAssistant.lua
+core\DNAAttendance.lua
+core\DNALootlog.lua
 core\DNAMinimap.lua
