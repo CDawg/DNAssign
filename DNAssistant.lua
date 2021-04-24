@@ -47,7 +47,8 @@ local function DNABuildAttendance()
         local instanceName = GetInstanceInfo()
         if (instanceName) then
           for i=1, MAX_RAID_MEMBERS do
-            local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+            --local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+            local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
             if ((name) and (class)) then
               if (DNA["ATTENDANCE"][date_day][instanceName] == nil) then
                 DNA["ATTENDANCE"][date_day][instanceName] = {}
@@ -81,10 +82,12 @@ local function DNAGetRaidComp()
   --DNARaid["class"] = nil
 
   for i=1, MAX_RAID_MEMBERS do
-    local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+    --local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+    local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
 
     if (name) then
       DNARaid["assist"][name] = 0
+      DNARaid["raidID"][name] = i
 
       if (rank > 0) then
         DNARaid["assist"][name] = 1
@@ -444,7 +447,7 @@ function DN:InstanceButtonToggle(name, icon)
 end
 
 --parse the incoming packet
-function DN:ParsePacket(packet, netpacket)
+function DN:ParseSlotPacket(packet, netpacket)
   DN:UpdateRaidRoster()
   DN:RaidReadyClear() -- there was a change to the roster, people may not be ready
   packet.split = split(netpacket, ",")
@@ -531,7 +534,7 @@ function DN:ParsePacket(packet, netpacket)
   DNA[player.combine]["ASSIGN"][packet.role .. packet.slot] = packet.name
   DN:UpdateRaidRoster()
   clearFrameView()
-  debug("DN:ParsePacket()")
+  debug("DN:ParseSlotPacket()")
 end
 
 -- assignment window --
@@ -1249,6 +1252,25 @@ local function DNAGetAttendanceLogs()
   end
 end
 
+local lootlog = {}
+local function DNAGetLootLogs()
+  if (DNA["LOOTLOG"]) then
+    for day,v in pairs(DNA["LOOTLOG"]) do
+      for instance,v in pairs(DNA["LOOTLOG"][day]) do
+        local instanceCombine = day .. "} " .. instance
+        lootlog[instanceCombine] = {}
+        for name,v in pairs(DNA["LOOTLOG"][day][instance]) do
+          lootlog[instanceCombine][name] = {}
+          for lootItem,v in pairs(DNA["LOOTLOG"][day][instance][name]) do
+            lootlog[instanceCombine][name][lootItem] = v
+          end
+        end
+      end
+    end
+    debug("DNAGetLootLogs()")
+  end
+end
+
 local DNAMain = CreateFrame("Frame")
 DNAMain:RegisterEvent("ADDON_LOADED")
 DNAMain:RegisterEvent("PLAYER_LOGIN")
@@ -1273,6 +1295,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if (event == "PLAYER_LOGIN") then
     DN:BuildGlobalVars()
     DN:GetProfileVars()
+
     DNAGetAttendanceLogs()
     if (DNA["ATTENDANCE"]) then
       local sortAttendance = {}
@@ -1287,25 +1310,44 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         attendanceLogSlotFrame(numAttendanceLogs, filterLogName, v)
       end
     end
-  end
 
-  --[==[
-  if (event == "CHAT_MSG_LOOT") then
-    loot_msg = string.match(prefix, "item[%-?%d:]+")
-    --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(loot_msg)
-    --DN:SendPacket("_" .. player.name .. "," .. itemName, false)
-    --safeter to store by the odd string for the itemID
-    local inInstance, instanceType = IsInInstance()
-    if (inInstance) then
-      if (instanceType == "Raid") then
-        local instanceName = GetInstanceInfo()
-        if (instanceName) then
-          DN:SendPacket("_" .. instanceName .. "," .. player.name .. "," .. loot_msg, false)
-        end
+    DNAGetLootLogs()
+    if (DNA["LOOTLOG"]) then
+      local sortLoot = {}
+      for k,v in pairs(lootlog) do
+        table.insert(sortLoot, k)
+      end
+      table.sort(sortLoot, function(a,b) return a>b end)
+      for k,v in ipairs(sortLoot) do
+        numLootLogs = numLootLogs + 1
+        local filterLogName = string.gsub(v, "}", "")
+        lootLogSlotFrame(numLootLogs, filterLogName, v)
       end
     end
   end
-  ]==]--
+
+  if (event == "CHAT_MSG_LOOT") then --SEND
+    local itemLink = string.match(prefix,"|%x+|Hitem:.-|h.-|h|r")
+    local itemString = string.match(itemLink, "item[%-?%d:]+")
+    local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
+    local inInstance, instanceType = IsInInstance()
+    local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
+    if (inInstance) then
+     --if (instanceType == "Raid") then
+       local instanceName = GetInstanceInfo()
+       if (instanceName) then
+         local getCode = multiKeyFromValue(netCode, "lootitem")
+         if (itemRarity > 1) then -- 4 = epics
+           if (DNARaid["raidID"][player.name] == masterlooterRaidID) then
+             debug("ML = " .. player.name)
+             DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
+             debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
+           end
+         end
+       end
+    --end
+    end
+  end
 
   if (event == "GROUP_ROSTER_UPDATE") then
     DN:UpdateRaidRoster()
@@ -1344,7 +1386,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         packetChunk = split(netpacket, "}")
         for x=1, table.getn(packetChunk) do
           filteredPacket[x] = string.gsub(packetChunk[x], "{", "")
-          DN:ParsePacket(packet, filteredPacket[x])
+          DN:ParseSlotPacket(packet, filteredPacket[x])
         end
         DN:RaidReadyClear()
         return true
@@ -1394,17 +1436,20 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
-      local getCode = multiKeyFromValue(netCode, "version")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-            if (DNAGlobal.version < netpacket) then
-              DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
-              version_checked = tonumber(netpacket)
-            end
-          return true
+      if (version_checked == 0) then
+        local getCode = multiKeyFromValue(netCode, "version")
+        if (getCode) then
+          if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+            netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+              if (DNAGlobal.version < netpacket) then
+                DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
+                version_checked = tonumber(netpacket)
+              end
+            return true
+          end
         end
       end
+
       --READYCHECK
       local getCode = multiKeyFromValue(netCode, "readyyes")
       if (getCode) then
@@ -1426,30 +1471,50 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         end
       end
 
-      --LOOT
-      --[==[
-      if (string.sub(netpacket, 1, 1) == "_") then
-        if (DNA[player.combine]["LOOTLOG"][date_day] == nil) then
-          DNA[player.combine]["LOOTLOG"][date_day]={}
-        end
-        netpacket = string.gsub(netpacket, "_", "")
-
-        local inInstance, instanceType = IsInInstance()
-        if (inInstance) then
-          if (instanceType == "Raid") then
-            local instanceName = GetInstanceInfo()
-            if (instanceName) then
-              table.insert(DNA[player.combine]["LOOTLOG"][date_day], {timestamp .. "," .. instanceName .. "," .. netpacket})
-            end
+      --LOOT LOG (receive)
+      local getCode = multiKeyFromValue(netCode, "lootitem")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          local loot_data = split(netpacket, ",")
+          local lootQuality = tonumber(loot_data[2])
+          local inInstance, instanceType = IsInInstance()
+          debug("loot_data[1] " .. loot_data[1]) --item
+          debug("loot_data[2] " .. loot_data[2]) --quality
+          debug("loot_data[3] " .. loot_data[3]) --who [ML]
+          if (DNA["LOOTLOG"] == nil) then
+            DNA["LOOTLOG"]={}
           end
+          if (DNA["LOOTLOG"][date_day] == nil) then
+            DNA["LOOTLOG"][date_day]={}
+          end
+          if (inInstance) then
+            --if (instanceType == "Raid") then
+              local instanceName = GetInstanceInfo()
+              if (instanceName) then
+                if (DNA["LOOTLOG"][date_day][instanceName] == nil) then
+                    DNA["LOOTLOG"][date_day][instanceName] = {}
+                end
+                if (DNA["LOOTLOG"][date_day][instanceName][timeprint .. "" .. loot_data[1]] == nil) then
+                  DNA["LOOTLOG"][date_day][instanceName][timeprint .. "" .. loot_data[1]] = {lootQuality}
+                  debug(loot_data[1] .. " from " .. loot_data[3])
+                end
+                --[==[
+                if (DNA["LOOTLOG"][date_day][instanceName][timestamp][loot_data[1]] == nil) then
+                  DNA["LOOTLOG"][date_day][instanceName][timestamp][loot_data[1]] = {lootQuality}
+                  debug(loot_data[1] .. " from " .. loot_data[3])
+                  --we also need to build a cache for live data
+                end
+                ]==]--
+              end
+            --end --if raid
+          end
+          return true
         end
-        table.insert(DNA[player.combine]["LOOTLOG"][date_day], {netpacket .. "," .. timestamp})
-        return true
       end
-      ]==]--
 
       --single slot update, parse individual packets
-      DN:ParsePacket(packet, netpacket)
+      DN:ParseSlotPacket(packet, netpacket)
     end
   end
 end)
@@ -2576,6 +2641,416 @@ function attendanceLogSlotFrame(i, filteredName, name)
     debug(attendanceLogDate)
     debug(attendanceLogName)
     debug(attendanceLogID)
+  end)
+end
+
+
+local DNALootlogScrollFrame_w = 200
+local DNALootlogScrollFrame_h = 500
+
+local DNALootlogScrollFrame = CreateFrame("Frame", DNALootlogScrollFrame, page["Loot Log"], "InsetFrameTemplate")
+DNALootlogScrollFrame:SetWidth(DNALootlogScrollFrame_w+20)
+DNALootlogScrollFrame:SetHeight(DNALootlogScrollFrame_h)
+DNALootlogScrollFrame:SetPoint("TOPLEFT", 20, -50)
+DNALootlogScrollFrame:SetFrameLevel(5)
+DNALootlogScrollFrame.text = DNALootlogScrollFrame:CreateFontString(nil, "ARTWORK")
+DNALootlogScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogScrollFrame.text:SetPoint("CENTER", DNALootlogScrollFrame, "TOPLEFT", 90, 10)
+DNALootlogScrollFrame.text:SetText("Loot Logs")
+DNALootlogScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNALootlogScrollFrame, "UIPanelScrollFrameTemplate")
+DNALootlogScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNALootlogScrollFrame, "TOPLEFT", 3, -3)
+DNALootlogScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNALootlogScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNALootlogScrollFrameScrollChildFrame = CreateFrame("Frame", DNALootlogScrollFrameScrollChildFrame, DNALootlogScrollFrame.ScrollFrame)
+DNALootlogScrollFrameScrollChildFrame:SetSize(DNALootlogScrollFrame_w, DNALootlogScrollFrame_h)
+DNALootlogScrollFrame.ScrollFrame:SetScrollChild(DNALootlogScrollFrameScrollChildFrame)
+DNALootlogScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNALootlogScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNALootlogScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNALootlogScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNALootlogScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNALootlogScrollFrame.MR = DNALootlogScrollFrame:CreateTexture(nil, "BACKGROUND", DNALootlogScrollFrame, -2)
+DNALootlogScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNALootlogScrollFrame.MR:SetPoint("TOPLEFT", DNALootlogScrollFrame_w-5, 0)
+DNALootlogScrollFrame.MR:SetSize(24, DNALootlogScrollFrame_h)
+
+local lootLogSlot = {}
+
+local DNADeleteAllLootlogPrompt = CreateFrame("Frame", nil, UIParent)
+DNADeleteAllLootlogPrompt:SetWidth(450)
+DNADeleteAllLootlogPrompt:SetHeight(100)
+DNADeleteAllLootlogPrompt:SetPoint("CENTER", 0, 50)
+DNADeleteAllLootlogPrompt:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = DNAGlobal.border,
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNADeleteAllLootlogPrompt.text = DNADeleteAllLootlogPrompt:CreateFontString(nil, "ARTWORK")
+DNADeleteAllLootlogPrompt.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADeleteAllLootlogPrompt.text:SetPoint("CENTER", DNADeleteAllLootlogPrompt, "CENTER", 0, 20)
+DNADeleteAllLootlogPrompt.text:SetText("Delete all Loot logs?\nThis will delete all loot logs account wide and reload.")
+DNADeleteAllLootlogPrompt:SetFrameLevel(150)
+DNADeleteAllLootlogPrompt:SetFrameStrata("FULLSCREEN_DIALOG")
+local DNADeleteAllLootlogPromptYes = CreateFrame("Button", nil, DNADeleteAllLootlogPrompt, "UIPanelButtonTemplate")
+DNADeleteAllLootlogPromptYes:SetSize(100, 24)
+DNADeleteAllLootlogPromptYes:SetPoint("CENTER", 60, -20)
+DNADeleteAllLootlogPromptYes.text = DNADeleteAllLootlogPromptYes:CreateFontString(nil, "ARTWORK")
+DNADeleteAllLootlogPromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADeleteAllLootlogPromptYes.text:SetPoint("CENTER", DNADeleteAllLootlogPromptYes, "CENTER", 0, 0)
+DNADeleteAllLootlogPromptYes.text:SetText("Yes")
+DNADeleteAllLootlogPromptYes:SetScript('OnClick', function()
+  for i=1, numLootLogs do
+    lootLogSlot[i]:Hide()
+  end
+  DNA["LOOTLOG"] = {}
+  ReloadUI()
+end)
+local DNADeleteAllLootlogPromptNo = CreateFrame("Button", nil, DNADeleteAllLootlogPrompt, "UIPanelButtonTemplate")
+DNADeleteAllLootlogPromptNo:SetSize(100, 24)
+DNADeleteAllLootlogPromptNo:SetPoint("CENTER", -60, -20)
+DNADeleteAllLootlogPromptNo.text = DNADeleteAllLootlogPromptNo:CreateFontString(nil, "ARTWORK")
+DNADeleteAllLootlogPromptNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADeleteAllLootlogPromptNo.text:SetPoint("CENTER", DNADeleteAllLootlogPromptNo, "CENTER", 0, 0)
+DNADeleteAllLootlogPromptNo.text:SetText("No")
+DNADeleteAllLootlogPromptNo:SetScript('OnClick', function()
+  DNADeleteAllLootlogPrompt:Hide()
+end)
+DNADeleteAllLootlogPrompt:Hide()
+
+local DNALootlogDeleteAllBtn = CreateFrame("Button", nil, DNALootlogScrollFrame, "UIPanelButtonTemplate")
+DNALootlogDeleteAllBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNALootlogDeleteAllBtn:SetPoint("TOPLEFT", 35, -DNALootlogScrollFrame_h-5)
+DNALootlogDeleteAllBtn:SetFrameLevel(5)
+DNALootlogDeleteAllBtn.text = DNALootlogDeleteAllBtn:CreateFontString(nil, "ARTWORK")
+DNALootlogDeleteAllBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogDeleteAllBtn.text:SetPoint("CENTER", DNALootlogDeleteAllBtn, "TOPLEFT", 64, -13)
+DNALootlogDeleteAllBtn.text:SetText("Delete All Logs")
+DNALootlogDeleteAllBtn:SetScript("OnClick", function()
+  DNADeleteAllLootlogPrompt:Show()
+end)
+DNALootlogDeleteAllBtn:Hide()
+
+local DNALootlogDetailsFrame={}
+local DNALootlogMemberScrollFrame={}
+local DNALootlogDeleteLogBtn={}
+local DNALootlogExportLogBtn={}
+
+local lootlogLogDate = nil
+local lootlogLogName = nil
+local lootlogLogID = 0
+local sortLootlogName = {}
+local DNADeleteSingleLootlogPrompt = CreateFrame("Frame", nil, UIParent)
+DNADeleteSingleLootlogPrompt:SetWidth(450)
+DNADeleteSingleLootlogPrompt:SetHeight(100)
+DNADeleteSingleLootlogPrompt:SetPoint("CENTER", 0, 50)
+DNADeleteSingleLootlogPrompt:SetBackdrop({
+  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
+  edgeFile = DNAGlobal.border,
+  edgeSize = 22,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNADeleteSingleLootlogPrompt.text = DNADeleteSingleLootlogPrompt:CreateFontString(nil, "ARTWORK")
+DNADeleteSingleLootlogPrompt.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADeleteSingleLootlogPrompt.text:SetPoint("CENTER", DNADeleteSingleLootlogPrompt, "CENTER", 0, 20)
+DNADeleteSingleLootlogPrompt.text:SetText("Delete Loot Log?")
+DNADeleteSingleLootlogPrompt:SetFrameLevel(150)
+DNADeleteSingleLootlogPrompt:SetFrameStrata("FULLSCREEN_DIALOG")
+local DNADeleteSingleLootlogPromptYes = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt, "UIPanelButtonTemplate")
+DNADeleteSingleLootlogPromptYes:SetSize(100, 24)
+DNADeleteSingleLootlogPromptYes:SetPoint("CENTER", 60, -20)
+DNADeleteSingleLootlogPromptYes.text = DNADeleteSingleLootlogPromptYes:CreateFontString(nil, "ARTWORK")
+DNADeleteSingleLootlogPromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADeleteSingleLootlogPromptYes.text:SetPoint("CENTER", DNADeleteSingleLootlogPromptYes, "CENTER", 0, 0)
+DNADeleteSingleLootlogPromptYes.text:SetText("Yes")
+DNADeleteSingleLootlogPromptYes:SetScript('OnClick', function()
+  if ((lootlogLogDate) and (lootlogLogName)) then
+    DNA["LOOTLOG"][lootlogLogDate][lootlogLogName] = nil
+  end
+  if (lootlogLogID ~= 0) then
+    lootLogSlot[lootlogLogID]:Hide()
+  end
+  DNADeleteSingleLootlogPrompt:Hide()
+  DNALootlogDetailsFrame:Hide()
+  DNALootlogMemberScrollFrame:Hide()
+  DNALootlogDeleteLogBtn:Hide()
+  DNALootlogExportLogBtn:Hide()
+end)
+local DNADeleteSingleLootlogPromptNo = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt, "UIPanelButtonTemplate")
+DNADeleteSingleLootlogPromptNo:SetSize(100, 24)
+DNADeleteSingleLootlogPromptNo:SetPoint("CENTER", -60, -20)
+DNADeleteSingleLootlogPromptNo.text = DNADeleteSingleLootlogPromptNo:CreateFontString(nil, "ARTWORK")
+DNADeleteSingleLootlogPromptNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADeleteSingleLootlogPromptNo.text:SetPoint("CENTER", DNADeleteSingleLootlogPromptNo, "CENTER", 0, 0)
+DNADeleteSingleLootlogPromptNo.text:SetText("No")
+DNADeleteSingleLootlogPromptNo:SetScript('OnClick', function()
+  DNADeleteSingleLootlogPrompt:Hide()
+end)
+DNADeleteSingleLootlogPrompt:Hide()
+
+DNALootlogDeleteLogBtn = CreateFrame("Button", nil, page["Loot Log"], "UIPanelButtonTemplate")
+DNALootlogDeleteLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNALootlogDeleteLogBtn:SetPoint("TOPLEFT", 480, -60)
+DNALootlogDeleteLogBtn:SetFrameLevel(5)
+DNALootlogDeleteLogBtn.text = DNALootlogDeleteLogBtn:CreateFontString(nil, "ARTWORK")
+DNALootlogDeleteLogBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogDeleteLogBtn.text:SetPoint("CENTER", DNALootlogDeleteLogBtn, "TOPLEFT", 68, -13)
+DNALootlogDeleteLogBtn.text:SetText("Delete Log")
+DNALootlogDeleteLogBtn:SetScript("OnClick", function()
+  if ((lootlogLogDate) and (lootlogLogName))then
+    debug(lootlogLogDate)
+    debug(lootlogLogName)
+  end
+  DNADeleteSingleLootlogPrompt.text:SetText("Delete Loot log:\n|cfff2c983" .. lootlogLogDate .. " " ..  lootlogLogName .. "|cffffffff?")
+  DNADeleteSingleLootlogPrompt:Show()
+end)
+DNALootlogDeleteLogBtn:Hide()
+
+local DNALootlogExportWindowScrollFrame_w = 250
+local DNALootlogExportWindowScrollFrame_h = 300
+DNALootlogExportWindow = CreateFrame("Frame", DNALootlogExportWindow, UIParent, "BasicFrameTemplate")
+DNALootlogExportWindow:SetWidth(DNALootlogExportWindowScrollFrame_w+50)
+DNALootlogExportWindow:SetHeight(DNALootlogExportWindowScrollFrame_h+80)
+DNALootlogExportWindow:SetPoint("CENTER", 0, 100)
+DNALootlogExportWindow:SetFrameStrata("DIALOG")
+DNALootlogExportWindow.title = DNALootlogExportWindow:CreateFontString(nil, "ARTWORK")
+DNALootlogExportWindow.title:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogExportWindow.title:SetPoint("TOPLEFT", DNALootlogExportWindow, "TOPLEFT", 10, -6)
+DNALootlogExportWindow.title:SetText("Lootlog Export")
+DNALootlogExportWindow.text = DNALootlogExportWindow:CreateFontString(nil, "ARTWORK")
+DNALootlogExportWindow.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogExportWindow.text:SetPoint("TOPLEFT", DNALootlogExportWindow, "TOPLEFT", 20, -DNALootlogExportWindowScrollFrame_h-50)
+DNALootlogExportWindow.text:SetText("Copy the data using CTRL+C")
+DNALootlogExportWindow:Hide()
+DNALootlogExportWindowScrollFrame = CreateFrame("Frame", DNALootlogExportWindowScrollFrame, DNALootlogExportWindow, "InsetFrameTemplate")
+DNALootlogExportWindowScrollFrame:SetWidth(DNALootlogExportWindowScrollFrame_w+20)
+DNALootlogExportWindowScrollFrame:SetHeight(DNALootlogExportWindowScrollFrame_h)
+DNALootlogExportWindowScrollFrame:SetPoint("TOPLEFT", 15, -30)
+DNALootlogExportWindowScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNALootlogExportWindowScrollFrame, "UIPanelScrollFrameTemplate")
+DNALootlogExportWindowScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNALootlogExportWindowScrollFrame, "TOPLEFT", 3, -3)
+DNALootlogExportWindowScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNALootlogExportWindowScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNALootlogExportWindowScrollFrameChildFrame = CreateFrame("Frame", DNALootlogExportWindowScrollFrameChildFrame, DNALootlogExportWindowScrollFrame.ScrollFrame)
+DNALootlogExportWindowScrollFrameChildFrame:SetSize(DNALootlogExportWindowScrollFrame_w, DNALootlogExportWindowScrollFrame_h)
+DNALootlogExportWindowScrollFrame.ScrollFrame:SetScrollChild(DNALootlogExportWindowScrollFrameChildFrame)
+DNALootlogExportWindowScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNALootlogExportWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNALootlogExportWindowScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNALootlogExportWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNALootlogExportWindowScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNALootlogExportWindowScrollFrame.MR = DNALootlogExportWindowScrollFrame:CreateTexture(nil, "BACKGROUND", DNALootlogExportWindowScrollFrame, -2)
+DNALootlogExportWindowScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNALootlogExportWindowScrollFrame.MR:SetPoint("TOPLEFT", DNALootlogExportWindowScrollFrame_w-5, 0)
+DNALootlogExportWindowScrollFrame.MR:SetSize(24, DNALootlogExportWindowScrollFrame_h)
+--DNALootlogExportWindow:EnableKeyboard(true)
+DNALootlogExportWindow.data = CreateFrame("EditBox", nil, DNALootlogExportWindowScrollFrameChildFrame)
+DNALootlogExportWindow.data:SetWidth(DNALootlogExportWindowScrollFrame_w-10)
+DNALootlogExportWindow.data:SetHeight(20)
+DNALootlogExportWindow.data:SetFontObject(GameFontWhite)
+--DNALootlogExportWindow.data:SetBackdrop(GameTooltip:GetBackdrop())
+DNALootlogExportWindow.data:SetPoint("TOPLEFT", 5, 0)
+DNALootlogExportWindow.data:SetMultiLine(true)
+--DNALootlogExportWindow.data:ClearFocus(self)
+--DNALootlogExportWindow.data:SetAutoFocus(true)
+DNALootlogExportWindow.data:SetText("There was an error pulling the log")
+
+DNALootlogExportLogBtn = CreateFrame("Button", nil, page["Loot Log"], "UIPanelButtonTemplate")
+DNALootlogExportLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNALootlogExportLogBtn:SetPoint("TOPLEFT", 480, -90)
+DNALootlogExportLogBtn:SetFrameLevel(5)
+DNALootlogExportLogBtn.text = DNALootlogExportLogBtn:CreateFontString(nil, "ARTWORK")
+DNALootlogExportLogBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogExportLogBtn.text:SetPoint("CENTER", DNALootlogExportLogBtn, "TOPLEFT", 68, -13)
+DNALootlogExportLogBtn.text:SetText("Export Log")
+DNALootlogExportLogBtn:SetScript("OnClick", function()
+  DNALootlogExportWindow:Show()
+  if ((lootlogLogDate) and (lootlogLogName)) then
+    lootlogLogExportData = "Loot Log\n"
+    lootlogLogExportData = lootlogLogExportData .. "Date: " .. lootlogLogDate .. "\n"
+    lootlogLogExportData = lootlogLogExportData .. "Raid: " .. lootlogLogName .. "\n"
+    if (table.getn(sortLootlogName)) then
+       lootlogLogExportData = lootlogLogExportData .. "Total: " .. table.getn(sortLootlogName) .. "\n"
+    end
+    lootlogLogExportData = lootlogLogExportData .. "\n"
+    for k,v in ipairs(sortLootlogName) do
+      lootlogLogExportData = lootlogLogExportData .. v:sub(15) .. "\n"
+    end
+    lootlogLogExportData = lootlogLogExportData .. "\n"
+    DNALootlogExportWindow.data:SetText(lootlogLogExportData)
+    DNALootlogExportWindow.data:HighlightText()
+  end
+end)
+DNALootlogExportLogBtn:Hide()
+
+local DNALootlogMemberScrollFrame_w = 200
+local DNALootlogMemberScrollFrame_h = 420
+DNALootlogDetailsFrame = CreateFrame("Frame", DNALootlogDetailsFrame, page["Loot Log"], "InsetFrameTemplate")
+DNALootlogDetailsFrame:SetWidth(DNALootlogMemberScrollFrame_w+20)
+DNALootlogDetailsFrame:SetHeight(70)
+DNALootlogDetailsFrame:SetPoint("TOPLEFT", 250, -50)
+DNALootlogDetailsFrame.date = DNALootlogDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNALootlogDetailsFrame.date:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogDetailsFrame.date:SetPoint("TOPLEFT", 10, -10)
+DNALootlogDetailsFrame.date:SetText("Select an loot log")
+DNALootlogDetailsFrame.instance = DNALootlogDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNALootlogDetailsFrame.instance:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogDetailsFrame.instance:SetPoint("TOPLEFT", 10, -30)
+DNALootlogDetailsFrame.instance:SetText("")
+--[==[
+DNALootlogDetailsFrame.count = DNALootlogDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNALootlogDetailsFrame.count:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogDetailsFrame.count:SetPoint("TOPLEFT", 10, -50)
+DNALootlogDetailsFrame.count:SetText("")
+]==]--
+DNALootlogDetailsFrame:Hide()
+
+DNALootlogMemberScrollFrame = CreateFrame("Frame", DNALootlogMemberScrollFrame, page["Loot Log"], "InsetFrameTemplate")
+DNALootlogMemberScrollFrame:SetWidth(DNALootlogMemberScrollFrame_w+20)
+DNALootlogMemberScrollFrame:SetHeight(DNALootlogMemberScrollFrame_h)
+DNALootlogMemberScrollFrame:SetPoint("TOPLEFT", 250, -130)
+DNALootlogMemberScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNALootlogMemberScrollFrame, "UIPanelScrollFrameTemplate")
+DNALootlogMemberScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNALootlogMemberScrollFrame, "TOPLEFT", 3, -3)
+DNALootlogMemberScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNALootlogMemberScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNALootlogMemberScrollFrameChildFrame = CreateFrame("Frame", DNALootlogMemberScrollFrameChildFrame, DNALootlogMemberScrollFrame.ScrollFrame)
+DNALootlogMemberScrollFrameChildFrame:SetSize(DNALootlogMemberScrollFrame_w, DNALootlogMemberScrollFrame_h)
+DNALootlogMemberScrollFrame.ScrollFrame:SetScrollChild(DNALootlogMemberScrollFrameChildFrame)
+DNALootlogMemberScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNALootlogMemberScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNALootlogMemberScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNALootlogMemberScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNALootlogMemberScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNALootlogMemberScrollFrame.MR = DNALootlogMemberScrollFrame:CreateTexture(nil, "BACKGROUND", DNALootlogMemberScrollFrame, -2)
+DNALootlogMemberScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNALootlogMemberScrollFrame.MR:SetPoint("TOPLEFT", DNALootlogMemberScrollFrame_w-5, 0)
+DNALootlogMemberScrollFrame.MR:SetSize(24, DNALootlogMemberScrollFrame_h)
+DNALootlogMemberScrollFrame:Hide()
+
+local lootlogSingleSlot={}
+--local lootlogSingleSlotInvite={}
+local lootlogSingleSlotText={}
+
+--just create the 80 frames, then occupy data into them
+for i=1, MAX_RAID_MEMBERS*2 do
+  lootlogSingleSlot[i] = {}
+  lootlogSingleSlot[i] = CreateFrame("button", lootlogSingleSlot[i], DNALootlogMemberScrollFrameChildFrame)
+  lootlogSingleSlot[i]:SetWidth(DNALootlogMemberScrollFrame_w-5)
+  lootlogSingleSlot[i]:SetHeight(raidSlot_h)
+  lootlogSingleSlot[i]:SetBackdrop({
+    bgFile = "Interface/Collections/CollectionsBackgroundTile",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  lootlogSingleSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  lootlogSingleSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  lootlogSingleSlot[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
+  lootlogSingleSlotText[i] = {}
+  lootlogSingleSlotText[i] = lootlogSingleSlot[i]:CreateFontString(nil, "ARTWORK")
+  lootlogSingleSlotText[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  lootlogSingleSlotText[i]:SetPoint("TOPLEFT", 5, -4)
+  lootlogSingleSlotText[i]:SetText("")
+  --[==[
+  lootlogSingleSlotInvite[i] = CreateFrame("button", lootlogSingleSlotInvite[i], lootlogSingleSlot[i])
+  lootlogSingleSlotInvite[i]:SetWidth(80)
+  lootlogSingleSlotInvite[i]:SetHeight(raidSlot_h)
+  lootlogSingleSlotInvite[i]:SetPoint("TOPLEFT", 114, 0)
+  lootlogSingleSlotInvite[i]:SetBackdrop({
+    bgFile = "Interface/Collections/CollectionsBackgroundTile",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  lootlogSingleSlotInvite[i]:SetBackdropBorderColor(0.5, 1, 0.7, 0.60)
+  lootlogSingleSlotInvite[i]:SetBackdropColor(0.3, 1, 0.9, 1)
+  lootlogSingleSlotInvite[i].text = lootlogSingleSlotInvite[i]:CreateFontString(nil, "ARTWORK")
+  lootlogSingleSlotInvite[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
+  lootlogSingleSlotInvite[i].text:SetPoint("CENTER", 2, 1)
+  lootlogSingleSlotInvite[i].text:SetText("Delete")
+  lootlogSingleSlotInvite[i]:SetScript('OnEnter', function()
+    lootlogSingleSlotInvite[i]:SetBackdropBorderColor(0.3, 1, 0.8, 1)
+  end)
+  lootlogSingleSlotInvite[i]:SetScript('OnLeave', function()
+    lootlogSingleSlotInvite[i]:SetBackdropBorderColor(0.5, 1, 0.7, 0.60)
+  end)
+  lootlogSingleSlotInvite[i]:Hide()
+  lootlogSingleSlotInvite[i]:SetScript('OnClick', function()
+    local thisMember = lootlogSingleSlotText[i]:GetText()
+    InviteUnit(thisMember)
+    if (IsInRaid()) then
+      DN:ChatNotification("Invited " .. thisMember .. " to Raid.")
+    else
+      DN:ChatNotification("Converted to Raid.")
+      ConvertToRaid()
+    end
+  end)
+  ]==]--
+
+  lootlogSingleSlot[i]:Hide()
+end
+
+function setLootlogSlotSingleFrame(i, member, quality)
+  if (lootlogSingleSlot[i]) then
+    lootlogSingleSlotText[i]:SetText(member)
+    lootlogSingleSlot[i]:Show()
+    if (quality) then
+      DN:QualityColorText(lootlogSingleSlotText[i], quality)
+    end
+  end
+end
+
+function lootLogSlotFrame(i, filteredName, name)
+  lootLogSlot[i] = CreateFrame("button", lootLogSlot[i], DNALootlogScrollFrameScrollChildFrame)
+  lootLogSlot[i]:SetBackdrop({
+    bgFile = "Interface/Collections/CollectionsBackgroundTile",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  lootLogSlot[i]:SetBackdropColor(1, 1, 1, 0.3)
+  lootLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  lootLogSlot[i]:SetWidth(DNALootlogScrollFrame_w-5)
+  lootLogSlot[i]:SetHeight(raidSlot_h)
+  lootLogSlot[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
+  lootLogSlot[i].text = lootLogSlot[i]:CreateFontString(nil, "ARTWORK")
+  lootLogSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
+  lootLogSlot[i].text:SetPoint("TOPLEFT", 5, -4)
+  local name_trunc = strsub(filteredName, 1, 28)
+  lootLogSlot[i].text:SetText(name_trunc)
+  lootLogSlot[i]:SetScript('OnEnter', function()
+    lootLogSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  lootLogSlot[i]:SetScript('OnLeave', function()
+    lootLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
+  lootLogSlot[i]:SetScript('OnClick', function()
+    for n=1, MAX_RAID_MEMBERS*2 do
+      lootlogSingleSlot[n]:Hide()
+    end
+    for n=1, numLootLogs do
+      lootLogSlot[n]:SetBackdropColor(1, 1, 1, 0.3)
+      lootLogSlot[n].text:SetTextColor(1, 1, 1)
+    end
+    lootLogSlot[i]:SetBackdropColor(1, 1, 0.3, 1)
+    lootLogSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
+    lootLogSlot[i].text:SetTextColor(1, 1, 0.6)
+    sortLootlogName = {}
+    for k,v in pairs(lootlog[name]) do
+      table.insert(sortLootlogName, k)
+    end
+    table.sort(sortLootlogName)
+    for k,v in ipairs(sortLootlogName) do
+      local filterItemTimeprint = v:sub(15)
+      --local itemQuality = v[1]
+      setLootlogSlotSingleFrame(k, filterItemTimeprint, lootlog[name][v][1])
+      debug(filterItemTimeprint .. "=" .. lootlog[name][v][1])
+    end
+    local filterLogName = split(name, "}")
+    filterLogName[2] = string.gsub(filterLogName[2], " ", "", 1) --first space
+    DNALootlogDetailsFrame.date:SetText("|cfffffa8bDate:|r " .. filterLogName[1])
+    DNALootlogDetailsFrame.instance:SetText("|cfffffa8bInstance:|r " .. filterLogName[2])
+    --DNALootlogDetailsFrame.count:SetText("|cfffffa8bMembers:|r " .. table.getn(sortLootlogName))
+    DNALootlogDeleteLogBtn:Show()
+    DNALootlogExportLogBtn:Show()
+    DNALootlogDetailsFrame:Show()
+    DNALootlogMemberScrollFrame:Show()
+    lootlogLogDate = filterLogName[1]
+    lootlogLogName = filterLogName[2]
+    lootlogLogID = i
+    debug(lootlogLogDate)
+    debug(lootlogLogName)
+    debug(lootlogLogID)
   end)
 end
 
@@ -3850,7 +4325,7 @@ for i,v in pairs(DNAPages) do
   bottomTab(DNAPages[i][1], DNAPages[i][2])
 end
 
-DNAFrameMainBottomTab["DKP"]:Hide() --DEBUG
+--DNAFrameMainBottomTab["DKP"]:Hide() --DEBUG
 
 --default selection after drawn
 bottomTabToggle(DNAPages[1][1])
@@ -3880,7 +4355,7 @@ end
 
 DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5]) --toggle first button
 
-local function DNAOpen()
+function DNAOpen()
   if (windowOpen) then
     DNAClose()
   else
@@ -3911,176 +4386,8 @@ local function DNAOpen()
     if (numAttendanceLogs > 0) then
       DNAAttendanceDeleteAllBtn:Show()
     end
+    if (numLootLogs > 0) then
+      DNALootlogDeleteAllBtn:Show()
+    end
   end
 end
-
-SLASH_DNA1 = "/dna"
-function DNASlashCommands(msg)
-  DNAClose()
-  if (msg == "debug") then
-    DEBUG = true
-    debug("DEBUG MODE ON")
-  else
-    DEBUG = false
-    debug("DEBUG MODE OFF")
-  end
-  DNAOpen()
-end
-SlashCmdList.DNA = DNASlashCommands
-
-DNAMiniMap = CreateFrame("Button", nil, Minimap)
-DNAMiniMap:SetFrameLevel(500)
-DNAMiniMap:SetFrameStrata("TOOLTIP")
-DNAMiniMap:SetSize(27, 27)
-DNAMiniMap:SetMovable(true)
-DNAMiniMap:SetNormalTexture(DNAGlobal.dir .. "images/icon_dn")
-DNAMiniMap:SetPushedTexture(DNAGlobal.dir .. "images/icon_dn")
-DNAMiniMap:SetHighlightTexture(DNAGlobal.dir .. "images/icon_dn")
-
-local myIconPos = 40
-
-local function UpdateMapButton()
-  local Xpoa, Ypoa = GetCursorPosition()
-  local Xmin, Ymin = Minimap:GetLeft(), Minimap:GetBottom()
-  local point, relativeTo, relativePoint, xOfs, yOfs = DNAMiniMap:GetPoint()
-  Xpoa = Xmin - Xpoa / Minimap:GetEffectiveScale() + 70
-  Ypoa = Ypoa / Minimap:GetEffectiveScale() - Ymin - 70
-  myIconPos = math.deg(math.atan2(Ypoa, Xpoa))
-  --if (DNA[player.combine]["CONFIG"]["MMICONUNLOCK"] ~= "ON") then --default and off
-    DNAMiniMap:ClearAllPoints()
-    DNAMiniMap:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 60 - (80 * cos(myIconPos)), (80 * sin(myIconPos)) - 56)
-  --end
-  debug("MMI UpdateMapButton: " .. point .. "," .. xOfs .. "," .. yOfs)
-  DNA[player.combine]["CONFIG"]["MMICONPOS"] = point .. "," .. xOfs .. "," .. yOfs
-end
-DNAMiniMap:RegisterForDrag("LeftButton")
-DNAMiniMap:SetScript("OnDragStart", function()
-    DNAMiniMap:StartMoving()
-    DNAMiniMap:SetScript("OnUpdate", UpdateMapButton)
-end)
---minimapIconPos
-DNAMiniMap:SetScript("OnDragStop", function()
-  DNAMiniMap:StopMovingOrSizing()
-  DNAMiniMap:SetScript("OnUpdate", nil)
-  --UpdateMapButton()
-end)
-DNAMiniMap:SetScript("OnClick", function()
-  DNAOpen()
-end)
-
-function DN:DefaulMiniMapPos()
-  DNAMiniMap:SetPoint("TOPLEFT",-7,-12)
-end
-
-function DN:ResetMiniMapIcon()
-  DNAMiniMap:ClearAllPoints()
-  DN:DefaulMiniMapPos()
-  DNA[player.combine]["CONFIG"]["MMICONPOS"] = "TOPLEFT,-7,-12"
-  DNA[player.combine]["CONFIG"]["MMICONHIDE"] = "OFF"
-  --DNA[player.combine]["CONFIG"]["MMICONUNLOCK"] = "OFF"
-  DNACheckbox["MMICONHIDE"]:SetChecked(false)
-  --DNACheckbox["MMICONUNLOCK"]:SetChecked(false)
-  DNAMiniMap:Show()
-end
-DNAMiniMap:ClearAllPoints()
-DN:DefaulMiniMapPos()
-
-local DNADialogMMIReset = CreateFrame("Frame", nil, UIParent)
-DNADialogMMIReset:SetWidth(400)
-DNADialogMMIReset:SetHeight(100)
-DNADialogMMIReset:SetPoint("CENTER", 0, 50)
-DNADialogMMIReset:SetBackdrop({
-  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
-  edgeFile = DNAGlobal.border,
-  edgeSize = 22,
-  insets = {left=2, right=2, top=2, bottom=2},
-})
-DNADialogMMIReset.text = DNADialogMMIReset:CreateFontString(nil, "ARTWORK")
-DNADialogMMIReset.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNADialogMMIReset.text:SetPoint("CENTER", DNADialogMMIReset, "CENTER", 0, 20)
-DNADialogMMIReset.text:SetText("Reset the minimap icon position?")
-DNADialogMMIReset:SetFrameLevel(150)
-DNADialogMMIReset:SetFrameStrata("FULLSCREEN_DIALOG")
-local DNADialogMMIResetNo = CreateFrame("Button", nil, DNADialogMMIReset, "UIPanelButtonTemplate")
-DNADialogMMIResetNo:SetSize(100, 24)
-DNADialogMMIResetNo:SetPoint("CENTER", -60, -20)
-DNADialogMMIResetNo.text = DNADialogMMIResetNo:CreateFontString(nil, "ARTWORK")
-DNADialogMMIResetNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNADialogMMIResetNo.text:SetPoint("CENTER", DNADialogMMIResetNo, "CENTER", 0, 0)
-DNADialogMMIResetNo.text:SetText("No")
-DNADialogMMIResetNo:SetScript('OnClick', function()
-  DNADialogMMIReset:Hide()
-end)
-local DNADialogMMIResetYes = CreateFrame("Button", nil, DNADialogMMIReset, "UIPanelButtonTemplate")
-DNADialogMMIResetYes:SetSize(100, 24)
-DNADialogMMIResetYes:SetPoint("CENTER", 60, -20)
-DNADialogMMIResetYes.text = DNADialogMMIResetYes:CreateFontString(nil, "ARTWORK")
-DNADialogMMIResetYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNADialogMMIResetYes.text:SetPoint("CENTER", DNADialogMMIResetYes, "CENTER", 0, 0)
-DNADialogMMIResetYes.text:SetText("Yes")
-DNADialogMMIResetYes:SetScript('OnClick', function()
-  DN:ResetMiniMapIcon()
-  DNADialogMMIReset:Hide()
-end)
-DNADialogMMIReset:Hide()
-
-local DNAMiniMapRestore = CreateFrame("Button", nil, page["Settings"], "UIPanelButtonTemplate")
-DNAMiniMapRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
-DNAMiniMapRestore:SetPoint("TOPLEFT", 34, -415)
-DNAMiniMapRestore.text = DNAMiniMapRestore:CreateFontString(nil, "ARTWORK")
-DNAMiniMapRestore.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
-DNAMiniMapRestore.text:SetText("Reset Minimap Position")
-DNAMiniMapRestore.text:SetPoint("CENTER", DNAMiniMapRestore)
-DNAMiniMapRestore:SetScript("OnClick", function()
-  DNADialogMMIReset:Show()
-end)
-
-local DNADialogWTFReset = CreateFrame("Frame", nil, UIParent)
-DNADialogWTFReset:SetWidth(400)
-DNADialogWTFReset:SetHeight(100)
-DNADialogWTFReset:SetPoint("CENTER", 0, 50)
-DNADialogWTFReset:SetBackdrop({
-  bgFile   = "Interface/Tooltips/CHATBUBBLE-BACKGROUND",
-  edgeFile = DNAGlobal.border,
-  edgeSize = 22,
-  insets = {left=2, right=2, top=2, bottom=2},
-})
-DNADialogWTFReset.text = DNADialogWTFReset:CreateFontString(nil, "ARTWORK")
-DNADialogWTFReset.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNADialogWTFReset.text:SetPoint("CENTER", DNADialogMMIReset, "CENTER", 0, 20)
-DNADialogWTFReset.text:SetText("Reset all defaults?\nThis will delete your current profile for\n|cfff2c983" .. player.combine .. ".")
-DNADialogWTFReset:SetFrameLevel(150)
-DNADialogWTFReset:SetFrameStrata("FULLSCREEN_DIALOG")
-local DNADialogWTFResetNo = CreateFrame("Button", nil, DNADialogWTFReset, "UIPanelButtonTemplate")
-DNADialogWTFResetNo:SetSize(100, 24)
-DNADialogWTFResetNo:SetPoint("CENTER", -60, -20)
-DNADialogWTFResetNo.text = DNADialogWTFResetNo:CreateFontString(nil, "ARTWORK")
-DNADialogWTFResetNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNADialogWTFResetNo.text:SetPoint("CENTER", DNADialogWTFResetNo, "CENTER", 0, 0)
-DNADialogWTFResetNo.text:SetText("No")
-DNADialogWTFResetNo:SetScript('OnClick', function()
-  DNADialogWTFReset:Hide()
-end)
-local DNADialogWTFResetYes = CreateFrame("Button", nil, DNADialogWTFReset, "UIPanelButtonTemplate")
-DNADialogWTFResetYes:SetSize(100, 24)
-DNADialogWTFResetYes:SetPoint("CENTER", 60, -20)
-DNADialogWTFResetYes.text = DNADialogWTFResetYes:CreateFontString(nil, "ARTWORK")
-DNADialogWTFResetYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNADialogWTFResetYes.text:SetPoint("CENTER", DNADialogWTFResetYes, "CENTER", 0, 0)
-DNADialogWTFResetYes.text:SetText("Yes")
-DNADialogWTFResetYes:SetScript('OnClick', function()
-  DNA[player.combine] = nil
-  ReloadUI()
-end)
-DNADialogWTFReset:Hide()
-
-local DNAWTFRestore = CreateFrame("Button", nil, page["Settings"], "UIPanelButtonTemplate")
-DNAWTFRestore:SetSize(DNAGlobal.btn_w+15, DNAGlobal.btn_h)
-DNAWTFRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+50)
-DNAWTFRestore.text = DNAWTFRestore:CreateFontString(nil, "ARTWORK")
-DNAWTFRestore.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
-DNAWTFRestore.text:SetText("Restore All Defaults")
-DNAWTFRestore.text:SetPoint("CENTER", DNAWTFRestore)
-DNAWTFRestore:SetScript("OnClick", function()
-  DNADialogWTFReset:Show()
-end)

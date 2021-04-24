@@ -12,11 +12,12 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name     = "Destructive Nature Assistant"
 DNAGlobal.dir      = "Interface/AddOns/DNAssistant/"
+DNAGlobal.icon     = "images/icon_dn"
 DNAGlobal.vmajor   = 1
 DNAGlobal.vminor   = 227
 DNAGlobal.width    = 980
@@ -37,6 +38,7 @@ DN = {}
 
 date_day = date("%Y-%m-%d")
 timestamp= date("%Y-%m-%d %H:%M:%S")
+timeprint= date("%Y%m%d%H%M%S")
 
 player = {}
 player.name = UnitName("player")
@@ -74,11 +76,10 @@ expansionTabs = {
 DNAPages = {
   {"Assignment", 10},
   {"Attendance", 100},
-  {"Settings",   190},
+  {"Loot Log",   190},
   {"DKP",        280},
-  --{"Settings",   280},
+  {"Settings",   370},
   --{"Raid Builder", 100},
-  --{"Loot Log", 100},
 }
 
 textcolor={}
@@ -230,6 +231,7 @@ netCode = {
   {"readyno",   "0xEFNr"},
   {"postdkp",   "0xEFPd"},
   {"author",    "0xEFAu"},
+  {"lootitem",  "0xEFLi"},
 }
 
 DNARaidMarkers={
@@ -259,73 +261,29 @@ for i=1, table.getn(DNARaidMarkers) do
 end
 
 function DN:ClassColorText(frame, class)
-  local rgb={0.60, 0.60, 0.60} --offline gray
-  if (class == "Warrior") then
-    rgb={0.78, 0.61, 0.43}
+  local rgb={0.20, 0.20, 0.20}
+  if ((class) and (class ~= "Empty")) then
+    local r, g, b = GetClassColor(string.upper(class))
+    rgb={r, g, b}
   end
-  if (class == "Warlock") then
-    rgb={0.53, 0.53, 0.93}
-  end
-  if (class == "Rogue") then
-    rgb={1.00, 0.96, 0.41}
-  end
-  if (class == "Druid") then
-    rgb={1.00, 0.49, 0.04}
-  end
-  if (class == "Hunter") then
-    rgb={0.67, 0.83, 0.45}
-  end
-  if (class == "Paladin") then
-    rgb={0.96, 0.55, 0.73}
-  end
-  if (class == "Shaman") then
-    rgb={0.00, 0.44, 0.87}
-  end
-  if (class == "Mage") then
-    rgb={0.25, 0.78, 0.92}
-  end
-  if (class == "Priest") then
-    rgb={1.00, 1.00, 1.00}
-  end
-  if (class == "Empty") then --empty slot
-    rgb={0.20, 0.20, 0.20}
-  end
-  return frame:SetTextColor(rgb[1],rgb[2],rgb[3])
+  return frame:SetTextColor(rgb[1], rgb[2], rgb[3])
 end
 
 function DN:ClassColorAppend(name, class)
-  local rgb="dedede" --offline gray
-  if (class == "Warrior") then
-    rgb="C79C6E"
+  local hex="dedede" --offline gray
+  if ((class) and (class ~= "Empty")) then
+    local r, g, b, cHex = GetClassColor(string.upper(class))
+    hex = cHex
   end
-  if (class == "Warlock") then
-    rgb="8787ED"
+  return "|c" .. hex .. name .. "|r"
+end
+
+function DN:QualityColorText(frame, quality)
+  for i = 0, 8 do
+    local r, g, b = GetItemQualityColor(quality)
+    rgb={r, g, b}
   end
-  if (class == "Rogue") then
-    rgb="FFF569"
-  end
-  if (class == "Druid") then
-    rgb="FF7D0A"
-  end
-  if (class == "Hunter") then
-    rgb="A9D271"
-  end
-  if (class == "Paladin") then
-    rgb="F58CBA"
-  end
-  if (class == "Shaman") then
-    rgb="0070DD"
-  end
-  if (class == "Mage") then
-    rgb="40C7EB"
-  end
-  if (class == "Priest") then
-    rgb="ffffff"
-  end
-  if (class == "Empty") then --empty slot
-    rgb="ededed"
-  end
-  return "|cff" .. rgb .. name .. "|r"
+  return frame:SetTextColor(rgb[1], rgb[2], rgb[3])
 end
 
 DNAGuild={}
@@ -339,6 +297,7 @@ DNARaid["class"] = {}
 DNARaid["race"] = {}
 DNARaid["groupid"] = {}
 DNARaid["assist"] = {}
+DNARaid["raidID"] = {}
 
 DNABossIcon = nil
 DNABossMap = nil
@@ -466,6 +425,7 @@ pageDKPViewScrollChild_colThree= {}
 version_checked = 0
 
 numAttendanceLogs = 0
+numLootLogs = 0
 
 ddSelection = nil
 
