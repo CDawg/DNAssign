@@ -705,14 +705,12 @@ for i=1, MAX_FRAME_LINES do
   DNAFrameAssignScrollChild_heal[i]:SetText("")
   DNAFrameAssignScrollChild_heal[i]:SetPoint("TOPLEFT", 145, (-i*18)+10)
 end
-local DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
+
+local DNAFrameAssignReady = {}
+DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
 DNAFrameAssignReady:SetWidth(120)
 DNAFrameAssignReady:SetHeight(28)
 DNAFrameAssignReady:SetPoint("TOPLEFT", 70, -DNAFrameAssign_h+65)
-DNAFrameAssignReady.text = DNAFrameAssignReady:CreateFontString(nil, "ARTWORK")
-DNAFrameAssignReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
-DNAFrameAssignReady.text:SetText("Ready")
-DNAFrameAssignReady.text:SetPoint("CENTER", DNAFrameAssignReady)
 DNAFrameAssignReady:SetBackdrop({
   bgFile = "Interface/Buttons/GREENGRAD64",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
@@ -721,6 +719,10 @@ DNAFrameAssignReady:SetBackdrop({
 })
 DNAFrameAssignReady:SetBackdropColor(0.8, 0.8, 0.8, 1)
 DNAFrameAssignReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+DNAFrameAssignReady.text = DNAFrameAssignReady:CreateFontString(nil, "OVERLAY")
+DNAFrameAssignReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNAFrameAssignReady.text:SetText("Ready")
+DNAFrameAssignReady.text:SetPoint("CENTER", 0, 0)
 DNAFrameAssignReady:SetScript("OnEnter", function()
   DNAFrameAssignReady:SetBackdropBorderColor(1, 1, 1, 1)
 end)
@@ -735,14 +737,11 @@ DNAFrameAssignReady:SetScript("OnClick", function()
   print("|cfffaff04You have marked yourself as Ready.")
 end)
 
+local DNAFrameAssignNotReady={}
 DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
 DNAFrameAssignNotReady:SetWidth(120)
 DNAFrameAssignNotReady:SetHeight(28)
 DNAFrameAssignNotReady:SetPoint("TOPLEFT", 210, -DNAFrameAssign_h+65)
-DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "ARTWORK")
-DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
-DNAFrameAssignNotReady.text:SetText("Not Ready")
-DNAFrameAssignNotReady.text:SetPoint("CENTER", DNAFrameAssignNotReady)
 DNAFrameAssignNotReady:SetBackdrop({
   bgFile = "Interface/Buttons/RedGrad64",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
@@ -751,6 +750,10 @@ DNAFrameAssignNotReady:SetBackdrop({
 })
 DNAFrameAssignNotReady:SetBackdropColor(0.5, 0.4, 0.4, 1)
 DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "OVERLAY")
+DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNAFrameAssignNotReady.text:SetText("Not Ready")
+DNAFrameAssignNotReady.text:SetPoint("CENTER", 0, 0)
 DNAFrameAssignNotReady:SetScript("OnEnter", function()
   DNAFrameAssignNotReady:SetBackdropBorderColor(1, 1, 1, 1)
 end)
