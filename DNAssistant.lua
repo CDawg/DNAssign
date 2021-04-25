@@ -417,20 +417,13 @@ function DN:InstanceButtonToggle(name, icon)
       bgFile = DNAInstance[i][5],
       edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
       edgeSize = 14,
-      insets = {left=0, right=-66, top=0, bottom=-28},
+      insets = {left=0, right=-78, top=0, bottom=-24},
     })
     DNAFrameInstance[DNAInstance[i][1]]:SetBackdropBorderColor(1, 1, 1, 1)
-    DNAFrameInstanceGlow[DNAInstance[i][1]]:Hide()
+    DNAFrameInstanceGlow[DNAInstance[i][1]]:Show()
   end
-  DNAFrameInstance[name]:SetBackdrop({
-    bgFile = icon,
-    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-    edgeSize = 14,
-    insets = {left=0, right=-66, top=0, bottom=-28},
-  })
   DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0.40, 1)
-  DNAFrameInstanceGlow[name]:Show()
-  DNAFrameInstanceGlow[name]:Show()
+  DNAFrameInstanceGlow[name]:Hide()
   pageBanner:SetTexture(DNAInstance[instanceNum][3])
   pageBanner.text:SetText(DNAInstance[instanceNum][2])
   pageBossIcon:SetTexture(DNAInstance[instanceNum][4])
@@ -2165,19 +2158,17 @@ DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-6)
 DNAFrameInstanceBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameInstanceBG:SetFrameLevel(2)
 
+local instanceButton_x = 22
 function DN:InstanceButton(name, pos_y, longtext, icon)
-  local instanceButton_w = 140
-  local instanceButton_h = 80
+  local instanceButton_w = 160
+  local instanceButton_h = 70
   DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
   DNAFrameInstance[name]:SetSize(instanceButton_w, instanceButton_h)
-  DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+54)
-
+  DNAFrameInstance[name]:SetPoint("TOPLEFT", instanceButton_x, -pos_y+42)
   DNAFrameInstanceText[name] = DNAFrameInstance[name]:CreateFontString(nil, "OVERLAY")
   DNAFrameInstanceText[name]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  DNAFrameInstanceText[name]:SetPoint("CENTER", 0, -25)
+  DNAFrameInstanceText[name]:SetPoint("CENTER", 0, -22)
   DNAFrameInstanceText[name]:SetText(longtext)
-
-  --DNAFrameInstanceScript[name] = CreateFrame("Button", nil, DNAFrameInstance[name], "UIPanelButtonTemplate")
   DNAFrameInstanceScript[name] = CreateFrame("Button", nil, DNAFrameInstance[name])
   DNAFrameInstanceScript[name]:SetSize(instanceButton_w, instanceButton_h)
   DNAFrameInstanceScript[name]:SetPoint("CENTER", 0, 2)
@@ -2193,23 +2184,23 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
     ddBossList[name]:Show()
     ddBossListText[name]:SetText("")
   end)
-  DNAFrameInstanceGlow[name] = DNAFrameInstance[name]:CreateTexture(nil, "BACKGROUND", DNAFrameInstance[name], -5)
-  DNAFrameInstanceGlow[name]:SetTexture("Interface/ExtraButton/ChampionLight")
-  DNAFrameInstanceGlow[name]:SetSize(190, 125)
-  DNAFrameInstanceGlow[name]:SetPoint("TOPLEFT", -24, 20)
+  DNAFrameInstanceGlow[name] = DNAFrameInstance[name]:CreateTexture(nil, "BACKGROUND", DNAFrameInstance[name], 1)
+  DNAFrameInstanceGlow[name]:SetTexture("Interface/ACHIEVEMENTFRAME/UI-Achievement-HorizontalShadow")
+  DNAFrameInstanceGlow[name]:SetSize(instanceButton_w-4, instanceButton_h-4)
+  DNAFrameInstanceGlow[name]:SetPoint("TOPLEFT", 2, -2)
   DNAFrameInstanceGlow[name]:Hide()
 end
 
 --draw all tabs in order
 for i, v in ipairs(DNAInstance) do
-  DN:InstanceButton(DNAInstance[i][1], i*84, DNAInstance[i][2], DNAInstance[i][5])
+  DN:InstanceButton(DNAInstance[i][1], i*72, DNAInstance[i][2], DNAInstance[i][5])
 end
 
 local expInstanceButtonPos=1
 for i, v in ipairs(DNAInstance) do
   if (DNAInstance[i][8] == expansionTabs[2][1]) then
     expInstanceButtonPos=expInstanceButtonPos+1
-    DNAFrameInstance[DNAInstance[i][1]]:SetPoint("TOPLEFT", 30, -(expInstanceButtonPos*84)+138)
+    DNAFrameInstance[DNAInstance[i][1]]:SetPoint("TOPLEFT", instanceButton_x, -(expInstanceButtonPos*72)+114)
   end
 end
 
@@ -2261,7 +2252,7 @@ local function bottomTab(name)
   DNAFrameMainBottomTab[name].text:SetPoint("CENTER", DNAFrameMainBottomTab[name], "CENTER", 10, 0)
 
   local botBorder = DNAFrameMainBottomTab[name]:CreateTexture(nil, "BORDER", nil, 0)
-  botBorder:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
+  botBorder:SetTexture(DNAGlobal.tabborder)
   botBorder:SetSize(tabWidth, 38)
   botBorder:SetPoint("TOPLEFT", 0, -13)
   DNAFrameMainBottomTabScript={}
@@ -2308,7 +2299,7 @@ function expansionTab(name, backdrop, pos_y)
   })
   ]==]--
   tabBack[name] = expTab[name]:CreateTexture(nil, "BORDER", nil, 0)
-  tabBack[name]:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
+  tabBack[name]:SetTexture(DNAGlobal.tabborder)
   tabBack[name]:SetSize(100, 40)
   tabBack[name]:SetPoint("TOPLEFT", -30, -28)
   tabBack[name]:SetRotation(math.rad(270))
@@ -3067,7 +3058,7 @@ local function viewFrameBottomTab(name, pos_x, text_pos_x)
   viewFrameBotTab[name].text:SetPoint("CENTER", viewFrameBotTab[name], "CENTER", 9, 0)
   local viewFrameBotBorder ={}
   viewFrameBotBorder[name] = viewFrameBotTab[name]:CreateTexture(nil, "BORDER", nil, 0)
-  viewFrameBotBorder[name]:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
+  viewFrameBotBorder[name]:SetTexture(DNAGlobal.tabborder)
   viewFrameBotBorder[name]:SetSize(100, 35)
   viewFrameBotBorder[name]:SetPoint("TOPLEFT", 0, -14)
   local viewFrameBotTabScript={}
