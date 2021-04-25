@@ -9,7 +9,7 @@ DNALootlogScrollFrame:SetFrameLevel(5)
 DNALootlogScrollFrame.text = DNALootlogScrollFrame:CreateFontString(nil, "ARTWORK")
 DNALootlogScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNALootlogScrollFrame.text:SetPoint("CENTER", DNALootlogScrollFrame, "TOPLEFT", 90, 10)
-DNALootlogScrollFrame.text:SetText("Loot Logs")
+DNALootlogScrollFrame.text:SetText("LOOT LOGS")
 DNALootlogScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNALootlogScrollFrame, "UIPanelScrollFrameTemplate")
 DNALootlogScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNALootlogScrollFrame, "TOPLEFT", 3, -3)
 DNALootlogScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNALootlogScrollFrame, "BOTTOMRIGHT", 10, 4)
@@ -288,8 +288,8 @@ for i=1, MAX_RAID_MEMBERS*2 do
   lootlogSingleSlot[i]:SetWidth(DNALootlogItemScrollFrame_w-5)
   lootlogSingleSlot[i]:SetHeight(raidSlot_h)
   lootlogSingleSlot[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -345,7 +345,7 @@ function setLootlogSlotSingleFrame(i, member, quality)
     lootlogSingleSlotText[i]:SetText(member)
     lootlogSingleSlot[i]:Show()
     if (quality) then
-      DN:QualityColorText(lootlogSingleSlotText[i], quality)
+      DN:ItemQualityColorText(lootlogSingleSlotText[i], quality)
     end
   end
 end
@@ -353,8 +353,8 @@ end
 function lootLogSlotFrame(i, filteredName, name)
   lootLogSlot[i] = CreateFrame("button", lootLogSlot[i], DNALootlogScrollFrameScrollChildFrame)
   lootLogSlot[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })

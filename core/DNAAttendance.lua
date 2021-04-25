@@ -8,8 +8,8 @@ DNAAttendanceScrollFrame:SetPoint("TOPLEFT", 220, -50)
 DNAAttendanceScrollFrame:SetFrameLevel(5)
 DNAAttendanceScrollFrame.text = DNAAttendanceScrollFrame:CreateFontString(nil, "ARTWORK")
 DNAAttendanceScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNAAttendanceScrollFrame.text:SetPoint("CENTER", DNAAttendanceScrollFrame, "TOPLEFT", 90, 10)
-DNAAttendanceScrollFrame.text:SetText("Attendance Logs")
+DNAAttendanceScrollFrame.text:SetPoint("CENTER", DNAAttendanceScrollFrame, "TOPLEFT", 100, 10)
+DNAAttendanceScrollFrame.text:SetText("ATTENDANCE LOGS")
 DNAAttendanceScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceScrollFrame, "UIPanelScrollFrameTemplate")
 DNAAttendanceScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceScrollFrame, "TOPLEFT", 3, -3)
 DNAAttendanceScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceScrollFrame, "BOTTOMRIGHT", 10, 4)
@@ -286,8 +286,8 @@ for i=1, MAX_RAID_MEMBERS*2 do
   attendanceLogMemberSlot[i]:SetWidth(DNAAttendanceMemberScrollFrame_w-5)
   attendanceLogMemberSlot[i]:SetHeight(raidSlot_h)
   attendanceLogMemberSlot[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -304,8 +304,8 @@ for i=1, MAX_RAID_MEMBERS*2 do
   attendanceLogMemberSlotInvite[i]:SetHeight(raidSlot_h)
   attendanceLogMemberSlotInvite[i]:SetPoint("TOPLEFT", 114, 0)
   attendanceLogMemberSlotInvite[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -354,8 +354,8 @@ end
 function attendanceLogSlotFrame(i, filteredName, name)
   attendanceLogSlot[i] = CreateFrame("button", attendanceLogSlot[i], DNAAttendanceScrollFrameScrollChildFrame)
   attendanceLogSlot[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })

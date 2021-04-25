@@ -15,35 +15,30 @@ the copyright holders.
 DEBUG = true
 
 DNAGlobal = {}
-DNAGlobal.name     = "Destructive Nature Assistant"
-DNAGlobal.dir      = "Interface/AddOns/DNAssistant/"
-DNAGlobal.icon     = "images/icon_dn"
-DNAGlobal.vmajor   = 1
-DNAGlobal.vminor   = 227
-DNAGlobal.width    = 980
-DNAGlobal.height   = 600
-DNAGlobal.font     = DNAGlobal.dir .. "Fonts/verdana.ttf"
---DNAGlobal.font     = "Fonts/ARIALN.ttf"
---DNAGlobal.font     = "Fonts/FRIZQT__.TTF"
-DNAGlobal.fontSize = 12
-DNAGlobal.btn_w    = 130
-DNAGlobal.btn_h    = 25
-DNAGlobal.prefix   = "dnassist"
-DNAGlobal.version  = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
-DNAGlobal.backdrop = "Interface/Garrison/GarrisonMissionParchment" --default
-DNAGlobal.border   = "Interface/DialogFrame/UI-DialogBox-Border"
-DNAGlobal.author   = "Porthios of Myzrael"
-DNAGlobal.DKP      = 5
+DNAGlobal.name      = "Destructive Nature Assistant"
+DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
+DNAGlobal.icon      = "images/icon_dn"
+DNAGlobal.vmajor    = 1
+DNAGlobal.vminor    = 227
+DNAGlobal.width     = 980
+DNAGlobal.height    = 600
+DNAGlobal.font      = DNAGlobal.dir .. "Fonts/verdana.ttf"
+--DNAGlobal.font      = "Fonts/ARIALN.ttf"
+--DNAGlobal.font      = "Fonts/FRIZQT__.TTF"
+DNAGlobal.fontSize  = 12
+DNAGlobal.btn_w     = 130
+DNAGlobal.btn_h     = 25
+DNAGlobal.prefix    = "dnassist"
+DNAGlobal.version   = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
+DNAGlobal.backdrop  = "Interface/Garrison/GarrisonShipMissionParchment" --default
+DNAGlobal.border    = "Interface/DialogFrame/UI-DialogBox-Border"
+DNAGlobal.slotbg    = "Interface/Collections/CollectionsBackgroundTile"
+DNAGlobal.slotborder= "Interface/Tooltips/UI-Tooltip-Border"
+--DNAGlobal.slotborder= "Interface/MiniMap/TooltipBackdrop"
+--DNAGlobal.slotborder= "Interface/TALENTFRAME/UI-TalentFrame-Active"
+DNAGlobal.author    = "Porthios of Myzrael"
+DNAGlobal.DKP       = 5
 DN = {}
-
-date_day = date("%Y-%m-%d")
-timestamp= date("%Y-%m-%d %H:%M:%S")
-timeprint= date("%Y%m%d%H%M%S")
-
-player = {}
-player.name = UnitName("player")
-player.realm = GetRealmName()
-player.combine=player.name .. "-" .. player.realm
 
 total = {}
 total.warriors= 0
@@ -68,18 +63,19 @@ total.range = 0
 --
 total.raid = 0
 
+expTab = {}
 expansionTabs = {
   {"Classic", "Interface/GLUES/COMMON/GLUES-WOW-CLASSICLOGO"},
   {"TBC",     "Interface/GLUES/COMMON/GLUES-WOW-BCLOGO"},
 }
 
 DNAPages = {
-  {"Assignment", 10},
-  {"Attendance", 100},
-  {"Loot Log",   190},
-  {"DKP",        280},
-  {"Settings",   370},
-  --{"Raid Builder", 100},
+  "Assignment",
+  "Attendance",
+  "Loot Log",
+  "DKP",
+  "Settings",
+  --"Raid Builder"
 }
 
 textcolor={}
@@ -271,14 +267,28 @@ end
 
 function DN:ClassColorAppend(name, class)
   local hex="dedede" --offline gray
+  -- had to hack this in order for version compatibility
+  --[==[
   if ((class) and (class ~= "Empty")) then
     local r, g, b, cHex = GetClassColor(string.upper(class))
     hex = cHex
   end
   return "|c" .. hex .. name .. "|r"
+  ]==]--
+  if (class == "Warrior") then hex="C79C6E" end
+  if (class == "Warlock") then hex="8787ED" end
+  if (class == "Rogue") then hex="FFF569" end
+  if (class == "Druid") then hex="FF7D0A" end
+  if (class == "Hunter") then hex="A9D271" end
+  if (class == "Paladin") then hex="F58CBA" end
+  if (class == "Shaman") then hex="0070DD" end
+  if (class == "Mage") then hex="40C7EB" end
+  if (class == "Priest") then hex="ffffff" end
+  if (class == "Empty") then hex="ededed" end
+  return "|cff" .. hex .. name .. "|r"
 end
 
-function DN:QualityColorText(frame, quality)
+function DN:ItemQualityColorText(frame, quality)
   for i = 0, 8 do
     local r, g, b = GetItemQualityColor(quality)
     rgb={r, g, b}
@@ -370,6 +380,28 @@ function DN:ClearToolTip()
   DNATooltip:Hide()
 end
 
+function DN:FrameBorder(title, frame, x, y, w, h)
+  local DNAFrameBackBorder={}
+  DNAFrameBackBorder = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
+  --DNAFrameBackBorder = CreateFrame("Frame", nil, frame)
+  DNAFrameBackBorder:SetSize(w, h)
+  DNAFrameBackBorder:SetPoint("TOPLEFT", x, -y)
+  DNAFrameBackBorder:SetFrameLevel(2)
+  --[==[
+  DNAFrameBackBorder:SetBackdrop({
+    bgFile = "",
+    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  ]==]--
+  DNAFrameBackBorder.text = DNAFrameBackBorder:CreateFontString(nil,"ARTWORK")
+  DNAFrameBackBorder.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+  DNAFrameBackBorder.text:SetPoint("TOPLEFT", DNAFrameBackBorder, "TOPLEFT", 5, 13)
+  --DNAFrameBackBorder.text:SetTextColor(0.9, 0.7, 0.7)
+  DNAFrameBackBorder.text:SetText("|cffffe885" .. title)
+end
+
 function isItem(compare, item) --dropdown packets that are filtered from spaces
   local boss_icon = nil
   filteredItem = item:gsub("%s+", "")
@@ -386,7 +418,6 @@ function isItem(compare, item) --dropdown packets that are filtered from spaces
     return false
   end
 end
-
 
 packet={}
 

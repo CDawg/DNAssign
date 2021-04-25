@@ -38,8 +38,8 @@ local function DNABuildAttendance()
     DNA["ATTENDANCE"] = {}
   end
   if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == "ON") then
-    if (DNA["ATTENDANCE"][date_day] == nil) then
-      DNA["ATTENDANCE"][date_day] = {}
+    if (DNA["ATTENDANCE"][timestamp.date] == nil) then
+      DNA["ATTENDANCE"][timestamp.date] = {}
     end
     local inInstance, instanceType = IsInInstance()
     if (inInstance) then
@@ -50,14 +50,14 @@ local function DNABuildAttendance()
             --local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
             local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
             if ((name) and (class)) then
-              if (DNA["ATTENDANCE"][date_day][instanceName] == nil) then
-                DNA["ATTENDANCE"][date_day][instanceName] = {}
+              if (DNA["ATTENDANCE"][timestamp.date][instanceName] == nil) then
+                DNA["ATTENDANCE"][timestamp.date][instanceName] = {}
               end
-              if (DNA["ATTENDANCE"][date_day][instanceName][name] == nil) then
-                DNA["ATTENDANCE"][date_day][instanceName][name] = {DNAGlobal.DKP}
+              if (DNA["ATTENDANCE"][timestamp.date][instanceName][name] == nil) then
+                DNA["ATTENDANCE"][timestamp.date][instanceName][name] = {DNAGlobal.DKP}
               end
-              if (DNA["ATTENDANCE"][date_day][instanceName][name][class] == nil) then
-                DNA["ATTENDANCE"][date_day][instanceName][name][class] = {}
+              if (DNA["ATTENDANCE"][timestamp.date][instanceName][name][class] == nil) then
+                DNA["ATTENDANCE"][timestamp.date][instanceName][name][class] = {}
               end
             end
           end
@@ -429,6 +429,7 @@ function DN:InstanceButtonToggle(name, icon)
     insets = {left=0, right=-66, top=0, bottom=-28},
   })
   DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0.40, 1)
+  DNAFrameInstanceGlow[name]:Show()
   DNAFrameInstanceGlow[name]:Show()
   pageBanner:SetTexture(DNAInstance[instanceNum][3])
   pageBanner.text:SetText(DNAInstance[instanceNum][2])
@@ -1163,47 +1164,44 @@ local function buildRaidAssignments(packet, author, source)
 end
 
 function DN:RaidDetails()
-  pageRaidDetailsColOne[1]:SetText("CURRENT RAID COMP")
-  --DN:ClassColorText(pageRaidDetailsColOne[2], "Druid")
+  pageRaidDetailsColOne[1]:SetText("Druids")
+  DN:ClassColorText(pageRaidDetailsColOne[1], "Druid")
+  pageRaidDetailsColTwo[1]:SetText(total.druids)
 
-  pageRaidDetailsColOne[4]:SetText("Druids")
-  DN:ClassColorText(pageRaidDetailsColOne[4], "Druid")
-  pageRaidDetailsColTwo[4]:SetText(total.druids)
+  pageRaidDetailsColOne[2]:SetText("Hunters")
+  DN:ClassColorText(pageRaidDetailsColOne[2], "Hunter")
+  pageRaidDetailsColTwo[2]:SetText(total.hunters)
 
-  pageRaidDetailsColOne[5]:SetText("Hunters")
-  DN:ClassColorText(pageRaidDetailsColOne[5], "Hunter")
-  pageRaidDetailsColTwo[5]:SetText(total.hunters)
+  pageRaidDetailsColOne[3]:SetText("Mages")
+  DN:ClassColorText(pageRaidDetailsColOne[3], "Mage")
+  pageRaidDetailsColTwo[3]:SetText(total.mages)
 
-  pageRaidDetailsColOne[6]:SetText("Mages")
-  DN:ClassColorText(pageRaidDetailsColOne[6], "Mage")
-  pageRaidDetailsColTwo[6]:SetText(total.mages)
+  pageRaidDetailsColOne[4]:SetText("Paladins")
+  DN:ClassColorText(pageRaidDetailsColOne[4], "Paladin")
+  pageRaidDetailsColTwo[4]:SetText(total.paladins)
 
-  pageRaidDetailsColOne[7]:SetText("Paladins")
-  DN:ClassColorText(pageRaidDetailsColOne[7], "Paladin")
-  pageRaidDetailsColTwo[7]:SetText(total.paladins)
+  pageRaidDetailsColOne[5]:SetText("Priests")
+  DN:ClassColorText(pageRaidDetailsColOne[5], "Priest")
+  pageRaidDetailsColTwo[5]:SetText(total.priests)
 
-  pageRaidDetailsColOne[8]:SetText("Priests")
-  DN:ClassColorText(pageRaidDetailsColOne[8], "Priest")
-  pageRaidDetailsColTwo[8]:SetText(total.priests)
+  pageRaidDetailsColOne[6]:SetText("Rogues")
+  DN:ClassColorText(pageRaidDetailsColOne[6], "Rogue")
+  pageRaidDetailsColTwo[6]:SetText(total.rogues)
 
-  pageRaidDetailsColOne[9]:SetText("Rogues")
-  DN:ClassColorText(pageRaidDetailsColOne[9], "Rogue")
-  pageRaidDetailsColTwo[9]:SetText(total.rogues)
+  pageRaidDetailsColOne[7]:SetText("Warlocks")
+  DN:ClassColorText(pageRaidDetailsColOne[7], "Warlock")
+  pageRaidDetailsColTwo[7]:SetText(total.warlocks)
 
-  pageRaidDetailsColOne[10]:SetText("Warlocks")
-  DN:ClassColorText(pageRaidDetailsColOne[10], "Warlock")
-  pageRaidDetailsColTwo[10]:SetText(total.warlocks)
+  pageRaidDetailsColOne[8]:SetText("Warriors")
+  DN:ClassColorText(pageRaidDetailsColOne[8], "Warrior")
+  pageRaidDetailsColTwo[8]:SetText(total.warriors)
 
-  pageRaidDetailsColOne[11]:SetText("Warriors")
-  DN:ClassColorText(pageRaidDetailsColOne[11], "Warrior")
-  pageRaidDetailsColTwo[11]:SetText(total.warriors)
+  pageRaidDetailsColOne[9]:SetText("Shamans")
+  DN:ClassColorText(pageRaidDetailsColOne[9], "Shaman")
+  pageRaidDetailsColTwo[9]:SetText(total.shamans)
 
-  pageRaidDetailsColOne[12]:SetText("Shamans")
-  DN:ClassColorText(pageRaidDetailsColOne[12], "Shaman")
-  pageRaidDetailsColTwo[12]:SetText(total.shamans)
-
-  pageRaidDetailsColOne[14]:SetText("TOTAL")
-  pageRaidDetailsColTwo[14]:SetText(total.raid)
+  pageRaidDetailsColOne[12]:SetText("TOTAL")
+  pageRaidDetailsColTwo[12]:SetText(total.raid)
 end
 
 function DN:AlignSlotText()
@@ -1483,27 +1481,20 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           if (DNA["LOOTLOG"] == nil) then
             DNA["LOOTLOG"]={}
           end
-          if (DNA["LOOTLOG"][date_day] == nil) then
-            DNA["LOOTLOG"][date_day]={}
+          if (DNA["LOOTLOG"][timestamp.date] == nil) then
+            DNA["LOOTLOG"][timestamp.date]={}
           end
           if (inInstance) then
             --if (instanceType == "Raid") then
               local instanceName = GetInstanceInfo()
               if (instanceName) then
-                if (DNA["LOOTLOG"][date_day][instanceName] == nil) then
-                    DNA["LOOTLOG"][date_day][instanceName] = {}
+                if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
+                    DNA["LOOTLOG"][timestamp.date][instanceName] = {}
                 end
-                if (DNA["LOOTLOG"][date_day][instanceName][timeprint .. "" .. loot_data[1]] == nil) then
-                  DNA["LOOTLOG"][date_day][instanceName][timeprint .. "" .. loot_data[1]] = {lootQuality}
+                if (DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] == nil) then
+                  DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] = {lootQuality}
                   debug(loot_data[1] .. " from " .. loot_data[3])
                 end
-                --[==[
-                if (DNA["LOOTLOG"][date_day][instanceName][timestamp][loot_data[1]] == nil) then
-                  DNA["LOOTLOG"][date_day][instanceName][timestamp][loot_data[1]] = {lootQuality}
-                  debug(loot_data[1] .. " from " .. loot_data[3])
-                  --we also need to build a cache for live data
-                end
-                ]==]--
               end
             --end --if raid
           end
@@ -1689,7 +1680,7 @@ end
 DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
 DNAFrameMain:SetWidth(DNAGlobal.width)
 DNAFrameMain:SetHeight(DNAGlobal.height)
-DNAFrameMain:SetPoint("CENTER", 20, 40)
+DNAFrameMain:SetPoint("CENTER", 20, 60)
 DNAFrameMain.title = CreateFrame("Frame", nil, DNAFrameMain)
 DNAFrameMain.title:SetWidth(DNAGlobal.width)
 DNAFrameMain.title:SetHeight(34)
@@ -1706,8 +1697,13 @@ DNAFrameMain.title:SetBackdropColor(0.5, 0.5, 0.5)
 DNAFrameMain.text = DNAFrameMain.title:CreateFontString(nil, "ARTWORK")
 DNAFrameMain.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
 DNAFrameMain.text:SetPoint("TOPLEFT", 20, -10)
-DNAFrameMain.text:SetText(DNAGlobal.name .. " " .. DNAGlobal.version)
+DNAFrameMain.text:SetText(DNAGlobal.name)
 DNAFrameMain.text:SetTextColor(1.0, 1.0, 0.5)
+DNAFrameMain.version = DNAFrameMain.title:CreateFontString(nil, "ARTWORK")
+DNAFrameMain.version:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DNAFrameMain.version:SetPoint("TOPLEFT", 250, -12)
+DNAFrameMain.version:SetText("v" .. DNAGlobal.version)
+DNAFrameMain.version:SetTextColor(0.8, 0.8, 0.8)
 DNAFrameMain:SetBackdrop({
   bgFile = DNAGlobal.backdrop,
   edgeFile = DNAGlobal.border,
@@ -1743,11 +1739,11 @@ DNAFrameMain.enter:SetAutoFocus(false)
 DNAFrameMain.enter:Hide()
 
 for i,v in pairs(DNAPages) do
-  page[v[1]] = CreateFrame("Frame", nil, DNAFrameMain)
-  page[v[1]]:SetWidth(DNAGlobal.width)
-  page[v[1]]:SetHeight(DNAGlobal.height)
-  page[v[1]]:SetPoint("TOPLEFT", 0, 0)
-  page[v[1]]:Hide()
+  page[v] = CreateFrame("Frame", nil, DNAFrameMain)
+  page[v]:SetWidth(DNAGlobal.width)
+  page[v]:SetHeight(DNAGlobal.height)
+  page[v]:SetPoint("TOPLEFT", 0, 0)
+  page[v]:Hide()
   --debug(v[1])
 end
 
@@ -1758,14 +1754,6 @@ pagePreBuildDisable:SetHeight(100)
 pagePreBuildDisable:SetPoint("TOPLEFT", 0, 0)
 
 local pageAssignBtnDiv={}
---[==[
-for i=1, 5 do
-  pageAssignBtnDiv[i] = page["Assignment"]:CreateTexture(nil, "ARTWORK", page["Assignment"], 3)
-  pageAssignBtnDiv[i]:SetTexture("Interface/DialogFrame/UI-DialogBox-Divider")
-  pageAssignBtnDiv[i]:SetSize(256, 20)
-  pageAssignBtnDiv[i]:SetPoint("TOPLEFT", 6, i*100-622)
-end
-]==]--
 
 local pageAssignRightDiv = page["Assignment"]:CreateTexture(nil, "ARTWORK")
 pageAssignRightDiv:SetTexture("Interface/FrameGeneral/!UI-Frame")
@@ -1809,30 +1797,15 @@ DNAFrameMainNotif:SetBackdropBorderColor(1, 0, 0)
 DNAFrameMainNotif:SetBackdropColor(1, 0.2, 0.2, 1)
 DNAFrameMainNotif:Hide()
 
-function DNAFrameBorder(title, frame, x, y, w, h)
-  --local DNAFrameBackBorder={}
-  DNAFrameBackBorder = CreateFrame("Frame", nil, frame)
-  DNAFrameBackBorder:SetSize(w, h)
-  DNAFrameBackBorder:SetPoint("TOPLEFT", x, -y)
-  DNAFrameBackBorder:SetBackdrop({
-    bgFile = "",
-    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = {left=2, right=2, top=2, bottom=2},
-  })
-  DNAFrameBackBorderText = DNAFrameBackBorder:CreateFontString(nil,"ARTWORK")
-  DNAFrameBackBorderText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  DNAFrameBackBorderText:SetPoint("TOPLEFT", DNAFrameBackBorder, "TOPLEFT", 5, 13)
-  --DNAFrameBackBorderText:SetTextColor(0.9, 0.7, 0.7)
-  DNAFrameBackBorderText:SetText("|cffffe885" .. title)
-end
 
+--[==[
 local DNAFrameRaidSettingsBG = CreateFrame("Frame", nil, page["Settings"], "InsetFrameTemplate")
 DNAFrameRaidSettingsBG:SetSize(DNAGlobal.width-10, DNAGlobal.height-5)
 DNAFrameRaidSettingsBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameRaidSettingsBG:SetFrameLevel(2)
+]==]--
 
-DNAFrameBorder("PROFILE", page["Settings"], 20, 50, 350, 30)
+DN:FrameBorder("PROFILE", page["Settings"], 20, 50, 350, 30)
 local profileMessage = page["Settings"]:CreateFontString(nil, "ARTWORK")
 profileMessage:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
 profileMessage:SetText(player.combine)
@@ -1985,7 +1958,7 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY, tooltip)
   end
 end
 
-DNAFrameBorder("AUTO PROMOTE", page["Settings"], 20, 110, 350, 100)
+DN:FrameBorder("AUTO PROMOTE", page["Settings"], 20, 110, 350, 100)
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Settings"], 20, 80, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
 DN:CheckBox("AUTOPROMOTEC", "Auto Promote Custom", page["Settings"], 20, 100, "Auto Promote custom to raid assistants.\nMust be Raid Lead.")
 DNAFrameAutopromoteCustom = CreateFrame("EditBox", nil, page["Settings"])
@@ -1999,18 +1972,18 @@ DNAFrameAutopromoteCustom:SetBackdrop(GameTooltip:GetBackdrop())
 DNAFrameAutopromoteCustom:SetBackdropColor(0, 0, 0, 0.8)
 DNAFrameAutopromoteCustom:SetText(" Class Leads")
 
-DNAFrameBorder("RAID OPTIONS", page["Settings"], 20, 240, 350, 70)
+DN:FrameBorder("RAID OPTIONS", page["Settings"], 20, 240, 350, 70)
 DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Settings"], 20, 210, "Post to Raid chat as well as the screen assignments.")
 DN:CheckBox("LOGATTENDANCE", "Log Raid Attendance", page["Settings"], 20, 230, " Log Raid Attendance ")
 
-DNAFrameBorder("DIALOG / UI", page["Settings"], 20, 340, 350, 110)
+DN:FrameBorder("DIALOG / UI", page["Settings"], 20, 340, 350, 110)
 DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Settings"], 20, 310, "Hide the Personal Assignments window once combat has ended.")
 DN:CheckBox("SMALLASSIGNCOMBAT", "Small Personal Assignment Window", page["Settings"], 20, 330, "Size down the Personal Assignments window.")
 DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Settings"], 20, 350, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
 --DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Settings"], 20, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Settings"], 20, 80)
 
-DNAFrameBorder("DKP", page["Settings"], 20, 480, 350, 30)
+DN:FrameBorder("DKP", page["Settings"], 20, 480, 350, 30)
 local DKPSettingsMessage = page["Settings"]:CreateFontString(nil, "ARTWORK")
 DKPSettingsMessage:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DKPSettingsMessage:SetText("DKP Earned Per Raid [ |cffffe885" .. DNAGlobal.DKP .. "|r ]")
@@ -2088,21 +2061,26 @@ btnPostDKP:SetScript("OnClick", function()
 end)
 --btnPostDKP:Hide()
 
-local DNAFrameRaidAttendanceBG = CreateFrame("Frame", nil, page["Attendance"], "InsetFrameTemplate")
-DNAFrameRaidAttendanceBG:SetSize(194, DNAGlobal.height-5)
-DNAFrameRaidAttendanceBG:SetPoint("TOPLEFT", 6, 0)
-DNAFrameRaidAttendanceBG:SetFrameLevel(2)
+local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Attendance"], "InsetFrameTemplate")
+DNAFrameRaidDetailsBG:SetSize(190, DNAGlobal.height-100)
+DNAFrameRaidDetailsBG:SetPoint("TOPLEFT", 20, -50)
+DNAFrameRaidDetailsBG:SetFrameLevel(2)
+local DNAFrameRaidDetailsText = page["Attendance"]:CreateFontString(nil, "ARTWORK")
+DNAFrameRaidDetailsText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNAFrameRaidDetailsText:SetPoint("TOPLEFT", page["Attendance"], "TOPLEFT", 40, -33)
+DNAFrameRaidDetailsText:SetText("CURRENT RAID COMP")
+DNAFrameRaidDetailsText:SetTextColor(1, 1, 1)
 
 for i=1, 50 do
   pageRaidDetailsColOne[i] = page["Attendance"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColOne[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  pageRaidDetailsColOne[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 20, (-i*14)-24)
+  pageRaidDetailsColOne[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 30, (-i*14)-50)
   pageRaidDetailsColOne[i]:SetText("")
   pageRaidDetailsColOne[i]:SetTextColor(1, 1, 1)
 
   pageRaidDetailsColTwo[i] = page["Attendance"]:CreateFontString(nil, "ARTWORK")
   pageRaidDetailsColTwo[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  pageRaidDetailsColTwo[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 110, (-i*14)-24)
+  pageRaidDetailsColTwo[i]:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 170, (-i*14)-50)
   pageRaidDetailsColTwo[i]:SetText("")
   pageRaidDetailsColTwo[i]:SetTextColor(0.9, 0.9, 0.9)
 end
@@ -2183,14 +2161,16 @@ page["DKP"]:Hide()
 --page["Raid Details"]:Hide()
 
 local DNAFrameInstanceBG = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
-DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-5)
+DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-6)
 DNAFrameInstanceBG:SetPoint("TOPLEFT", 6, 0)
 DNAFrameInstanceBG:SetFrameLevel(2)
 
 function DN:InstanceButton(name, pos_y, longtext, icon)
+  local instanceButton_w = 140
+  local instanceButton_h = 80
   DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
-  DNAFrameInstance[name]:SetSize(140, 80)
-  DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+58)
+  DNAFrameInstance[name]:SetSize(instanceButton_w, instanceButton_h)
+  DNAFrameInstance[name]:SetPoint("TOPLEFT", 30, -pos_y+54)
 
   DNAFrameInstanceText[name] = DNAFrameInstance[name]:CreateFontString(nil, "OVERLAY")
   DNAFrameInstanceText[name]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -2199,7 +2179,7 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
 
   --DNAFrameInstanceScript[name] = CreateFrame("Button", nil, DNAFrameInstance[name], "UIPanelButtonTemplate")
   DNAFrameInstanceScript[name] = CreateFrame("Button", nil, DNAFrameInstance[name])
-  DNAFrameInstanceScript[name]:SetSize(140, 80)
+  DNAFrameInstanceScript[name]:SetSize(instanceButton_w, instanceButton_h)
   DNAFrameInstanceScript[name]:SetPoint("CENTER", 0, 2)
   DNAFrameInstanceScript[name]:SetScript("OnClick", function()
     DN:ClearNotifications()
@@ -2227,9 +2207,9 @@ end
 
 local expInstanceButtonPos=1
 for i, v in ipairs(DNAInstance) do
-  if (DNAInstance[i][8] == "TBC") then
+  if (DNAInstance[i][8] == expansionTabs[2][1]) then
     expInstanceButtonPos=expInstanceButtonPos+1
-    DNAFrameInstance[DNAInstance[i][1]]:SetPoint("TOPLEFT", 30, -(expInstanceButtonPos*84)+142)
+    DNAFrameInstance[DNAInstance[i][1]]:SetPoint("TOPLEFT", 30, -(expInstanceButtonPos*84)+138)
   end
 end
 
@@ -2238,9 +2218,9 @@ local DNARaidScrollFrame_h = 520
 
 local function bottomTabToggle(name)
   for i,v in pairs(DNAPages) do
-    DNAFrameMainBottomTab[v[1]]:SetFrameStrata("LOW")
-    DNAFrameMainBottomTab[v[1]].text:SetTextColor(0.7, 0.7, 0.7)
-    page[v[1]]:Hide()
+    DNAFrameMainBottomTab[v]:SetFrameStrata("LOW")
+    DNAFrameMainBottomTab[v].text:SetTextColor(0.7, 0.7, 0.7)
+    page[v]:Hide()
   end
   DNAFrameMainBottomTab[name]:SetFrameStrata("MEDIUM")
   DNAFrameMainBottomTab[name].text:SetTextColor(1.0, 1.0, 0.5)
@@ -2249,42 +2229,44 @@ local function bottomTabToggle(name)
   pagePreBuildDisable:Hide()
 
   onPage = name
---[==[
-  if (onPage == "Raid Builder") then
-    page["Raid Builder"]:Hide()
-    page["Assignment"]:Show()
-    btnSaveRaid:Show()
-    viewFrameBotTab["Class"]:Hide()
-    DN:UpdateRaidRoster()
-  end
-  if (onPage == "Assignment") then
-    pagePreBuildDisable:Show()
-    viewFrameBotTab["Class"]:Show()
-    DN:UpdateRaidRoster()
-  end
-  ]==]--
   debug("Page: " .. onPage)
+  for i,v in pairs(expansionTabs) do
+    expTab[v[1]]:Hide()
+  end
+  if (name == "Assignment") then
+    for i,v in pairs(expansionTabs) do
+      expTab[v[1]]:Show()
+    end
+  end
 end
 
-local function bottomTab(name, pos_x, text_pos_x)
+local bottomTabCount = 1
+local function bottomTab(name)
+  local tabWidth = 110
+  if (bottomTabCount > 1) then
+    bottomTabCount = bottomTabCount + tabWidth-14
+  else
+    bottomTabCount = bottomTabCount +8
+  end
+  debug(bottomTabCount)
   DNAFrameMainBottomTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
-  DNAFrameMainBottomTab[name]:SetPoint("BOTTOMLEFT", pos_x, -39)
-  DNAFrameMainBottomTab[name]:SetWidth(85)
+  DNAFrameMainBottomTab[name]:SetPoint("BOTTOMLEFT", bottomTabCount, -39)
+  DNAFrameMainBottomTab[name]:SetWidth(tabWidth-20)
   DNAFrameMainBottomTab[name]:SetHeight(60)
   DNAFrameMainBottomTab[name]:SetFrameStrata("LOW")
   DNAFrameMainBottomTab[name].text = DNAFrameMainBottomTab[name]:CreateFontString(nil, "ARTWORK")
-  DNAFrameMainBottomTab[name].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DNAFrameMainBottomTab[name].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
   DNAFrameMainBottomTab[name].text:SetText(name)
   DNAFrameMainBottomTab[name].text:SetTextColor(0.8, 0.8, 0.8)
-  DNAFrameMainBottomTab[name].text:SetPoint("CENTER", DNAFrameMainBottomTab[name], "CENTER", 9, 0)
+  DNAFrameMainBottomTab[name].text:SetPoint("CENTER", DNAFrameMainBottomTab[name], "CENTER", 10, 0)
 
   local botBorder = DNAFrameMainBottomTab[name]:CreateTexture(nil, "BORDER", nil, 0)
   botBorder:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB")
-  botBorder:SetSize(100, 35)
-  botBorder:SetPoint("TOPLEFT", 0, -14)
+  botBorder:SetSize(tabWidth, 38)
+  botBorder:SetPoint("TOPLEFT", 0, -13)
   DNAFrameMainBottomTabScript={}
   DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name])
-  DNAFrameMainBottomTabScript[name]:SetSize(85, 30)
+  DNAFrameMainBottomTabScript[name]:SetSize(tabWidth, 30)
   DNAFrameMainBottomTabScript[name]:SetPoint("CENTER", 0, 0)
   DNAFrameMainBottomTabScript[name]:SetScript("OnClick", function()
     DN:ClearNotifications()
@@ -2292,12 +2274,8 @@ local function bottomTab(name, pos_x, text_pos_x)
   end)
 end
 
-local expTab = {}
 local tabBack = {}
 local tabLogo = {}
-local expTab_w=42
-local expTab_h=30
-
 function expTabInactive()
   for i,v in pairs(expansionTabs) do
     expTab[v[1]]:SetFrameLevel(0)
@@ -2319,8 +2297,7 @@ end
 function expansionTab(name, backdrop, pos_y)
   expTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
   expTab[name]:SetPoint("TOPLEFT", -31, -pos_y+55)
-  expTab[name]:SetWidth(50)
-  expTab[name]:SetHeight(94)
+  expTab[name]:SetSize(50, 94)
   expTab[name]:SetFrameLevel(0)
   --[==[
   expTab[name]:SetBackdrop({
@@ -2342,12 +2319,20 @@ function expansionTab(name, backdrop, pos_y)
   tabLogo[name]:SetRotation(math.rad(90))
   tabScript = {}
   tabScript[name] = CreateFrame("Button", nil, expTab[name], nil)
-  tabScript[name]:SetSize(expTab_w+20, expTab_h+10)
-  tabScript[name]:SetPoint("CENTER", 0, 0)
+  tabScript[name]:SetSize(40, 90)
+  tabScript[name]:SetPoint("CENTER", -4, -2)
   tabScript[name]:SetScript("OnClick", function()
     expTabActive(name)
     DNA[player.combine]["CONFIG"]["EXP"] = name
   end)
+  --[==[
+  tabScript[name]:SetBackdrop({
+    bgFile="green",
+    edgeFile="",
+    edgeSize = 2,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  ]==]--
 end
 
 for i,v in pairs(expansionTabs) do
@@ -2449,8 +2434,8 @@ function raidSlotFrame(parentFrame, i, y)
     DN:ResetQueueTransposing()
   end)
   raidSlot[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -2602,8 +2587,8 @@ for i=1, DNASlots.tank do
   tankSlot[i].text:SetText("Empty")
   tankSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
   tankSlot[i]:SetBackdrop({
-    bgFile   = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile   = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
   	insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -2738,8 +2723,8 @@ for i=1, DNASlots.heal do
   healSlotDownIcon:SetPoint("TOPLEFT", -3, 5)
   healSlotDownIcon:SetSize(27, 30)
   healSlot[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -2834,8 +2819,8 @@ for i=1, DNASlots.cc do
   ccSlot[i].text:SetText("Empty")
   ccSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
   ccSlot[i]:SetBackdrop({
-    bgFile   = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    bgFile   = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
   	insets = {left=2, right=2, top=2, bottom=2},
   })
@@ -3504,12 +3489,11 @@ for i=1, DNASlots.cc do
 end
 
 for i,v in pairs(DNAPages) do
-  bottomTab(DNAPages[i][1], DNAPages[i][2])
+  bottomTab(v)
 end
 
-
 --default selection after drawn
-bottomTabToggle(DNAPages[1][1])
+bottomTabToggle(DNAPages[1])
 ddBossList[DNAInstance[1][1]]:Show() -- show first one
 
 function DN:PermissionVisibility()

@@ -12,6 +12,17 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
+timestamp = {}
+timestamp.date = date("%Y-%m-%d")
+timestamp.time = date("%Y-%m-%d %H:%M:%S")
+timestamp.epoch= date("%Y%m%d%H%M%S")
+
+player = {}
+player.name = UnitName("player")
+player.realm = GetRealmName()
+player.combine=player.name .. "-" .. player.realm
+player.class = UnitClass("player")
+player.faction=UnitFactionGroup("player")
 
 function debug(msg)
   if (DEBUG) then
