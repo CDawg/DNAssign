@@ -415,10 +415,15 @@ function DN:InstanceButtonToggle(name, icon)
       insets = {left=0, right=-78, top=0, bottom=-24},
     })
     DNAFrameInstance[DNAInstance[i][1]]:SetBackdropBorderColor(1, 1, 1, 1)
-    DNAFrameInstanceGlow[DNAInstance[i][1]]:Show()
+    DNAFrameInstanceShadow[DNAInstance[i][1]]:Show()
+    DNAFrameInstanceGlow[DNAInstance[i][1]]:Hide()
+    DNAFrameInstanceText[DNAInstance[i][1]]:SetTextColor(1, 1, 1)
   end
+
   DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0.40, 1)
-  DNAFrameInstanceGlow[name]:Hide()
+  DNAFrameInstanceShadow[name]:Hide()
+  DNAFrameInstanceGlow[name]:Show()
+  DNAFrameInstanceText[name]:SetTextColor(1, 1, 0.60)
   pageBanner:SetTexture(DNAInstance[instanceNum][3])
   pageBanner.text:SetText(DNAInstance[instanceNum][2])
   pageBossIcon:SetTexture(DNAInstance[instanceNum][4])
@@ -1389,9 +1394,8 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
-      local hasClassAssigns = false
-
       --class notes
+      local hasClassAssigns = false
       for i,v in ipairs(DNAClasses) do
         local getCode = multiKeyFromValue(netCode, v)
         if (getCode) then
@@ -2178,8 +2182,9 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
   DNAFrameInstance[name]:SetPoint("TOPLEFT", instanceButton_x, -pos_y+42)
   DNAFrameInstanceText[name] = DNAFrameInstance[name]:CreateFontString(nil, "OVERLAY")
   DNAFrameInstanceText[name]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  DNAFrameInstanceText[name]:SetPoint("CENTER", 0, -22)
+  DNAFrameInstanceText[name]:SetPoint("CENTER", 0, -24)
   DNAFrameInstanceText[name]:SetText(longtext)
+  DNAFrameInstanceText[name]:SetTextColor(1, 1, 1)
   DNAFrameInstanceScript[name] = CreateFrame("Button", nil, DNAFrameInstance[name])
   DNAFrameInstanceScript[name]:SetSize(instanceButton_w, instanceButton_h)
   DNAFrameInstanceScript[name]:SetPoint("CENTER", 0, 2)
@@ -2195,10 +2200,16 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
     ddBossList[name]:Show()
     ddBossListText[name]:SetText("")
   end)
+  DNAFrameInstanceShadow[name] = DNAFrameInstance[name]:CreateTexture(nil, "BACKGROUND", DNAFrameInstance[name], 1)
+  DNAFrameInstanceShadow[name]:SetTexture("Interface/ACHIEVEMENTFRAME/UI-Achievement-HorizontalShadow")
+  DNAFrameInstanceShadow[name]:SetSize(instanceButton_w-4, instanceButton_h-4)
+  DNAFrameInstanceShadow[name]:SetPoint("TOPLEFT", 2, -2)
+  DNAFrameInstanceShadow[name]:Hide()
   DNAFrameInstanceGlow[name] = DNAFrameInstance[name]:CreateTexture(nil, "BACKGROUND", DNAFrameInstance[name], 1)
-  DNAFrameInstanceGlow[name]:SetTexture("Interface/ACHIEVEMENTFRAME/UI-Achievement-HorizontalShadow")
-  DNAFrameInstanceGlow[name]:SetSize(instanceButton_w-4, instanceButton_h-4)
-  DNAFrameInstanceGlow[name]:SetPoint("TOPLEFT", 2, -2)
+  DNAFrameInstanceGlow[name]:SetTexture("Interface/Reforging/Reforging-Flare")
+  DNAFrameInstanceGlow[name]:SetSize(instanceButton_w+8, instanceButton_h+12)
+  DNAFrameInstanceGlow[name]:SetPoint("TOPLEFT", -4, -3)
+  --DNAFrameInstanceGlow[name]:SetRotation(math.rad(180))
   DNAFrameInstanceGlow[name]:Hide()
 end
 

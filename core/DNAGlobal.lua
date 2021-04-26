@@ -456,6 +456,7 @@ ddBossListText={}
 DNAFrameInstance={}
 DNAFrameInstanceText={}
 DNAFrameInstanceScript={}
+DNAFrameInstanceShadow={}
 DNAFrameInstanceGlow={}
 
 DNAFrameView={}
