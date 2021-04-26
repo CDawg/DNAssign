@@ -190,15 +190,15 @@ function DN:ResetQueueTransposing()
 end
 
 DNAClasses={
-  "Warrior",
   "Druid",
-  "Priest",
-  "Paladin",
-  "Rogue",
-  "Mage",
-  "Warlock",
   "Hunter",
-  "Shaman"
+  "Mage",
+  "Paladin",
+  "Priest",
+  "Rogue",
+  "Shaman",
+  "Warlock",
+  "Warrior",
 }
 
 TANK="T"
@@ -256,7 +256,7 @@ for i=1, table.getn(DNARaidMarkers) do
 end
 
 function DN:ClassColorText(frame, class)
-  local rgb={0.60, 0.60, 0.60} --gray/offline
+  local rgb={0.60, 0.60, 0.60} --offline gray
   if (class) then
     if (class == "Empty") then
       rgb={0.20, 0.20, 0.20}
@@ -390,11 +390,13 @@ function DN:FrameBorder(title, frame, x, y, w, h)
   DNAFrameBackBorder.text:SetText("|cffffe885" .. title)
 end
 
+DNABossPacket = ""
 function isItem(compare, item) --dropdown packets that are filtered from spaces
   local boss_icon = nil
   filteredItem = item:gsub("%s+", "")
   if ((compare == item) or (compare == filteredItem)) then
     DNAFrameAssignBossText:SetText(item)
+    DNABossPacket = item
     for i=1, table.getn(DNARaidBosses) do
       boss_icon = multiKeyFromValue(DNARaidBosses[i], item)
       if (boss_icon) then

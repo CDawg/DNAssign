@@ -1098,6 +1098,13 @@ local function buildRaidAssignments(packet, author, source)
 
   if (source == "network") then
     if (DNACheckbox["RAIDCHAT"]:GetChecked()) then
+      if (IsInRaid()) then
+        if (DNABossPacket) then
+          if (author == player.name) then
+            SendChatMessage("===" .. DNABossPacket .. "===", "RAID", nil, "RAID")
+          end
+        end
+      end
       for i=1, MAX_FRAME_LINES do
         local this_key = 0
         local text_line = ""
@@ -1127,7 +1134,9 @@ local function buildRaidAssignments(packet, author, source)
             text_line = text_line .. text[i]
           end
           if (author == player.name) then
-            SendChatMessage(text_line, "RAID", nil, "RAID")
+            if (IsInRaid()) then
+              SendChatMessage(text_line, "RAID", nil, "RAID")
+            end
           end
         end
       end
@@ -1415,6 +1424,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
           DNAFrameAssign:Show()
           DN:RaidReadyClear()
+          PlaySound(8958)
           return true
         end
       end
