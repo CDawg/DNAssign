@@ -1,3 +1,17 @@
+--[==[
+Copyright ©2020 Porthios of Myzrael
+The contents of this addon, excluding third-party resources, are
+copyrighted to Porthios with all rights reserved.
+This addon is free to use and the authors hereby grants you the following rights:
+1. You may make modifications to this addon for private use only, you
+   may not publicize any portion of this addon.
+2. Do not modify the name of this addon, including the addon folders.
+3. This copyright notice shall be included in all copies or substantial
+  portions of the Software.
+All rights not explicitly addressed in this license are reserved by
+the copyright holders.
+]==]--
+
 local DNALootlogScrollFrame_w = 200
 local DNALootlogScrollFrame_h = 500
 
@@ -237,10 +251,10 @@ end)
 DNALootlogExportLogBtn:Hide()
 
 local DNALootlogItemScrollFrame_w = 200
-local DNALootlogItemScrollFrame_h = 420
+local DNALootlogItemScrollFrame_h = 430
 DNALootlogDetailsFrame = CreateFrame("Frame", DNALootlogDetailsFrame, page["Loot Log"], "InsetFrameTemplate")
 DNALootlogDetailsFrame:SetWidth(DNALootlogItemScrollFrame_w+20)
-DNALootlogDetailsFrame:SetHeight(70)
+DNALootlogDetailsFrame:SetHeight(60)
 DNALootlogDetailsFrame:SetPoint("TOPLEFT", 250, -50)
 DNALootlogDetailsFrame.date = DNALootlogDetailsFrame:CreateFontString(nil, "ARTWORK")
 DNALootlogDetailsFrame.date:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -261,7 +275,7 @@ DNALootlogDetailsFrame:Hide()
 DNALootlogItemScrollFrame = CreateFrame("Frame", DNALootlogItemScrollFrame, page["Loot Log"], "InsetFrameTemplate")
 DNALootlogItemScrollFrame:SetWidth(DNALootlogItemScrollFrame_w+20)
 DNALootlogItemScrollFrame:SetHeight(DNALootlogItemScrollFrame_h)
-DNALootlogItemScrollFrame:SetPoint("TOPLEFT", 250, -130)
+DNALootlogItemScrollFrame:SetPoint("TOPLEFT", 250, -120)
 DNALootlogItemScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNALootlogItemScrollFrame, "UIPanelScrollFrameTemplate")
 DNALootlogItemScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNALootlogItemScrollFrame, "TOPLEFT", 3, -3)
 DNALootlogItemScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNALootlogItemScrollFrame, "BOTTOMRIGHT", 10, 4)

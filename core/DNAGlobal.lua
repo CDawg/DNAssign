@@ -17,7 +17,7 @@ DEBUG = true
 DNAGlobal = {}
 DNAGlobal.name      = "Destructive Nature Assistant"
 DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
-DNAGlobal.icon      = "images/icon_dn"
+DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
 DNAGlobal.vmajor    = 1
 DNAGlobal.vminor    = 227
 DNAGlobal.width     = 980
@@ -256,35 +256,24 @@ for i=1, table.getn(DNARaidMarkers) do
 end
 
 function DN:ClassColorText(frame, class)
-  local rgb={0.20, 0.20, 0.20}
-  if ((class) and (class ~= "Empty")) then
-    local r, g, b = GetClassColor(string.upper(class))
-    rgb={r, g, b}
+  local rgb={0.60, 0.60, 0.60} --gray/offline
+  if (class) then
+    if (class == "Empty") then
+      rgb={0.20, 0.20, 0.20}
+    else
+      local r, g, b = GetClassColor(string.upper(class))
+      rgb={r, g, b}
+    end
   end
   return frame:SetTextColor(rgb[1], rgb[2], rgb[3])
 end
 
 function DN:ClassColorAppend(name, class)
-  local hex="dedede" --offline gray
-  -- had to hack this in order for version compatibility
-  --[==[
-  if ((class) and (class ~= "Empty")) then
-    local r, g, b, cHex = GetClassColor(string.upper(class))
-    hex = cHex
+  local hex="ffdedede" --offline gray
+  if (arrayValue(DNAClasses, class)) then
+    r, g, b, hex = GetClassColor(string.upper(class))
   end
   return "|c" .. hex .. name .. "|r"
-  ]==]--
-  if (class == "Warrior") then hex="C79C6E" end
-  if (class == "Warlock") then hex="8787ED" end
-  if (class == "Rogue") then hex="FFF569" end
-  if (class == "Druid") then hex="FF7D0A" end
-  if (class == "Hunter") then hex="A9D271" end
-  if (class == "Paladin") then hex="F58CBA" end
-  if (class == "Shaman") then hex="0070DD" end
-  if (class == "Mage") then hex="40C7EB" end
-  if (class == "Priest") then hex="ffffff" end
-  if (class == "Empty") then hex="ededed" end
-  return "|cff" .. hex .. name .. "|r"
 end
 
 function DN:ItemQualityColorText(frame, quality)

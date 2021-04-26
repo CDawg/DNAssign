@@ -1,3 +1,17 @@
+--[==[
+Copyright ©2020 Porthios of Myzrael
+The contents of this addon, excluding third-party resources, are
+copyrighted to Porthios with all rights reserved.
+This addon is free to use and the authors hereby grants you the following rights:
+1. You may make modifications to this addon for private use only, you
+   may not publicize any portion of this addon.
+2. Do not modify the name of this addon, including the addon folders.
+3. This copyright notice shall be included in all copies or substantial
+  portions of the Software.
+All rights not explicitly addressed in this license are reserved by
+the copyright holders.
+]==]--
+
 local DNAAttendanceScrollFrame_w = 200
 local DNAAttendanceScrollFrame_h = 500
 
@@ -237,10 +251,10 @@ end)
 DNAAttendanceExportLogBtn:Hide()
 
 local DNAAttendanceMemberScrollFrame_w = 200
-local DNAAttendanceMemberScrollFrame_h = 350
+local DNAAttendanceMemberScrollFrame_h = 410
 DNAAttendanceDetailsFrame = CreateFrame("Frame", DNAAttendanceDetailsFrame, page["Attendance"], "InsetFrameTemplate")
 DNAAttendanceDetailsFrame:SetWidth(DNAAttendanceMemberScrollFrame_w+20)
-DNAAttendanceDetailsFrame:SetHeight(150)
+DNAAttendanceDetailsFrame:SetHeight(80)
 DNAAttendanceDetailsFrame:SetPoint("TOPLEFT", 450, -50)
 DNAAttendanceDetailsFrame.date = DNAAttendanceDetailsFrame:CreateFontString(nil, "ARTWORK")
 DNAAttendanceDetailsFrame.date:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -259,7 +273,7 @@ DNAAttendanceDetailsFrame:Hide()
 DNAAttendanceMemberScrollFrame = CreateFrame("Frame", DNAAttendanceMemberScrollFrame, page["Attendance"], "InsetFrameTemplate")
 DNAAttendanceMemberScrollFrame:SetWidth(DNAAttendanceMemberScrollFrame_w+20)
 DNAAttendanceMemberScrollFrame:SetHeight(DNAAttendanceMemberScrollFrame_h)
-DNAAttendanceMemberScrollFrame:SetPoint("TOPLEFT", 450, -200)
+DNAAttendanceMemberScrollFrame:SetPoint("TOPLEFT", 450, -140)
 DNAAttendanceMemberScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAAttendanceMemberScrollFrame, "UIPanelScrollFrameTemplate")
 DNAAttendanceMemberScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAAttendanceMemberScrollFrame, "TOPLEFT", 3, -3)
 DNAAttendanceMemberScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAAttendanceMemberScrollFrame, "BOTTOMRIGHT", 10, 4)

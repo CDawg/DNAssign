@@ -10,6 +10,11 @@ This addon is free to use and the authors hereby grants you the following rights
   portions of the Software.
 All rights not explicitly addressed in this license are reserved by
 the copyright holders.
+
+PLEASE NOTE: If you modify the instance dropdown boss names and call for the msg packet, it MUST not have a space.
+The compressed network packets will read as "LavaPack" and not "Lava Pack".
+All of this is because Blizz uses LUA which is a fucking piece of shit garbage code from hell and whoever invented it needs to get his nuts cut off!
+- Porthios of Myzrael
 ]==]--
 
 local instanceDetails = {

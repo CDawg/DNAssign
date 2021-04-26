@@ -10,11 +10,6 @@ This addon is free to use and the authors hereby grants you the following rights
   portions of the Software.
 All rights not explicitly addressed in this license are reserved by
 the copyright holders.
-
-PLEASE NOTE: If you modify the instance dropdown boss names and call for the msg packet, it MUST not have a space.
-The compressed network packets will read as "LavaPack" and not "Lava Pack".
-All of this is because Blizz uses LUA which is a fucking piece of shit garbage code from hell and whoever invented it needs to get his nuts cut off!
-- Porthios of Myzrael
 ]==]--
 
 local function getGuildComp()
@@ -1979,6 +1974,7 @@ DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Settings"], 20, 350, "H
 --DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Settings"], 20, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
 --DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Settings"], 20, 80)
 
+--[==[
 DN:FrameBorder("DKP", page["Settings"], 20, 480, 350, 30)
 local DKPSettingsMessage = page["Settings"]:CreateFontString(nil, "ARTWORK")
 DKPSettingsMessage:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -2034,19 +2030,15 @@ btnPostDKP:SetScript("OnClick", function()
         for x=1, table.getn(DKPName) do
           local DKPAdd = {}
           if ((DKPName[x][1]) and (DKPName[x][2])) then
-            --[==[
-            DKPAdd = split(DKPName[x][2], ",")
-            local DKPTotal = 0
-            if ((DKPAdd[1]) and (DKPAdd[2])) then
-              DKPTotal = tonumber(DKPAdd[1]) + tonumber(DKPAdd[2])
-            end
-            print("@" .. DKPName[x][1] .. "," .. DKPName[x][2] .. "," .. DKPTotal)
-            ]==]--
-            --C_Timer.After(x, DN:SendPacket("@" .. DKPName[x][1] .. "," .. DKPName[x][2], true))
+            --DKPAdd = split(DKPName[x][2], ",")
+            --local DKPTotal = 0
+            --if ((DKPAdd[1]) and (DKPAdd[2])) then
+              --DKPTotal = tonumber(DKPAdd[1]) + tonumber(DKPAdd[2])
+            --end
+            --print("@" .. DKPName[x][1] .. "," .. DKPName[x][2] .. "," .. DKPTotal)
             local floatAppend = x
             floatAppend = tonumber(floatAppend)
             print(floatAppend)
-            --C_Timer.NewTimer(floatAppend, function() print(DKPName[x][1]) end)
             C_Timer.NewTimer(floatAppend, function() DN:SendPacket("@" .. x .. "," .. DKPName[x][1] .. "," .. DKPName[x][2], true) end)
             --DN:SendPacket("@" .. DKPName[x][1] .. "," .. DKPName[x][2], true)
           end
@@ -2056,6 +2048,7 @@ btnPostDKP:SetScript("OnClick", function()
   end
 end)
 --btnPostDKP:Hide()
+]==]--
 
 local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Attendance"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(190, DNAGlobal.height-100)
@@ -2081,6 +2074,7 @@ for i=1, 50 do
   pageRaidDetailsColTwo[i]:SetTextColor(0.9, 0.9, 0.9)
 end
 
+--[==[
 local DKPViewFrame_w = 400
 local DKPViewFrame_h = 400
 local DKPViewFrame_x = 580
@@ -2119,6 +2113,7 @@ for i=1, MAX_DKP_LINES do
   pageDKPViewScrollChild_colThree[i]:SetText("")
   pageDKPViewScrollChild_colThree[i]:SetPoint("TOPLEFT", 200, (-i*18)+10)
 end
+]==]--
 
 function DN:ClearNotifications()
   DNAFrameMainNotifText:SetText("")
@@ -2153,7 +2148,7 @@ local function updateSlotPos(role, i, name)
 end
 
 DNAFrameMain:Hide()
-page["DKP"]:Hide()
+--page["DKP"]:Hide()
 --page["Raid Details"]:Hide()
 
 local DNAFrameInstanceBG = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
@@ -2237,6 +2232,7 @@ end
 local bottomTabCount = 1
 local function bottomTab(name)
   local tabWidth = 110
+  local tabHeight = 30
   if (bottomTabCount > 1) then
     bottomTabCount = bottomTabCount + tabWidth-14
   else
@@ -2245,27 +2241,35 @@ local function bottomTab(name)
   debug(bottomTabCount)
   DNAFrameMainBottomTab[name] = CreateFrame("Frame", nil, DNAFrameMain)
   DNAFrameMainBottomTab[name]:SetPoint("BOTTOMLEFT", bottomTabCount, -39)
-  DNAFrameMainBottomTab[name]:SetWidth(tabWidth-20)
-  DNAFrameMainBottomTab[name]:SetHeight(60)
+  DNAFrameMainBottomTab[name]:SetWidth(tabWidth)
+  DNAFrameMainBottomTab[name]:SetHeight(tabHeight*2)
   DNAFrameMainBottomTab[name]:SetFrameStrata("LOW")
   DNAFrameMainBottomTab[name].text = DNAFrameMainBottomTab[name]:CreateFontString(nil, "ARTWORK")
   DNAFrameMainBottomTab[name].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
   DNAFrameMainBottomTab[name].text:SetText(name)
   DNAFrameMainBottomTab[name].text:SetTextColor(0.8, 0.8, 0.8)
-  DNAFrameMainBottomTab[name].text:SetPoint("CENTER", DNAFrameMainBottomTab[name], "CENTER", 10, 0)
+  DNAFrameMainBottomTab[name].text:SetPoint("CENTER", DNAFrameMainBottomTab[name], "CENTER", 0, 0)
 
   local botBorder = DNAFrameMainBottomTab[name]:CreateTexture(nil, "BORDER", nil, 0)
   botBorder:SetTexture(DNAGlobal.tabborder)
-  botBorder:SetSize(tabWidth, 38)
+  botBorder:SetSize(tabWidth, tabHeight+8)
   botBorder:SetPoint("TOPLEFT", 0, -13)
   DNAFrameMainBottomTabScript={}
   DNAFrameMainBottomTabScript[name] = CreateFrame("Button", nil, DNAFrameMainBottomTab[name])
-  DNAFrameMainBottomTabScript[name]:SetSize(tabWidth, 30)
+  DNAFrameMainBottomTabScript[name]:SetSize(tabWidth-14, tabHeight)
   DNAFrameMainBottomTabScript[name]:SetPoint("CENTER", 0, 0)
   DNAFrameMainBottomTabScript[name]:SetScript("OnClick", function()
     DN:ClearNotifications()
     bottomTabToggle(name)
   end)
+  --[==[
+  DNAFrameMainBottomTabScript[name]:SetBackdrop({
+    bgFile="green",
+    edgeFile="",
+    edgeSize = 2,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  ]==]--
 end
 
 local tabBack = {}
@@ -2293,14 +2297,6 @@ function expansionTab(name, backdrop, pos_y)
   expTab[name]:SetPoint("TOPLEFT", -31, -pos_y+55)
   expTab[name]:SetSize(50, 94)
   expTab[name]:SetFrameLevel(0)
-  --[==[
-  expTab[name]:SetBackdrop({
-    bgFile="green",
-    edgeFile="",
-    edgeSize = 2,
-    insets = {left=2, right=2, top=2, bottom=2},
-  })
-  ]==]--
   tabBack[name] = expTab[name]:CreateTexture(nil, "BORDER", nil, 0)
   tabBack[name]:SetTexture(DNAGlobal.tabborder)
   tabBack[name]:SetSize(100, 40)

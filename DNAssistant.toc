@@ -18,4 +18,5 @@ core\DNADebug.lua
 DNAssistant.lua
 core\DNAAttendance.lua
 core\DNALootlog.lua
+core\DNADKP.lua
 core\DNAMinimap.lua

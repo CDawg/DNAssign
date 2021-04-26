@@ -32,6 +32,16 @@ function debug(msg)
   end
 end
 
+--array has value
+function arrayValue (_array, value)
+  for index, val in ipairs(_array) do
+    if val == value then
+      return true
+    end
+  end
+  return false
+end
+
 --single array
 function singleKeyFromValue(_array, value)
   for k,v in pairs(_array) do
