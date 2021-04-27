@@ -321,30 +321,32 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Gothik the Harvester")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
-    if (raid.priest[1]) then
-      mark[1] = icon.triangle
-      text[1] = textcolor.note .. "WAVE 8"
-      heal[1] = raid.priest[1]
+    local SHACKLE_WAVES = {
+      "WAVE 8",
+      "WAVE 11",
+      "WAVE 13",
+      "WAVE 16",
+      "WAVE 18",
+    }
+    local SHACKLE_SYMBOLS = {
+      icon.triangle,
+      icon.star,
+      icon.square,
+      icon.cross,
+      icon.diamond,
+    }
+    local priest_queue = {} --pull from healer queue first
+    local priest_count = 0
+    for i=1, DNASlots.heal do
+      if (DNARaid["class"][healer.all[i]] == "Priest") then
+        priest_count = priest_count +1
+        priest_queue[priest_count] = healer.all[i]
+      end
     end
-    if (raid.priest[2]) then
-      mark[2] = icon.star
-      text[2] = textcolor.note .. "WAVE 11"
-      heal[2] = raid.priest[2]
-    end
-    if (raid.priest[3]) then
-      mark[3] = icon.square
-      text[3] = textcolor.note .. "WAVE 13"
-      heal[3] = raid.priest[3]
-    end
-    if (raid.priest[4]) then
-      mark[4] = icon.cross
-      text[4] = textcolor.note .. "WAVE 16"
-      heal[4] = raid.priest[4]
-    end
-    if (raid.priest[5]) then
-      mark[5] = icon.diamond
-      text[5] = textcolor.note .. "WAVE 18"
-      heal[5] = raid.priest[5]
+    for k,v in pairs(priest_queue) do
+      mark[k] = SHACKLE_SYMBOLS[k]
+      text[k] = textcolor.note .. SHACKLE_WAVES[k]
+      heal[k] = v
     end
   end
 

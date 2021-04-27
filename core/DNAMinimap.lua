@@ -12,20 +12,6 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-SLASH_DNA1 = "/dna"
-function DNASlashCommands(msg)
-  DNAClose()
-  if (msg == "debug") then
-    DEBUG = true
-    debug("DEBUG MODE ON")
-  else
-    DEBUG = false
-    debug("DEBUG MODE OFF")
-  end
-  DNAOpen()
-end
-SlashCmdList.DNA = DNASlashCommands
-
 DNAMiniMap = CreateFrame("Button", nil, Minimap)
 DNAMiniMap:SetFrameLevel(500)
 DNAMiniMap:SetFrameStrata("TOOLTIP")
@@ -63,7 +49,7 @@ DNAMiniMap:SetScript("OnDragStop", function()
   --UpdateMapButton()
 end)
 DNAMiniMap:SetScript("OnClick", function()
-  DNAOpen()
+  DN:Open()
 end)
 
 function DN:DefaulMiniMapPos()

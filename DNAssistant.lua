@@ -12,522 +12,6 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-local function getGuildComp()
-  if (IsInGuild()) then
-    totalGuildMembers = GetNumGuildMembers()
-    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
-    for i=1, numTotalMembers do
-      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
-      local filterRealm = string.match(name, "(.*)-")
-      DNAGuild["member"] = filterRealm
-      DNAGuild["class"][filterRealm] = class
-      DNAGuild["rank"][filterRealm] = rank
-      --debug(filterRealm .. " = " .. rank)
-    end
-    debug("getGuildComp()")
-  end
-end
-
-local function DNABuildAttendance()
-  if (DNA["ATTENDANCE"] == nil) then
-    DNA["ATTENDANCE"] = {}
-  end
-  if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == "ON") then
-    if (DNA["ATTENDANCE"][timestamp.date] == nil) then
-      DNA["ATTENDANCE"][timestamp.date] = {}
-    end
-    local inInstance, instanceType = IsInInstance()
-    if (inInstance) then
-      if (instanceType == "raid") then
-        local instanceName = GetInstanceInfo()
-        if (instanceName) then
-          for i=1, MAX_RAID_MEMBERS do
-            --local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
-            local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
-            if ((name) and (class)) then
-              if (DNA["ATTENDANCE"][timestamp.date][instanceName] == nil) then
-                DNA["ATTENDANCE"][timestamp.date][instanceName] = {}
-              end
-              if (DNA["ATTENDANCE"][timestamp.date][instanceName][name] == nil) then
-                DNA["ATTENDANCE"][timestamp.date][instanceName][name] = {DNAGlobal.DKP}
-              end
-              if (DNA["ATTENDANCE"][timestamp.date][instanceName][name][class] == nil) then
-                DNA["ATTENDANCE"][timestamp.date][instanceName][name][class] = {}
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-end
-
-local function DNAGetRaidComp()
-  total.raid = GetNumGroupMembers()
-  --clear entries and rebuild to always get an accurate count on classes,races,names,etc...
-  for k,v in pairs(DNARaid["class"]) do
-    DNARaid["class"][k] = nil
-  end
-  for k,v in pairs(DNARaid["assist"]) do
-    DNARaid["assist"][k] = nil
-  end
-
-  getGuildComp() --get guild ranks
-
-  for i=1, MAX_RAID_MEMBERS do
-    --local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
-    local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
-
-    if (name) then
-      DNARaid["assist"][name] = 0
-      DNARaid["raidID"][name] = i
-
-      if (rank > 0) then
-        DNARaid["assist"][name] = 1
-      end
-      rankLead = ""
-      if (rank > 1) then
-        raidLead = name
-        debug("Raid Lead: " .. raidLead)
-      end
-
-      if (IsInRaid()) then
-        if (raidInvited[name] ~= 1) then --already invited attempt
-          debug(name .. " has joined")
-          --if (DNARaid["assist"][player.name] == 1) then --has assistance
-          if (raidLead == player.name) then
-            if (player.name ~= name) then --dont promote self
-              if (IsInGuild()) then
-                if (DNAGuild["rank"][name] ~= nil) then --no guild rank or permission
-                  if ((DNAGuild["rank"][name] == "Guild Master") or (DNAGuild["rank"][name] == "Guild Leader") or (DNAGuild["rank"][name] == "Guild Lead") or (DNAGuild["rank"][name] == "Class Lead") or (DNAGuild["rank"][name] == "Officer") or (DNAGuild["rank"][name] == "Alt Officer")) then
-                    if (DNARaid["assist"][name] ~= 1) then --has not been promoted yet
-                      if (UnitIsGroupAssistant(name) == false) then
-                        DN:PromoteToAssistant(name)
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-        raidInvited[name] = 1
-      end
-
-      DNARaid["member"][i] = name
-      DNARaid["class"][name] = class
-      DNARaid["race"][name] = UnitRace(name)
-      DNARaid["groupid"][name] = subgroup
-
-    end
-  end
-
-  --dont save random guild classes
-  --[==[
-  if (onPage == "Raid Builder") then
-    debug("DNAGetRaidComp() RAID BUILDER")
-    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
-    for i=1, numTotalMembers do
-      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
-      local filterRealm = string.match(name, "(.*)-")
-      DNARaid["member"][i] = filterRealm
-      DNARaid["class"][filterRealm] = class
-    end
-  end
-  ]==]--
-
-  if (DEBUG) then
-    buildDebugRaid() --fake raid
-    debug("DNAGetRaidComp() total:" .. total.raid)
-  end
-
-end
-
-local windowOpen = false
-
-local function DNAClose()
-  DN:ResetQueueTransposing() --sanity check on queues
-  DNAFrameMain:Hide()
-  windowOpen = false
-  PlaySound(88)
-end
-
-local DNAFrameAssignNotReady={}
-
-function DN:RaidReadyClear()
-  for i=1, MAX_RAID_SLOTS do
-    raidSlot[i].ready:SetTexture("")
-  end
-  for i=1, DNASlots.tank do
-    tankSlot[i].ready:SetTexture("")
-  end
-  for i=1, DNASlots.heal do
-    healSlot[i].ready:SetTexture("")
-  end
-  for i=1, DNASlots.cc do
-    ccSlot[i].ready:SetTexture("")
-  end
-  debug("DN:RaidReadyClear()")
-end
-
-function raidReadyMember(member, isReady)
-  if (isReady) then
-    for i=1, MAX_RAID_MEMBERS do
-      if (raidSlot[i].text:GetText() == member) then
-        raidSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-Ready")
-      end
-    end
-    for i=1, DNASlots.tank do
-      if (tankSlot[i].text:GetText() == member) then
-        tankSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-Ready")
-      end
-    end
-    for i=1, DNASlots.heal do
-      if (healSlot[i].text:GetText() == member) then
-        healSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-Ready")
-      end
-    end
-    for i=1, DNASlots.cc do
-      if (ccSlot[i].text:GetText() == member) then
-        ccSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-Ready")
-      end
-    end
-  else
-    for i=1, MAX_RAID_SLOTS do
-      if (raidSlot[i].text:GetText() == member) then
-        raidSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-NotReady")
-      end
-    end
-    for i=1, DNASlots.tank do
-      if (tankSlot[i].text:GetText() == member) then
-        tankSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-NotReady")
-      end
-    end
-    for i=1, DNASlots.heal do
-      if (healSlot[i].text:GetText() == member) then
-        healSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-NotReady")
-      end
-    end
-    for i=1, DNASlots.cc do
-      if (ccSlot[i].text:GetText() == member) then
-        ccSlot[i].ready:SetTexture("Interface/RAIDFRAME/ReadyCheck-NotReady")
-      end
-    end
-  end
-end
-
-function DN:RaidPermission()
-  if (DEBUG) then
-    return true
-  end
-  --[==[
-  if (onPage == "Raid Builder") then
-    return true
-  end
-  ]==]--
-  if (IsInRaid()) then
-    if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-      return true
-    else
-      DN:Notification("You do not have raid permission to modify assignments.", true)
-      return false
-    end
-  else
-    DN:Notification("You are not in a raid.", true)
-    return false
-  end
-end
-
---alpha sort the member matrix
-local DNARaidMemberSorted={}
-function DN:UpdateRaidRoster()
-  local k=0
-  --clear all entries, then rebuild raid
-  for i=1, MAX_RAID_SLOTS do
-    DNARaid["member"][i] = nil
-  end
-  DNAGetRaidComp() --pulling guild, what page are we on
-  for i=1, MAX_RAID_SLOTS do
-    DNARaidMemberSorted[i] = nil
-    raidSlot[i].text:SetText("")
-    raidSlot[i]:Hide()
-  end
-
-  --clear the totals then rebuild
-  for k,v in pairs(total) do
-    total[k] = 0
-  end
-  for i=1, DNASlots.tank do
-    tankSlot[i].icon:SetTexture("")
-    for k, v in pairs(DNARaid["assist"]) do
-      if ((tankSlot[i].text:GetText() == k) and (v == 1)) then
-        tankSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
-      end
-    end
-    if (tankSlot[i].text:GetText() ~= "Empty") then
-      total.tanks = total.tanks +1
-      tankSlotFrameClear:Show()
-      remove_slot = singleKeyFromValue(DNARaid["member"], tankSlot[i].text:GetText())
-      if (DNARaid["member"][remove_slot] == tankSlot[i].text:GetText()) then
-        DNARaid["member"][remove_slot] = nil
-      end
-    end
-  end
-
-  for i=1, DNASlots.heal do
-    healSlot[i].icon:SetTexture("")
-    healSlotUp[i]:Hide()
-    healSlotDown[i]:Hide()
-    for k, v in pairs(DNARaid["assist"]) do
-      if ((healSlot[i].text:GetText() == k) and (v == 1)) then
-        healSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
-      end
-    end
-    if (healSlot[i].text:GetText() ~= "Empty") then
-      total.healers = total.healers +1
-      if (IsInRaid()) then
-        if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
-          healSlotUp[i]:Show()
-          healSlotDown[i]:Show()
-          healSlotFrameClear:Show()
-        end
-      end
-      remove_slot = singleKeyFromValue(DNARaid["member"], healSlot[i].text:GetText())
-      if (DNARaid["member"][remove_slot] == healSlot[i].text:GetText()) then
-        DNARaid["member"][remove_slot] = nil
-      end
-    end
-  end
-  healSlotUp[1]:Hide()
-  healSlotDown[DNASlots.heal]:Hide()
-
-  for i=1, DNASlots.cc do
-    ccSlot[i].icon:SetTexture("")
-    for k, v in pairs(DNARaid["assist"]) do
-      if ((ccSlot[i].text:GetText() == k) and (v == 1)) then
-        ccSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
-      end
-    end
-    if (ccSlot[i].text:GetText() ~= "Empty") then
-      total.cc = total.cc +1
-      ccSlotFrameClear:Show()
-      remove_slot = singleKeyFromValue(DNARaid["member"], ccSlot[i].text:GetText())
-      if (DNARaid["member"][remove_slot] == ccSlot[i].text:GetText()) then
-        DNARaid["member"][remove_slot] = nil
-      end
-    end
-  end
-
-  --rebuild the roster and alphabetize
-  for k,v in pairs(DNARaid["member"]) do
-    table.insert(DNARaidMemberSorted, v)
-  end
-  table.sort(DNARaidMemberSorted)
-  for k,v in ipairs(DNARaidMemberSorted) do
-    --set text, get class color for each raid slot built
-    if ((v ~= nil) and (v ~= "")) then
-      raidSlot[k].text:SetText(v)
-      raidSlot[k]:Show()
-      thisClass = DNARaid["class"][v]
-      DN:ClassColorText(raidSlot[k].text, thisClass)
-      --DN:ToolTip(raidSlot[k], v, true)
-    end
-  end
-
-  for i=1, table.getn(DNARaidMemberSorted) do
-    raidSlot[i].icon:SetTexture("")
-    for k, v in pairs(DNARaid["assist"]) do
-      if ((raidSlot[i].text:GetText() == k) and (v == 1)) then
-        raidSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
-      end
-    end
-  end
-
-  for k,v in pairs(DNARaid["class"]) do
-    lowerTextClass = string.lower(v) .. "s"
-    total[lowerTextClass] = total[lowerTextClass] +1
-  end
-
-  total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins + total.shamans
-  total.melee = total.warriors + total.rogues + total.druids
-  total.range = total.hunters + total.mages + total.warlocks
-
-  debug("DN:UpdateRaidRoster()")
-end
-
-local function clearFrameView()
-  for i=1, MAX_FRAME_LINES do
-    DNAFrameViewScrollChild_mark[i]:SetTexture("")
-    DNAFrameViewScrollChild_tank[i]:SetText("")
-    DNAFrameViewScrollChild_heal[i]:SetText("")
-  end
-  debug("clearFrameView()")
-end
-
-local function clearFrameAssign()
-  for i=1, MAX_FRAME_LINES do
-    DNAFrameAssignScrollChild_mark[i]:SetTexture("")
-    DNAFrameAssignScrollChild_tank[i]:SetText("")
-    DNAFrameAssignScrollChild_heal[i]:SetText("")
-  end
-  debug("clearFrameAssign()")
-end
-
-local function clearFrameClassAssign()
-  for i, v in ipairs(DNAClasses) do
-    DNAFrameClassAssignEdit[v]:SetText("")
-  end
-end
-
-local function clearFrameAssignPersonal()
-  DNAFrameAssignPersonalMark:SetTexture("")
-  DNAFrameAssignPersonalColOne:SetText("")
-  DNAFrameAssignPersonalColTwo:SetText("")
-  DNAFrameAssignPersonalClass:SetText("")
-  --reset the window positioning, similar to a chat bubble
-  DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w) --default
-  DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
-  debug("clearFrameAssignPersonal()")
-  if (DNACheckbox["SMALLASSIGNCOMBAT"]:GetChecked()) then
-    DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w -140)
-    DNAFrameAssignPersonal:SetHeight(DNAFrameAssignPersonal_h /2)
-    DNAFrameAssignPersonal.header:SetHeight(9)
-    DNAFrameAssignPersonal.headerText:SetFont(DNAGlobal.font, 6, "OUTLINE")
-    DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-12, 2)
-    DNAFrameAssignPersonal.close:SetWidth(12)
-    DNAFrameAssignPersonal.close:SetHeight(12)
-    DNAFrameAssignPersonalMark:SetSize(8, 8)
-    DNAFrameAssignPersonalColOne:SetFont(DNAGlobal.font, 6, "OUTLINE")
-    DNAFrameAssignPersonalColTwo:SetFont(DNAGlobal.font, 6, "OUTLINE")
-    DNAFrameAssignPersonalClass:SetFont(DNAGlobal.font, 6, "OUTLINE")
-    debug("size personal assignment window down")
-  end
-  DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
-end
-
-function DN:InstanceButtonToggle(name, icon)
-  local instanceNum = multiKeyFromValue(DNAInstance, name)
-  for i, v in ipairs(DNAInstance) do
-    DNAFrameInstance[DNAInstance[i][1]]:SetBackdrop({
-      bgFile = DNAInstance[i][5],
-      edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-      edgeSize = 14,
-      insets = {left=0, right=-78, top=0, bottom=-24},
-    })
-    DNAFrameInstance[DNAInstance[i][1]]:SetBackdropBorderColor(1, 1, 1, 1)
-    DNAFrameInstanceShadow[DNAInstance[i][1]]:Show()
-    DNAFrameInstanceGlow[DNAInstance[i][1]]:Hide()
-    DNAFrameInstanceText[DNAInstance[i][1]]:SetTextColor(1, 1, 1)
-  end
-
-  DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0.40, 1)
-  DNAFrameInstanceShadow[name]:Hide()
-  DNAFrameInstanceGlow[name]:Show()
-  DNAFrameInstanceText[name]:SetTextColor(1, 1, 0.60)
-  pageBanner:SetTexture(DNAInstance[instanceNum][3])
-  pageBanner.text:SetText(DNAInstance[instanceNum][2])
-  pageBossIcon:SetTexture(DNAInstance[instanceNum][4])
-  DNAFrameViewBG:SetTexture(DNAInstance[instanceNum][6])
-  DNAFrameViewBossMap:SetTexture(DNAInstance[instanceNum][7])
-  DNAFrameAssignBossMap:SetTexture(DNAInstance[instanceNum][7])
-
-  clearFrameClassAssign()
-  PlaySound(840)
-  raidSelection=""
-  DN:PresetClear()
-  debug("DN:InstanceButtonToggle(..., ...)")
-end
-
---parse the incoming packet
-function DN:ParseSlotPacket(packet, netpacket)
-  DN:UpdateRaidRoster()
-  DN:RaidReadyClear() -- there was a change to the roster, people may not be ready
-  packet.split = split(netpacket, ",")
-  for i=1, table.getn(packet.split) do
-    --packet.role = packet.split[1]
-    packet.role = string.gsub(packet.split[1], "[^a-zA-Z]", "")
-    packet.slot = string.gsub(packet.split[1], packet.role, "")
-    packet.slot = tonumber(packet.slot)
-    packet.name = packet.split[2]
-  end
-
-  if ((packet.role) and (packet.slot) and (packet.name)) then
-    if (packet.role == TANK) then
-      if ((packet.name == nil) or (packet.name == "Empty")) then
-        tankSlot[packet.slot].text:SetText("Empty")
-        tankSlot[packet.slot].icon:SetTexture("")
-        tankSlot[packet.slot]:SetFrameLevel(2)
-        tankSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
-        tankSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
-        DN:ClassColorText(tankSlot[packet.slot].text, "Empty")
-      else
-        tankSlot[packet.slot].text:SetText(packet.name)
-        tankSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
-        tankSlot[packet.slot]:SetFrameLevel(4)
-        tankSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
-        tankSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-        if (DNAGuild["class"][packet.name]) then
-          thisClass = DNAGuild["class"][packet.name]
-        else
-          thisClass = DNARaid["class"][packet.name]
-        end
-        DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
-        --SetPartyAssignment("MAINTANK", packet.name, 1)
-        --debug("MAINTANK = " .. packet.name)
-      end
-    end
-
-    if (packet.role == HEAL) then
-      if ((packet.name == nil) or (packet.name == "Empty")) then
-        healSlot[packet.slot].text:SetText("Empty")
-        healSlot[packet.slot].icon:SetTexture("")
-        healSlot[packet.slot]:SetFrameLevel(2)
-        healSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
-        healSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
-        DN:ClassColorText(healSlot[packet.slot].text, "Empty")
-      else
-        healSlot[packet.slot].text:SetText(packet.name)
-        healSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
-        healSlot[packet.slot]:SetFrameLevel(4)
-        healSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
-        healSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-        --thisClass = UnitClass(packet.name)
-        thisClass = DNARaid["class"][packet.name]
-        DN:ClassColorText(healSlot[packet.slot].text, thisClass)
-      end
-    end
-
-    if (packet.role == CC) then
-      if ((packet.name == nil) or (packet.name == "Empty")) then
-        ccSlot[packet.slot].text:SetText("Empty")
-        ccSlot[packet.slot].icon:SetTexture("")
-        ccSlot[packet.slot]:SetFrameLevel(2)
-        ccSlot[packet.slot]:SetBackdropBorderColor(0.2, 0.2, 0.2, 0.5)
-        ccSlot[packet.slot]:SetBackdropColor(0.2, 0.2, 0.2, 1)
-        DN:ClassColorText(ccSlot[packet.slot].text, "Empty")
-      else
-        ccSlot[packet.slot].text:SetText(packet.name)
-        ccSlot[packet.slot].text:SetPoint("TOPLEFT", 20, -4)
-        ccSlot[packet.slot]:SetFrameLevel(4)
-        ccSlot[packet.slot]:SetBackdropColor(1, 1, 1, 0.6)
-        ccSlot[packet.slot]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-        --thisClass = UnitClass(packet.name)
-        thisClass = DNARaid["class"][packet.name]
-        DN:ClassColorText(ccSlot[packet.slot].text, thisClass)
-      end
-    end
-
-    debug("packet.role " .. packet.role)
-    debug("packet.slot " .. packet.slot)
-    debug("packet.name " .. packet.name)
-  end
-
-  --update the saved
-  DNA[player.combine]["ASSIGN"][packet.role .. packet.slot] = packet.name
-  DN:UpdateRaidRoster()
-  clearFrameView()
-  debug("DN:ParseSlotPacket()")
-end
 
 -- assignment window --
 local DNAFrameAssign_w = 400
@@ -863,9 +347,9 @@ local function buildRaidAssignments(packet, author, source)
 
   DN:ClearNotifications()
   DN:UpdateRaidRoster()
-  clearFrameView() --clear out the current text
-  clearFrameAssign()
-  clearFrameAssignPersonal()
+  DN:ClearFrameView() --clear out the current text
+  DN:ClearFrameAssign()
+  DN:ClearFrameAssignPersonal()
   DNAFrameAssignPersonal:Hide()
 
   if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
@@ -1357,7 +841,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
   if (event== "PLAYER_REGEN_DISABLED") then --entered combat
     DN:RaidReadyClear()
-    DNABuildAttendance()
+    DN:BuildAttendance()
     debug("Entered Combat!")
   end
   if (event == "PLAYER_REGEN_ENABLED") then --left combat
@@ -1440,27 +924,29 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
-      if (version_checked == 0) then
+      --if (version_alerted == 0) then
         local getCode = multiKeyFromValue(netCode, "version")
         if (getCode) then
           if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
             netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-              if (DNAGlobal.version < netpacket) then
-                DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. netpacket)
-                version_checked = tonumber(netpacket)
+            local latest_version = tonumber(netpacket)
+            local my_version = tonumber(DNAGlobal.version)
+              if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
+                DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. latest_version)
+                --version_alerted = tonumber(latest_version)
               end
             return true
           end
         end
-      end
+      --end
 
       --READYCHECK
       local getCode = multiKeyFromValue(netCode, "readyyes")
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
           netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          raidReadyMember(netpacket, true)
-          clearFrameClassAssign()
+          DN:RaidReadyMember(netpacket, true)
+          DN:ClearFrameClassAssign()
           return true
         end
       end
@@ -1469,8 +955,8 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
           netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          raidReadyMember(netpacket, false)
-          clearFrameClassAssign()
+          DN:RaidReadyMember(netpacket, false)
+          DN:ClearFrameClassAssign()
           return true
         end
       end
@@ -1517,7 +1003,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 end)
 
 --build the cached array
-DNAGetRaidComp()
+DN:GetRaidComp()
 
 --local minimapIconPos={}
 
@@ -1728,7 +1214,7 @@ DNAFrameMainCloseX:SetTexture("Interface/Buttons/UI-StopButton")
 DNAFrameMainCloseX:SetSize(14, 14)
 DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
-  DNAClose()
+  DN:Close()
 end)
 DN:ToolTip(DNAFrameMainClose, "Close")
 
@@ -2194,7 +1680,7 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
       ddBossList[DNAInstance[i][1]]:Hide() --hide all dropdowns
     end
     local instanceNum = multiKeyFromValue(DNAInstance, name)
-    clearFrameView()
+    DN:ClearFrameView()
     DN:InstanceButtonToggle(name, icon)
     DNA[player.combine]["CONFIG"]["RAID"] = name
     ddBossList[name]:Show()
@@ -3112,7 +2598,7 @@ for i, v in ipairs(DNAInstance) do
   ddBossListText[DNAInstance[i][1]]:SetText(DNARaidBosses[instanceNum][1])
   ddBossList[DNAInstance[i][1]].onClick = function(self, checked)
     ddBossListText[DNAInstance[i][1]]:SetText(self.value)
-    clearFrameView()
+    DN:ClearFrameView()
 
     DN:PresetClear()
     raidSelection = self.value
@@ -3534,39 +3020,27 @@ end
 
 DN:InstanceButtonToggle(DNAInstance[1][1], DNAInstance[1][5]) --toggle first button
 
-function DNAOpen()
-  if (windowOpen) then
-    DNAClose()
+SLASH_DNA1 = "/dna"
+function DNASlashCommands(msg)
+  DN:Close()
+  local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)")
+  --[==[
+  if (msg == "debug") then
+    DEBUG = true
+    debug("DEBUG MODE ON")
+  elseif (msg == "macro") then
+    --buildRaidAssignments(self.value, nil, "dropdown")
+    debug(args)
   else
-    windowOpen = true
-    DNAFrameMain:Show()
-    --DNAFrameAssign:Show() --DEBUG
-    memberDrag = nil --bugfix
-    DN:UpdateRaidRoster()
-    DN:GetProfileVars()
-
-    DN:PermissionVisibility()
-    DN:RaidDetails()
-    DN:ResetQueueTransposing() --sanity check on queues
-
-    --clean up old values
-    if (DNA[player.combine]["CONFIG"]["UNLOCKICON"]) then
-      DNA[player.combine]["CONFIG"]["UNLOCKICON"] = nil
-    end
-    if (DNA[player.combine]["CONFIG"]["ICONPOS"]) then
-      DNA[player.combine]["CONFIG"]["ICONPOS"] = nil
-    end
-    if (DNA[player.combine]["CONFIG"]["HIDEICON"]) then
-      DNA[player.combine]["CONFIG"]["HIDEICON"] = nil
-    end
-    if (DNA[player.combine]["CONFIG"]["INDICON"]) then
-      DNA[player.combine]["CONFIG"]["INDICON"] = nil
-    end
-    if (numAttendanceLogs > 0) then
-      DNAAttendanceDeleteAllBtn:Show()
-    end
-    if (numLootLogs > 0) then
-      DNALootlogDeleteAllBtn:Show()
-    end
+    DEBUG = false
+    debug("DEBUG MODE OFF")
+  end
+  ]==]--
+  if (msg == "debug") then
+    debug(msg)
+  else
+    DN:Open()
   end
 end
+
+SlashCmdList.DNA = DNASlashCommands
