@@ -3024,20 +3024,24 @@ SLASH_DNA1 = "/dna"
 function DNASlashCommands(msg)
   DN:Close()
   local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)")
-  --[==[
   if (msg == "debug") then
     DEBUG = true
     debug("DEBUG MODE ON")
-  elseif (msg == "macro") then
-    --buildRaidAssignments(self.value, nil, "dropdown")
-    debug(args)
-  else
-    DEBUG = false
-    debug("DEBUG MODE OFF")
-  end
-  ]==]--
-  if (msg == "debug") then
-    debug(msg)
+    DN:Open()
+  elseif (string.sub(msg, 1, 1) == "m") then
+    local raidSelection = msg:sub(7, 80) -- remove the first space and double quote
+    raidSelection = raidSelection:gsub('%"', '')
+    debug("== " .. raidSelection)
+    if (raidSelection) then
+      DN:RaidSendAssignments()
+      ReadyCheckFrame:Hide()
+      local getCode = multiKeyFromValue(netCode, "posttoraid")
+      DN:ChatNotification("Boss Assignment " .. raidSelection)
+      DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
+      ReadyCheckFrame:Hide()
+    else
+      DN:ChatNotification("Invalid Boss Entry")
+    end
   else
     DN:Open()
   end
