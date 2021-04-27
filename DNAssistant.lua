@@ -653,72 +653,6 @@ local function buildRaidAssignments(packet, author, source)
   raidSelection = packet
 end
 
-function DN:RaidDetails()
-  pageRaidDetailsColOne[1]:SetText("Druids")
-  DN:ClassColorText(pageRaidDetailsColOne[1], "Druid")
-  pageRaidDetailsColTwo[1]:SetText(total.druids)
-
-  pageRaidDetailsColOne[2]:SetText("Hunters")
-  DN:ClassColorText(pageRaidDetailsColOne[2], "Hunter")
-  pageRaidDetailsColTwo[2]:SetText(total.hunters)
-
-  pageRaidDetailsColOne[3]:SetText("Mages")
-  DN:ClassColorText(pageRaidDetailsColOne[3], "Mage")
-  pageRaidDetailsColTwo[3]:SetText(total.mages)
-
-  pageRaidDetailsColOne[4]:SetText("Paladins")
-  DN:ClassColorText(pageRaidDetailsColOne[4], "Paladin")
-  pageRaidDetailsColTwo[4]:SetText(total.paladins)
-
-  pageRaidDetailsColOne[5]:SetText("Priests")
-  DN:ClassColorText(pageRaidDetailsColOne[5], "Priest")
-  pageRaidDetailsColTwo[5]:SetText(total.priests)
-
-  pageRaidDetailsColOne[6]:SetText("Rogues")
-  DN:ClassColorText(pageRaidDetailsColOne[6], "Rogue")
-  pageRaidDetailsColTwo[6]:SetText(total.rogues)
-
-  pageRaidDetailsColOne[7]:SetText("Warlocks")
-  DN:ClassColorText(pageRaidDetailsColOne[7], "Warlock")
-  pageRaidDetailsColTwo[7]:SetText(total.warlocks)
-
-  pageRaidDetailsColOne[8]:SetText("Warriors")
-  DN:ClassColorText(pageRaidDetailsColOne[8], "Warrior")
-  pageRaidDetailsColTwo[8]:SetText(total.warriors)
-
-  pageRaidDetailsColOne[9]:SetText("Shamans")
-  DN:ClassColorText(pageRaidDetailsColOne[9], "Shaman")
-  pageRaidDetailsColTwo[9]:SetText(total.shamans)
-
-  pageRaidDetailsColOne[12]:SetText("TOTAL")
-  pageRaidDetailsColTwo[12]:SetText(total.raid)
-end
-
-function DN:AlignSlotText()
-  for i=1, DNASlots.tank do
-    if (tankSlot[i].text:GetText() == "Empty") then
-      tankSlot[i].text:ClearAllPoints()
-      tankSlot[i].text:SetPoint("CENTER", 0, 0)
-      --debug("tankSlot " .. tankSlot[i].text:GetText())
-    end
-  end
-  for i=1, DNASlots.heal do
-    if (healSlot[i].text:GetText() == "Empty") then
-      healSlot[i].text:ClearAllPoints()
-      healSlot[i].text:SetPoint("CENTER", 0, 0)
-      --debug("healSlot " .. healSlot[i].text:GetText())
-    end
-  end
-  for i=1, DNASlots.cc do
-    if (ccSlot[i].text:GetText() == "Empty") then
-      ccSlot[i].text:ClearAllPoints()
-      ccSlot[i].text:SetPoint("CENTER", 0, 0)
-      --debug("ccSlot " .. ccSlot[i].text:GetText())
-    end
-  end
-  debug("DN:AlignSlotText()")
-end
-
 attendance = {}
 local function DNAGetAttendanceLogs()
   if (DNA["ATTENDANCE"]) then
@@ -1474,84 +1408,6 @@ DN:FrameBorder("DIALOG / UI", page["Settings"], 20, 340, 350, 110)
 DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Settings"], 20, 310, "Hide the Personal Assignments window once combat has ended.")
 DN:CheckBox("SMALLASSIGNCOMBAT", "Small Personal Assignment Window", page["Settings"], 20, 330, "Size down the Personal Assignments window.")
 DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Settings"], 20, 350, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
---DN:CheckBox("MMICONUNLOCK", "Unlock The Minimap Icon", page["Settings"], 20, 120, "Don't attach the icon to the minimap.\nFreely move and save position of the icon anywhere on screen.")
---DN:CheckBox("DEBUG", "Debug Mode (Very Spammy)", page["Settings"], 20, 80)
-
---[==[
-DN:FrameBorder("DKP", page["Settings"], 20, 480, 350, 30)
-local DKPSettingsMessage = page["Settings"]:CreateFontString(nil, "ARTWORK")
-DKPSettingsMessage:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DKPSettingsMessage:SetText("DKP Earned Per Raid [ |cffffe885" .. DNAGlobal.DKP .. "|r ]")
-DKPSettingsMessage:SetPoint("TOPLEFT", 30, -490)
-
-pageDKPEdit = CreateFrame("EditBox", nil, page["DKP"])
-pageDKPEdit:SetWidth(200)
-pageDKPEdit:SetHeight(200)
-pageDKPEdit:SetFontObject(GameFontNormal)
-pageDKPEdit:SetBackdrop(GameTooltip:GetBackdrop())
-pageDKPEdit:SetBackdropColor(0, 0, 0, 0.8)
-pageDKPEdit:SetPoint("TOPLEFT", DNAFrameMain, "TOPLEFT", 100, -100)
-pageDKPEdit:ClearFocus(self)
-pageDKPEdit:SetAutoFocus(false)
---pageDKPEdit:Insert("")
-pageDKPEdit:SetMultiLine(true)
-pageDKPEdit:SetBackdrop(GameTooltip:GetBackdrop())
-pageDKPEdit:SetBackdropColor(0, 0, 0, 0.8)
-pageDKPEdit:SetCursorPosition(0)
-pageDKPEdit:SetJustifyH("LEFT")
-pageDKPEdit:SetJustifyV("CENTER")
-pageDKPEdit:SetTextColor(1, 1, 1)
---pageDKPEdit:Hide()
-
-local btnPostDKP = CreateFrame("Button", nil, page["DKP"], "UIPanelButtonTemplate")
-btnPostDKP:SetSize(120, 28)
-btnPostDKP:SetPoint("TOPLEFT", 30, -100)
-btnPostDKP.text = btnPostDKP:CreateFontString(nil, "ARTWORK")
-btnPostDKP.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
-btnPostDKP.text:SetText("Update Raid DKP")
-btnPostDKP.text:SetPoint("CENTER", btnPostDKP)
-btnPostDKP:SetScript("OnClick", function()
-  if (UnitIsGroupLeader(player.name)) then
-    if (pageDKPEdit:GetText()) then
-      --local getCode = multiKeyFromValue(netCode, "postdkp")
-      --DN:SendPacket(netCode[getCode][2] .. player.name, true)
-      --DN:SendPacket("@" .. player.name, true)
-      --DN:SendPacket("@" .. DKP, true)
-      if (pageDKPEdit:GetText()) then
-        local DKP = pageDKPEdit:GetText()
-        packetChunk = split(DKP, "}")
-        packetLength= strlen(DKP)
-        local DKPName={}
-        local DKPNum={}
-        for x=1, table.getn(packetChunk) do
-          DKPName[x] = split(packetChunk[x], "=")
-          if (DKPName[x][1] ~= nil) then
-            DKPNum[x] = split(DKPName[x][1], ",")
-            --pageDKPViewScrollChild_colOne[x]:SetText(DKPName[x][1])
-          end
-        end
-        for x=1, table.getn(DKPName) do
-          local DKPAdd = {}
-          if ((DKPName[x][1]) and (DKPName[x][2])) then
-            --DKPAdd = split(DKPName[x][2], ",")
-            --local DKPTotal = 0
-            --if ((DKPAdd[1]) and (DKPAdd[2])) then
-              --DKPTotal = tonumber(DKPAdd[1]) + tonumber(DKPAdd[2])
-            --end
-            --print("@" .. DKPName[x][1] .. "," .. DKPName[x][2] .. "," .. DKPTotal)
-            local floatAppend = x
-            floatAppend = tonumber(floatAppend)
-            print(floatAppend)
-            C_Timer.NewTimer(floatAppend, function() DN:SendPacket("@" .. x .. "," .. DKPName[x][1] .. "," .. DKPName[x][2], true) end)
-            --DN:SendPacket("@" .. DKPName[x][1] .. "," .. DKPName[x][2], true)
-          end
-        end
-      end
-    end
-  end
-end)
---btnPostDKP:Hide()
-]==]--
 
 local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Attendance"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(190, DNAGlobal.height-100)
@@ -1577,47 +1433,6 @@ for i=1, 50 do
   pageRaidDetailsColTwo[i]:SetTextColor(0.9, 0.9, 0.9)
 end
 
---[==[
-local DKPViewFrame_w = 400
-local DKPViewFrame_h = 400
-local DKPViewFrame_x = 580
-local DKPViewFrame_y = 100
-local pageDKPView = CreateFrame("Frame", nil, page["DKP"], "InsetFrameTemplate")
-pageDKPView:SetWidth(DKPViewFrame_w-20)
-pageDKPView:SetHeight(DKPViewFrame_h-40)
-pageDKPView:SetPoint("TOPLEFT", DKPViewFrame_x+5, -DKPViewFrame_y-20)
-pageDKPView:SetMovable(true)
-pageDKPView.ScrollFrame = CreateFrame("ScrollFrame", nil, pageDKPView, "UIPanelScrollFrameTemplate")
-pageDKPView.ScrollFrame:SetPoint("TOPLEFT", pageDKPView, "TOPLEFT", 5, -20)
-pageDKPView.ScrollFrame:SetPoint("BOTTOMRIGHT", pageDKPView, "BOTTOMRIGHT", 10, 20)
-local pageDKPViewScrollChildFrame = CreateFrame("Frame", nil, pageDKPView.ScrollFrame)
-pageDKPViewScrollChildFrame:SetSize(DKPViewFrame_w, DKPViewFrame_h)
-pageDKPViewScrollChildFrame.bg = pageDKPViewScrollChildFrame:CreateTexture(nil, "BACKGROUND")
-pageDKPViewScrollChildFrame.bg:SetAllPoints(true)
---pageDKPViewScrollChildFrame.bg:SetColorTexture(0.2, 0.6, 0, 0.4)
-pageDKPView.ScrollFrame:SetScrollChild(pageDKPViewScrollChildFrame)
-pageDKPView.ScrollFrame.ScrollBar:ClearAllPoints()
-pageDKPView.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", pageDKPView.ScrollFrame, "TOPRIGHT", -150, 0)
-pageDKPView.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", pageDKPView.ScrollFrame, "BOTTOMRIGHT", 106, 0)
-
-for i=1, MAX_DKP_LINES do
-  pageDKPViewScrollChild_colOne[i] = pageDKPViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
-  pageDKPViewScrollChild_colOne[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  pageDKPViewScrollChild_colOne[i]:SetText("")
-  pageDKPViewScrollChild_colOne[i]:SetPoint("TOPLEFT", 30, (-i*18)+10)
-
-  pageDKPViewScrollChild_colTwo[i] = pageDKPViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
-  pageDKPViewScrollChild_colTwo[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  pageDKPViewScrollChild_colTwo[i]:SetText("")
-  pageDKPViewScrollChild_colTwo[i]:SetPoint("TOPLEFT", 140, (-i*18)+10)
-
-  pageDKPViewScrollChild_colThree[i] = pageDKPViewScrollChildFrame:CreateFontString(nil, "ARTWORK")
-  pageDKPViewScrollChild_colThree[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  pageDKPViewScrollChild_colThree[i]:SetText("")
-  pageDKPViewScrollChild_colThree[i]:SetPoint("TOPLEFT", 200, (-i*18)+10)
-end
-]==]--
-
 function DN:ClearNotifications()
   DNAFrameMainNotifText:SetText("")
   DNAFrameMainNotif:Hide()
@@ -1633,11 +1448,6 @@ end
 local function updateSlotPos(role, i, name)
   if (DN:RaidPermission()) then
     DN:SendPacket(role .. i .. "," .. name, true)
-    --[==[
-    if (onPage == "Raid Builder") then
-      return true
-    end
-    ]==]--
     local getCode = multiKeyFromValue(netCode, "author")
     local sendCode
     if (getCode) then
@@ -1651,8 +1461,6 @@ local function updateSlotPos(role, i, name)
 end
 
 DNAFrameMain:Hide()
---page["DKP"]:Hide()
---page["Raid Details"]:Hide()
 
 local DNAFrameInstanceBG = CreateFrame("Frame", nil, page["Assignment"], "InsetFrameTemplate")
 DNAFrameInstanceBG:SetSize(194, DNAGlobal.height-6)
@@ -1691,12 +1499,6 @@ function DN:InstanceButton(name, pos_y, longtext, icon)
   DNAFrameInstanceShadow[name]:SetSize(instanceButton_w-4, instanceButton_h-4)
   DNAFrameInstanceShadow[name]:SetPoint("TOPLEFT", 2, -2)
   DNAFrameInstanceShadow[name]:Hide()
-  DNAFrameInstanceGlow[name] = DNAFrameInstance[name]:CreateTexture(nil, "BACKGROUND", DNAFrameInstance[name], 1)
-  DNAFrameInstanceGlow[name]:SetTexture("Interface/Reforging/Reforging-Flare")
-  DNAFrameInstanceGlow[name]:SetSize(instanceButton_w+8, instanceButton_h+12)
-  DNAFrameInstanceGlow[name]:SetPoint("TOPLEFT", -4, -3)
-  --DNAFrameInstanceGlow[name]:SetRotation(math.rad(180))
-  DNAFrameInstanceGlow[name]:Hide()
 end
 
 --draw all tabs in order
@@ -2728,8 +2530,8 @@ btnShareDis:Hide()
 local btnPostRaid_x = DNAGlobal.width-270
 local btnPostRaid_y = DNAGlobal.height-45
 
-DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], btnPostRaid_x, DNAGlobal.height-107)
-DNACheckbox["READYCHECK"]:SetChecked(true)
+--DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], btnPostRaid_x, DNAGlobal.height-107)
+--DNACheckbox["READYCHECK"]:SetChecked(true)
 
 local btnPostRaid_t = "Post to Raid"
 btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
@@ -2759,9 +2561,10 @@ btnPostRaid:SetScript("OnClick", function()
       local getCode = multiKeyFromValue(netCode, "posttoraid")
       viewFrameBottomTabToggle("Markers") --default enabled
       DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
-      if (DNACheckbox["READYCHECK"]:GetChecked()) then
+      --if (DNACheckbox["READYCHECK"]:GetChecked()) then
         DoReadyCheck()
-      end
+      --end
+      DN:Close()
     end
   end
 end)

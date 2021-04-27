@@ -303,7 +303,6 @@ DNAFrameInstance={}
 DNAFrameInstanceText={}
 DNAFrameInstanceScript={}
 DNAFrameInstanceShadow={}
-DNAFrameInstanceGlow={}
 
 DNAFrameView={}
 DNAFrameViewBG={}
@@ -608,24 +607,76 @@ function DN:GetRaidComp()
     end
   end
 
-  --dont save random guild classes
-  --[==[
-  if (onPage == "Raid Builder") then
-    debug("DN:GetRaidComp() RAID BUILDER")
-    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
-    for i=1, numTotalMembers do
-      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
-      local filterRealm = string.match(name, "(.*)-")
-      DNARaid["member"][i] = filterRealm
-      DNARaid["class"][filterRealm] = class
-    end
-  end
-  ]==]--
-
   if (DEBUG) then
     buildDebugRaid() --fake raid
     debug("DN:GetRaidComp() total:" .. total.raid)
   end
+end
+
+function DN:RaidDetails()
+  pageRaidDetailsColOne[1]:SetText("Druids")
+  DN:ClassColorText(pageRaidDetailsColOne[1], "Druid")
+  pageRaidDetailsColTwo[1]:SetText(total.druids)
+
+  pageRaidDetailsColOne[2]:SetText("Hunters")
+  DN:ClassColorText(pageRaidDetailsColOne[2], "Hunter")
+  pageRaidDetailsColTwo[2]:SetText(total.hunters)
+
+  pageRaidDetailsColOne[3]:SetText("Mages")
+  DN:ClassColorText(pageRaidDetailsColOne[3], "Mage")
+  pageRaidDetailsColTwo[3]:SetText(total.mages)
+
+  pageRaidDetailsColOne[4]:SetText("Paladins")
+  DN:ClassColorText(pageRaidDetailsColOne[4], "Paladin")
+  pageRaidDetailsColTwo[4]:SetText(total.paladins)
+
+  pageRaidDetailsColOne[5]:SetText("Priests")
+  DN:ClassColorText(pageRaidDetailsColOne[5], "Priest")
+  pageRaidDetailsColTwo[5]:SetText(total.priests)
+
+  pageRaidDetailsColOne[6]:SetText("Rogues")
+  DN:ClassColorText(pageRaidDetailsColOne[6], "Rogue")
+  pageRaidDetailsColTwo[6]:SetText(total.rogues)
+
+  pageRaidDetailsColOne[7]:SetText("Warlocks")
+  DN:ClassColorText(pageRaidDetailsColOne[7], "Warlock")
+  pageRaidDetailsColTwo[7]:SetText(total.warlocks)
+
+  pageRaidDetailsColOne[8]:SetText("Warriors")
+  DN:ClassColorText(pageRaidDetailsColOne[8], "Warrior")
+  pageRaidDetailsColTwo[8]:SetText(total.warriors)
+
+  pageRaidDetailsColOne[9]:SetText("Shamans")
+  DN:ClassColorText(pageRaidDetailsColOne[9], "Shaman")
+  pageRaidDetailsColTwo[9]:SetText(total.shamans)
+
+  pageRaidDetailsColOne[12]:SetText("TOTAL")
+  pageRaidDetailsColTwo[12]:SetText(total.raid)
+end
+
+function DN:AlignSlotText()
+  for i=1, DNASlots.tank do
+    if (tankSlot[i].text:GetText() == "Empty") then
+      tankSlot[i].text:ClearAllPoints()
+      tankSlot[i].text:SetPoint("CENTER", 0, 0)
+      --debug("tankSlot " .. tankSlot[i].text:GetText())
+    end
+  end
+  for i=1, DNASlots.heal do
+    if (healSlot[i].text:GetText() == "Empty") then
+      healSlot[i].text:ClearAllPoints()
+      healSlot[i].text:SetPoint("CENTER", 0, 0)
+      --debug("healSlot " .. healSlot[i].text:GetText())
+    end
+  end
+  for i=1, DNASlots.cc do
+    if (ccSlot[i].text:GetText() == "Empty") then
+      ccSlot[i].text:ClearAllPoints()
+      ccSlot[i].text:SetPoint("CENTER", 0, 0)
+      --debug("ccSlot " .. ccSlot[i].text:GetText())
+    end
+  end
+  debug("DN:AlignSlotText()")
 end
 
 windowOpen = false
@@ -931,13 +982,11 @@ function DN:InstanceButtonToggle(name, icon)
     })
     DNAFrameInstance[DNAInstance[i][1]]:SetBackdropBorderColor(1, 1, 1, 1)
     DNAFrameInstanceShadow[DNAInstance[i][1]]:Show()
-    DNAFrameInstanceGlow[DNAInstance[i][1]]:Hide()
     DNAFrameInstanceText[DNAInstance[i][1]]:SetTextColor(1, 1, 1)
   end
 
   DNAFrameInstance[name]:SetBackdropBorderColor(1, 1, 0.40, 1)
   DNAFrameInstanceShadow[name]:Hide()
-  DNAFrameInstanceGlow[name]:Show()
   DNAFrameInstanceText[name]:SetTextColor(1, 1, 0.60)
   pageBanner:SetTexture(DNAInstance[instanceNum][3])
   pageBanner.text:SetText(DNAInstance[instanceNum][2])
