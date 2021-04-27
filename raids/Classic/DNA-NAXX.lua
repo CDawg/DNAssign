@@ -38,8 +38,8 @@ local bossList = {
   {"", "", 2},
   {"- The Plague Quarter -", "", 2},
   {"Trash Wing:Plague",      "Interface/EncounterJournal/UI-EJ-BOSS-Viscidus", 1},
-  {"Noth The Plaguebringer", "Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
-  {"Heigan The Unclean",     "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
+  {"Noth the Plaguebringer", "Interface/EncounterJournal/UI-EJ-BOSS-Noth the Plaguebringer", 0},
+  {"Heigan the Unclean",     "Interface/EncounterJournal/UI-EJ-BOSS-Heigan the Unclean", 0},
   {"Loatheb",                "Interface/EncounterJournal/UI-EJ-BOSS-Loatheb", 0},
 
   {"", "", 2},
@@ -133,7 +133,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     end
   end
 
-  if (isItem(assign, "Noth The Plaguebringer")) then
+  if (isItem(assign, "Noth the Plaguebringer")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
     mark[1] = DNABossIcon
     text[1] = tank.all[1]
@@ -168,7 +168,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     end
   end
 
-  if (isItem(assign, "Heigan The Unclean")) then
+  if (isItem(assign, "Heigan the Unclean")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_plague"
     local remainder_heals = {}
     table.merge(remainder_heals, healer.all)

@@ -101,6 +101,11 @@ DNARaidBosses = {}
 
 onPage = "Assignment" --firstpage
 
+function DN:HideGlobalReadyCheck()
+  ReadyCheckFrame:Hide()
+  debug("ReadyCheckFrame:Hide()")
+end
+
 function DN:ChatNotification(msg)
   print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
 end
@@ -679,51 +684,6 @@ function DN:AlignSlotText()
   debug("DN:AlignSlotText()")
 end
 
-windowOpen = false
-function DN:Close()
-  DN:ResetQueueTransposing() --sanity check on queues
-  DNAFrameMain:Hide()
-  windowOpen = false
-  PlaySound(88)
-end
-
-function DN:Open()
-  if (windowOpen) then
-    DN:Close()
-  else
-    windowOpen = true
-    DNAFrameMain:Show()
-    --DNAFrameAssign:Show() --DEBUG
-    memberDrag = nil --bugfix
-    DN:UpdateRaidRoster()
-    DN:GetProfileVars()
-
-    DN:PermissionVisibility()
-    DN:RaidDetails()
-    DN:ResetQueueTransposing() --sanity check on queues
-
-    --clean up old values
-    if (DNA[player.combine]["CONFIG"]["UNLOCKICON"]) then
-      DNA[player.combine]["CONFIG"]["UNLOCKICON"] = nil
-    end
-    if (DNA[player.combine]["CONFIG"]["ICONPOS"]) then
-      DNA[player.combine]["CONFIG"]["ICONPOS"] = nil
-    end
-    if (DNA[player.combine]["CONFIG"]["HIDEICON"]) then
-      DNA[player.combine]["CONFIG"]["HIDEICON"] = nil
-    end
-    if (DNA[player.combine]["CONFIG"]["INDICON"]) then
-      DNA[player.combine]["CONFIG"]["INDICON"] = nil
-    end
-    if (numAttendanceLogs > 0) then
-      DNAAttendanceDeleteAllBtn:Show()
-    end
-    if (numLootLogs > 0) then
-      DNALootlogDeleteAllBtn:Show()
-    end
-  end
-end
-
 DNAFrameAssignNotReady={}
 function DN:RaidReadyClear()
   for i=1, MAX_RAID_SLOTS do
@@ -1091,4 +1051,50 @@ function DN:ParseSlotPacket(packet, netpacket)
   DN:UpdateRaidRoster()
   DN:ClearFrameView()
   debug("DN:ParseSlotPacket()")
+end
+
+windowOpen = false
+function DN:Close()
+  DN:ResetQueueTransposing() --sanity check on queues
+  DNAFrameMain:Hide()
+  windowOpen = false
+  PlaySound(88)
+end
+
+function DN:Open()
+  if (windowOpen) then
+    DN:Close()
+  else
+    windowOpen = true
+    DNAFrameMain:Show()
+    --DNAFrameAssign:Show() --DEBUG
+    memberDrag = nil --bugfix
+    DN:UpdateRaidRoster()
+    DN:GetProfileVars()
+
+    DN:PermissionVisibility()
+    DN:RaidDetails()
+    DN:ResetQueueTransposing() --sanity check on queues
+    --DN:HideGlobalReadyCheck()
+
+    --clean up old values
+    if (DNA[player.combine]["CONFIG"]["UNLOCKICON"]) then
+      DNA[player.combine]["CONFIG"]["UNLOCKICON"] = nil
+    end
+    if (DNA[player.combine]["CONFIG"]["ICONPOS"]) then
+      DNA[player.combine]["CONFIG"]["ICONPOS"] = nil
+    end
+    if (DNA[player.combine]["CONFIG"]["HIDEICON"]) then
+      DNA[player.combine]["CONFIG"]["HIDEICON"] = nil
+    end
+    if (DNA[player.combine]["CONFIG"]["INDICON"]) then
+      DNA[player.combine]["CONFIG"]["INDICON"] = nil
+    end
+    if (numAttendanceLogs > 0) then
+      DNAAttendanceDeleteAllBtn:Show()
+    end
+    if (numLootLogs > 0) then
+      DNALootlogDeleteAllBtn:Show()
+    end
+  end
 end

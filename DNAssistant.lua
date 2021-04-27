@@ -215,7 +215,7 @@ DNAFrameAssignReady:SetScript("OnLeave", function()
 end)
 DNAFrameAssignReady:SetScript("OnClick", function()
   ConfirmReadyCheck(1) --ready
-  ReadyCheckFrame:Hide()
+  DN:HideGlobalReadyCheck()
   local getCode = multiKeyFromValue(netCode, "readyyes")
   DN:SendPacket(netCode[getCode][2] .. player.name, true)
   DNAFrameAssign:Hide()
@@ -848,7 +848,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           DNAFrameAssign:Show()
           DN:RaidReadyClear()
           --PlaySound(8960)
-          ReadyCheckFrame:Hide()
+          DN:HideGlobalReadyCheck()
           debug("ReadyCheckFrame:Hide")
           return true
         end
@@ -2837,11 +2837,10 @@ function DNASlashCommands(msg)
     debug("== " .. raidSelection)
     if (raidSelection) then
       DN:RaidSendAssignments()
-      ReadyCheckFrame:Hide()
       local getCode = multiKeyFromValue(netCode, "posttoraid")
       DN:ChatNotification("Boss Assignment " .. raidSelection)
       DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
-      ReadyCheckFrame:Hide()
+      DoReadyCheck()
     else
       DN:ChatNotification("Invalid Boss Entry")
     end
