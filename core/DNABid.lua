@@ -35,7 +35,7 @@ end)
 DNABidWindow:SetScript("OnDragStop", function()
   DNABidWindow:StopMovingOrSizing()
   local point, relativeTo, relativePoint, xOfs, yOfs = DNABidWindow:GetPoint()
-  debug("BW Pos: " .. point .. "," .. xOfs .. "," .. yOfs)
+  DN:Debug("BW Pos: " .. point .. "," .. xOfs .. "," .. yOfs)
   DNA[player.combine]["CONFIG"]["BWPOS"] = point .. "," .. xOfs .. "," .. yOfs
 end)
 
@@ -78,7 +78,7 @@ DNABidWindow:SetScript("OnUpdate", function(self, elapsed)
     return
   end
   --dostuff()
-  debug("test")
+  DN:Debug("test")
   timer = timer + 1 -- or just timer = 5 if you don't need to be super exact
 end)
 ]==]--
@@ -127,7 +127,7 @@ DNABidNumber:ClearFocus(self)
 DNABidNumber:SetAutoFocus(false)
 DNABidNumber:GetNumber()
 DNABidNumber:SetScript("OnEscapePressed", function()
-  --debug("get out of bid window")
+  --DN:Debug("get out of bid window")
   DNABidNumber:ClearFocus(self)
   --DNABidWindow:Hide()
 end)

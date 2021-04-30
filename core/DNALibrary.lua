@@ -24,14 +24,6 @@ player.combine=player.name .. "-" .. player.realm
 player.class = UnitClass("player")
 player.faction=UnitFactionGroup("player")
 
-function debug(msg)
-  if (DEBUG) then
-    if (msg) then
-      return print("DEBUG: " .. msg)
-    end
-  end
-end
-
 --array has value
 function arrayValue (_array, value)
   for index, val in ipairs(_array) do

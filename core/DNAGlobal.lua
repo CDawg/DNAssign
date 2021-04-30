@@ -113,9 +113,17 @@ bidSound = {}
 
 onPage = "Assignment" --firstpage
 
+function DN:Debug(msg)
+  if (DEBUG) then
+    if (msg) then
+      return print("DEBUG: " .. msg)
+    end
+  end
+end
+
 function DN:HideGlobalReadyCheck()
   ReadyCheckFrame:Hide()
-  debug("ReadyCheckFrame:Hide()")
+  DN:Debug("ReadyCheckFrame:Hide()")
 end
 
 function DN:ChatNotification(msg)
@@ -189,7 +197,7 @@ function DN:SendPacket(packet, filtered)
   else
     if ((DEBUG) or (onPage == "Raid Builder")) then
       C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
-      debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
+      DN:Debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
     end
   end
 end
@@ -203,7 +211,7 @@ function DN:ResetQueueTransposing()
   swapQueue[HEAL]=0
   prevQueue[CC] = 0
   swapQueue[CC] = 0
-  --debug("DN:ResetQueueTransposing()")
+  --DN:Debug("DN:ResetQueueTransposing()")
 end
 
 DNAClasses={
@@ -457,7 +465,7 @@ function DN:ToolTip(frame, msg, offset_x, offset_y)
     DNATooltipFrame:SetWidth(strlength*10)
     DNATooltipFrame:SetHeight(20)
     DNATooltip.text:SetText(msg)
-    --debug(strlength)
+    --DN:Debug(strlength)
     if ((offset_x) and (offset_y)) then
       if (strlength >= 60) then
         strlength = 65
@@ -523,7 +531,7 @@ end
 function DN:GetGuildComp()
   if (IsInGuild()) then
     totalGuildMembers = GetNumGuildMembers()
-    debug("totalGuildMembers " .. totalGuildMembers)
+    DN:Debug("totalGuildMembers " .. totalGuildMembers)
     local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
     for i=1, numTotalMembers do
       local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
@@ -532,9 +540,9 @@ function DN:GetGuildComp()
       DNAGuild["class"][filterRealm] = class
       DNAGuild["rank"][filterRealm] = rank
       DNAGuild["rankID"][filterRealm] = rankIndex
-      --debug("Guild RankID " .. rankIndex .. " = " .. rank)
+      --DN:Debug("Guild RankID " .. rankIndex .. " = " .. rank)
     end
-    debug("getGuildComp()")
+    DN:Debug("getGuildComp()")
   end
 end
 
@@ -597,12 +605,12 @@ function DN:GetRaidComp()
       rankLead = ""
       if (rank > 1) then
         raidLead = name
-        debug("Raid Lead: " .. raidLead)
+        DN:Debug("Raid Lead: " .. raidLead)
       end
 
       if (IsInRaid()) then
         if (raidInvited[name] ~= 1) then --already invited attempt
-          debug(name .. " has joined")
+          DN:Debug(name .. " has joined")
           if (raidLead == player.name) then
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
@@ -632,7 +640,7 @@ function DN:GetRaidComp()
 
   if (DEBUG) then
     buildDebugRaid() --fake raid
-    debug("DN:GetRaidComp() total:" .. total.raid)
+    DN:Debug("DN:GetRaidComp() total:" .. total.raid)
   end
 end
 
@@ -682,24 +690,24 @@ function DN:AlignSlotText()
     if (tankSlot[i].text:GetText() == "Empty") then
       tankSlot[i].text:ClearAllPoints()
       tankSlot[i].text:SetPoint("CENTER", 0, 0)
-      --debug("tankSlot " .. tankSlot[i].text:GetText())
+      --DN:Debug("tankSlot " .. tankSlot[i].text:GetText())
     end
   end
   for i=1, DNASlots.heal do
     if (healSlot[i].text:GetText() == "Empty") then
       healSlot[i].text:ClearAllPoints()
       healSlot[i].text:SetPoint("CENTER", 0, 0)
-      --debug("healSlot " .. healSlot[i].text:GetText())
+      --DN:Debug("healSlot " .. healSlot[i].text:GetText())
     end
   end
   for i=1, DNASlots.cc do
     if (ccSlot[i].text:GetText() == "Empty") then
       ccSlot[i].text:ClearAllPoints()
       ccSlot[i].text:SetPoint("CENTER", 0, 0)
-      --debug("ccSlot " .. ccSlot[i].text:GetText())
+      --DN:Debug("ccSlot " .. ccSlot[i].text:GetText())
     end
   end
-  debug("DN:AlignSlotText()")
+  DN:Debug("DN:AlignSlotText()")
 end
 
 DNAFrameAssignNotReady={}
@@ -716,7 +724,7 @@ function DN:RaidReadyClear()
   for i=1, DNASlots.cc do
     ccSlot[i].ready:SetTexture("")
   end
-  debug("DN:RaidReadyClear()")
+  DN:Debug("DN:RaidReadyClear()")
 end
 
 function DN:RaidReadyMember(member, isReady)
@@ -901,7 +909,7 @@ function DN:UpdateRaidRoster()
   total.melee = total.warriors + total.rogues + total.druids
   total.range = total.hunters + total.mages + total.warlocks
 
-  debug("DN:UpdateRaidRoster()")
+  DN:Debug("DN:UpdateRaidRoster()")
 end
 
 function DN:ClearFrameView()
@@ -910,7 +918,7 @@ function DN:ClearFrameView()
     DNAFrameViewScrollChild_tank[i]:SetText("")
     DNAFrameViewScrollChild_heal[i]:SetText("")
   end
-  debug("DN:ClearFrameView()")
+  DN:Debug("DN:ClearFrameView()")
 end
 
 function DN:ClearFrameAssign()
@@ -919,7 +927,7 @@ function DN:ClearFrameAssign()
     DNAFrameAssignScrollChild_tank[i]:SetText("")
     DNAFrameAssignScrollChild_heal[i]:SetText("")
   end
-  debug("DN:ClearFrameAssign()")
+  DN:Debug("DN:ClearFrameAssign()")
 end
 
 function DN:ClearFrameClassAssign()
@@ -936,7 +944,7 @@ function DN:ClearFrameAssignPersonal()
   --reset the window positioning, similar to a chat bubble
   DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w) --default
   DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-24, 4)
-  debug("DN:ClearFrameAssignPersonal()")
+  DN:Debug("DN:ClearFrameAssignPersonal()")
   if (DNACheckbox["SMALLASSIGNCOMBAT"]:GetChecked()) then
     DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w -140)
     DNAFrameAssignPersonal:SetHeight(DNAFrameAssignPersonal_h /2)
@@ -949,7 +957,7 @@ function DN:ClearFrameAssignPersonal()
     DNAFrameAssignPersonalColOne:SetFont(DNAGlobal.font, 6, "OUTLINE")
     DNAFrameAssignPersonalColTwo:SetFont(DNAGlobal.font, 6, "OUTLINE")
     DNAFrameAssignPersonalClass:SetFont(DNAGlobal.font, 6, "OUTLINE")
-    debug("size personal assignment window down")
+    DN:Debug("size personal assignment window down")
   end
   DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal:GetWidth())
 end
@@ -982,7 +990,7 @@ function DN:InstanceButtonToggle(name, icon)
   PlaySound(840)
   raidSelection=""
   DN:PresetClear()
-  debug("DN:InstanceButtonToggle(..., ...)")
+  DN:Debug("DN:InstanceButtonToggle(..., ...)")
 end
 
 --parse the incoming packet
@@ -1020,7 +1028,7 @@ function DN:ParseSlotPacket(packet, netpacket)
         end
         DN:ClassColorText(tankSlot[packet.slot].text, thisClass)
         --SetPartyAssignment("MAINTANK", packet.name, 1)
-        --debug("MAINTANK = " .. packet.name)
+        --DN:Debug("MAINTANK = " .. packet.name)
       end
     end
 
@@ -1064,16 +1072,16 @@ function DN:ParseSlotPacket(packet, netpacket)
       end
     end
 
-    debug("packet.role " .. packet.role)
-    debug("packet.slot " .. packet.slot)
-    debug("packet.name " .. packet.name)
+    DN:Debug("packet.role " .. packet.role)
+    DN:Debug("packet.slot " .. packet.slot)
+    DN:Debug("packet.name " .. packet.name)
   end
 
   --update the saved
   DNA[player.combine]["ASSIGN"][packet.role .. packet.slot] = packet.name
   DN:UpdateRaidRoster()
   DN:ClearFrameView()
-  debug("DN:ParseSlotPacket()")
+  DN:Debug("DN:ParseSlotPacket()")
 end
 
 windowOpen = false

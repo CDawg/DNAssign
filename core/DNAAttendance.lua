@@ -162,8 +162,8 @@ DNAAttendanceDeleteLogBtn.text:SetPoint("CENTER", DNAAttendanceDeleteLogBtn, "TO
 DNAAttendanceDeleteLogBtn.text:SetText("Delete Log")
 DNAAttendanceDeleteLogBtn:SetScript("OnClick", function()
   if ((attendanceLogDate) and (attendanceLogName))then
-    debug(attendanceLogDate)
-    debug(attendanceLogName)
+    DN:Debug(attendanceLogDate)
+    DN:Debug(attendanceLogName)
   end
   DNADeleteSingleAttendancePrompt.text:SetText("Delete Attendance log:\n|cfff2c983" .. attendanceLogDate .. " " ..  attendanceLogName .. "|cffffffff?")
   DNADeleteSingleAttendancePrompt:Show()
@@ -420,8 +420,8 @@ function attendanceLogSlotFrame(i, filteredName, name)
     attendanceLogDate = filterLogName[1]
     attendanceLogName = filterLogName[2]
     attendanceLogID = i
-    debug(attendanceLogDate)
-    debug(attendanceLogName)
-    debug(attendanceLogID)
+    DN:Debug(attendanceLogDate)
+    DN:Debug(attendanceLogName)
+    DN:Debug(attendanceLogID)
   end)
 end

@@ -50,10 +50,10 @@ DNALootlogOpenbidBtn.text:SetPoint("CENTER", DNALootlogOpenbidBtn, "TOPLEFT", 68
 DNALootlogOpenbidBtn.text:SetText("Open Bid")
 DNALootlogOpenbidBtn:SetScript("OnClick", function()
   local getCode = multiKeyFromValue(netCode, "openbid")
-  if (IsMasterLooter()) then
+  if ((IsMasterLooter()) or (DEBUG)) then
     if ((_GitemName) and (_GitemRarity)) then
-      debug(_GitemName)
-      debug(_GitemRarity)
+      DN:Debug(_GitemName)
+      DN:Debug(_GitemRarity)
       DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name, false)
     end
   end
@@ -183,8 +183,8 @@ DNALootlogDeleteLogBtn.text:SetPoint("CENTER", DNALootlogDeleteLogBtn, "TOPLEFT"
 DNALootlogDeleteLogBtn.text:SetText("Delete Log")
 DNALootlogDeleteLogBtn:SetScript("OnClick", function()
   if ((lootlogLogDate) and (lootlogLogName))then
-    debug(lootlogLogDate)
-    debug(lootlogLogName)
+    DN:Debug(lootlogLogDate)
+    DN:Debug(lootlogLogName)
   end
   DNADeleteSingleLootlogPrompt.text:SetText("Delete Loot log:\n|cfff2c983" .. lootlogLogDate .. " " ..  lootlogLogName .. "|cffffffff?")
   DNADeleteSingleLootlogPrompt:Show()
@@ -341,7 +341,7 @@ for i=1, MAX_RAID_ITEMS do
   lootlogSingleSlot[i]:SetScript('OnClick', function()
     lootlogSingleSlot[i]:SetBackdropColor(1, 1, 0.3, 1)
     lootlogSingleSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
-    debug("this working?")
+    DN:Debug("this working?")
   end)
   ]==]--
   lootlogSingleSlot[i]:SetScript('OnEnter', function()
@@ -419,11 +419,11 @@ function lootLogSlotFrame(i, filteredName, name)
         _GitemName = filterItemTimeprint
         _GitemRarity=lootlog[name][v][1]
 
-        if (IsMasterLooter()) then
+        if ((IsMasterLooter()) or (DEBUG)) then
           DNALootlogOpenbidBtn:Show()
         end
       end)
-      --debug(filterItemTimeprint .. "=" .. lootlog[name][v][1])
+      --DN:Debug(filterItemTimeprint .. "=" .. lootlog[name][v][1])
     end
     local filterLogName = split(name, "}")
     filterLogName[2] = string.gsub(filterLogName[2], " ", "", 1) --first space
@@ -436,8 +436,8 @@ function lootLogSlotFrame(i, filteredName, name)
     lootlogLogDate = filterLogName[1]
     lootlogLogName = filterLogName[2]
     lootlogLogID = i
-    debug(lootlogLogDate)
-    debug(lootlogLogName)
-    debug(lootlogLogID)
+    DN:Debug(lootlogLogDate)
+    DN:Debug(lootlogLogName)
+    DN:Debug(lootlogLogID)
   end)
 end
