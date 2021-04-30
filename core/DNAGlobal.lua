@@ -95,6 +95,7 @@ DNASlots.cc   = 6
 MAX_RAID_SLOTS = 600
 MAX_FRAME_LINES = 25 --also setup the same for the assign window
 MAX_DKP_LINES = 120
+MAX_RAID_ITEMS = 80
 MAX_BIDS = 100
 BID_TIMER = 10
 

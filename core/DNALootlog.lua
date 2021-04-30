@@ -317,7 +317,7 @@ local lootlogSingleSlot={}
 local lootlogSingleSlotText={}
 
 --just create the 80 frames, then occupy data into them
-for i=1, MAX_RAID_MEMBERS*2 do
+for i=1, MAX_RAID_ITEMS do
   lootlogSingleSlot[i] = {}
   lootlogSingleSlot[i] = CreateFrame("button", lootlogSingleSlot[i], DNALootlogItemScrollFrameChildFrame)
   lootlogSingleSlot[i]:SetWidth(DNALootlogItemScrollFrame_w-5)
@@ -390,7 +390,7 @@ function lootLogSlotFrame(i, filteredName, name)
     lootLogSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   end)
   lootLogSlot[i]:SetScript('OnClick', function()
-    for n=1, MAX_RAID_MEMBERS*2 do
+    for n=1, MAX_RAID_ITEMS do
       lootlogSingleSlot[n]:Hide()
       lootlogSingleSlot[n]:SetBackdropColor(1, 1, 1, 0.3)
     end
@@ -411,7 +411,7 @@ function lootLogSlotFrame(i, filteredName, name)
       --local itemQuality = v[1]
       setLootlogSlotSingleFrame(k, filterItemTimeprint, lootlog[name][v][1])
       lootlogSingleSlot[k]:SetScript('OnClick', function()
-        for n=1, MAX_RAID_MEMBERS*2 do
+        for n=1, MAX_RAID_ITEMS do
           lootlogSingleSlot[n]:SetBackdropColor(1, 1, 1, 0.2)
         end
         lootlogSingleSlot[k]:SetBackdropColor(1, 1, 0, 1)
@@ -429,7 +429,6 @@ function lootLogSlotFrame(i, filteredName, name)
     filterLogName[2] = string.gsub(filterLogName[2], " ", "", 1) --first space
     DNALootlogDetailsFrame.date:SetText("|cfffffa8bDate:|r " .. filterLogName[1])
     DNALootlogDetailsFrame.instance:SetText("|cfffffa8bInstance:|r " .. filterLogName[2])
-    --DNALootlogDetailsFrame.count:SetText("|cfffffa8bMembers:|r " .. table.getn(sortLootlogName))
     DNALootlogDeleteLogBtn:Show()
     DNALootlogExportLogBtn:Show()
     DNALootlogDetailsFrame:Show()

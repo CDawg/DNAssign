@@ -1159,6 +1159,14 @@ function DN:GetProfileVars()
     DNAMiniMap:SetPoint(minimapIconPos[1], tonumber(minimapIconPos[2]), tonumber(minimapIconPos[3]))
   end
 
+  if (DNA[player.combine]["CONFIG"]["MAINPOS"]) then
+    local DNAFrameMainPos = {}
+    DNAFrameMainPos = split(DNA[player.combine]["CONFIG"]["MAINPOS"], ",")
+    debug("DNAFrameMainPos: " .. DNAFrameMainPos[1] .. "," .. tonumber(DNAFrameMainPos[2]) .. "," .. tonumber(DNAFrameMainPos[3]))
+    DNAFrameMain:ClearAllPoints()
+    DNAFrameMain:SetPoint(DNAFrameMainPos[1], tonumber(DNAFrameMainPos[2]), tonumber(DNAFrameMainPos[3]))
+  end
+
   if (DNA[player.combine]["CONFIG"]["PAWPOS"]) then
     local DNAFrameAssignPersonalPos = {}
     DNAFrameAssignPersonalPos = split(DNA[player.combine]["CONFIG"]["PAWPOS"], ",")
@@ -1241,8 +1249,20 @@ DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
   DN:Close()
 end)
-DN:ToolTip(DNAFrameMainClose, "Close")
+--DN:ToolTip(DNAFrameMainClose, "Close")
 
+DNAFrameMain:SetMovable(true)
+DNAFrameMain:EnableMouse(true)
+DNAFrameMain:RegisterForDrag("LeftButton")
+DNAFrameMain:SetScript("OnDragStart", function()
+  DNAFrameMain:StartMoving()
+end)
+DNAFrameMain:SetScript("OnDragStop", function()
+  DNAFrameMain:StopMovingOrSizing()
+  local point, relativeTo, relativePoint, xOfs, yOfs = DNAFrameMain:GetPoint()
+  debug("MAIN Pos: " .. point .. "," .. xOfs .. "," .. yOfs)
+  DNA[player.combine]["CONFIG"]["MAINPOS"] = point .. "," .. xOfs .. "," .. yOfs
+end)
 DNAFrameMain:EnableKeyboard(true)
 tinsert(UISpecialFrames, "DNAFrameMain")
 DNAFrameMain.enter = CreateFrame("EditBox", nil, DNAFrameMain)
