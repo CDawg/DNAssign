@@ -116,6 +116,12 @@ function removeValueFromArray(array, value)
   end
 end
 
+function table.clear(array)
+  for k in pairs (array) do
+    array[k] = nil
+  end
+end
+
 local bytes = {}
 function encode(x)
 	for k = 1, #bytes do

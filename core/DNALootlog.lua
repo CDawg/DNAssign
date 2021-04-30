@@ -40,6 +40,26 @@ DNALootlogScrollFrame.MR:SetSize(24, DNALootlogScrollFrame_h)
 
 local lootLogSlot = {}
 
+DNALootlogOpenbidBtn = CreateFrame("Button", nil, page["Loot Log"], "UIPanelButtonTemplate")
+DNALootlogOpenbidBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNALootlogOpenbidBtn:SetPoint("TOPLEFT", 480, -160)
+DNALootlogOpenbidBtn:SetFrameLevel(5)
+DNALootlogOpenbidBtn.text = DNALootlogOpenbidBtn:CreateFontString(nil, "ARTWORK")
+DNALootlogOpenbidBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogOpenbidBtn.text:SetPoint("CENTER", DNALootlogOpenbidBtn, "TOPLEFT", 68, -13)
+DNALootlogOpenbidBtn.text:SetText("Open Bid")
+DNALootlogOpenbidBtn:SetScript("OnClick", function()
+  local getCode = multiKeyFromValue(netCode, "openbid")
+  if (IsMasterLooter()) then
+    if ((_GitemName) and (_GitemRarity)) then
+      debug(_GitemName)
+      debug(_GitemRarity)
+      DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name, false)
+    end
+  end
+end)
+DNALootlogOpenbidBtn:Hide()
+
 local DNADeleteAllLootlogPrompt = CreateFrame("Frame", nil, UIParent)
 DNADeleteAllLootlogPrompt:SetWidth(450)
 DNADeleteAllLootlogPrompt:SetHeight(100)
@@ -64,7 +84,7 @@ DNADeleteAllLootlogPromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "O
 DNADeleteAllLootlogPromptYes.text:SetPoint("CENTER", DNADeleteAllLootlogPromptYes, "CENTER", 0, 0)
 DNADeleteAllLootlogPromptYes.text:SetText("Yes")
 DNADeleteAllLootlogPromptYes:SetScript('OnClick', function()
-  for i=1, numLootLogs do
+  for i=1, numLootLogs.init do
     lootLogSlot[i]:Hide()
   end
   DNA["LOOTLOG"] = {}
@@ -139,6 +159,7 @@ DNADeleteSingleLootlogPromptYes:SetScript('OnClick', function()
   DNALootlogItemScrollFrame:Hide()
   DNALootlogDeleteLogBtn:Hide()
   DNALootlogExportLogBtn:Hide()
+  DNALootlogOpenbidBtn:Hide()
 end)
 local DNADeleteSingleLootlogPromptNo = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt, "UIPanelButtonTemplate")
 DNADeleteSingleLootlogPromptNo:SetSize(100, 24)
@@ -154,7 +175,7 @@ DNADeleteSingleLootlogPrompt:Hide()
 
 DNALootlogDeleteLogBtn = CreateFrame("Button", nil, page["Loot Log"], "UIPanelButtonTemplate")
 DNALootlogDeleteLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
-DNALootlogDeleteLogBtn:SetPoint("TOPLEFT", 480, -60)
+DNALootlogDeleteLogBtn:SetPoint("TOPLEFT", 480, -50)
 DNALootlogDeleteLogBtn:SetFrameLevel(5)
 DNALootlogDeleteLogBtn.text = DNALootlogDeleteLogBtn:CreateFontString(nil, "ARTWORK")
 DNALootlogDeleteLogBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -224,7 +245,7 @@ end)
 
 DNALootlogExportLogBtn = CreateFrame("Button", nil, page["Loot Log"], "UIPanelButtonTemplate")
 DNALootlogExportLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
-DNALootlogExportLogBtn:SetPoint("TOPLEFT", 480, -90)
+DNALootlogExportLogBtn:SetPoint("TOPLEFT", 480, -80)
 DNALootlogExportLogBtn:SetFrameLevel(5)
 DNALootlogExportLogBtn.text = DNALootlogExportLogBtn:CreateFontString(nil, "ARTWORK")
 DNALootlogExportLogBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -307,7 +328,7 @@ for i=1, MAX_RAID_MEMBERS*2 do
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
-  lootlogSingleSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  lootlogSingleSlot[i]:SetBackdropColor(1, 1, 1, 0.3)
   lootlogSingleSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
   lootlogSingleSlot[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
   lootlogSingleSlotText[i] = {}
@@ -315,48 +336,28 @@ for i=1, MAX_RAID_MEMBERS*2 do
   lootlogSingleSlotText[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
   lootlogSingleSlotText[i]:SetPoint("TOPLEFT", 5, -4)
   lootlogSingleSlotText[i]:SetText("")
+
   --[==[
-  lootlogSingleSlotInvite[i] = CreateFrame("button", lootlogSingleSlotInvite[i], lootlogSingleSlot[i])
-  lootlogSingleSlotInvite[i]:SetWidth(80)
-  lootlogSingleSlotInvite[i]:SetHeight(raidSlot_h)
-  lootlogSingleSlotInvite[i]:SetPoint("TOPLEFT", 114, 0)
-  lootlogSingleSlotInvite[i]:SetBackdrop({
-    bgFile = "Interface/Collections/CollectionsBackgroundTile",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = {left=2, right=2, top=2, bottom=2},
-  })
-  lootlogSingleSlotInvite[i]:SetBackdropBorderColor(0.5, 1, 0.7, 0.60)
-  lootlogSingleSlotInvite[i]:SetBackdropColor(0.3, 1, 0.9, 1)
-  lootlogSingleSlotInvite[i].text = lootlogSingleSlotInvite[i]:CreateFontString(nil, "ARTWORK")
-  lootlogSingleSlotInvite[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
-  lootlogSingleSlotInvite[i].text:SetPoint("CENTER", 2, 1)
-  lootlogSingleSlotInvite[i].text:SetText("Delete")
-  lootlogSingleSlotInvite[i]:SetScript('OnEnter', function()
-    lootlogSingleSlotInvite[i]:SetBackdropBorderColor(0.3, 1, 0.8, 1)
-  end)
-  lootlogSingleSlotInvite[i]:SetScript('OnLeave', function()
-    lootlogSingleSlotInvite[i]:SetBackdropBorderColor(0.5, 1, 0.7, 0.60)
-  end)
-  lootlogSingleSlotInvite[i]:Hide()
-  lootlogSingleSlotInvite[i]:SetScript('OnClick', function()
-    local thisMember = lootlogSingleSlotText[i]:GetText()
-    InviteUnit(thisMember)
-    if (IsInRaid()) then
-      DN:ChatNotification("Invited " .. thisMember .. " to Raid.")
-    else
-      DN:ChatNotification("Converted to Raid.")
-      ConvertToRaid()
-    end
+  lootlogSingleSlot[i]:SetScript('OnClick', function()
+    lootlogSingleSlot[i]:SetBackdropColor(1, 1, 0.3, 1)
+    lootlogSingleSlot[i]:SetBackdropBorderColor(1, 1, 0.3, 1)
+    debug("this working?")
   end)
   ]==]--
+  lootlogSingleSlot[i]:SetScript('OnEnter', function()
+    lootlogSingleSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  lootlogSingleSlot[i]:SetScript('OnLeave', function()
+    lootlogSingleSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
 
   lootlogSingleSlot[i]:Hide()
 end
 
-function setLootlogSlotSingleFrame(i, member, quality)
+function setLootlogSlotSingleFrame(i, _item, quality)
   if (lootlogSingleSlot[i]) then
-    lootlogSingleSlotText[i]:SetText(member)
+    --lootlogSingleSlotText[i]:SetText(_item)
+    lootlogSingleSlotText[i]:SetText(_item:sub(1, 26))
     lootlogSingleSlot[i]:Show()
     if (quality) then
       DN:ItemQualityColorText(lootlogSingleSlotText[i], quality)
@@ -391,8 +392,9 @@ function lootLogSlotFrame(i, filteredName, name)
   lootLogSlot[i]:SetScript('OnClick', function()
     for n=1, MAX_RAID_MEMBERS*2 do
       lootlogSingleSlot[n]:Hide()
+      lootlogSingleSlot[n]:SetBackdropColor(1, 1, 1, 0.3)
     end
-    for n=1, numLootLogs do
+    for n=1, numLootLogs.init do
       lootLogSlot[n]:SetBackdropColor(1, 1, 1, 0.3)
       lootLogSlot[n].text:SetTextColor(1, 1, 1)
     end
@@ -408,7 +410,20 @@ function lootLogSlotFrame(i, filteredName, name)
       local filterItemTimeprint = v:sub(15)
       --local itemQuality = v[1]
       setLootlogSlotSingleFrame(k, filterItemTimeprint, lootlog[name][v][1])
-      debug(filterItemTimeprint .. "=" .. lootlog[name][v][1])
+      lootlogSingleSlot[k]:SetScript('OnClick', function()
+        for n=1, MAX_RAID_MEMBERS*2 do
+          lootlogSingleSlot[n]:SetBackdropColor(1, 1, 1, 0.2)
+        end
+        lootlogSingleSlot[k]:SetBackdropColor(1, 1, 0, 1)
+        lootlogSingleSlot[k]:SetBackdropBorderColor(1, 1, 0.3, 1)
+        _GitemName = filterItemTimeprint
+        _GitemRarity=lootlog[name][v][1]
+
+        if (IsMasterLooter()) then
+          DNALootlogOpenbidBtn:Show()
+        end
+      end)
+      --debug(filterItemTimeprint .. "=" .. lootlog[name][v][1])
     end
     local filterLogName = split(name, "}")
     filterLogName[2] = string.gsub(filterLogName[2], " ", "", 1) --first space

@@ -19,7 +19,7 @@ DNAGlobal.name      = "Destructive Nature Assistant"
 DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
 DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
 DNAGlobal.vmajor    = 1
-DNAGlobal.vminor    = 227
+DNAGlobal.vminor    = 304
 DNAGlobal.width     = 980
 DNAGlobal.height    = 600
 DNAGlobal.font      = DNAGlobal.dir .. "Fonts/verdana.ttf"
@@ -95,9 +95,20 @@ DNASlots.cc   = 6
 MAX_RAID_SLOTS = 600
 MAX_FRAME_LINES = 25 --also setup the same for the assign window
 MAX_DKP_LINES = 120
+MAX_BIDS = 100
+BID_TIMER = 10
 
 DNAInstance = {}
 DNARaidBosses = {}
+
+bidderTable = {}
+myBid = 1
+DNABidWindow = {}
+DNABidNumber = {}
+DNABidWindow_w = 250
+DNABidWindow_h = 350
+bitTimerPos_y = DNABidWindow_h-27
+bidSound = {}
 
 onPage = "Assignment" --firstpage
 
@@ -232,6 +243,8 @@ netCode = {
   {"postdkp",   "0xEFPd"},
   {"author",    "0xEFAu"},
   {"lootitem",  "0xEFLi"},
+  {"lootbid",   "0xEFLb"},
+  {"openbid",   "0xEFOb"},
 }
 
 DNARaidMarkers={
@@ -297,7 +310,10 @@ pageDKPViewScrollChild_colThree= {}
 version_alerted = 0
 
 numAttendanceLogs = 0
-numLootLogs = 0
+
+numLootLogs={}
+numLootLogs.init = 0
+numLootLogs.cache= 0
 
 ddSelection = nil
 
@@ -378,17 +394,18 @@ function DN:ItemQualityColorText(frame, quality)
 end
 
 DNAGuild={}
-DNAGuild["member"] = {}
-DNAGuild["class"] = {}
+DNAGuild["member"]={}
+DNAGuild["class"] ={}
 DNAGuild["rank"] = {}
+DNAGuild["rankID"]={}
 
 DNARaid={}
-DNARaid["member"] = {}
-DNARaid["class"] = {}
+DNARaid["member"]={}
+DNARaid["class"] ={}
 DNARaid["race"] = {}
-DNARaid["groupid"] = {}
-DNARaid["assist"] = {}
-DNARaid["raidID"] = {}
+DNARaid["groupid"]={}
+DNARaid["assist"] ={}
+DNARaid["raidID"] ={}
 
 DNABossIcon = nil
 DNABossMap = nil
@@ -505,6 +522,7 @@ end
 function DN:GetGuildComp()
   if (IsInGuild()) then
     totalGuildMembers = GetNumGuildMembers()
+    debug("totalGuildMembers " .. totalGuildMembers)
     local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
     for i=1, numTotalMembers do
       local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
@@ -512,7 +530,8 @@ function DN:GetGuildComp()
       DNAGuild["member"] = filterRealm
       DNAGuild["class"][filterRealm] = class
       DNAGuild["rank"][filterRealm] = rank
-      --debug(filterRealm .. " = " .. rank)
+      DNAGuild["rankID"][filterRealm] = rankIndex
+      --debug("Guild RankID " .. rankIndex .. " = " .. rank)
     end
     debug("getGuildComp()")
   end
@@ -532,7 +551,6 @@ function DN:BuildAttendance()
         local instanceName = GetInstanceInfo()
         if (instanceName) then
           for i=1, MAX_RAID_MEMBERS do
-            --local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
             local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
             if ((name) and (class)) then
               if (DNA["ATTENDANCE"][timestamp.date][instanceName] == nil) then
@@ -584,12 +602,11 @@ function DN:GetRaidComp()
       if (IsInRaid()) then
         if (raidInvited[name] ~= 1) then --already invited attempt
           debug(name .. " has joined")
-          --if (DNARaid["assist"][player.name] == 1) then --has assistance
           if (raidLead == player.name) then
             if (player.name ~= name) then --dont promote self
               if (IsInGuild()) then
-                if (DNAGuild["rank"][name] ~= nil) then --no guild rank or permission
-                  if ((DNAGuild["rank"][name] == "Guild Master") or (DNAGuild["rank"][name] == "Guild Leader") or (DNAGuild["rank"][name] == "Guild Lead") or (DNAGuild["rank"][name] == "Class Lead") or (DNAGuild["rank"][name] == "Officer") or (DNAGuild["rank"][name] == "Alt Officer")) then
+                if (DNAGuild["rankID"][name] ~= nil) then --no guild rank or permission
+                  if (DNAGuild["rankID"][name] <= 3) then
                     if (DNARaid["assist"][name] ~= 1) then --has not been promoted yet
                       if (UnitIsGroupAssistant(name) == false) then
                         DN:PromoteToAssistant(name)
@@ -772,7 +789,12 @@ function DN:UpdateRaidRoster()
   for i=1, MAX_RAID_SLOTS do
     DNARaid["member"][i] = nil
   end
+
   DN:GetRaidComp() --pulling guild, what page are we on
+
+  DN:GetAttendanceLogs()
+  DN:GetLootLogs()
+
   for i=1, MAX_RAID_SLOTS do
     DNARaidMemberSorted[i] = nil
     raidSlot[i].text:SetText("")
@@ -1093,7 +1115,7 @@ function DN:Open()
     if (numAttendanceLogs > 0) then
       DNAAttendanceDeleteAllBtn:Show()
     end
-    if (numLootLogs > 0) then
+    if (numLootLogs.init > 0) then
       DNALootlogDeleteAllBtn:Show()
     end
   end
