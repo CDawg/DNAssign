@@ -691,21 +691,33 @@ end
 local bidTimerProg = 0
 local function bidTimerFrame()
   bidTimerProg = bidTimerProg+1
-  local countdown = tonumber(string.format("%d", 11-bidTimerProg/20))
+  local get_ml_bid_timer = tonumber(DNABidWindowMLTimer:GetText()) + 1
+  local countdown = tonumber(string.format("%d", get_ml_bid_timer-bidTimerProg/20))
   local countend = bidTimerProg/20
-  --DN:Debug(bidTimerProg)
-  DNABidTimerProg:SetWidth(tonumber(bidTimerProg)*1.237)
+  local formulaBarPos = tonumber(bidTimerProg-1)*(13.8/get_ml_bid_timer)
+  if ((countend >= get_ml_bid_timer-1.05) or (formulaBarPos >= 248)) then
+    DNABidTimerProg:SetWidth(248)
+    DNABidTimerSpark:Hide()
+  else
+    DNABidTimerProg:SetWidth(formulaBarPos)
+  end
+
+  --DNABidTimerSpark:SetPoint("TOPLEFT", (tonumber(bidTimerProg)*1.237)-15, 12)
+  DNABidTimerSpark:SetPoint("TOPLEFT", formulaBarPos-15, 12)
   DNABidTimerSpark:Hide()
-  DNABidTimerSpark:SetPoint("TOPLEFT", (tonumber(bidTimerProg)*1.24)-15, 12)
-  if ((bidTimerProg > 5) and (bidTimerProg < 200)) then
+  if ((formulaBarPos > 5) and (formulaBarPos < 249)) then
     DNABidTimerSpark:Show()
   end
   DNABidTimerCount:SetText(countdown)
+  DN:Debug(formulaBarPos)
   --DN:Debug(countdown)
+  --DN:Debug(countend)
   --DN:Debug(bidTimerProg/20)
-  if (countend == 9.95) then
+  --DN:Debug(get_ml_bid_timer)
+  if (countend == get_ml_bid_timer-1.05) then
     PlaySound(bidSound.expire)
     DN:Debug("sound called")
+    DNABidTimerSpark:Hide()
   end
 end
 local bidTimer = C_Timer.NewTicker(1, bidTimerFrame, 10)
@@ -780,7 +792,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         local instanceName = GetInstanceInfo()
         if (instanceName) then
           local getCode = multiKeyFromValue(netCode, "lootitem")
-          if (itemRarity >= 1) then -- 4 = epics
+          if (itemRarity >= _GitemQuality["RARE"]) then
             if ((IsMasterLooter()) or (DEBUG)) then
               DN:Debug("ML = " .. player.name)
               DN:Debug("lootMethod = " .. lootMethod)
@@ -926,6 +938,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           local lootItem = loot_data[1]
           local lootQuality = tonumber(loot_data[2])
           local lootMaster = loot_data[3]
+          local get_bid_timer=tonumber(loot_data[4])
           DNABidWindow:Show()
           clearBidding()
           DNABidNumber:SetText("0") --default to on open
@@ -933,15 +946,19 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(lootItem)
           --local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(lootItem)
           DNABidWindowItem:SetText(lootItem)
-          --[==[
-          if (itemLink) then --missing from the ML Inventory?
-            DN:ChatNotification("Bidding has begun!\n" .. itemLink)
+          if (get_bid_timer) then
+            tonumber(get_bid_timer)
+            DNABidWindowMLTimer:SetText(get_bid_timer)
           else
-            DN:ChatNotification("Bidding has begun!\n" .. lootItem)
+            DNABidWindowMLTimer:SetText(BID_TIMER) --fail safe, in case idiots decide to push alpha data
           end
-          ]==]--
+
+          bidTimerProg = 0
+          DNABidTimerProg:SetWidth(0)
+          DNABidTimerSpark:Hide()
           DN:ItemQualityColorText(DNABidWindowItem, lootQuality)
           PlaySound(bidSound.start)
+          bidTimer:Cancel()
           return true
         end
       end
@@ -1007,7 +1024,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
           netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          local get_bid= split(netpacket, ",")
+          local get_bid = split(netpacket, ",")
           local get_bid_name= get_bid[1]
           local get_bid_num = tonumber(get_bid[2])
           --sort by bid number
@@ -1023,7 +1040,10 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           PlaySoundFile(bidSound.placed)
           bidTimer:Cancel()
           bidTimerProg = 0
-          bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 200) --10 seconds
+          local get_ml_bid_timer = DNABidWindowMLTimer:GetText()
+          tonumber(get_ml_bid_timer)
+          --bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
+          bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
           return true
         end
       end
@@ -2426,7 +2446,7 @@ end
 
 function DN:PresetSelect(selection)
   local getsave={}
-  local presetText=""
+
   for k,v in pairs(DNA[player.combine]["SAVECONF"][selection]) do
     getsave.key = k
     getsave.role = string.gsub(k, "[^a-zA-Z]", "") --remove numbers
@@ -2691,7 +2711,7 @@ end)
 
 function DN:PresetLoad(selection)
   local getsave={}
-  local preSetText=""
+
   for k,v in pairs(DNA[player.combine]["SAVECONF"][selection]) do
     getsave.key = k
     getsave.role = string.gsub(k, "[^a-zA-Z]", "") --remove numbers

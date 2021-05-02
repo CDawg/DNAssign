@@ -99,6 +99,17 @@ MAX_RAID_ITEMS = 80
 MAX_BIDS = 100
 BID_TIMER = 10
 
+_GitemQuality = {
+  POOR    = 0,
+  COMMON  = 1,
+  UNCOMMON= 2,
+  RARE    = 3,
+  EPIC    = 4,
+  LEGENDARY=5,
+  ARTIFACT= 6,
+  HEIRLOOM= 7,
+}
+
 DNAInstance = {}
 DNARaidBosses = {}
 

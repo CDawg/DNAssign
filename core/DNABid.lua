@@ -17,7 +17,8 @@ local frameZindex=500
 
 bidSound.start = 12889
 bidSound.placed= DNAGlobal.dir .. "sounds/MagicClick.ogg"
-bidSound.expire= 5274
+--bidSound.expire= 5274
+bidSound.expire= 6674
 
 DNABidWindow ={}
 DNABidWindow = CreateFrame("Frame", nil, UIParent, "BasicFrameTemplate")
@@ -54,6 +55,10 @@ DNABidWindowItem:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNABidWindowItem:SetText("Unknown")
 DNABidWindowItem:SetPoint("TOPLEFT", 5, -38)
 
+DNABidWindowMLTimer = DNABidWindow:CreateFontString(nil, "ARTWORK")
+DNABidWindowMLTimer:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNABidWindowMLTimer:SetText(BID_TIMER) --just a placeholder
+
 DNABidWindow.ScrollFrame = CreateFrame("ScrollFrame", nil, DNABidWindowBG, "UIPanelScrollFrameTemplate")
 DNABidWindow.ScrollFrame:SetPoint("TOPLEFT", DNABidWindowBG, "TOPLEFT", 5, -4)
 DNABidWindow.ScrollFrame:SetPoint("BOTTOMRIGHT", DNABidWindowBG, "BOTTOMRIGHT", -25, 5)
@@ -68,19 +73,6 @@ DNABidWindowMR = DNABidWindow:CreateTexture(nil, "BACKGROUND", DNABidWindow, -1)
 DNABidWindowMR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNABidWindowMR:SetPoint("TOPLEFT", DNABidWindow_w, -2)
 DNABidWindowMR:SetSize(24, 116)
-]==]--
-
---[==[
-local timer = 1
-DNABidWindow:SetScript("OnUpdate", function(self, elapsed)
-  timer = timer - elapsed
-  if (timer > 0) then
-    return
-  end
-  --dostuff()
-  DN:Debug("test")
-  timer = timer + 1 -- or just timer = 5 if you don't need to be super exact
-end)
 ]==]--
 
 DNABidWindowBidderName= {}
@@ -141,7 +133,7 @@ DNABidNumber:SetScript("OnKeyUp", function()
     DNABidNumber:SetText("")
   end
 end)
-DNABidNumber:SetText("")
+DNABidNumber:SetText("0")
 
 DNABidBtnLow = CreateFrame("Button", nil, DNABidWindow)
 DNABidBtnLow:SetWidth(110)
@@ -174,7 +166,7 @@ DNABidBtnLow:SetScript("OnClick", function()
   if (tonumber(bidRoll)) then
     local getCode = multiKeyFromValue(netCode, "lootbid")
     if (myBid == bidRoll) then
-      DN:ChatNotification("|cfff00000That bid was already placed!")
+      DN:ChatNotification("|cfff00000Your bid [".. tonumber(bidRoll) .. "] was already placed!")
       return
     end
     DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. tonumber(bidRoll), true)
@@ -242,9 +234,11 @@ DNABidBtnMaxBonus:SetScript("OnClick", function()
   --DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. 4, true)
 end)
 
+--progress
+local bidtimer_h = 24
 DNABidTimerProg = CreateFrame("Frame", nil, DNABidWindow)
 DNABidTimerProg:SetWidth(0)
-DNABidTimerProg:SetHeight(25)
+DNABidTimerProg:SetHeight(bidtimer_h)
 DNABidTimerProg:SetFrameLevel(frameZindex+2)
 DNABidTimerProg:SetPoint("TOPLEFT", 0, -bitTimerPos_y)
 DNABidTimerProg:SetBackdrop({
@@ -257,7 +251,7 @@ DNABidTimerProg:SetBackdrop({
 
 DNABidTimerBorder = CreateFrame("Frame", nil, DNABidWindow)
 DNABidTimerBorder:SetWidth(DNABidWindow_w-2)
-DNABidTimerBorder:SetHeight(25)
+DNABidTimerBorder:SetHeight(bidtimer_h)
 DNABidTimerBorder:SetFrameLevel(frameZindex+3)
 DNABidTimerBorder:SetPoint("TOPLEFT", 0, -bitTimerPos_y)
 DNABidTimerBorder:SetBackdrop({
@@ -274,7 +268,7 @@ DNABidTimerCount:SetPoint("CENTER", 0, 0)
 
 DNABidTimerBG = CreateFrame("Frame", nil, DNABidWindow)
 DNABidTimerBG:SetWidth(DNABidWindow_w-2)
-DNABidTimerBG:SetHeight(25)
+DNABidTimerBG:SetHeight(bidtimer_h)
 DNABidTimerBG:SetFrameLevel(frameZindex+1)
 DNABidTimerBG:SetPoint("TOPLEFT", 0, -bitTimerPos_y)
 DNABidTimerBG:SetBackdrop({
@@ -283,11 +277,10 @@ DNABidTimerBG:SetBackdrop({
   edgeSize = 12,
   insets = {left=2, right=2, top=2, bottom=2},
 })
-
 DNABidTimerSpark = DNABidTimerBorder:CreateTexture(nil, "OVERLAY", DNABidTimerBorder, 7)
 DNABidTimerSpark:SetTexture("Interface/CastingBar/UI-CastingBar-Spark")
 DNABidTimerSpark:SetWidth(25)
-DNABidTimerSpark:SetHeight(54)
+DNABidTimerSpark:SetHeight(bidtimer_h*2+2)
 DNABidTimerSpark:SetPoint("TOPLEFT", -5, 12)
 DNABidTimerSpark:SetBlendMode("ADD")
 DNABidTimerSpark:Hide()

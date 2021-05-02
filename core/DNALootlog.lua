@@ -40,9 +40,61 @@ DNALootlogScrollFrame.MR:SetSize(24, DNALootlogScrollFrame_h)
 
 local lootLogSlot = {}
 
-DNALootlogOpenbidBtn = CreateFrame("Button", nil, page["Loot Log"], "UIPanelButtonTemplate")
+local DNALootlogBidItemFrame = CreateFrame("Frame", nil, page["Loot Log"], "InsetFrameTemplate")
+DNALootlogBidItemFrame:SetSize(300, 110)
+DNALootlogBidItemFrame:SetPoint("TOPLEFT", 480, -140)
+DNALootlogBidItemFrame:Hide()
+
+DNALootlogBidItem = DNALootlogBidItemFrame:CreateFontString(nil, "ARTWORK", DNALootlogBidItemFrame, 2)
+DNALootlogBidItem:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogBidItem:SetPoint("TOPLEFT", 10, -10)
+DNALootlogBidItem:SetText("")
+--DNALootlogBidItem:Hide()
+
+-- ML set the timer for biddings - default at 10
+local DNABidTimerSetBorder = CreateFrame("Frame", nil, DNALootlogBidItemFrame)
+DNABidTimerSetBorder:SetWidth(36)
+DNABidTimerSetBorder:SetHeight(25)
+DNABidTimerSetBorder:SetPoint("TOPLEFT", 20, -35)
+DNABidTimerSetBorder:SetBackdrop({
+  bgFile = "Interface/ToolTips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNABidTimerSet = CreateFrame("EditBox", nil, DNABidTimerSetBorder)
+DNABidTimerSet:SetSize(30, 22)
+DNABidTimerSet:SetFontObject(GameFontWhite)
+DNABidTimerSet:SetPoint("TOPLEFT", 5, -1)
+DNABidTimerSet:EnableKeyboard(true)
+DNABidTimerSet:ClearFocus(self)
+DNABidTimerSet:SetAutoFocus(false)
+DNABidTimerSet:GetNumber()
+DNABidTimerSet:SetScript("OnEscapePressed", function()
+  --DN:Debug("get out of bid window")
+  DNABidTimerSet:ClearFocus(self)
+  --DNABidWindow:Hide()
+end)
+DNABidTimerSet:SetScript("OnKeyUp", function()
+  current_timer_number = DNABidTimerSet:GetText()
+  --DNABidBtnLow.text:SetText("Bid [" .. DNABidNumber:GetText() .. "]")
+  if (tonumber(current_timer_number)) then
+    DNABidTimerSet:SetText(current_timer_number)
+  else
+    DNABidTimerSet:SetText("")
+    DNABidTimerSet:ClearFocus(self)
+  end
+end)
+DNABidTimerSet:SetText(BID_TIMER)
+
+DNABidTimerSetText = DNALootlogBidItemFrame:CreateFontString(nil, "ARTWORK", DNALootlogBidItemFrame)
+DNABidTimerSetText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNABidTimerSetText:SetPoint("TOPLEFT", 65, -41)
+DNABidTimerSetText:SetText("Bid Timer (Seconds)")
+
+DNALootlogOpenbidBtn = CreateFrame("Button", nil, DNALootlogBidItemFrame, "UIPanelButtonTemplate")
 DNALootlogOpenbidBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
-DNALootlogOpenbidBtn:SetPoint("TOPLEFT", 480, -160)
+DNALootlogOpenbidBtn:SetPoint("TOPLEFT", 10, -70)
 DNALootlogOpenbidBtn:SetFrameLevel(5)
 DNALootlogOpenbidBtn.text = DNALootlogOpenbidBtn:CreateFontString(nil, "ARTWORK")
 DNALootlogOpenbidBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -50,15 +102,25 @@ DNALootlogOpenbidBtn.text:SetPoint("CENTER", DNALootlogOpenbidBtn, "TOPLEFT", 68
 DNALootlogOpenbidBtn.text:SetText("Open Bid")
 DNALootlogOpenbidBtn:SetScript("OnClick", function()
   local getCode = multiKeyFromValue(netCode, "openbid")
+  local get_bid_timer_cache = DNABidTimerSet:GetText()
   if ((IsMasterLooter()) or (DEBUG)) then
     if ((_GitemName) and (_GitemRarity)) then
       DN:Debug(_GitemName)
       DN:Debug(_GitemRarity)
-      DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name, false)
+      if ((get_bid_timer_cache == nil) or (get_bid_timer_cache == "")) then
+        get_bid_timer_cache = 1
+      end
+      DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name .. "," .. tonumber(get_bid_timer_cache), false)
     end
   end
 end)
-DNALootlogOpenbidBtn:Hide()
+--DNALootlogOpenbidBtn:Hide()
+
+DNALootlogBidTimerText = DNALootlogScrollFrame:CreateFontString(nil, "ARTWORK", page["Loot Log"], 2)
+DNALootlogBidTimerText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootlogBidTimerText:SetPoint("TOPLEFT", 460, -120)
+DNALootlogBidTimerText:SetText("")
+DNALootlogBidTimerText:Hide()
 
 local DNADeleteAllLootlogPrompt = CreateFrame("Frame", nil, UIParent)
 DNADeleteAllLootlogPrompt:SetWidth(450)
@@ -159,7 +221,9 @@ DNADeleteSingleLootlogPromptYes:SetScript('OnClick', function()
   DNALootlogItemScrollFrame:Hide()
   DNALootlogDeleteLogBtn:Hide()
   DNALootlogExportLogBtn:Hide()
-  DNALootlogOpenbidBtn:Hide()
+  --DNALootlogOpenbidBtn:Hide()
+  --DNALootlogBidItem:Hide()
+  DNALootlogBidItemFrame:Hide()
 end)
 local DNADeleteSingleLootlogPromptNo = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt, "UIPanelButtonTemplate")
 DNADeleteSingleLootlogPromptNo:SetSize(100, 24)
@@ -420,7 +484,11 @@ function lootLogSlotFrame(i, filteredName, name)
         _GitemRarity=lootlog[name][v][1]
 
         if ((IsMasterLooter()) or (DEBUG)) then
-          DNALootlogOpenbidBtn:Show()
+          DNALootlogBidItemFrame:Show()
+          --DNALootlogOpenbidBtn:Show()
+          --DNALootlogBidItem:Show()
+          DNALootlogBidItem:SetText(_GitemName)
+          DN:ItemQualityColorText(DNALootlogBidItem, _GitemRarity)
         end
       end)
       --DN:Debug(filterItemTimeprint .. "=" .. lootlog[name][v][1])
