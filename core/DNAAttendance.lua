@@ -411,7 +411,7 @@ function attendanceLogSlotFrame(i, filteredName, name)
     local filterLogName = split(name, "}")
     filterLogName[2] = string.gsub(filterLogName[2], " ", "", 1) --first space
     DNAAttendanceDetailsFrame.date:SetText("|cfffffa8bDate:|r " .. filterLogName[1])
-    DNAAttendanceDetailsFrame.instance:SetText("|cfffffa8bInstance:|r " .. filterLogName[2])
+    DNAAttendanceDetailsFrame.instance:SetText("|cfffffa8bRaid:|r " .. filterLogName[2])
     DNAAttendanceDetailsFrame.count:SetText("|cfffffa8bMembers:|r " .. table.getn(sortAttendanceName))
     DNAAttendanceDeleteLogBtn:Show()
     DNAAttendanceExportLogBtn:Show()

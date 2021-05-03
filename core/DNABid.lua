@@ -247,7 +247,7 @@ DNABidTimerProg:SetBackdrop({
   edgeSize = 12,
   insets = {left=2, right=2, top=2, bottom=2},
 })
---DNABidTimerProg:SetBackdropColor(1, 1, 1, 0.6)
+DNABidTimerProg:SetBackdropColor(1, 1, 1, 0.8)
 
 DNABidTimerBorder = CreateFrame("Frame", nil, DNABidWindow)
 DNABidTimerBorder:SetWidth(DNABidWindow_w-2)

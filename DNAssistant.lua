@@ -701,8 +701,8 @@ local function bidTimerFrame()
   else
     DNABidTimerProg:SetWidth(formulaBarPos)
   end
+  DNABidTimerProg:Show()
 
-  --DNABidTimerSpark:SetPoint("TOPLEFT", (tonumber(bidTimerProg)*1.237)-15, 12)
   DNABidTimerSpark:SetPoint("TOPLEFT", formulaBarPos-15, 12)
   DNABidTimerSpark:Hide()
   if ((formulaBarPos > 5) and (formulaBarPos < 249)) then
@@ -710,13 +710,11 @@ local function bidTimerFrame()
   end
   DNABidTimerCount:SetText(countdown)
   DN:Debug(formulaBarPos)
-  --DN:Debug(countdown)
-  --DN:Debug(countend)
-  --DN:Debug(bidTimerProg/20)
-  --DN:Debug(get_ml_bid_timer)
   if (countend == get_ml_bid_timer-1.05) then
     PlaySound(bidSound.expire)
     DN:Debug("sound called")
+  end
+  if (countend >= get_ml_bid_timer-1.05) then
     DNABidTimerSpark:Hide()
   end
 end
@@ -788,20 +786,20 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     local inInstance, instanceType = IsInInstance()
     local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
     if (inInstance) then
-      --if (instanceType == "Raid") then
+      if (IsInRaid()) then
         local instanceName = GetInstanceInfo()
         if (instanceName) then
           local getCode = multiKeyFromValue(netCode, "lootitem")
           if (itemRarity >= _GitemQuality["RARE"]) then
-            if ((IsMasterLooter()) or (DEBUG)) then
+            --if ((IsMasterLooter()) or (DEBUG)) then
               DN:Debug("ML = " .. player.name)
               DN:Debug("lootMethod = " .. lootMethod)
               DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
               DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
-            end
+            --end
           end
         end
-      --end --instancetype
+      end --in raid
     end
   end
 
@@ -954,7 +952,8 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           end
 
           bidTimerProg = 0
-          DNABidTimerProg:SetWidth(0)
+          DNABidTimerCount:SetText("0")
+          DNABidTimerProg:Hide()
           DNABidTimerSpark:Hide()
           DN:ItemQualityColorText(DNABidWindowItem, lootQuality)
           PlaySound(bidSound.start)
@@ -981,7 +980,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             DNA["LOOTLOG"][timestamp.date]={}
           end
           if (inInstance) then
-            --if (instanceType == "Raid") then --do we really need to check this?
+          --if (IsInRaid()) then --do we really need to check this?
               local instanceName = GetInstanceInfo()
               if (instanceName) then
                 if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
@@ -1014,7 +1013,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
                   DN:Debug(loot_data[1] .. " from " .. loot_data[3])
                 end
               end
-            --end --if raid
+            --end --in raid
           end
           return true
         end

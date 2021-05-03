@@ -12,14 +12,14 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name      = "Destructive Nature Assistant"
 DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
 DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
 DNAGlobal.vmajor    = 1
-DNAGlobal.vminor    = 304
+DNAGlobal.vminor    = 305
 DNAGlobal.width     = 980
 DNAGlobal.height    = 600
 DNAGlobal.font      = DNAGlobal.dir .. "Fonts/verdana.ttf"
@@ -52,7 +52,7 @@ total.druids  = 0
 total.warriors_dps= 0 --dps warrs called to OT
 total.druids_dps  = 0 --dps druids called to OT
 total.paladins_dps= 0 --dps paladins called to OT
-total.shaman_dps  = 0 --dps shamans called to OT
+total.shaman_dps  = 0
 --
 total.tanks = 0
 total.healers= 0
