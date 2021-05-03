@@ -388,6 +388,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Sapphiron")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_sapp_kel"
+    text[1] = note_color .. "Frost Resist gear on"
   end
 
   if (isItem(assign, "Kel'Thuzad")) then

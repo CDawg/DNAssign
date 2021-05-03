@@ -709,10 +709,17 @@ local function bidTimerFrame()
     DNABidTimerSpark:Show()
   end
   DNABidTimerCount:SetText(countdown)
-  DN:Debug(formulaBarPos)
+  --DN:Debug(formulaBarPos)
   if (countend == get_ml_bid_timer-1.05) then
     PlaySound(bidSound.expire)
     DN:Debug("sound called")
+    DNABidControlFrame:Hide()
+    if (DNABidWindowBidderName[1]:GetText()) then
+      DNABidControlWinner:SetText(string.upper(DNABidWindowBidderName[1]:GetText()))
+      DN:ClassColorText(DNABidControlWinner, DNARaid["class"][DNABidWindowBidderName[1]:GetText()])
+      DNABidControlWinner:Show()
+    end
+    --DNABidWindowBidderNum[1]
   end
   if (countend >= get_ml_bid_timer-1.05) then
     DNABidTimerSpark:Hide()
@@ -777,6 +784,12 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         --lootLogSlotFrame(numLootLogs.init, filterLogName:sub(7, 80), v)
       end
     end
+
+    local getCode = multiKeyFromValue(netCode, "version")
+    if (getCode) then
+      local sendCode = netCode[getCode][2]
+      DN:SendPacket(sendCode .. DNAGlobal.version, true, "GUILD")
+    end
   end
 
   if (event == "CHAT_MSG_LOOT") then --SEND
@@ -791,12 +804,12 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         if (instanceName) then
           local getCode = multiKeyFromValue(netCode, "lootitem")
           if (itemRarity >= _GitemQuality["RARE"]) then
-            --if ((IsMasterLooter()) or (DEBUG)) then
+            if ((IsMasterLooter()) or (DEBUG)) then
               DN:Debug("ML = " .. player.name)
               DN:Debug("lootMethod = " .. lootMethod)
               DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
               DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
-            --end
+            end
           end
         end
       end --in raid
@@ -828,6 +841,22 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         --pageDKPViewScrollChild_colOne[1]:SetText(DKPPacket)
         return true
       end
+
+      --if (version_alerted == 0) then
+        local getCode = multiKeyFromValue(netCode, "version")
+        if (getCode) then
+          if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+            netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+            local latest_version = tonumber(netpacket)
+            local my_version = tonumber(DNAGlobal.version)
+              if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
+                DN:ChatNotification("|cffff0000 You have an outdated version!\nNew version is " .. latest_version)
+                --version_alerted = tonumber(latest_version)
+              end
+            return true
+          end
+        end
+      --end
 
       DN:PresetClear()
       DN:AlignSlotText()
@@ -891,22 +920,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
-      --if (version_alerted == 0) then
-        local getCode = multiKeyFromValue(netCode, "version")
-        if (getCode) then
-          if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-            netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-            local latest_version = tonumber(netpacket)
-            local my_version = tonumber(DNAGlobal.version)
-              if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
-                DN:ChatNotification("|cffff0000 You have an outdated version!\nCurrent version is " .. latest_version)
-                --version_alerted = tonumber(latest_version)
-              end
-            return true
-          end
-        end
-      --end
-
       --READYCHECK
       local getCode = multiKeyFromValue(netCode, "readyyes")
       if (getCode) then
@@ -950,7 +963,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           else
             DNABidWindowMLTimer:SetText(BID_TIMER) --fail safe, in case idiots decide to push alpha data
           end
-
           bidTimerProg = 0
           DNABidTimerCount:SetText("0")
           DNABidTimerProg:Hide()
@@ -958,6 +970,8 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           DN:ItemQualityColorText(DNABidWindowItem, lootQuality)
           PlaySound(bidSound.start)
           bidTimer:Cancel()
+          DNABidControlWinner:Hide()
+          DNABidControlFrame:Show()
           return true
         end
       end

@@ -12,14 +12,14 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name      = "Destructive Nature Assistant"
 DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
 DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
 DNAGlobal.vmajor    = 1
-DNAGlobal.vminor    = 305
+DNAGlobal.vminor    = 308
 DNAGlobal.width     = 980
 DNAGlobal.height    = 600
 DNAGlobal.font      = DNAGlobal.dir .. "Fonts/verdana.ttf"
@@ -121,6 +121,10 @@ DNABidWindow_w = 250
 DNABidWindow_h = 350
 bitTimerPos_y = DNABidWindow_h-27
 bidSound = {}
+DNABidControlFrame = {}
+DNABidControlWinner = {}
+DNABidWindowBidderName= {}
+DNABidWindowBidderNum = {}
 
 onPage = "Assignment" --firstpage
 
@@ -196,20 +200,23 @@ function DN:BuildGlobalVars()
   end
 end
 
-function DN:SendPacket(packet, filtered)
+function DN:SendPacket(packet, filtered, who)
   filteredPacket = nil
+  local msg_to = "RAID"
+  if (who) then
+    msg_to = who
+  end
   if (filtered) then
     filteredPacket = packet:gsub("%s+", "") --filter spaces
   else
     filteredPacket = packet
   end
-  if (IsInRaid()) then
-    C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "RAID")
+
+  if ((DEBUG) or (onPage == "Raid Builder")) then
+    C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
+    DN:Debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
   else
-    if ((DEBUG) or (onPage == "Raid Builder")) then
-      C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
-      DN:Debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
-    end
+    C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, msg_to)
   end
 end
 

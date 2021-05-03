@@ -75,8 +75,6 @@ DNABidWindowMR:SetPoint("TOPLEFT", DNABidWindow_w, -2)
 DNABidWindowMR:SetSize(24, 116)
 ]==]--
 
-DNABidWindowBidderName= {}
-DNABidWindowBidderNum = {}
 local bidderTextPos_y = 5
 
 function clearBidding()
@@ -98,12 +96,28 @@ for i=1, MAX_BIDS do
   DNABidWindowBidderNum[i]:SetPoint("TOPLEFT", 150, -15*i+bidderTextPos_y)
 end
 
-local DNABidBtnLow = {}
+DNABidControlWinner = DNABidWindow:CreateFontString(nil, "OVERLAY")
+DNABidControlWinner:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNABidControlWinner:SetText("WEINER")
+DNABidControlWinner:SetPoint("CENTER", 0, -40)
+DNABidControlWinner:Hide()
 
-local DNABidNumberBorder = CreateFrame("Frame", nil, DNABidWindow)
+DNABidControlFrame = CreateFrame("Frame", nil, DNABidWindow)
+DNABidControlFrame:SetWidth(238)
+DNABidControlFrame:SetHeight(140)
+DNABidControlFrame:SetPoint("TOPLEFT", 5, -DNABidWindow_h+170)
+DNABidControlFrame:SetBackdrop({
+  --bgFile = "Interface/ToolTips/CHATBUBBLE-BACKGROUND",
+  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+
+local DNABidBtnLow = {}
+local DNABidNumberBorder = CreateFrame("Frame", nil, DNABidControlFrame)
 DNABidNumberBorder:SetWidth(36)
 DNABidNumberBorder:SetHeight(25)
-DNABidNumberBorder:SetPoint("TOPLEFT", 20, -DNABidWindow_h+120)
+DNABidNumberBorder:SetPoint("TOPLEFT", 20, -20)
 DNABidNumberBorder:SetBackdrop({
   bgFile = "Interface/ToolTips/CHATBUBBLE-BACKGROUND",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
@@ -135,10 +149,10 @@ DNABidNumber:SetScript("OnKeyUp", function()
 end)
 DNABidNumber:SetText("0")
 
-DNABidBtnLow = CreateFrame("Button", nil, DNABidWindow)
+DNABidBtnLow = CreateFrame("Button", nil, DNABidControlFrame)
 DNABidBtnLow:SetWidth(110)
 DNABidBtnLow:SetHeight(28)
-DNABidBtnLow:SetPoint("TOPLEFT", 70, -DNABidWindow_h+120)
+DNABidBtnLow:SetPoint("TOPLEFT", 70, -20)
 DNABidBtnLow:SetBackdrop({
   bgFile = "Interface/Buttons/GREENGRAD64",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
@@ -151,6 +165,13 @@ DNABidBtnLow.text = DNABidBtnLow:CreateFontString(nil, "OVERLAY")
 DNABidBtnLow.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNABidBtnLow.text:SetText("Bid")
 DNABidBtnLow.text:SetPoint("CENTER", 0, 0)
+DNABidBtnLow.image = DNABidBtnLow:CreateTexture(nil, "OVERLAY", DNABidBtnLow, 7)
+DNABidBtnLow.image:SetTexture("Interface/Buttons/UI-MicroStream-Green")
+DNABidBtnLow.image:SetWidth(25)
+DNABidBtnLow.image:SetHeight(25)
+DNABidBtnLow.image:SetPoint("TOPLEFT", 70, 0)
+DNABidBtnLow.image:SetRotation(math.rad(180))
+--DNABidBtnLow.image:SetBlendMode("ADD")
 DNABidBtnLow:SetScript("OnEnter", function()
   DNABidBtnLow:SetBackdropBorderColor(1, 1, 1, 1)
 end)
@@ -169,6 +190,18 @@ DNABidBtnLow:SetScript("OnClick", function()
       DN:ChatNotification("|cfff00000Your bid [".. tonumber(bidRoll) .. "] was already placed!")
       return
     end
+    if ((DNABidWindowBidderNum[1]:GetText() == nil) or (DNABidWindowBidderNum[1]:GetText() == "")) then
+      bidPlaced = 0
+    else
+      bidPlaced = tonumber(DNABidWindowBidderNum[1]:GetText())
+    end
+    if (bidRoll < bidPlaced) then
+      local highBid = bidPlaced+1
+      --DNABidNumber:SetText(highBid)
+      bidRoll = highBid
+      --DN:ChatNotification("|cfff00000Your bid must be match or exceed ".. bidPlaced)
+      --return
+    end
     DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. tonumber(bidRoll), true)
     DNABidNumber:SetText("")
     DNABidNumber:ClearFocus(self)
@@ -179,10 +212,10 @@ DNABidBtnLow:SetScript("OnClick", function()
 end)
 
 local DNABidBtnMax = {}
-DNABidBtnMax = CreateFrame("Button", nil, DNABidWindow)
+DNABidBtnMax = CreateFrame("Button", nil, DNABidControlFrame)
 DNABidBtnMax:SetWidth(110)
 DNABidBtnMax:SetHeight(28)
-DNABidBtnMax:SetPoint("TOPLEFT", 70, -DNABidWindow_h+90)
+DNABidBtnMax:SetPoint("TOPLEFT", 70, -50)
 DNABidBtnMax:SetBackdrop({
   bgFile = "Interface/Buttons/REDGRAD64",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
@@ -207,10 +240,10 @@ DNABidBtnMax:SetScript("OnClick", function()
 end)
 
 DNABidBtnMaxBonus = {}
-DNABidBtnMaxBonus = CreateFrame("Button", nil, DNABidWindow)
+DNABidBtnMaxBonus = CreateFrame("Button", nil, DNABidControlFrame)
 DNABidBtnMaxBonus:SetWidth(110)
 DNABidBtnMaxBonus:SetHeight(28)
-DNABidBtnMaxBonus:SetPoint("TOPLEFT", 70, -DNABidWindow_h+60)
+DNABidBtnMaxBonus:SetPoint("TOPLEFT", 70, -80)
 DNABidBtnMaxBonus:SetBackdrop({
   bgFile = "Interface/Buttons/REDGRAD64",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",

@@ -77,7 +77,6 @@ DNABidTimerSet:SetScript("OnEscapePressed", function()
 end)
 DNABidTimerSet:SetScript("OnKeyUp", function()
   current_timer_number = DNABidTimerSet:GetText()
-  --DNABidBtnLow.text:SetText("Bid [" .. DNABidNumber:GetText() .. "]")
   if (tonumber(current_timer_number)) then
     DNABidTimerSet:SetText(current_timer_number)
   else
@@ -420,7 +419,6 @@ end
 
 function setLootlogSlotSingleFrame(i, _item, quality)
   if (lootlogSingleSlot[i]) then
-    --lootlogSingleSlotText[i]:SetText(_item)
     lootlogSingleSlotText[i]:SetText(_item:sub(1, 26))
     lootlogSingleSlot[i]:Show()
     if (quality) then
@@ -445,8 +443,13 @@ function lootLogSlotFrame(i, filteredName, name)
   lootLogSlot[i].text = lootLogSlot[i]:CreateFontString(nil, "ARTWORK")
   lootLogSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
   lootLogSlot[i].text:SetPoint("TOPLEFT", 5, -4)
-  local name_trunc = strsub(filteredName, 1, 28)
+  --local name_trunc = strsub(filteredName, 1, 25)
+  local name_trunc = filteredName:sub(1, 25)
   lootLogSlot[i].text:SetText(name_trunc)
+  lootLogSlot[i].refresh = lootLogSlot[i]:CreateTexture(nil, "ARTWORK")
+  lootLogSlot[i].refresh:SetTexture("Interface/Buttons/UI-RefreshButton")
+  lootLogSlot[i].refresh:SetPoint("TOPLEFT", 175, -3)
+  lootLogSlot[i].refresh:SetSize(14, 14)
   lootLogSlot[i]:SetScript('OnEnter', function()
     lootLogSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
   end)
@@ -509,3 +512,49 @@ function lootLogSlotFrame(i, filteredName, name)
     DN:Debug(lootlogLogID)
   end)
 end
+
+local _numLootLogs = 0
+function refreshLootLogs()
+  DN:GetLootLogs()
+  local _lootlog = lootlog
+  --[==[
+  for k,v in pairs(_lootlog) do
+    local filterLogName = string.gsub(k, "}", "")
+    DN:Debug(filterLogName)
+  end
+  ]==]--
+  local _sortLoot = {}
+  for k,v in pairs(_lootlog) do
+    table.insert(_sortLoot, k)
+  end
+  table.sort(_sortLoot, function(a,b) return a>b end)
+  for k,v in ipairs(_sortLoot) do
+    --_numLootLogs = _numLootLogs + 1
+    --create the number of log frames from the log count
+    local filterLogName = string.gsub(v, "}", "")
+    DN:Debug(filterLogName)
+  end
+end
+
+DNALootlogRefreshBtn = CreateFrame("Button", nil, page["Loot Log"])
+DNALootlogRefreshBtn:SetWidth(22)
+DNALootlogRefreshBtn:SetHeight(22)
+DNALootlogRefreshBtn:SetPoint("TOPLEFT", 190, -30)
+DNALootlogRefreshBtn:SetBackdrop({
+  bgFile = "Interface/Buttons/GREENGRAD64",
+  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNALootlogRefreshBtn:SetBackdropColor(0.8, 0.8, 0.8, 1)
+DNALootlogRefreshBtn:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+--[==[
+DNALootlogRefreshBtn:SetScript("OnEnter", function()
+end)
+DNALootlogRefreshBtn:SetScript("OnLeave", function()
+end)
+]==]--
+DNALootlogRefreshBtn:SetScript("OnClick", function()
+  refreshLootLogs()
+end)
+DNALootlogRefreshBtn:Hide()
