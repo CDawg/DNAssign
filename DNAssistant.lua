@@ -800,18 +800,17 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
     if (inInstance) then
       if (IsInRaid()) then
-        local instanceName = GetInstanceInfo()
-        if (instanceName) then
+        --local instanceName = GetInstanceInfo()
+        --if (instanceName) then
           local getCode = multiKeyFromValue(netCode, "lootitem")
           if (itemRarity >= _GitemQuality["RARE"]) then
             if ((IsMasterLooter()) or (DEBUG)) then
-              DN:Debug("ML = " .. player.name)
-              DN:Debug("lootMethod = " .. lootMethod)
               DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
-              DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
+              --DN:Debug("ML = " .. player.name)
+              --DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
             end
           end
-        end
+        --end
       end --in raid
     end
   end
@@ -885,6 +884,57 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             DNAFrameClassAssignEdit[v]:SetText(netpacket)
             hasClassAssigns = true
           end
+        end
+      end
+
+      --LOOT LOG (receive)
+      local getCode = multiKeyFromValue(netCode, "lootitem")
+      if (getCode) then
+        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
+          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
+          local loot_data = split(netpacket, ",")
+          local lootQuality = tonumber(loot_data[2])
+          local inInstance, instanceType = IsInInstance()
+          DN:Debug("loot_data[1] " .. loot_data[1]) --item
+          DN:Debug("loot_data[2] " .. loot_data[2]) --quality
+          DN:Debug("loot_data[3] " .. loot_data[3]) --who [ML]
+          if (DNA["LOOTLOG"] == nil) then
+            DNA["LOOTLOG"]={}
+          end
+          if (DNA["LOOTLOG"][timestamp.date] == nil) then
+            DNA["LOOTLOG"][timestamp.date]={}
+          end
+          if (inInstance) then
+          --if (IsInRaid()) then --do we really need to check this?
+              local instanceName = GetInstanceInfo()
+              if (instanceName) then
+                if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
+                  DNA["LOOTLOG"][timestamp.date][instanceName] = {}
+
+                  --create a live ONE TIME buffer
+                  DN:GetLootLogs()
+                  local sortLoot = {}
+                  for k,v in pairs(lootlog) do
+                    table.insert(sortLoot, k)
+                  end
+                  table.sort(sortLoot, function(a,b) return a>b end)
+                  for k,v in ipairs(sortLoot) do
+                    if (numLootLogs.init > 0) then
+                      numLootLogs.cache = numLootLogs.init + 1
+                    else
+                      numLootLogs.cache = numLootLogs.cache + 1
+                    end
+                  end
+                  lootLogSlotFrame(numLootLogs.cache, timestamp.date .. " " .. instanceName, timestamp.date .. "} " .. instanceName)
+                end
+                if (DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] == nil) then
+                  DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] = {lootQuality}
+                  DN:Debug(loot_data[1] .. " from " .. loot_data[3])
+                end
+              end
+            --end --in raid
+          end
+          return true
         end
       end
 
@@ -972,63 +1022,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           bidTimer:Cancel()
           DNABidControlWinner:Hide()
           DNABidControlFrame:Show()
-          return true
-        end
-      end
-
-      --LOOT LOG (receive)
-      local getCode = multiKeyFromValue(netCode, "lootitem")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          local loot_data = split(netpacket, ",")
-          local lootQuality = tonumber(loot_data[2])
-          local inInstance, instanceType = IsInInstance()
-          DN:Debug("loot_data[1] " .. loot_data[1]) --item
-          DN:Debug("loot_data[2] " .. loot_data[2]) --quality
-          DN:Debug("loot_data[3] " .. loot_data[3]) --who [ML]
-          if (DNA["LOOTLOG"] == nil) then
-            DNA["LOOTLOG"]={}
-          end
-          if (DNA["LOOTLOG"][timestamp.date] == nil) then
-            DNA["LOOTLOG"][timestamp.date]={}
-          end
-          if (inInstance) then
-          --if (IsInRaid()) then --do we really need to check this?
-              local instanceName = GetInstanceInfo()
-              if (instanceName) then
-                if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
-                    DNA["LOOTLOG"][timestamp.date][instanceName] = {}
-
-                  --create a live buffer of loot logs
-                  DN:GetLootLogs()
-                  if (DNA["LOOTLOG"]) then
-                    local sortLoot = {}
-                    for k,v in pairs(lootlog) do
-                      table.insert(sortLoot, k)
-                    end
-                    table.sort(sortLoot, function(a,b) return a>b end)
-                    for k,v in ipairs(sortLoot) do
-                      if (numLootLogs.init > 0) then
-                        numLootLogs.cache = numLootLogs.init + 1
-                      else
-                        numLootLogs.cache = numLootLogs.cache + 1
-                      end
-                      --local filterLogNameCache = string.gsub(v, "}", "")
-                      --local lastEntryName = v
-                    end
-                    lootLogSlotFrame(numLootLogs.cache, timestamp.date .. " " .. instanceName, timestamp.date .. "} " .. instanceName)
-                    DN:Debug("numlootlogs init" .. numLootLogs.init)
-                    DN:Debug("numlootlogs cache" .. numLootLogs.cache)
-                  end
-                end
-                if (DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] == nil) then
-                  DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] = {lootQuality}
-                  DN:Debug(loot_data[1] .. " from " .. loot_data[3])
-                end
-              end
-            --end --in raid
-          end
           return true
         end
       end
