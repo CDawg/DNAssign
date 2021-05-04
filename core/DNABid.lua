@@ -14,7 +14,7 @@ the copyright holders.
 
 -- bid window --
 local frameZindex=500
-
+local MAX_BID_ALLOWED = 999
 bidSound.start = 12889
 bidSound.placed= DNAGlobal.dir .. "sounds/MagicClick.ogg"
 --bidSound.expire= 5274
@@ -201,6 +201,10 @@ DNABidBtnLow:SetScript("OnClick", function()
       bidRoll = highBid
       --DN:ChatNotification("|cfff00000Your bid must be match or exceed ".. bidPlaced)
       --return
+    end
+    if (bidRoll > MAX_BID_ALLOWED) then
+      DN:ChatNotification("|cfff00000Bid exceeds the limit!")
+      return
     end
     DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. tonumber(bidRoll), true)
     DNABidNumber:SetText("")
