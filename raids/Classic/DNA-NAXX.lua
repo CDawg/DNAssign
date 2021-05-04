@@ -321,6 +321,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Gothik the Harvester")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_military"
+    local shackle_count = 0
     local SHACKLE_WAVES = {
       "WAVE 8",
       "WAVE 11",
@@ -337,6 +338,8 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
     }
     local priest_queue = {} --pull from healer queue first
     local priest_count = 0
+    local MAX_SHACKLES = table.getn(SHACKLE_WAVES)
+
     for i=1, DNASlots.heal do
       if (DNARaid["class"][healer.all[i]] == "Priest") then
         priest_count = priest_count +1
@@ -344,10 +347,14 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
       end
     end
     for k,v in pairs(priest_queue) do
-      mark[k] = SHACKLE_SYMBOLS[k]
-      text[k] = textcolor.note .. SHACKLE_WAVES[k]
-      heal[k] = v
+      shackle_count = shackle_count + 1
+      if (shackle_count <= MAX_SHACKLES) then
+        mark[k] = SHACKLE_SYMBOLS[k]
+        text[k] = textcolor.note .. SHACKLE_WAVES[k]
+        heal[k] = v
+      end
     end
+    DN:Debug(shackle_count)
   end
 
   if (isItem(assign, "The Four Horsemen")) then
