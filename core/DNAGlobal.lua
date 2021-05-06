@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
 DNAGlobal = {}
 DNAGlobal.name      = "Destructive Nature Assistant"
@@ -95,7 +95,7 @@ DNASlots.cc   = 6
 MAX_RAID_SLOTS = 600
 MAX_FRAME_LINES = 25 --also setup the same for the assign window
 MAX_DKP_LINES = 120
-MAX_RAID_ITEMS = 80
+MAX_RAID_ITEMS = 160 --you never know, just make this high
 MAX_BIDS = 100
 BID_TIMER = 10
 
@@ -1110,6 +1110,10 @@ function DN:Close()
   PlaySound(88)
 end
 
+
+attendanceLogSlot = {}
+lootLogSlot = {}
+
 function DN:Open()
   if (windowOpen) then
     DN:Close()
@@ -1145,5 +1149,29 @@ function DN:Open()
     if (numLootLogs.init > 0) then
       DNALootlogDeleteAllBtn:Show()
     end
+
+    local _totalAttendanceLogs = 0
+    if (DNA["ATTENDANCE"]) then
+      for k,v in pairs(DNA["ATTENDANCE"]) do
+        _totalAttendanceLogs = _totalAttendanceLogs +1
+      end
+    end
+    if (_totalAttendanceLogs >= 1) then
+      DN:Debug(_totalAttendanceLogs)
+      --attendanceLogSlot[_totalAttendanceLogs]:Click()
+      attendanceLogSlot[1]:Click()
+    end
+
+    local _totalLootLogs = 0
+    if (DNA["LOOTLOG"]) then
+      for k,v in pairs(DNA["LOOTLOG"]) do
+        _totalLootLogs = _totalLootLogs +1
+      end
+    end
+    if (_totalLootLogs >= 1) then
+      --lootLogSlot[_totalLootLogs]:Click()
+      lootLogSlot[1]:Click()
+    end
+
   end
 end

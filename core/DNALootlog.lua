@@ -38,8 +38,6 @@ DNALootlogScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
 DNALootlogScrollFrame.MR:SetPoint("TOPLEFT", DNALootlogScrollFrame_w-5, 0)
 DNALootlogScrollFrame.MR:SetSize(24, DNALootlogScrollFrame_h)
 
-local lootLogSlot = {}
-
 local DNALootlogBidItemFrame = CreateFrame("Frame", nil, page["Loot Log"], "InsetFrameTemplate")
 DNALootlogBidItemFrame:SetSize(300, 110)
 DNALootlogBidItemFrame:SetPoint("TOPLEFT", 480, -140)

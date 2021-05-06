@@ -38,8 +38,6 @@ DNAAttendanceScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right
 DNAAttendanceScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceScrollFrame_w-5, 0)
 DNAAttendanceScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
 
-local attendanceLogSlot = {}
-
 local DNADeleteAllAttendancePrompt = CreateFrame("Frame", nil, UIParent)
 DNADeleteAllAttendancePrompt:SetWidth(450)
 DNADeleteAllAttendancePrompt:SetHeight(100)
