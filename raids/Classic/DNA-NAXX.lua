@@ -111,6 +111,11 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Gluth")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
+    for i=1, NUM_ADDS do
+      mark[i] = DNARaidMarkers[i+1][2]
+      text[i] = tank.all[i]
+      heal[i] = healer.all[i]
+    end
   end
 
   if (isItem(assign, "Thaddius")) then
@@ -395,7 +400,7 @@ function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc
 
   if (isItem(assign, "Sapphiron")) then
     DNABossMap = DNAGlobal.dir .. "images/naxx_sapp_kel"
-    text[1] = note_color .. "Frost Resist gear on"
+    text[1] = textcolor.note .. "Frost Resist gear on"
   end
 
   if (isItem(assign, "Kel'Thuzad")) then

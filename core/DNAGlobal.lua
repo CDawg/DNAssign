@@ -12,10 +12,11 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {}
 DNAGlobal.name      = "Destructive Nature Assistant"
+DNAGlobal.sub       = "DNA"
 DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
 DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
 DNAGlobal.vmajor    = 1
@@ -92,13 +93,6 @@ DNASlots.tank = 6
 DNASlots.heal = 12
 DNASlots.cc   = 6
 
-MAX_RAID_SLOTS = 600
-MAX_FRAME_LINES = 25 --also setup the same for the assign window
-MAX_DKP_LINES = 120
-MAX_RAID_ITEMS = 160 --you never know, just make this high
-MAX_BIDS = 100
-BID_TIMER = 10
-
 _GitemQuality = {
   POOR    = 0,
   COMMON  = 1,
@@ -109,6 +103,15 @@ _GitemQuality = {
   ARTIFACT= 6,
   HEIRLOOM= 7,
 }
+
+MAX_RAID_SLOTS  = 600
+MAX_FRAME_LINES = 25 --also setup the same for the assign window
+MAX_DKP_LINES   = 120
+MAX_RAID_ITEMS  = 160 --you never know, just make this high
+MAX_CORPSE_ITEMS= 30 --max items on a corpse at one time
+MAX_BIDS  = 100
+BID_TIMER = 10
+MIN_LOOT_QUALITY= _GitemQuality["EPIC"] --the loot to record or bid against
 
 DNAInstance = {}
 DNARaidBosses = {}
@@ -121,6 +124,9 @@ DNABidWindow_w = 250
 DNABidWindow_h = 350
 bitTimerPos_y = DNABidWindow_h-27
 bidSound = {}
+DNAlootWindowItem = {}
+DNAlootWindowItemBidBtn = {}
+DNAlootWindowItemQuality= {}
 DNABidControlFrame = {}
 DNABidControlWinner = {}
 DNABidWindowBidderName= {}
@@ -212,12 +218,14 @@ function DN:SendPacket(packet, filtered, who)
     filteredPacket = packet
   end
 
+  --[==[
   if ((DEBUG) or (onPage == "Raid Builder")) then
     C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
     DN:Debug("C_ChatInfo.SendAddonMessage(.. WHISPER)")
   else
+  ]==]--
     C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, msg_to)
-  end
+  --end
 end
 
 swapQueue={}
@@ -1102,6 +1110,14 @@ function DN:ParseSlotPacket(packet, netpacket)
   DN:Debug("DN:ParseSlotPacket()")
 end
 
+function DN:ClearLootWindow()
+  for i=1, MAX_CORPSE_ITEMS do
+    DNAlootWindowItem[i]:SetText("")
+    DNAlootWindowItem[i]:Hide()
+    DNAlootWindowItemBidBtn[i]:Hide()
+  end
+end
+
 windowOpen = false
 function DN:Close()
   DN:ResetQueueTransposing() --sanity check on queues
@@ -1109,7 +1125,6 @@ function DN:Close()
   windowOpen = false
   PlaySound(88)
 end
-
 
 attendanceLogSlot = {}
 lootLogSlot = {}

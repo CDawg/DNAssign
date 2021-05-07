@@ -15,7 +15,6 @@ the copyright holders.
 timestamp = {}
 timestamp.date = date("%Y-%m-%d")
 timestamp.time = date("%Y-%m-%d %H:%M:%S")
-timestamp.epoch= date("%Y%m%d%H%M%S")
 
 player = {}
 player.name = UnitName("player")

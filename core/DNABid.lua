@@ -46,7 +46,7 @@ DNABidWindowBG:SetSize(DNABidWindow_w-4, bidderScrollWindow_h)
 DNABidWindowBG:SetPoint("TOPLEFT", 1, -60)
 DNABidWindow.title = DNABidWindow:CreateFontString(nil, "ARTWORK")
 DNABidWindow.title:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-DNABidWindow.title:SetText("DNA |cffdededev" .. DNAGlobal.version)
+DNABidWindow.title:SetText(DNAGlobal.sub .. " |cffdededev" .. DNAGlobal.version)
 DNABidWindow.title:SetTextColor(1, 1, 0.8)
 DNABidWindow.title:SetPoint("TOPLEFT", 10, -5)
 

@@ -38,7 +38,7 @@ DNAFrameAssignTitle:SetBackdrop({
 local DNAFrameAssignTitleText = DNAFrameAssignTitle:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignTitleText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNAFrameAssignTitleText:SetPoint("TOPLEFT", DNAFrameAssignTitle, "TOPLEFT", 15, -12)
-DNAFrameAssignTitleText:SetText("Assignments            [DNA v" .. DNAGlobal.version .. "]")
+DNAFrameAssignTitleText:SetText("Assignments            [" .. DNAGlobal.sub .. " v" .. DNAGlobal.version .. "]")
 DNAFrameAssignTitleText:SetTextColor(1.0, 1.0, 0.5)
 
 local DNAFrameAssignPage={}
@@ -743,12 +743,16 @@ DNAMain:RegisterEvent("PLAYER_REGEN_ENABLED")
 DNAMain:RegisterEvent("PLAYER_REGEN_DISABLED")
 DNAMain:RegisterEvent("CHAT_MSG_LOOT")
 DNAMain:RegisterEvent("TRADE_ACCEPT_UPDATE")
+DNAMain:RegisterEvent("LOOT_OPENED")
+DNAMain:RegisterEvent("LOOT_CLOSED")
 
 DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
   if ((event == "ADDON_LOADED") and (prefix == "DNA")) then
     DN:BuildGlobalVars()
     DN:Debug(event)
   end
+
+  --DN:Debug(prefix)
 
   if (event == "PLAYER_LOGIN") then
     DN:BuildGlobalVars()
@@ -792,27 +796,43 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
   end
 
-  if (event == "CHAT_MSG_LOOT") then --SEND
-    local itemLink = string.match(prefix,"|%x+|Hitem:.-|h.-|h|r")
-    local itemString = string.match(itemLink, "item[%-?%d:]+")
-    local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
-    local inInstance, instanceType = IsInInstance()
-    local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
-    if (inInstance) then
-      if (IsInRaid()) then
-        --local instanceName = GetInstanceInfo()
-        --if (instanceName) then
-          local getCode = multiKeyFromValue(netCode, "lootitem")
-          if (itemRarity >= _GitemQuality["RARE"]) then
-            if ((IsMasterLooter()) or (DEBUG)) then
-              DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
-              --DN:Debug("ML = " .. player.name)
-              --DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
+  if (event == "LOOT_OPENED") then
+    DN:Debug("loot opened")
+    DN:Debug(date("%Y%m%d%H%M%S")) --old comparison
+    if (IsInRaid()) then
+      if (IsMasterLooter()) then
+        local dnalootslot = 0
+        DN:ClearLootWindow()
+        for i = GetNumLootItems(), 1, -1 do
+    		  local slotType = GetLootSlotType(i)
+          --local lootIcon, lootName, lootQuantity, lootQuality, locked, isQuestItem, questId, isActive = GetLootSlotInfo(i)
+          if (slotType == LOOT_SLOT_ITEM) then --dont show or calc currency
+            local itemLink = GetLootSlotLink(i)
+            local itemString = string.match(itemLink, "item[%-?%d:]+")
+            local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
+            DN:Debug(itemName)
+            DN:Debug(itemRarity)
+            if (itemRarity >= MIN_LOOT_QUALITY) then
+              dnalootslot = dnalootslot+1 --qualified items
+              --end
+              DNAlootWindowItem[dnalootslot]:SetText(itemName)
+              DNAlootWindowItem[dnalootslot]:Show()
+              DNAlootWindowItemBidBtn[dnalootslot]:Show()
+              DNAlootWindowItemQuality[dnalootslot]:SetText(itemRarity)
+              DN:ItemQualityColorText(DNAlootWindowItem[dnalootslot], itemRarity)
             end
           end
-        --end
-      end --in raid
+        end
+        if (dnalootslot >= 1) then
+          --local point, relativeTo, relativePoint, xOfs, yOfs = LootFrame:GetPoint()
+          DNALootWindow:Show()
+        end
+      end
     end
+  end
+  if (event == "LOOT_CLOSED") then
+    DN:Debug("loot closed")
+    DNALootWindow:Hide()
   end
 
   if (event == "GROUP_ROSTER_UPDATE") then
@@ -905,34 +925,32 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             DNA["LOOTLOG"][timestamp.date]={}
           end
           if (inInstance) then
-          --if (IsInRaid()) then --do we really need to check this?
-              local instanceName = GetInstanceInfo()
-              if (instanceName) then
-                if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
-                  DNA["LOOTLOG"][timestamp.date][instanceName] = {}
+            local instanceName = GetInstanceInfo()
+            if (instanceName) then
+              if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
+                DNA["LOOTLOG"][timestamp.date][instanceName] = {}
 
-                  --create a live ONE TIME buffer
-                  DN:GetLootLogs()
-                  local sortLoot = {}
-                  for k,v in pairs(lootlog) do
-                    table.insert(sortLoot, k)
-                  end
-                  table.sort(sortLoot, function(a,b) return a>b end)
-                  for k,v in ipairs(sortLoot) do
-                    if (numLootLogs.init > 0) then
-                      numLootLogs.cache = numLootLogs.init + 1
-                    else
-                      numLootLogs.cache = numLootLogs.cache + 1
-                    end
-                  end
-                  lootLogSlotFrame(numLootLogs.cache, timestamp.date .. " " .. instanceName, timestamp.date .. "} " .. instanceName)
+                --create a live ONE TIME buffer
+                DN:GetLootLogs()
+                local sortLoot = {}
+                for k,v in pairs(lootlog) do
+                  table.insert(sortLoot, k)
                 end
-                if (DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] == nil) then
-                  DNA["LOOTLOG"][timestamp.date][instanceName][timestamp.epoch .. "" .. loot_data[1]] = {lootQuality}
-                  DN:Debug(loot_data[1] .. " from " .. loot_data[3])
+                table.sort(sortLoot, function(a,b) return a>b end)
+                for k,v in ipairs(sortLoot) do
+                  if (numLootLogs.init > 0) then
+                    numLootLogs.cache = numLootLogs.init + 1
+                  else
+                    numLootLogs.cache = numLootLogs.cache + 1
+                  end
                 end
+                lootLogSlotFrame(numLootLogs.cache, timestamp.date .. " " .. instanceName, timestamp.date .. "} " .. instanceName)
               end
-            --end --in raid
+              if (DNA["LOOTLOG"][timestamp.date][instanceName][date("%Y%m%d%H%M%S") .. "" .. loot_data[1]] == nil) then
+                DNA["LOOTLOG"][timestamp.date][instanceName][date("%Y%m%d%H%M%S") .. "" .. loot_data[1]] = {lootQuality}
+                DN:Debug(loot_data[1] .. " from " .. loot_data[3])
+              end
+            end
           end
           return true
         end
@@ -991,6 +1009,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         end
       end
 
+      --open bid window (receive)
       local getCode = multiKeyFromValue(netCode, "openbid")
       if (getCode) then
         if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
@@ -1059,6 +1078,55 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
   end
 end)
+
+function DN_Hook_GiveMasterLoot(slot, index)
+	-- Check required input
+	if (not slot) then
+    DN:Debug("no slot")
+    return
+  end
+	if (not index) then
+    DN:Debug("no slot")
+    return
+  end
+	DN:Debug("DN_Hook_GiveMasterLoot called - Slot=" .. slot .. " - Index=" .. index)
+	local itemLink = GetLootSlotLink(slot)
+	if (not itemLink) then
+		DN:Debug("No item found for given index.")
+		return
+	else
+		DN:Debug("Itemlink: " .. itemLink)
+	end
+	-- GetMasterLootCandidate() - This doesn't seem return anything?!?
+	-- Available documentation outdated - blizz UI calls: GetMasterLootCandidate(LootFrame.selectedSlot, i)
+	local candidate = GetMasterLootCandidate(slot, index)
+	if (not candidate) then
+		DN:Debug("No candidate returned...")
+		return
+	else
+		DN:Debug("Candidate: "..candidate)
+	end
+
+  -- At this point, we should have valid loot information
+  --local itemLink = string.match(prefix,"|%x+|Hitem:.-|h.-|h|r")
+  local itemString = string.match(itemLink, "item[%-?%d:]+")
+  local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
+  local inInstance, instanceType = IsInInstance()
+  local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
+  if (inInstance) then
+    if (IsInRaid()) then
+      local getCode = multiKeyFromValue(netCode, "lootitem")
+      if (itemRarity >= MIN_LOOT_QUALITY) then
+        if (IsMasterLooter()) then
+          DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
+          DN:Debug("ML = " .. player.name)
+          DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
+        end
+      end
+    end --in raid
+  end
+end
+hooksecurefunc("GiveMasterLoot", DN_Hook_GiveMasterLoot)
 
 --build the cached array
 DN:GetRaidComp()
@@ -1207,6 +1275,14 @@ function DN:GetProfileVars()
     DN:Debug("DNABidWindowPos: " .. DNABidWindowPos[1] .. "," .. tonumber(DNABidWindowPos[2]) .. "," .. tonumber(DNABidWindowPos[3]))
     DNABidWindow:ClearAllPoints()
     DNABidWindow:SetPoint(DNABidWindowPos[1], tonumber(DNABidWindowPos[2]), tonumber(DNABidWindowPos[3]))
+  end
+
+  if (DNA[player.combine]["CONFIG"]["LWPOS"]) then
+    local DNALootWindowPos = {}
+    DNALootWindowPos = split(DNA[player.combine]["CONFIG"]["LWPOS"], ",")
+    DN:Debug("DNALootWindowPos: " .. DNALootWindowPos[1] .. "," .. tonumber(DNALootWindowPos[2]) .. "," .. tonumber(DNALootWindowPos[3]))
+    DNALootWindow:ClearAllPoints()
+    DNALootWindow:SetPoint(DNALootWindowPos[1], tonumber(DNALootWindowPos[2]), tonumber(DNALootWindowPos[3]))
   end
 
   if (DNA[player.combine]["CONFIG"]["RAIDCHAT"] == "ON") then
@@ -2981,7 +3057,22 @@ function DNASlashCommands(msg)
     end
   elseif (msg == "bid") then
     DNABidWindow:Show()
-    myBid = 1
+  --[==[
+    elseif (string.sub(msg, 1, 1) == "b") then --bid
+    local bidmacro = msg:sub(5, 80) -- remove the first space and double quote
+    local getCode = multiKeyFromValue(netCode, "openbid")
+    local get_bid_timer_cache = 10
+    if (IsMasterLooter()) then
+      if ((_GitemName) and (_GitemRarity)) then
+        DN:Debug(_GitemName)
+        DN:Debug(_GitemRarity)
+        if ((get_bid_timer_cache == nil) or (get_bid_timer_cache == "")) then
+          get_bid_timer_cache = 1
+        end
+        DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name .. "," .. tonumber(get_bid_timer_cache), false)
+      end
+    end
+    ]==]--
   else
     DN:Open()
   end

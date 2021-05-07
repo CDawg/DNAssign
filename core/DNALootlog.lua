@@ -100,7 +100,7 @@ DNALootlogOpenbidBtn.text:SetText("Open Bid")
 DNALootlogOpenbidBtn:SetScript("OnClick", function()
   local getCode = multiKeyFromValue(netCode, "openbid")
   local get_bid_timer_cache = DNABidTimerSet:GetText()
-  if ((IsMasterLooter()) or (DEBUG)) then
+  if (IsMasterLooter()) then
     if ((_GitemName) and (_GitemRarity)) then
       DN:Debug(_GitemName)
       DN:Debug(_GitemRarity)
@@ -556,3 +556,112 @@ DNALootlogRefreshBtn:SetScript("OnClick", function()
   refreshLootLogs()
 end)
 DNALootlogRefreshBtn:Hide()
+
+local DNALootWindow_w = 300
+local DNALootWindow_h = 250
+local DNALootWindow_z = 500
+DNALootWindow = CreateFrame("Frame", "DNALootWindow", UIParent)
+DNALootWindow:SetWidth(DNALootWindow_w)
+DNALootWindow:SetHeight(DNALootWindow_h)
+DNALootWindow:SetPoint("CENTER", 200, 50)
+DNALootWindow:SetFrameLevel(DNALootWindow_z)
+DNALootWindow:SetBackdrop({
+  edgeFile = DNAGlobal.border,
+  edgeSize = 24,
+  tile = true,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNALootWindow:Hide()
+DNALootWindow.title = CreateFrame("Frame", nil, DNALootWindow)
+DNALootWindow.title:SetWidth(DNALootWindow_w)
+DNALootWindow.title:SetHeight(34)
+DNALootWindow.title:SetPoint("TOPLEFT", 0, 5)
+DNALootWindow.title:SetFrameLevel(DNALootWindow_z+1)
+DNALootWindow.title:SetBackdrop({
+  bgFile = DNAGlobal.backdrop,
+  edgeFile = DNAGlobal.border,
+  edgeSize = 24,
+  tile = true,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DNALootWindow.text = DNALootWindow.title:CreateFontString(nil, "ARTWORK")
+DNALootWindow.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNALootWindow.text:SetPoint("TOPLEFT", 10, -10)
+DNALootWindow.text:SetText("|cffe2dbbf" .. DNAGlobal.sub .. " Loot Options |cffdededev" .. DNAGlobal.version)
+
+local DNALootWindowScrollFrame = {}
+DNALootWindowScrollFrame = CreateFrame("Frame", DNALootWindowScrollFrame, DNALootWindow, "InsetFrameTemplate")
+DNALootWindowScrollFrame:SetWidth(DNALootWindow_w-10)
+DNALootWindowScrollFrame:SetHeight(DNALootWindow_h-32)
+DNALootWindowScrollFrame:SetPoint("TOPLEFT", 5, -25)
+--DNALootWindowScrollFrame:SetFrameLevel(5)
+DNALootWindowScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNALootWindowScrollFrame, "UIPanelScrollFrameTemplate")
+DNALootWindowScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNALootWindowScrollFrame, "TOPLEFT", 3, -3)
+DNALootWindowScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNALootWindowScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNALootWindowScrollChildFrame = CreateFrame("Frame", DNALootWindowScrollChildFrame, DNALootWindowScrollFrame.ScrollFrame)
+DNALootWindowScrollChildFrame:SetSize(DNALootWindow_w-10, DNALootWindow_h-32)
+DNALootWindowScrollFrame.ScrollFrame:SetScrollChild(DNALootWindowScrollChildFrame)
+DNALootWindowScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNALootWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNALootWindowScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNALootWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNALootWindowScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNALootWindowScrollFrame.MR = DNALootWindowScrollFrame:CreateTexture(nil, "BACKGROUND", DNALootlogScrollFrame, -2)
+DNALootWindowScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNALootWindowScrollFrame.MR:SetPoint("TOPLEFT",  DNALootWindow_w-34, 0)
+DNALootWindowScrollFrame.MR:SetSize(24,  DNALootWindow_h-32)
+DNALootWindow:SetMovable(true)
+DNALootWindow:EnableMouse(true)
+DNALootWindow:RegisterForDrag("LeftButton")
+DNALootWindow:SetScript("OnDragStart", function()
+  DNALootWindow:StartMoving()
+end)
+DNALootWindow:SetScript("OnDragStop", function()
+  DNALootWindow:StopMovingOrSizing()
+  local point, relativeTo, relativePoint, xOfs, yOfs = DNALootWindow:GetPoint()
+  DN:Debug("LW Pos: " .. point .. "," .. xOfs .. "," .. yOfs)
+  DNA[player.combine]["CONFIG"]["LWPOS"] = point .. "," .. xOfs .. "," .. yOfs
+end)
+
+for i=1, MAX_CORPSE_ITEMS do
+  DNAlootWindowItem[i] = {}
+  DNAlootWindowItem[i] = DNALootWindowScrollChildFrame:CreateFontString(nil, "ARTWORK")
+  DNAlootWindowItem[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DNAlootWindowItem[i]:SetPoint("TOPLEFT", 5, -i*40+25)
+  DNAlootWindowItem[i]:SetText("item " .. i)
+  DNAlootWindowItem[i]:Hide()
+  DNAlootWindowItemQuality[i] = {}
+  DNAlootWindowItemQuality[i] = DNALootWindowScrollChildFrame:CreateFontString(nil, "ARTWORK")
+  DNAlootWindowItemQuality[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DNAlootWindowItemQuality[i]:SetPoint("TOPLEFT", 150, -i*40+25)
+  DNAlootWindowItemQuality[i]:SetText("")
+  DNAlootWindowItemQuality[i]:Hide()
+
+  DNAlootWindowItemBidBtn[i] = {}
+  DNAlootWindowItemBidBtn[i] = CreateFrame("button", nil, DNALootWindowScrollChildFrame)
+  DNAlootWindowItemBidBtn[i]:SetWidth(75)
+  DNAlootWindowItemBidBtn[i]:SetHeight(25)
+  DNAlootWindowItemBidBtn[i]:SetPoint("TOPLEFT", 190, -i*40+30)
+  DNAlootWindowItemBidBtn[i]:SetBackdrop({
+    bgFile = "Interface/Buttons/GREENGRAD64",
+    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
+    edgeSize = 15,
+    insets = {left=4, right=4, top=4, bottom=4},
+  })
+  DNAlootWindowItemBidBtn[i]:Hide()
+  DNAlootWindowItemBidBtn[i].text = DNAlootWindowItemBidBtn[i]:CreateFontString(nil, "ARTWORK")
+  DNAlootWindowItemBidBtn[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DNAlootWindowItemBidBtn[i].text:SetPoint("CENTER", 0, 0)
+  DNAlootWindowItemBidBtn[i].text:SetText("Open Bid")
+  DNAlootWindowItemBidBtn[i]:SetScript("OnClick", function()
+    local getCode = multiKeyFromValue(netCode, "openbid")
+    local _GitemName = DNAlootWindowItem[i]:GetText()
+    local _GitemRarity = DNAlootWindowItemQuality[i]:GetText()
+    --if (IsMasterLooter()) then
+      if ((_GitemName) and (_GitemRarity)) then
+        DN:Debug(_GitemName)
+        DN:Debug(_GitemRarity)
+        DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name .. "," .. 10, false)
+      end
+    --end
+  end)
+
+end
