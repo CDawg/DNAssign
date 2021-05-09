@@ -110,6 +110,7 @@ function DN:Instance_Naxx(assign, total, raid, mark, text, heal, tank, healer, c
   end
 
   if (isItem(assign, "Gluth")) then
+    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
     for i=1, NUM_ADDS do
       mark[i] = DNARaidMarkers[i+1][2]
