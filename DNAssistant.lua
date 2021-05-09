@@ -861,7 +861,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         return true
       end
 
-      --if (version_alerted == 0) then
+      if (version_alerted == 0) then
         local getCode = multiKeyFromValue(netCode, "version")
         if (getCode) then
           if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
@@ -870,12 +870,12 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             local my_version = tonumber(DNAGlobal.version)
               if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
                 DN:ChatNotification("|cfff7440bYou have an outdated version!\nUpdate to version " .. latest_version)
-                --version_alerted = tonumber(latest_version)
+                version_alerted = tonumber(latest_version)
               end
             return true
           end
         end
-      --end
+      end
 
       DN:PresetClear()
       DN:AlignSlotText()
