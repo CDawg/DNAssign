@@ -110,13 +110,11 @@ function DN:Instance_Naxx(assign, total, raid, mark, text, heal, tank, healer, c
   end
 
   if (isItem(assign, "Gluth")) then
-    NUM_ADDS = 3
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"
-    for i=1, NUM_ADDS do
-      mark[i] = DNARaidMarkers[i+1][2]
-      text[i] = tank.all[i]
-      heal[i] = healer.all[i]
-    end
+    text[1] = tank.all[1]
+    heal[1] = healer.all[1] .. "," .. healer.all[2] .. "," .. healer.all[3]
+    text[2] = tank.all[2]
+    heal[2] = healer.all[4] .. "," .. healer.all[5] .. "," .. healer.all[6]
   end
 
   if (isItem(assign, "Thaddius")) then
@@ -253,8 +251,10 @@ function DN:Instance_Naxx(assign, total, raid, mark, text, heal, tank, healer, c
     remainder_heals = reindexArraySafe(remainder_heals)
 
     for i=1, table.getn(remainder_heals) do
-      text[i+4] = textcolor.note .. "RAID HEAL"
-      heal[i+4] = remainder_heals[i]
+      if (remainder_heals[i+1]) then
+        text[i+4] = textcolor.note .. "RAID HEAL"
+        heal[i+4] = remainder_heals[i+1]
+      end
     end
 
     text[10] = textcolor.note .. "Use Slowfall/Levitate/Intercept if you get impaled!"
