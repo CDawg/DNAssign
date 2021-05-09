@@ -1,10 +1,10 @@
 ## Interface: 11307
-## Title: |cff00ffffDestructive Nature Assistant
+## Title: |cff00ff66Destructive Nature Assistant
 ## Notes: Destructive Nature Assistant
+## Version: 1.312
 ## Author: Porthios of Myzrael (aka CDawg)
 ## SavedVariables:DNA
 ## OptionalDeps: Blizzard_RaidUI, Blizzard_CompactRaidFrames
-## Version: 1.308
 
 core\DNALibrary.lua
 core\DNAGlobal.lua

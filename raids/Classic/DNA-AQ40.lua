@@ -46,7 +46,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc)
+function DN:Instance_AQ40(assign, total, raid, mark, text, heal, tank, healer, cc)
 
   if (isItem(assign, "Anubisath Sentinels")) then
     DNABossMap = DNAGlobal.dir .. "images/aq40_entrance"

@@ -46,7 +46,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
+function DN:Instance_MC(assign, total, raid, mark, text, heal, tank, healer, cc)
 
   if (isItem(assign, "MC:Trash")) then
     NUM_ADDS = 3

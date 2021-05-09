@@ -65,7 +65,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc)
+function DN:Instance_Naxx(assign, total, raid, mark, text, heal, tank, healer, cc)
   if (isItem(assign, "Trash Wing:Abomination")) then
     NUM_ADDS = 4
     DNABossMap = DNAGlobal.dir .. "images/naxx_construct"

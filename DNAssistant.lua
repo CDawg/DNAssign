@@ -489,10 +489,10 @@ local function buildRaidAssignments(packet, author, source)
   table.merge(healer.nodruid, healer.paladin)
   table.merge(healer.nodruid, healer.shaman)
 
-  DNAInstanceMC(assign, total, raid, mark, text, heal, tank, healer, cc)
-  DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
-  DNAInstanceAQ40(assign, total, raid, mark, text, heal, tank, healer, cc)
-  DNAInstanceNaxx(assign, total, raid, mark, text, heal, tank, healer, cc)
+  DN:Instance_MC(assign, total, raid, mark, text, heal, tank, healer, cc)
+  DN:Instance_BWL(assign, total, raid, mark, text, heal, tank, healer, cc)
+  DN:Instance_AQ40(assign, total, raid, mark, text, heal, tank, healer, cc)
+  DN:Instance_Naxx(assign, total, raid, mark, text, heal, tank, healer, cc)
 
   for i=1, MAX_FRAME_LINES do
     if (mark[i]) then
@@ -869,7 +869,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             local latest_version = tonumber(netpacket)
             local my_version = tonumber(DNAGlobal.version)
               if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
-                DN:ChatNotification("|cffff0000 You have an outdated version!\nNew version is " .. latest_version)
+                DN:ChatNotification("|cfff7440bYou have an outdated version!\nUpdate to version " .. latest_version)
                 --version_alerted = tonumber(latest_version)
               end
             return true
@@ -1080,7 +1080,6 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 end)
 
 function DN_Hook_GiveMasterLoot(slot, index)
-	-- Check required input
 	if (not slot) then
     DN:Debug("no slot")
     return
@@ -1097,8 +1096,7 @@ function DN_Hook_GiveMasterLoot(slot, index)
 	else
 		DN:Debug("Itemlink: " .. itemLink)
 	end
-	-- GetMasterLootCandidate() - This doesn't seem return anything?!?
-	-- Available documentation outdated - blizz UI calls: GetMasterLootCandidate(LootFrame.selectedSlot, i)
+
 	local candidate = GetMasterLootCandidate(slot, index)
 	if (not candidate) then
 		DN:Debug("No candidate returned...")
@@ -1108,7 +1106,6 @@ function DN_Hook_GiveMasterLoot(slot, index)
 	end
 
   -- At this point, we should have valid loot information
-  --local itemLink = string.match(prefix,"|%x+|Hitem:.-|h.-|h|r")
   local itemString = string.match(itemLink, "item[%-?%d:]+")
   local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
   local inInstance, instanceType = IsInInstance()
@@ -3057,22 +3054,6 @@ function DNASlashCommands(msg)
     end
   elseif (msg == "bid") then
     DNABidWindow:Show()
-  --[==[
-    elseif (string.sub(msg, 1, 1) == "b") then --bid
-    local bidmacro = msg:sub(5, 80) -- remove the first space and double quote
-    local getCode = multiKeyFromValue(netCode, "openbid")
-    local get_bid_timer_cache = 10
-    if (IsMasterLooter()) then
-      if ((_GitemName) and (_GitemRarity)) then
-        DN:Debug(_GitemName)
-        DN:Debug(_GitemRarity)
-        if ((get_bid_timer_cache == nil) or (get_bid_timer_cache == "")) then
-          get_bid_timer_cache = 1
-        end
-        DN:SendPacket(netCode[getCode][2] .. _GitemName .. "," .. _GitemRarity .. "," .. player.name .. "," .. tonumber(get_bid_timer_cache), false)
-      end
-    end
-    ]==]--
   else
     DN:Open()
   end

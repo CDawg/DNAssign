@@ -48,7 +48,7 @@ local bossList = {
 table.insert(DNARaidBosses, bossList)
 table.insert(DNAInstance, instanceDetails)
 
-function DNAInstanceBWL(assign, total, raid, mark, text, heal, tank, healer, cc)
+function DN:Instance_BWL(assign, total, raid, mark, text, heal, tank, healer, cc)
   local compass={"-ORB-", "NORTH", "EAST", "SOUTH", "WEST"}
 
   if (isItem(assign, "Razorgore")) then

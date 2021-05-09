@@ -15,12 +15,10 @@ the copyright holders.
 DEBUG = false
 
 DNAGlobal = {}
-DNAGlobal.name      = "Destructive Nature Assistant"
+DNAGlobal.name      = GetAddOnMetadata("DNAssistant", "Title")
 DNAGlobal.sub       = "DNA"
 DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
 DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
-DNAGlobal.vmajor    = 1
-DNAGlobal.vminor    = 308
 DNAGlobal.width     = 980
 DNAGlobal.height    = 600
 DNAGlobal.font      = DNAGlobal.dir .. "Fonts/verdana.ttf"
@@ -30,7 +28,7 @@ DNAGlobal.fontSize  = 12
 DNAGlobal.btn_w     = 130
 DNAGlobal.btn_h     = 25
 DNAGlobal.prefix    = "dnassist"
-DNAGlobal.version   = DNAGlobal.vmajor .. "." .. DNAGlobal.vminor
+DNAGlobal.version   = GetAddOnMetadata("DNAssistant", "Version")
 DNAGlobal.backdrop  = "Interface/Garrison/GarrisonMissionParchment" --default
 DNAGlobal.border    = "Interface/DialogFrame/UI-DialogBox-Border"
 DNAGlobal.slotbg    = "Interface/Collections/CollectionsBackgroundTile"
@@ -38,6 +36,7 @@ DNAGlobal.slotborder= "Interface/Tooltips/UI-Tooltip-Border"
 DNAGlobal.tabborder = "Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB"
 DNAGlobal.author    = "Porthios of Myzrael"
 DNAGlobal.DKP       = 5
+
 DN = {}
 
 total = {}
@@ -63,6 +62,7 @@ total.range = 0
 --
 total.raid = 0
 
+Instance = {}
 expTab = {}
 expansionTabs = {
   {"Classic", "Interface/GLUES/COMMON/GLUES-WOW-CLASSICLOGO"},
@@ -148,7 +148,7 @@ function DN:HideGlobalReadyCheck()
 end
 
 function DN:ChatNotification(msg)
-  print("|cff00e3d5" .. DNAGlobal.name .. "|r " .. msg)
+  print(DNAGlobal.name .. "|r " .. msg)
 end
 
 function DN:PromoteToAssistant(name)
