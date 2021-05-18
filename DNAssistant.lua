@@ -191,63 +191,33 @@ end
 
 local DNAFrameAssignReady = {}
 DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
-DNAFrameAssignReady:SetWidth(120)
-DNAFrameAssignReady:SetHeight(28)
 DNAFrameAssignReady:SetPoint("TOPLEFT", 70, -DNAFrameAssign_h+65)
-DNAFrameAssignReady:SetBackdrop({
-  bgFile = "Interface/Buttons/GREENGRAD64",
-  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeSize = 15,
-  insets = {left=4, right=4, top=4, bottom=4},
-})
 DNAFrameAssignReady:SetBackdropColor(0.8, 0.8, 0.8, 1)
 DNAFrameAssignReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 DNAFrameAssignReady.text = DNAFrameAssignReady:CreateFontString(nil, "OVERLAY")
 DNAFrameAssignReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNAFrameAssignReady.text:SetText("Ready")
 DNAFrameAssignReady.text:SetPoint("CENTER", 0, 0)
-DNAFrameAssignReady:SetScript("OnEnter", function()
-  DNAFrameAssignReady:SetBackdropBorderColor(1, 1, 1, 1)
-end)
-DNAFrameAssignReady:SetScript("OnLeave", function()
-  DNAFrameAssignReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-end)
+DN:ButtonFrame(DNAFrameAssignReady, "green")
 DNAFrameAssignReady:SetScript("OnClick", function()
   ConfirmReadyCheck(1) --ready
   DN:HideGlobalReadyCheck()
-  local getCode = multiKeyFromValue(netCode, "readyyes")
-  DN:SendPacket(netCode[getCode][2] .. player.name, true)
+  DN:SendPacket(packetPrefix.readyyes .. player.name, true)
   DNAFrameAssign:Hide()
   print("|cfffaff04You have marked yourself as Ready.")
 end)
 
 local DNAFrameAssignNotReady={}
 DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
-DNAFrameAssignNotReady:SetWidth(120)
-DNAFrameAssignNotReady:SetHeight(28)
 DNAFrameAssignNotReady:SetPoint("TOPLEFT", 210, -DNAFrameAssign_h+65)
-DNAFrameAssignNotReady:SetBackdrop({
-  bgFile = "Interface/Buttons/RedGrad64",
-  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeSize = 15,
-  insets = {left=4, right=4, top=4, bottom=4},
-})
-DNAFrameAssignNotReady:SetBackdropColor(0.5, 0.4, 0.4, 1)
-DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "OVERLAY")
 DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNAFrameAssignNotReady.text:SetText("Not Ready")
 DNAFrameAssignNotReady.text:SetPoint("CENTER", 0, 0)
-DNAFrameAssignNotReady:SetScript("OnEnter", function()
-  DNAFrameAssignNotReady:SetBackdropBorderColor(1, 1, 1, 1)
-end)
-DNAFrameAssignNotReady:SetScript("OnLeave", function()
-  DNAFrameAssignNotReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-end)
+DN:ButtonFrame(DNAFrameAssignNotReady, "red")
 DNAFrameAssignNotReady:SetScript("OnClick", function()
   ConfirmReadyCheck() --not ready
-  local getCode = multiKeyFromValue(netCode, "readyno")
-  DN:SendPacket(netCode[getCode][2] .. player.name, true)
+  DN:SendPacket(packetPrefix.readyno .. player.name, true)
   DNAFrameAssign:Hide()
 end)
 DNAFrameAssignAuthor = DNAFrameAssign:CreateFontString(nil, "ARTWORK")
@@ -650,44 +620,6 @@ local function buildRaidAssignments(packet, author, source)
   raidSelection = packet
 end
 
-attendance = {}
-function DN:GetAttendanceLogs()
-  if (DNA["ATTENDANCE"]) then
-    for day,v in pairs(DNA["ATTENDANCE"]) do
-      for instance,v in pairs(DNA["ATTENDANCE"][day]) do
-        local instanceCombine = day .. "} " .. instance
-        attendance[instanceCombine] = {}
-        for name,v in pairs(DNA["ATTENDANCE"][day][instance]) do
-          attendance[instanceCombine][name] = {}
-          for class,v in pairs(DNA["ATTENDANCE"][day][instance][name]) do
-            attendance[instanceCombine][name] = class
-          end
-        end
-      end
-    end
-    DN:Debug("DN:GetAttendanceLogs()")
-  end
-end
-
-lootlog = {}
-function DN:GetLootLogs()
-  if (DNA["LOOTLOG"]) then
-    for day,v in pairs(DNA["LOOTLOG"]) do
-      for instance,v in pairs(DNA["LOOTLOG"][day]) do
-        local instanceCombine = day .. "} " .. instance
-        lootlog[instanceCombine] = {}
-        for name,v in pairs(DNA["LOOTLOG"][day][instance]) do
-          lootlog[instanceCombine][name] = {}
-          for lootItem,v in pairs(DNA["LOOTLOG"][day][instance][name]) do
-            lootlog[instanceCombine][name][lootItem] = v
-          end
-        end
-      end
-    end
-    DN:Debug("DN:GetLootLogs()")
-  end
-end
-
 local bidTimerProg = 0
 local function bidTimerFrame()
   bidTimerProg = bidTimerProg+1
@@ -715,7 +647,7 @@ local function bidTimerFrame()
     DN:Debug("sound called")
     DNABidControlFrame:Hide()
     if (DNABidWindowBidderName[1]:GetText()) then
-      DNABidControlWinner:SetText(string.upper(DNABidWindowBidderName[1]:GetText()))
+      DNABidControlWinner:SetText(DNABidWindowBidderName[1]:GetText())
       DN:ClassColorText(DNABidControlWinner, DNARaid["class"][DNABidWindowBidderName[1]:GetText()])
       DNABidControlWinner:Show()
     end
@@ -737,6 +669,7 @@ DNAMain:RegisterEvent("CHAT_MSG_ADDON")
 DNAMain:RegisterEvent("ZONE_CHANGED")
 DNAMain:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 DNAMain:RegisterEvent("GROUP_ROSTER_UPDATE")
+DNAMain:RegisterEvent("GUILD_ROSTER_UPDATE")
 DNAMain:RegisterEvent("PLAYER_ENTER_COMBAT")
 DNAMain:RegisterEvent("PLAYER_LEAVE_COMBAT")
 DNAMain:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -785,14 +718,36 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         local filterLogName = string.gsub(v, "}", "")
         DN:Debug(filterLogName .. " and " .. v)
         lootLogSlotFrame(numLootLogs.init, filterLogName, v)
-        --lootLogSlotFrame(numLootLogs.init, filterLogName:sub(7, 80), v)
       end
     end
 
-    local getCode = multiKeyFromValue(netCode, "version")
-    if (getCode) then
-      local sendCode = netCode[getCode][2]
-      DN:SendPacket(sendCode .. DNAGlobal.version, true, "GUILD")
+    DN:GetDKPLogs()
+    if (DNA["DKP"]) then
+      local sortDKP = {}
+      for k,v in pairs(dnadkp) do
+        table.insert(sortDKP, k)
+      end
+      table.sort(sortDKP, function(a,b) return a>b end)
+      for k,v in ipairs(sortDKP) do
+        numDKPLogs = numDKPLogs + 1
+        --create the number of log frames from the log count
+        local filterLogName = string.gsub(v, "}", "")
+        --DKPLogSlotFrame(numDKPLogs, filterLogName, v)
+      end
+    end
+
+    DN:SendPacket(packetPrefix.version .. DNAGlobal.version, true, "GUILD")
+
+    --delay the guild roster from being built, then build the frames ONE time.
+    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
+    if (DNAGuildDataBuilder) then
+      DNAGuildDataBuilder = numTotalMembers
+      DN:GetGuildComp()
+      for i=1, numTotalMembers do
+        guildSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
+        guildSlot[i]:Hide()
+      end
+      DN:ChatNotification("Collecting Guild Data [Roster]")
     end
   end
 
@@ -815,6 +770,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
             if (itemRarity >= MIN_LOOT_QUALITY) then
               dnalootslot = dnalootslot+1 --qualified items
               --end
+              DNAlootWindowItemID[dnalootslot]:SetText(itemName)
               DNAlootWindowItem[dnalootslot]:SetText(itemName)
               DNAlootWindowItem[dnalootslot]:Show()
               DNAlootWindowItemBidBtn[dnalootslot]:Show()
@@ -851,10 +807,24 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
   end
 
+  -- DEBUG purposes only
+  if (DEBUG) then
+    if (event == "CHAT_MSG_LOOT") then --SEND
+      local itemLink = string.match(prefix,"|%x+|Hitem:.-|h.-|h|r")
+      local itemString = string.match(itemLink, "item[%-?%d:]+")
+      local itemParse = split(itemString, ":")
+      local itemID = GetItemIcon(itemParse[2])
+      local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
+      local inInstance, instanceType = IsInInstance()
+      local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
+      --DN:Debug("lootMethod = " .. lootMethod)
+      DN:Debug(packetPrefix.lootitem .. itemName .. "," .. itemRarity .. "," .. player.name .. "," .. itemID)
+    end
+  end
+
   if (event == "CHAT_MSG_ADDON") then
     if (prefix == DNAGlobal.prefix) then
       DN:Debug("Reading netpacket " .. netpacket)
-
       if (string.sub(netpacket, 1, 1) == "@") then --DKP
         local DKPPacket = string.gsub(netpacket, "@", "")
         --pageDKPViewScrollChild_colOne[1]:SetText(DKPPacket)
@@ -862,18 +832,15 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
 
       if (version_alerted == 0) then
-        local getCode = multiKeyFromValue(netCode, "version")
-        if (getCode) then
-          if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-            netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-            local latest_version = tonumber(netpacket)
-            local my_version = tonumber(DNAGlobal.version)
-              if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
-                DN:ChatNotification("|cfff7440bYou have an outdated version!\nUpdate to version " .. latest_version)
-                version_alerted = tonumber(latest_version)
-              end
-            return true
+        local getPacket = DN:ParsePacket(netpacket, packetPrefix.version)
+        if (getPacket) then
+          local latest_version = tonumber(getPacket)
+          local my_version = tonumber(DNAGlobal.version)
+          if (latest_version > my_version+0.002) then --if its greater than 2 minor releases, error out
+            DN:ChatNotification("|cfff7440bYou have an outdated version!\nUpdate to version " .. latest_version)
+            version_alerted = tonumber(latest_version)
           end
+          return true
         end
       end
 
@@ -897,91 +864,80 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       --class notes
       local hasClassAssigns = false
       for i,v in ipairs(DNAClasses) do
-        local getCode = multiKeyFromValue(netCode, v)
-        if (getCode) then
-          if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-            netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-            DNAFrameClassAssignEdit[v]:SetText(netpacket)
-            hasClassAssigns = true
-          end
+        local getPacket = DN:ParsePacket(netpacket, packetPrefix[v])
+        if (getPacket) then
+          DNAFrameClassAssignEdit[v]:SetText(getPacket)
+          hasClassAssigns = true
         end
       end
 
       --LOOT LOG (receive)
-      local getCode = multiKeyFromValue(netCode, "lootitem")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          local loot_data = split(netpacket, ",")
-          local lootQuality = tonumber(loot_data[2])
-          local inInstance, instanceType = IsInInstance()
-          DN:Debug("loot_data[1] " .. loot_data[1]) --item
-          DN:Debug("loot_data[2] " .. loot_data[2]) --quality
-          DN:Debug("loot_data[3] " .. loot_data[3]) --who [ML]
-          if (DNA["LOOTLOG"] == nil) then
-            DNA["LOOTLOG"]={}
-          end
-          if (DNA["LOOTLOG"][timestamp.date] == nil) then
-            DNA["LOOTLOG"][timestamp.date]={}
-          end
-          if (inInstance) then
-            local instanceName = GetInstanceInfo()
-            if (instanceName) then
-              if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
-                DNA["LOOTLOG"][timestamp.date][instanceName] = {}
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.lootitem)
+      if (getPacket) then
+        local loot_data = split(getPacket, ",")
+        local lootQuality = tonumber(loot_data[2])
+        local inInstance, instanceType = IsInInstance()
+        DN:Debug("loot_data[1] " .. loot_data[1]) --item
+        DN:Debug("loot_data[2] " .. loot_data[2]) --quality
+        DN:Debug("loot_data[3] " .. loot_data[3]) --who [ML]
+        --DN:Debug("loot_data[4] " .. loot_data[4]) --itemID
+        if (DNA["LOOTLOG"] == nil) then
+          DNA["LOOTLOG"]={}
+        end
+        if (DNA["LOOTLOG"][timestamp.date] == nil) then
+          DNA["LOOTLOG"][timestamp.date]={}
+        end
+        if (inInstance) then
+          local instanceName = GetInstanceInfo()
+          if (instanceName) then
+            if (DNA["LOOTLOG"][timestamp.date][instanceName] == nil) then
+              DNA["LOOTLOG"][timestamp.date][instanceName] = {}
 
-                --create a live ONE TIME buffer
-                DN:GetLootLogs()
-                local sortLoot = {}
-                for k,v in pairs(lootlog) do
-                  table.insert(sortLoot, k)
-                end
-                table.sort(sortLoot, function(a,b) return a>b end)
-                for k,v in ipairs(sortLoot) do
-                  if (numLootLogs.init > 0) then
-                    numLootLogs.cache = numLootLogs.init + 1
-                  else
-                    numLootLogs.cache = numLootLogs.cache + 1
-                  end
-                end
-                lootLogSlotFrame(numLootLogs.cache, timestamp.date .. " " .. instanceName, timestamp.date .. "} " .. instanceName)
+              --create a live ONE TIME buffer
+              DN:GetLootLogs()
+              local sortLoot = {}
+              for k,v in pairs(lootlog) do
+                table.insert(sortLoot, k)
               end
-              if (DNA["LOOTLOG"][timestamp.date][instanceName][date("%Y%m%d%H%M%S") .. "" .. loot_data[1]] == nil) then
-                DNA["LOOTLOG"][timestamp.date][instanceName][date("%Y%m%d%H%M%S") .. "" .. loot_data[1]] = {lootQuality}
-                DN:Debug(loot_data[1] .. " from " .. loot_data[3])
+              table.sort(sortLoot, function(a,b) return a>b end)
+              for k,v in ipairs(sortLoot) do
+                if (numLootLogs.init > 0) then
+                  numLootLogs.cache = numLootLogs.init + 1
+                else
+                  numLootLogs.cache = numLootLogs.cache + 1
+                end
               end
+              lootLogSlotFrame(numLootLogs.cache, timestamp.date .. " " .. instanceName, timestamp.date .. "} " .. instanceName)
+            end
+            if (DNA["LOOTLOG"][timestamp.date][instanceName][date("%Y%m%d%H%M%S") .. "" .. loot_data[1]] == nil) then
+              DNA["LOOTLOG"][timestamp.date][instanceName][date("%Y%m%d%H%M%S") .. "" .. loot_data[1]] = {lootQuality}
+              DN:Debug(loot_data[1] .. " from " .. loot_data[3])
             end
           end
-          return true
         end
+        return true
       end
 
-      local getCode = multiKeyFromValue(netCode, "author")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          if (netpacket) then
-            DNAFrameMainAuthor:SetText("Last Update: " .. netpacket)
-            DNAFrameMainAuthor:Show()
-          end
-          return true
-        end
+      -- Get the Raid Assistant that pushed
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.author)
+      if (getPacket) then
+        DNAFrameMainAuthor:SetText("Last Update: " .. getPacket)
+        DNAFrameMainAuthor:Show()
+        return true
       end
 
-      local getCode = multiKeyFromValue(netCode, "posttoraid")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          local raid_assignment = split(netpacket, ",")
-          DN:Debug(raid_assignment[1])
-          DN:Debug(raid_assignment[2])
-          buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
-          DNAFrameAssign:Show()
-          DN:RaidReadyClear()
-          DN:HideGlobalReadyCheck()
-          DN:Debug("ReadyCheckFrame:Hide")
-          return true
-        end
+      -- POST TO RAID
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.posttoraid)
+      if (getPacket) then
+        local raid_assignment = split(getPacket, ",")
+        DN:Debug(raid_assignment[1])
+        DN:Debug(raid_assignment[2])
+        buildRaidAssignments(raid_assignment[1], raid_assignment[2], "network")
+        DNAFrameAssign:Show()
+        DN:RaidReadyClear()
+        DN:HideGlobalReadyCheck()
+        DN:Debug("ReadyCheckFrame:Hide")
+        return true
       end
 
       if (hasClassAssigns) then
@@ -989,88 +945,119 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
 
       --READYCHECK
-      local getCode = multiKeyFromValue(netCode, "readyyes")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DN:RaidReadyMember(netpacket, true)
-          DN:ClearFrameClassAssign()
-          return true
-        end
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.readyyes)
+      if (getPacket) then
+        DN:RaidReadyMember(getPacket, true)
+        DN:ClearFrameClassAssign()
+        return true
       end
       --NOT READY
-      local getCode = multiKeyFromValue(netCode, "readyno")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          DN:RaidReadyMember(netpacket, false)
-          DN:ClearFrameClassAssign()
-          return true
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.readyno)
+      if (getPacket) then
+        DN:RaidReadyMember(getPacket, false)
+        DN:ClearFrameClassAssign()
+        return true
+      end
+
+      --ML Pauses bidding
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.stopbid)
+      if (getPacket) then
+        local get_msg= split(getPacket, ",")
+        local get_ml = get_msg[2]
+        --DNABidWindow:Show()
+        clearBidding()
+        bidTimer:Cancel()
+        DNABidControlWinner:Show()
+        DNABidControlWinner:SetText("BIDDING PAUSED")
+        DNABidControlFrame:Hide()
+        DN:ChatNotification("|cfffff000Bidding Paused by " .. get_ml)
+        PlaySound(bidSound.expire)
+        return true
+      end
+
+      --individual bidding
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.lootbid)
+      if (getPacket) then
+        local get_bid = split(getPacket, ",")
+        local get_bid_name= get_bid[1]
+        local get_bid_num = tonumber(get_bid[2])
+        --sort by bid number
+        table.insert(bidderTable, {get_bid_num, get_bid_name}) --bid order, not alpha name order
+        table.sort(bidderTable, function(lhs, rhs) return lhs[1] > rhs[1] end)
+        for k,v in pairs(bidderTable) do
+          DN:Debug(k .. " - " .. v[1] .. " - " .. v[2])
+          DNABidWindowBidderName[k]:SetText(v[2])
+          DN:ClassColorText(DNABidWindowBidderName[k], DNARaid["class"][v[2]])
+          DNABidWindowBidderNum[k]:SetText(v[1])
+          DNABidWindowBidderNum[1]:SetTextColor(1, 1, 0.4)
         end
+        PlaySoundFile(bidSound.placed)
+        bidTimer:Cancel() --reset bidding
+        bidTimerProg = 0
+        local get_ml_bid_timer = DNABidWindowMLTimer:GetText()
+        tonumber(get_ml_bid_timer)
+        --bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
+        bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
+        return true
       end
 
       --open bid window (receive)
-      local getCode = multiKeyFromValue(netCode, "openbid")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          local loot_data = split(netpacket, ",")
-          local lootItem = loot_data[1]
-          local lootQuality = tonumber(loot_data[2])
-          local lootMaster = loot_data[3]
-          local get_bid_timer=tonumber(loot_data[4])
-          DNABidWindow:Show()
-          clearBidding()
-          DNABidNumber:SetText("0") --default to on open
-          myBid = 1
-          --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(lootItem)
-          --local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(lootItem)
-          DNABidWindowItem:SetText(lootItem)
-          if (get_bid_timer) then
-            tonumber(get_bid_timer)
-            DNABidWindowMLTimer:SetText(get_bid_timer)
-          else
-            DNABidWindowMLTimer:SetText(BID_TIMER) --fail safe, in case idiots decide to push alpha data
-          end
-          bidTimerProg = 0
-          DNABidTimerCount:SetText("0")
-          DNABidTimerProg:Hide()
-          DNABidTimerSpark:Hide()
-          DN:ItemQualityColorText(DNABidWindowItem, lootQuality)
-          PlaySound(bidSound.start)
-          bidTimer:Cancel()
-          DNABidControlWinner:Hide()
-          DNABidControlFrame:Show()
-          return true
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.openbid)
+      if (getPacket) then
+        local loot_data = split(getPacket, ",")
+        local lootItem = loot_data[1]
+        local lootQuality = tonumber(loot_data[2])
+        local lootMaster = loot_data[3]
+        local get_bid_timer=tonumber(loot_data[4])
+        DNABidWindow:Show()
+        clearBidding()
+        DNABidNumber:SetText("0") --default to on open
+        myBid = 1
+        --local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(lootItem)
+        --local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(lootItem)
+        DNABidWindowItem:SetText(lootItem)
+        if (get_bid_timer) then
+          tonumber(get_bid_timer)
+          DNABidWindowMLTimer:SetText(get_bid_timer)
+        else
+          DNABidWindowMLTimer:SetText(BID_TIMER) --fail safe, in case idiots decide to push alpha data
         end
+        bidTimerProg = 0
+        DNABidTimerCount:SetText("0")
+        DNABidTimerProg:Hide()
+        DNABidTimerSpark:Hide()
+        DN:ItemQualityColorText(DNABidWindowItem, lootQuality)
+        PlaySound(bidSound.start)
+        bidTimer:Cancel()
+        DNABidControlWinner:Hide()
+        DNABidControlFrame:Show()
+        return true
       end
 
-      local getCode = multiKeyFromValue(netCode, "lootbid")
-      if (getCode) then
-        if (string.sub(netpacket, 1, strlen(netCode[getCode][2])) == netCode[getCode][2]) then
-          netpacket = string.gsub(netpacket, netCode[getCode][2], "")
-          local get_bid = split(netpacket, ",")
-          local get_bid_name= get_bid[1]
-          local get_bid_num = tonumber(get_bid[2])
-          --sort by bid number
-          table.insert(bidderTable, {get_bid_num, get_bid_name}) --bid order, not alpha name order
-          table.sort(bidderTable, function(lhs, rhs) return lhs[1] > rhs[1] end)
-          for k,v in pairs(bidderTable) do
-            DN:Debug(k .. " - " .. v[1] .. " - " .. v[2])
-            DNABidWindowBidderName[k]:SetText(v[2])
-            DN:ClassColorText(DNABidWindowBidderName[k], DNARaid["class"][v[2]])
-            DNABidWindowBidderNum[k]:SetText(v[1])
-            DNABidWindowBidderNum[1]:SetTextColor(1, 1, 0.4)
-          end
-          PlaySoundFile(bidSound.placed)
-          bidTimer:Cancel()
-          bidTimerProg = 0
-          local get_ml_bid_timer = DNABidWindowMLTimer:GetText()
-          tonumber(get_ml_bid_timer)
-          --bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
-          bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
-          return true
+      --individual bidding
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.lootbid)
+      if (getPacket) then
+        local get_bid = split(getPacket, ",")
+        local get_bid_name= get_bid[1]
+        local get_bid_num = tonumber(get_bid[2])
+        --sort by bid number
+        table.insert(bidderTable, {get_bid_num, get_bid_name}) --bid order, not alpha name order
+        table.sort(bidderTable, function(lhs, rhs) return lhs[1] > rhs[1] end)
+        for k,v in pairs(bidderTable) do
+          DN:Debug(k .. " - " .. v[1] .. " - " .. v[2])
+          DNABidWindowBidderName[k]:SetText(v[2])
+          DN:ClassColorText(DNABidWindowBidderName[k], DNARaid["class"][v[2]])
+          DNABidWindowBidderNum[k]:SetText(v[1])
+          DNABidWindowBidderNum[1]:SetTextColor(1, 1, 0.4)
         end
+        PlaySoundFile(bidSound.placed)
+        bidTimer:Cancel()
+        bidTimerProg = 0
+        local get_ml_bid_timer = DNABidWindowMLTimer:GetText()
+        tonumber(get_ml_bid_timer)
+        --bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
+        bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
+        return true
       end
 
       --single slot update, parse individual packets
@@ -1105,19 +1092,20 @@ function DN_Hook_GiveMasterLoot(slot, index)
 		DN:Debug("Candidate: "..candidate)
 	end
 
-  -- At this point, we should have valid loot information
   local itemString = string.match(itemLink, "item[%-?%d:]+")
+  local itemParse = split(itemString, ":")
+  local itemID = itemParse[2]
+  local itemIcon = GetItemIcon(itemID)
   local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemString)
   local inInstance, instanceType = IsInInstance()
   local lootMethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
   if (inInstance) then
     if (IsInRaid()) then
-      local getCode = multiKeyFromValue(netCode, "lootitem")
       if (itemRarity >= MIN_LOOT_QUALITY) then
         if (IsMasterLooter()) then
-          DN:SendPacket(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name, false)
+          DN:SendPacket(packetPrefix.lootitem .. itemName .. "," .. itemRarity .. "," .. player.name .. "," .. itemID, false)
           DN:Debug("ML = " .. player.name)
-          DN:Debug(netCode[getCode][2] .. itemName .. "," .. itemRarity .. "," .. player.name)
+          DN:Debug(packetPrefix.lootitem .. itemName .. "," .. itemRarity .. "," .. player.name .. "," .. itemID)
         end
       end
     end --in raid
@@ -1656,15 +1644,9 @@ end
 local function updateSlotPos(role, i, name)
   if (DN:RaidPermission()) then
     DN:SendPacket(role .. i .. "," .. name, true)
-    local getCode = multiKeyFromValue(netCode, "author")
-    local sendCode
-    if (getCode) then
-      local sendCode = netCode[getCode][2]
-      DN:SendPacket(sendCode .. player.name, true)
-    end
-    local getCode = multiKeyFromValue(netCode, "version")
-    local sendCode = netCode[getCode][2]
-    DN:SendPacket(sendCode .. DNAGlobal.version, true)
+    DN:SendPacket(packetPrefix.author .. player.name, true)
+    DN:SendPacket(packetPrefix.version .. DNAGlobal.version, true)
+    DN:Debug("updateSlotPos(...)")
   end
 end
 
@@ -1722,9 +1704,6 @@ for i, v in ipairs(DNAInstance) do
   end
 end
 
-local DNARaidScrollFrame_w = 140
-local DNARaidScrollFrame_h = 520
-
 local function bottomTabToggle(name)
   for i,v in pairs(DNAPages) do
     DNAFrameMainBottomTab[v]:SetFrameStrata("LOW")
@@ -1737,8 +1716,8 @@ local function bottomTabToggle(name)
 
   pagePreBuildDisable:Hide()
 
-  onPage = name
-  DN:Debug("Page: " .. onPage)
+  --onPage = name
+  --DN:Debug("Page: " .. onPage)
   for i,v in pairs(expansionTabs) do
     expTab[v[1]]:Hide()
   end
@@ -1850,12 +1829,6 @@ for i,v in pairs(expansionTabs) do
 end
 expTabActive("Classic") --default
 
--- BO PAGE ASSIGN
-local raidSlotOrgPoint_x={}
-local raidSlotOrgPoint_y={}
-local memberDrag = nil
-local thisClass = nil
-
 DN:ResetQueueTransposing()
 
 local clearQueuePrompt=""
@@ -1890,24 +1863,47 @@ local function clearQueue()
   end
 end
 
+ddPreBuildMenu = {"Raid", "Guild"}
+ddPreBuild = CreateFrame("Frame", nil, page["Assignment"], "UIDropDownMenuTemplate")
+--ddPreBuild:SetFrameLevel(50)
+ddPreBuild:SetPoint("TOPLEFT", 193, -24)
+--ddBossList[DNAInstance[i][1]].displayMode = "MENU"
+ddPreBuild.text = ddPreBuild:CreateFontString(nil, "ARTWORK")
+ddPreBuild.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+ddPreBuild.text:SetPoint("TOPLEFT", ddPreBuild, "TOPLEFT", 25, -8)
+ddPreBuild.text:SetText(ddPreBuildMenu[1])
+ddPreBuild.onClick = function(self, checked)
+  ddPreBuild.text:SetText(self.value)
+  print("click")
+end
+ddPreBuild.initialize = function(self, level)
+  print("init")
+end
+UIDropDownMenu_SetWidth(ddPreBuild, DNARaidScrollFrame_w+4)
+
 DNARaidScrollFrame = CreateFrame("Frame", DNARaidScrollFrame, page["Assignment"], "InsetFrameTemplate")
 DNARaidScrollFrame:SetWidth(DNARaidScrollFrame_w+20) --add scroll frame width
 DNARaidScrollFrame:SetHeight(DNARaidScrollFrame_h-4)
 DNARaidScrollFrame:SetPoint("TOPLEFT", 210, -50)
+--[==[
 DNARaidScrollFrame.icon = DNARaidScrollFrame:CreateTexture(nil, "OVERLAY")
 DNARaidScrollFrame.icon:SetTexture(DNAGlobal.dir .. "images/role_dps")
 DNARaidScrollFrame.icon:SetPoint("TOPLEFT", 35, 20)
 DNARaidScrollFrame.icon:SetSize(20, 20)
+]==]--
 DNARaidScrollFrame:SetFrameLevel(5)
 DNARaidScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNARaidScrollFrame, "UIPanelScrollFrameTemplate")
 DNARaidScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNARaidScrollFrame, "TOPLEFT", 3, -3)
 DNARaidScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNARaidScrollFrame, "BOTTOMRIGHT", 10, 4)
-local DNARaidScrollFrameScrollChildFrame = CreateFrame("Frame", DNARaidScrollFrameScrollChildFrame, DNARaidScrollFrame.ScrollFrame)
+DNARaidScrollFrameScrollChildFrame = CreateFrame("Frame", DNARaidScrollFrameScrollChildFrame, DNARaidScrollFrame.ScrollFrame)
 DNARaidScrollFrameScrollChildFrame:SetSize(DNARaidScrollFrame_w, DNARaidScrollFrame_h)
+--[==[
 DNARaidScrollFrame.text = DNARaidScrollFrame:CreateFontString(nil, "ARTWORK")
 DNARaidScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNARaidScrollFrame.text:SetPoint("CENTER", DNARaidScrollFrame, "TOPLEFT", 75, 10)
 DNARaidScrollFrame.text:SetText("Raid")
+]==]--
+
 DNARaidScrollFrame.ScrollFrame:SetScrollChild(DNARaidScrollFrameScrollChildFrame)
 DNARaidScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
 DNARaidScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNARaidScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
@@ -1922,62 +1918,6 @@ end)
 DNARaidScrollFrame:SetScript("OnLeave", function()
   DN:ResetQueueTransposing()
 end)
-
-function raidSlotFrame(parentFrame, i, y)
-  raidSlot[i] = CreateFrame("button", raidSlot[i], parentFrame)
-  raidSlot[i]:SetFrameLevel(10)
-  raidSlot[i]:SetMovable(true)
-  raidSlot[i]:EnableMouse(true)
-  raidSlot[i]:RegisterForDrag("LeftButton")
-  raidSlotOrgPoint_y[i] = -y+17 --top padding
-  raidSlot[i]:SetScript("OnDragStart", function()
-    raidSlot[i]:StartMoving()
-    raidSlot[i]:SetParent(page["Assignment"])
-    raidSlot[i]:SetFrameStrata("DIALOG")
-    memberDrag = raidSlot[i].text:GetText()
-    DN:ResetQueueTransposing()
-  end)
-  raidSlot[i]:SetScript("OnDragStop", function()
-    raidSlot[i]:StopMovingOrSizing()
-    raidSlot[i]:SetParent(parentFrame)
-    raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
-    DN:ResetQueueTransposing()
-  end)
-  raidSlot[i]:SetBackdrop({
-    bgFile = DNAGlobal.slotbg,
-    edgeFile = DNAGlobal.slotborder,
-    edgeSize = 12,
-    insets = {left=2, right=2, top=2, bottom=2},
-  })
-  raidSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
-  raidSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-  raidSlot[i]:SetWidth(DNARaidScrollFrame_w-5)
-  raidSlot[i]:SetHeight(raidSlot_h)
-  raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
-  raidSlot[i].icon = raidSlot[i]:CreateTexture(nil, "OVERLAY")
-  raidSlot[i].icon:SetTexture("")
-  raidSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
-  raidSlot[i].icon:SetSize(12, 12)
-  raidSlot[i].text = raidSlot[i]:CreateFontString(nil, "ARTWORK")
-  raidSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
-  raidSlot[i].text:SetPoint("TOPLEFT", 20, -4)
-  raidSlot[i].text:SetText("Empty")
-  raidSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
-  raidSlot[i].ready = raidSlot[i]:CreateTexture(nil, "OVERLAY")
-  raidSlot[i].ready:SetTexture("")
-  raidSlot[i].ready:SetPoint("TOPLEFT", DNARaidScrollFrame_w-21, -4)
-  raidSlot[i].ready:SetSize(12, 12)
-  raidSlot[i].blacklist = raidSlot[i]:CreateTexture(nil, "OVERLAY")
-  raidSlot[i].blacklist:SetTexture("")
-  raidSlot[i].blacklist:SetPoint("TOPLEFT", DNARaidScrollFrame_w-41, -4)
-  raidSlot[i].blacklist:SetSize(12, 12)
-  raidSlot[i]:SetScript('OnEnter', function()
-    raidSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
-  end)
-  raidSlot[i]:SetScript('OnLeave', function()
-    raidSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-  end)
-end
 
 DNAFrameMainAuthor = page["Assignment"]:CreateFontString(nil, "ARTWORK")
 DNAFrameMainAuthor:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
@@ -2477,10 +2417,7 @@ function DN:PresetDuplicate()
       presetViewCC[i]:SetText("")
     end
   end
-  --btnLoadRaid:Hide()
-  --btnLoadRaidDis:Show()
-  --noLoadRaidText:Show()
-  --btnSaveRaidDis:Show()
+
   DN:Debug("DN:PresetDuplicate()")
 end
 
@@ -2517,9 +2454,7 @@ function DN:PresetClear()
   end
   raidSelection = nil
   btnLoadRaid:Hide()
-  btnLoadRaidDis:Show()
   noLoadRaidText:Show()
-  btnSaveRaidDis:Show()
   DN:Debug("DN:PresetClear()")
 end
 
@@ -2615,14 +2550,12 @@ for i, v in ipairs(DNAInstance) do
     if ((tankSlot[1]:GetText() ~= "Empty") and (tankSlot[2]:GetText() ~= "Empty")) then
       if ((healSlot[1]:GetText() ~= "Empty") and (healSlot[2]:GetText() ~= "Empty")) then
         btnSaveRaid:Show()
-        btnSaveRaidDis:Hide()
       end
     end
     if (DNA[player.combine]["SAVECONF"] ~= nil) then
       if (DNA[player.combine]["SAVECONF"][raidSelection]) then
         --if (onPage == "Assignment") then
           btnLoadRaid:Show()
-          btnLoadRaidDis:Hide()
           noLoadRaidText:Hide()
           DN:PresetSelect(raidSelection)
         --end
@@ -2692,17 +2625,8 @@ function DN:RaidSendAssignments()
     end
   end
   DN:SendPacket(largePacket, true)
-
-  local getCode = multiKeyFromValue(netCode, "author")
-  if (getCode) then
-    local sendCode = netCode[getCode][2]
-    DN:SendPacket(sendCode .. player.name, true)
-  end
-  local getCode = multiKeyFromValue(netCode, "version")
-  if (getCode) then
-    local sendCode = netCode[getCode][2]
-    DN:SendPacket(sendCode .. DNAGlobal.version, true)
-  end
+  DN:SendPacket(packetPrefix.author .. player.name, true)
+  DN:SendPacket(packetPrefix.version .. DNAGlobal.version, true)
 end
 
 local btnShare_x = 300
@@ -2741,14 +2665,13 @@ local btnPostRaid_y = DNAGlobal.height-45
 --DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], btnPostRaid_x, DNAGlobal.height-107)
 --DNACheckbox["READYCHECK"]:SetChecked(true)
 
-local btnPostRaid_t = "Post to Raid"
-btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonTemplate")
-btnPostRaid:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+btnPostRaid = CreateFrame("Button", nil, page["Assignment"])
 btnPostRaid:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaid.text = btnPostRaid:CreateFontString(nil, "ARTWORK")
 btnPostRaid.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-btnPostRaid.text:SetText(btnPostRaid_t)
+btnPostRaid.text:SetText("Post to Raid")
 btnPostRaid.text:SetPoint("CENTER", btnPostRaid)
+DN:ButtonFrame(btnPostRaid, "green")
 btnPostRaid:SetScript("OnClick", function()
   if (DN:RaidPermission()) then
     if ((total.tanks < 2) or (total.healers < 8)) then
@@ -2761,14 +2684,12 @@ btnPostRaid:SetScript("OnClick", function()
     else
       --class notes
       for i,v in ipairs(DNAClasses) do
-        local getCode = multiKeyFromValue(netCode, v)
         if (DNAFrameClassAssignEdit[v]:GetText() ~= "") then
-          DN:SendPacket(netCode[getCode][2] .. DNAFrameClassAssignEdit[v]:GetText(), false)
+          DN:SendPacket(packetPrefix[v] .. DNAFrameClassAssignEdit[v]:GetText(), false)
         end
       end
-      local getCode = multiKeyFromValue(netCode, "posttoraid")
       viewFrameBottomTabToggle("Markers") --default enabled
-      DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
+      DN:SendPacket(packetPrefix.posttoraid .. raidSelection .. "," .. player.name, true) --openassignments
       --if (DNACheckbox["READYCHECK"]:GetChecked()) then
         DoReadyCheck()
       --end
@@ -2776,17 +2697,6 @@ btnPostRaid:SetScript("OnClick", function()
     end
   end
 end)
-local btnPostRaidDis = CreateFrame("Button", nil, page["Assignment"], "UIPanelButtonGrayTemplate")
-btnPostRaidDis:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
-btnPostRaidDis:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
-btnPostRaidDis.text = btnPostRaidDis:CreateFontString(nil, "ARTWORK")
-btnPostRaidDis.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-btnPostRaidDis.text:SetText(btnPostRaid_t)
-btnPostRaidDis.text:SetPoint("CENTER", btnPostRaidDis)
-btnPostRaidDis:SetScript("OnClick", function()
-  DN:RaidPermission()
-end)
--- EO PAGE ASSIGN
 
 function DN:PresetLoad(selection)
   local getsave={}
@@ -2867,13 +2777,13 @@ function DN:PresetLoad(selection)
   DN:Debug("DN:PresetLoad(".. selection ..")")
 end
 
-btnSaveRaid = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonTemplate")
-btnSaveRaid:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnSaveRaid:SetPoint("TOPLEFT", 10, -290)
+btnSaveRaid = CreateFrame("Button", nil, DNAFramePreset)
+btnSaveRaid:SetPoint("TOPLEFT", 30, -290)
 btnSaveRaid.text = btnSaveRaid:CreateFontString(nil, "ARTWORK")
 btnSaveRaid.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-btnSaveRaid.text:SetText("Save Configuration")
+btnSaveRaid.text:SetText("Save Raid Comp")
 btnSaveRaid.text:SetPoint("CENTER", btnSaveRaid)
+DN:ButtonFrame(btnSaveRaid, "red")
 btnSaveRaid:SetScript("OnClick", function()
   if ((raidSelection == nil) or (raidSelection == "")) then
     DN:Notification("Please select a boss or trash pack!          [P4]", true)
@@ -2903,21 +2813,13 @@ btnSaveRaid:SetScript("OnClick", function()
 end)
 btnSaveRaid:Hide()
 
-btnSaveRaidDis = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonGrayTemplate")
-btnSaveRaidDis:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnSaveRaidDis:SetPoint("TOPLEFT", 10, -290)
-btnSaveRaidDis.text = btnSaveRaidDis:CreateFontString(nil, "ARTWORK")
-btnSaveRaidDis.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-btnSaveRaidDis.text:SetText("Save Configuration")
-btnSaveRaidDis.text:SetPoint("CENTER", btnSaveRaidDis)
-
-btnLoadRaid = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonTemplate")
-btnLoadRaid:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnLoadRaid:SetPoint("TOPLEFT", 200, -290)
+btnLoadRaid = CreateFrame("Button", nil, DNAFramePreset)
+btnLoadRaid:SetPoint("TOPLEFT", 210, -290)
 btnLoadRaid.text = btnLoadRaid:CreateFontString(nil, "ARTWORK")
 btnLoadRaid.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-btnLoadRaid.text:SetText("Load Configuration")
+btnLoadRaid.text:SetText("Load Raid Comp")
 btnLoadRaid.text:SetPoint("CENTER", btnLoadRaid)
+DN:ButtonFrame(btnLoadRaid, "green")
 btnLoadRaid:SetScript("OnClick", function()
   if ((raidSelection == nil) or (raidSelection == "")) then
     DN:Notification("Please select a boss or trash pack!          [P5]", true)
@@ -2946,14 +2848,6 @@ noLoadRaidText = DNAFramePreset:CreateFontString(nil, "ARTWORK")
 noLoadRaidText:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
 noLoadRaidText:SetText("Configuration not saved!")
 noLoadRaidText:SetPoint("TOPLEFT", 195, -150)
-
-btnLoadRaidDis = CreateFrame("Button", nil, DNAFramePreset, "UIPanelButtonGrayTemplate")
-btnLoadRaidDis:SetSize(DNAGlobal.btn_w+20, DNAGlobal.btn_h)
-btnLoadRaidDis:SetPoint("TOPLEFT", 200, -290)
-btnLoadRaidDis.text = btnLoadRaidDis:CreateFontString(nil, "ARTWORK")
-btnLoadRaidDis.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-btnLoadRaidDis.text:SetText("Load Configuration")
-btnLoadRaidDis.text:SetPoint("CENTER", btnLoadRaidDis)
 
 for i=1, DNASlots.tank do
   currentViewTank[i] = DNAFramePreset:CreateFontString(nil, "ARTWORK")
@@ -3013,7 +2907,6 @@ function DN:PermissionVisibility()
     btnShareDis:Hide()
     --btnShare:Show()
     btnPostRaid:Show()
-    btnPostRaidDis:Hide()
     tankSlotFrameClear:Show()
     healSlotFrameClear:Show()
     ccSlotFrameClear:Show()
@@ -3021,7 +2914,6 @@ function DN:PermissionVisibility()
     --btnShareDis:Show()
     btnShare:Hide()
     btnPostRaid:Hide()
-    btnPostRaidDis:Show()
     for i=1, DNASlots.heal do
       healSlotUp[i]:Hide()
       healSlotDown[i]:Hide()
@@ -3045,9 +2937,8 @@ function DNASlashCommands(msg)
     DN:Debug("== " .. raidSelection)
     if (raidSelection) then
       DN:RaidSendAssignments()
-      local getCode = multiKeyFromValue(netCode, "posttoraid")
       DN:ChatNotification("Boss Assignment " .. raidSelection)
-      DN:SendPacket(netCode[getCode][2] .. raidSelection .. "," .. player.name, true) --openassignments
+      DN:SendPacket(packetPrefix.posttoraid .. raidSelection .. "," .. player.name, true) --openassignments
       DoReadyCheck()
     else
       DN:ChatNotification("Invalid Boss Entry")

@@ -12,55 +12,56 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = false
+DEBUG = true
 
-DNAGlobal = {}
-DNAGlobal.name      = GetAddOnMetadata("DNAssistant", "Title")
-DNAGlobal.sub       = "DNA"
-DNAGlobal.dir       = "Interface/AddOns/DNAssistant/"
-DNAGlobal.icon      = DNAGlobal.dir .. "images/icon_dn"
-DNAGlobal.width     = 980
-DNAGlobal.height    = 600
-DNAGlobal.font      = DNAGlobal.dir .. "Fonts/verdana.ttf"
---DNAGlobal.font      = "Fonts/ARIALN.ttf"
---DNAGlobal.font      = "Fonts/FRIZQT__.TTF"
-DNAGlobal.fontSize  = 12
-DNAGlobal.btn_w     = 130
-DNAGlobal.btn_h     = 25
-DNAGlobal.prefix    = "dnassist"
-DNAGlobal.version   = GetAddOnMetadata("DNAssistant", "Version")
-DNAGlobal.backdrop  = "Interface/Garrison/GarrisonMissionParchment" --default
-DNAGlobal.border    = "Interface/DialogFrame/UI-DialogBox-Border"
-DNAGlobal.slotbg    = "Interface/Collections/CollectionsBackgroundTile"
-DNAGlobal.slotborder= "Interface/Tooltips/UI-Tooltip-Border"
-DNAGlobal.tabborder = "Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB"
-DNAGlobal.author    = "Porthios of Myzrael"
-DNAGlobal.DKP       = 5
+DNAGlobal = {
+  name      = GetAddOnMetadata("DNAssistant", "Title"),
+  sub       = "DNA",
+  dir       = "Interface/AddOns/DNAssistant/",
+  icon      = "Interface/AddOns/DNAssistant/images/icon_dn",
+  width     = 980,
+  height    = 600,
+  font      = "Interface/AddOns/DNAssistant/Fonts/verdana.ttf",
+  fontSize  = 12,
+  btn_w     = 130,
+  btn_h     = 25,
+  btn_bg    = "Interface/Buttons/GoldGradiant",
+  btn_border= "Interface/Tooltips/UI-Tooltip-Border",
+  prefix    = "dnassist",
+  --version   = GetAddOnMetadata("DNAssistant", "Version"), --disable the requirement to log all the ay out of wow
+  version   = 1.313,
+  backdrop  = "Interface/Garrison/GarrisonMissionParchment", --default
+  border    = "Interface/DialogFrame/UI-DialogBox-Border",
+  slotbg    = "Interface/Collections/CollectionsBackgroundTile",
+  slotborder= "Interface/Tooltips/UI-Tooltip-Border",
+  tabborder = "Interface/PaperDollInfoFrame/UI-CHARACTER-ACTIVETAB",
+  author    = "Porthios of Myzrael",
+  DKP       = 5,
+}
 
 DN = {}
 
-total = {}
-total.warriors= 0
-total.rogues  = 0
-total.hunters = 0
-total.paladins= 0
-total.shamans = 0
-total.priests = 0
-total.warlocks= 0
-total.mages   = 0
-total.druids  = 0
-total.warriors_dps= 0 --dps warrs called to OT
-total.druids_dps  = 0 --dps druids called to OT
-total.paladins_dps= 0 --dps paladins called to OT
-total.shaman_dps  = 0
---
-total.tanks = 0
-total.healers= 0
-total.cc = 0
-total.melee = 0
-total.range = 0
---
-total.raid = 0
+total = {
+  warriors= 0,
+  rogues  = 0,
+  hunters = 0,
+  paladins= 0,
+  shamans = 0,
+  priests = 0,
+  warlocks= 0,
+  mages   = 0,
+  druids  = 0,
+  warriors_dps= 0, --dps warrs called to OT
+  druids_dps  = 0, --dps druids called to OT
+  paladins_dps= 0, --dps paladins called to OT
+  shaman_dps  = 0,
+  tanks  = 0,
+  healers= 0,
+  cc     = 0,
+  melee  = 0,
+  range  = 0,
+  raid   = 0,
+}
 
 Instance = {}
 expTab = {}
@@ -78,30 +79,32 @@ DNAPages = {
   --"Raid Builder"
 }
 
-textcolor={}
-textcolor.white ="|cffffffff"
-textcolor.note  ="|cffe2dbbf"
-textcolor.red   ="|cff912525"
-textcolor.green ="|cff76ed5e"
-textcolor.blue  ="|cff175aa8"
-textcolor.yellow="|cffdcdf36"
+textcolor = {
+  white = "|cffffffff",
+  note  = "|cffe2dbbf",
+  red   = "|cff912525",
+  green = "|cff76ed5e",
+  blue  = "|cff175aa8",
+  yellow= "|cffdcdf36",
+}
 
 DNACheckbox = {}
 
-DNASlots = {}
-DNASlots.tank = 6
-DNASlots.heal = 12
-DNASlots.cc   = 6
+DNASlots = {
+  tank = 6,
+  heal = 12,
+  cc   = 6,
+}
 
-_GitemQuality = {
-  POOR    = 0,
-  COMMON  = 1,
-  UNCOMMON= 2,
-  RARE    = 3,
-  EPIC    = 4,
-  LEGENDARY=5,
-  ARTIFACT= 6,
-  HEIRLOOM= 7,
+local itemQuality = {
+  POOR     = 0,
+  COMMON   = 1,
+  UNCOMMON = 2,
+  RARE     = 3,
+  EPIC     = 4,
+  LEGENDARY= 5,
+  ARTIFACT = 6,
+  HEIRLOOM = 7,
 }
 
 MAX_RAID_SLOTS  = 600
@@ -111,7 +114,7 @@ MAX_RAID_ITEMS  = 160 --you never know, just make this high
 MAX_CORPSE_ITEMS= 30 --max items on a corpse at one time
 MAX_BIDS  = 100
 BID_TIMER = 10
-MIN_LOOT_QUALITY= _GitemQuality["EPIC"] --the loot to record or bid against
+MIN_LOOT_QUALITY= itemQuality.EPIC --the loot to record or bid against
 
 DNAInstance = {}
 DNARaidBosses = {}
@@ -124,6 +127,7 @@ DNABidWindow_w = 250
 DNABidWindow_h = 350
 bitTimerPos_y = DNABidWindow_h-27
 bidSound = {}
+DNAlootWindowItemID= {}
 DNAlootWindowItem = {}
 DNAlootWindowItemBidBtn = {}
 DNAlootWindowItemQuality= {}
@@ -131,8 +135,19 @@ DNABidControlFrame = {}
 DNABidControlWinner = {}
 DNABidWindowBidderName= {}
 DNABidWindowBidderNum = {}
+DKPLogMember={}
+DKPLogMemberName={}
+DKPLogMemberDKPS={}
+DKPLogMemberDKPB={}
+DKPLogMemberDKPT={}
 
-onPage = "Assignment" --firstpage
+DNARaidScrollFrame_w = 140
+DNARaidScrollFrame_h = 520
+
+DNAGuildDataBuilder = 0
+
+memberDrag = nil
+thisClass = nil
 
 function DN:Debug(msg)
   if (DEBUG) then
@@ -206,11 +221,11 @@ function DN:BuildGlobalVars()
   end
 end
 
-function DN:SendPacket(packet, filtered, who)
+function DN:SendPacket(packet, filtered, rec)
   filteredPacket = nil
   local msg_to = "RAID"
-  if (who) then
-    msg_to = who
+  if (rec) then
+    msg_to = rec
   end
   if (filtered) then
     filteredPacket = packet:gsub("%s+", "") --filter spaces
@@ -256,31 +271,41 @@ TANK="T"
 HEAL="H"
 CC = "C"
 
-netCode = {
-  --packet codes
-  {"tanks",   "0xEFTa"},
-  {"healers", "0xEFHe"},
+packetPrefix = {
+  tanks     = "0xEFTa",
+  healers   = "0xEFHe",
+  cc        = "0xEFCc",
   --class codes
-  {"Warrior", "0xEFWa"},
-  {"Hunter",  "0xEFHu"},
-  {"Druid",   "0xEFDr"},
-  {"Rogue",   "0xEFRo"},
-  {"Warlock", "0xEFLo"},
-  {"Paladin", "0xEFPa"},
-  {"Shaman",  "0xEFSh"},
-  {"Priest",  "0xEFPr"},
-  {"Mage",    "0xEFMa"},
+  Warrior   = "0xEFWa",
+  Hunter    = "0xEFHu",
+  Druid     = "0xEFDr",
+  Rogue     = "0xEFRo",
+  Warlock   = "0xEFLo",
+  Paladin   = "0xEFPa",
+  Shaman    = "0xEFSh",
+  Priest    = "0xEFPr",
+  Mage      = "0xEFMa",
   --app codes
-  {"posttoraid","0xEFPo"},
-  {"version",   "0xEFVe"},
-  {"readyyes",  "0xEFRy"},
-  {"readyno",   "0xEFNr"},
-  {"postdkp",   "0xEFPd"},
-  {"author",    "0xEFAu"},
-  {"lootitem",  "0xEFLi"},
-  {"lootbid",   "0xEFLb"},
-  {"openbid",   "0xEFOb"},
+  posttoraid= "0xEFPo",
+  version   = "0xEFVe",
+  readyyes  = "0xEFRy",
+  readyno   = "0xEFNr",
+  postdkp   = "0xEFPd",
+  author    = "0xEFAu",
+  lootitem  = "0xEFLi",
+  lootbid   = "0xEFLb",
+  openbid   = "0xEFOb",
+  stopbid   = "0xEFBs",
 }
+
+function DN:ParsePacket(netpacket, code)
+  if (netpacket) then
+    if (string.sub(netpacket, 1, strlen(code)) == code) then
+      parse = string.gsub(netpacket, code, "")
+      return parse
+    end
+  end
+end
 
 DNARaidMarkers={
   {"",   ""},   --leave blank for boss icons that are dynamic
@@ -309,6 +334,8 @@ for i=1, table.getn(DNARaidMarkers) do
 end
 
 packet={}
+
+guildSlot={}
 
 raidSlot={}
 raidSlot_h=20
@@ -350,9 +377,9 @@ numLootLogs={}
 numLootLogs.init = 0
 numLootLogs.cache= 0
 
-ddSelection = nil
+ddPreBuild={}
 
---pageTab={}
+ddSelection = nil
 ddBossList={}
 ddBossListText={}
 DNAFrameInstance={}
@@ -370,6 +397,7 @@ pageRaidDetailsColOne={}
 pageRaidDetailsColTwo={}
 
 DNARaidScrollFrame={}
+DNARaidScrollFrameScrollChildFrame={}
 
 DNAFrameAssignTabIcon={}
 DNAFrameAssignMapGroupID={}
@@ -431,6 +459,7 @@ end
 DNAGuild={}
 DNAGuild["member"]={}
 DNAGuild["class"] ={}
+DNAGuild["race"] ={}
 DNAGuild["rank"] = {}
 DNAGuild["rankID"]={}
 
@@ -554,22 +583,27 @@ function isItem(compare, item) --dropdown packets that are filtered from spaces
   end
 end
 
-function DN:GetGuildComp()
-  if (IsInGuild()) then
-    totalGuildMembers = GetNumGuildMembers()
-    DN:Debug("totalGuildMembers " .. totalGuildMembers)
-    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
-    for i=1, numTotalMembers do
-      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
-      local filterRealm = string.match(name, "(.*)-")
-      DNAGuild["member"] = filterRealm
-      DNAGuild["class"][filterRealm] = class
-      DNAGuild["rank"][filterRealm] = rank
-      DNAGuild["rankID"][filterRealm] = rankIndex
-      --DN:Debug("Guild RankID " .. rankIndex .. " = " .. rank)
-    end
-    DN:Debug("getGuildComp()")
+function DN:ButtonFrame(frame, color)
+  frame:SetWidth(DNAGlobal.btn_w)
+  frame:SetHeight(DNAGlobal.btn_h)
+  frame:SetBackdrop({
+    bgFile = DNAGlobal.btn_bg,
+    edgeFile = DNAGlobal.btn_border,
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  frame:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+  if (color =="green") then
+    frame:SetBackdropColor(0, 0.7, 0, 1)
+  else --red default
+    frame:SetBackdropColor(0.5, 0, 0, 1)
   end
+  frame:SetScript("OnEnter", function()
+    frame:SetBackdropBorderColor(1, 1, 1, 1)
+  end)
+  frame:SetScript("OnLeave", function()
+    frame:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+  end)
 end
 
 function DN:BuildAttendance()
@@ -602,6 +636,26 @@ function DN:BuildAttendance()
         end
       end
     end
+  end
+end
+
+function DN:GetGuildComp()
+  if (IsInGuild()) then
+    DN:Debug("totalGuildMembers " .. totalGuildMembers)
+    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
+    totalGuildMembers = numTotalMembers
+    for i=1, totalGuildMembers do
+      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
+      local filterRealm = string.match(name, "(.*)-")
+      --DNAGuild["member"] = filterRealm
+      DNAGuild["member"][i] = filterRealm
+      DNAGuild["class"][filterRealm] = class
+      DNAGuild["rank"][filterRealm] = rank
+      DNAGuild["rankID"][filterRealm] = rankIndex
+      --DN:Debug("Guild RankID " .. rankIndex .. " = " .. rank)
+      --print("testtest0 " .. i)
+    end
+    DN:Debug("getGuildComp()")
   end
 end
 
@@ -816,7 +870,298 @@ function DN:RaidPermission()
   end
 end
 
+attendance = {}
+function DN:GetAttendanceLogs()
+  if (DNA["ATTENDANCE"]) then
+    for day,v in pairs(DNA["ATTENDANCE"]) do
+      for instance,v in pairs(DNA["ATTENDANCE"][day]) do
+        local instanceCombine = day .. "} " .. instance
+        attendance[instanceCombine] = {}
+        for name,v in pairs(DNA["ATTENDANCE"][day][instance]) do
+          attendance[instanceCombine][name] = {}
+          for class,v in pairs(DNA["ATTENDANCE"][day][instance][name]) do
+            attendance[instanceCombine][name] = class
+          end
+        end
+      end
+    end
+    DN:Debug("DN:GetAttendanceLogs()")
+  end
+end
+
+lootlog = {}
+function DN:GetLootLogs()
+  if (DNA["LOOTLOG"]) then
+    for day,v in pairs(DNA["LOOTLOG"]) do
+      for instance,v in pairs(DNA["LOOTLOG"][day]) do
+        local instanceCombine = day .. "} " .. instance
+        lootlog[instanceCombine] = {}
+        for name,v in pairs(DNA["LOOTLOG"][day][instance]) do
+          lootlog[instanceCombine][name] = {}
+          for lootItem,v in pairs(DNA["LOOTLOG"][day][instance][name]) do
+            lootlog[instanceCombine][name][lootItem] = v
+          end
+        end
+      end
+    end
+    DN:Debug("DN:GetLootLogs()")
+  end
+end
+
+dnadkp = {}
+function DN:GetDKPLogs()
+  if (DNA["DKP"]) then
+    for day,v in pairs(DNA["DKP"]) do
+      for instance,v in pairs(DNA["DKP"][day]) do
+        local instanceCombine = day .. "} " .. instance
+        dnadkp[instanceCombine] = {}
+        for name,v in pairs(DNA["DKP"][day][instance]) do
+          dnadkp[instanceCombine][name] = {}
+        end
+      end
+    end
+    DN:Debug("DN:GetDKPLogs()")
+  end
+end
+
+local guildSlotOrgPoint_y={}
+function guildSlotFrame(parentFrame, i, y)
+  guildSlot[i] = CreateFrame("button", guildSlot[i], parentFrame)
+  guildSlot[i]:SetFrameLevel(10)
+  guildSlot[i]:SetMovable(true)
+  guildSlot[i]:EnableMouse(true)
+  guildSlot[i]:RegisterForDrag("LeftButton")
+  guildSlotOrgPoint_y[i] = -y+17 --top padding
+  guildSlot[i]:SetScript("OnDragStart", function()
+    guildSlot[i]:StartMoving()
+    guildSlot[i]:SetParent(page["Assignment"])
+    guildSlot[i]:SetFrameStrata("DIALOG")
+    memberDrag = guildSlot[i].text:GetText()
+    DN:ResetQueueTransposing()
+  end)
+  guildSlot[i]:SetScript("OnDragStop", function()
+    guildSlot[i]:StopMovingOrSizing()
+    guildSlot[i]:SetParent(parentFrame)
+    guildSlot[i]:SetPoint("TOPLEFT", 0, guildSlotOrgPoint_y[i])
+    DN:ResetQueueTransposing()
+  end)
+  guildSlot[i]:SetBackdrop({
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  guildSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  guildSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  guildSlot[i]:SetWidth(DNARaidScrollFrame_w-5)
+  guildSlot[i]:SetHeight(raidSlot_h)
+  guildSlot[i]:SetPoint("TOPLEFT", 0, guildSlotOrgPoint_y[i])
+  guildSlot[i].icon = guildSlot[i]:CreateTexture(nil, "OVERLAY")
+  guildSlot[i].icon:SetTexture("")
+  guildSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
+  guildSlot[i].icon:SetSize(12, 12)
+  guildSlot[i].text = guildSlot[i]:CreateFontString(nil, "ARTWORK")
+  guildSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  guildSlot[i].text:SetPoint("TOPLEFT", 20, -4)
+  guildSlot[i].text:SetText("Empty")
+  guildSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
+  guildSlot[i].ready = guildSlot[i]:CreateTexture(nil, "OVERLAY")
+  guildSlot[i].ready:SetTexture("")
+  guildSlot[i].ready:SetPoint("TOPLEFT", DNARaidScrollFrame_w-21, -4)
+  guildSlot[i].ready:SetSize(12, 12)
+  guildSlot[i].blacklist = guildSlot[i]:CreateTexture(nil, "OVERLAY")
+  guildSlot[i].blacklist:SetTexture("")
+  guildSlot[i].blacklist:SetPoint("TOPLEFT", DNARaidScrollFrame_w-41, -4)
+  guildSlot[i].blacklist:SetSize(12, 12)
+  guildSlot[i]:SetScript('OnEnter', function()
+    guildSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  guildSlot[i]:SetScript('OnLeave', function()
+    guildSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
+end
+
+local raidSlotOrgPoint_y={}
+function raidSlotFrame(parentFrame, i, y)
+  raidSlot[i] = CreateFrame("button", raidSlot[i], parentFrame)
+  raidSlot[i]:SetFrameLevel(10)
+  raidSlot[i]:SetMovable(true)
+  raidSlot[i]:EnableMouse(true)
+  raidSlot[i]:RegisterForDrag("LeftButton")
+  raidSlotOrgPoint_y[i] = -y+17 --top padding
+  raidSlot[i]:SetScript("OnDragStart", function()
+    raidSlot[i]:StartMoving()
+    raidSlot[i]:SetParent(page["Assignment"])
+    raidSlot[i]:SetFrameStrata("DIALOG")
+    memberDrag = raidSlot[i].text:GetText()
+    DN:ResetQueueTransposing()
+  end)
+  raidSlot[i]:SetScript("OnDragStop", function()
+    raidSlot[i]:StopMovingOrSizing()
+    raidSlot[i]:SetParent(parentFrame)
+    raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
+    DN:ResetQueueTransposing()
+  end)
+  raidSlot[i]:SetBackdrop({
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  raidSlot[i]:SetBackdropColor(1, 1, 1, 0.6)
+  raidSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  raidSlot[i]:SetWidth(DNARaidScrollFrame_w-5)
+  raidSlot[i]:SetHeight(raidSlot_h)
+  raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
+  raidSlot[i].icon = raidSlot[i]:CreateTexture(nil, "OVERLAY")
+  raidSlot[i].icon:SetTexture("")
+  raidSlot[i].icon:SetPoint("TOPLEFT", 4, -4)
+  raidSlot[i].icon:SetSize(12, 12)
+  raidSlot[i].text = raidSlot[i]:CreateFontString(nil, "ARTWORK")
+  raidSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  raidSlot[i].text:SetPoint("TOPLEFT", 20, -4)
+  raidSlot[i].text:SetText("Empty")
+  raidSlot[i].text:SetTextColor(0.3, 0.3, 0.3)
+  raidSlot[i].ready = raidSlot[i]:CreateTexture(nil, "OVERLAY")
+  raidSlot[i].ready:SetTexture("")
+  raidSlot[i].ready:SetPoint("TOPLEFT", DNARaidScrollFrame_w-21, -4)
+  raidSlot[i].ready:SetSize(12, 12)
+  raidSlot[i].blacklist = raidSlot[i]:CreateTexture(nil, "OVERLAY")
+  raidSlot[i].blacklist:SetTexture("")
+  raidSlot[i].blacklist:SetPoint("TOPLEFT", DNARaidScrollFrame_w-41, -4)
+  raidSlot[i].blacklist:SetSize(12, 12)
+  raidSlot[i]:SetScript('OnEnter', function()
+    raidSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  raidSlot[i]:SetScript('OnLeave', function()
+    raidSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
+end
+
 --alpha sort the member matrix
+local DNAGuildMemberSorted={}
+function DN:UpdateGuildRoster()
+  local k=0
+
+  --clear all entries, then rebuild raid
+  for i=1, totalGuildMembers do
+    DNAGuild["member"][i] = nil
+  end
+
+  DN:GetGuildComp()
+
+  if ((totalGuildMembers == nil) or (totalGuildMembers <= 1)) then
+    return
+  end
+
+  for i=1, totalGuildMembers do
+    DNAGuildMemberSorted[i] = nil
+    guildSlot[i].text:SetText("")
+    guildSlot[i]:Hide()
+    --print("testtest3 " .. i)
+  end
+
+  --[==[
+  for i=1, DNASlots.tank do
+    tankSlot[i].icon:SetTexture("")
+    for k, v in pairs(DNARaid["assist"]) do
+      if ((tankSlot[i].text:GetText() == k) and (v == 1)) then
+        tankSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
+      end
+    end
+    if (tankSlot[i].text:GetText() ~= "Empty") then
+      total.tanks = total.tanks +1
+      tankSlotFrameClear:Show()
+      remove_slot = singleKeyFromValue(DNARaid["member"], tankSlot[i].text:GetText())
+      if (DNARaid["member"][remove_slot] == tankSlot[i].text:GetText()) then
+        DNARaid["member"][remove_slot] = nil
+      end
+    end
+  end
+
+  for i=1, DNASlots.heal do
+    healSlot[i].icon:SetTexture("")
+    healSlotUp[i]:Hide()
+    healSlotDown[i]:Hide()
+    for k, v in pairs(DNARaid["assist"]) do
+      if ((healSlot[i].text:GetText() == k) and (v == 1)) then
+        healSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
+      end
+    end
+    if (healSlot[i].text:GetText() ~= "Empty") then
+      total.healers = total.healers +1
+      if (IsInRaid()) then
+        if (UnitIsGroupLeader(player.name) or UnitIsGroupAssistant(player.name)) then
+          healSlotUp[i]:Show()
+          healSlotDown[i]:Show()
+          healSlotFrameClear:Show()
+        end
+      end
+      remove_slot = singleKeyFromValue(DNARaid["member"], healSlot[i].text:GetText())
+      if (DNARaid["member"][remove_slot] == healSlot[i].text:GetText()) then
+        DNARaid["member"][remove_slot] = nil
+      end
+    end
+  end
+  healSlotUp[1]:Hide()
+  healSlotDown[DNASlots.heal]:Hide()
+
+  for i=1, DNASlots.cc do
+    ccSlot[i].icon:SetTexture("")
+    for k, v in pairs(DNARaid["assist"]) do
+      if ((ccSlot[i].text:GetText() == k) and (v == 1)) then
+        ccSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
+      end
+    end
+    if (ccSlot[i].text:GetText() ~= "Empty") then
+      total.cc = total.cc +1
+      ccSlotFrameClear:Show()
+      remove_slot = singleKeyFromValue(DNARaid["member"], ccSlot[i].text:GetText())
+      if (DNARaid["member"][remove_slot] == ccSlot[i].text:GetText()) then
+        DNARaid["member"][remove_slot] = nil
+      end
+    end
+  end
+  ]==]--
+
+  --rebuild the roster and alphabetize
+  for k,v in pairs(DNAGuild["member"]) do
+    table.insert(DNAGuildMemberSorted, v)
+  end
+  table.sort(DNAGuildMemberSorted)
+  for k,v in ipairs(DNAGuildMemberSorted) do
+    --set text, get class color for each raid slot built
+    if ((v ~= nil) and (v ~= "")) then
+      guildSlot[k].text:SetText(v)
+      guildSlot[k]:Show()
+      thisClass = DNAGuild["class"][v]
+      DN:ClassColorText(guildSlot[k].text, thisClass)
+    end
+  end
+
+  --[==[
+  for i=1, table.getn(DNAGuildMemberSorted) do
+    guildSlot[i].icon:SetTexture("")
+    for k, v in pairs(DNARaid["assist"]) do
+      if ((raidSlot[i].text:GetText() == k) and (v == 1)) then
+        raidSlot[i].icon:SetTexture("Interface/GROUPFRAME/UI-GROUP-ASSISTANTICON")
+      end
+    end
+  end
+  ]==]--
+
+  for k,v in pairs(DNAGuild["class"]) do
+    lowerTextClass = string.lower(v) .. "s"
+    total[lowerTextClass] = total[lowerTextClass] +1
+  end
+
+  --total.raid = total.warriors + total.druids + total.priests + total.mages + total.warlocks + total.hunters + total.rogues + total.paladins + total.shamans
+  --total.melee = total.warriors + total.rogues + total.druids
+  --total.range = total.hunters + total.mages + total.warlocks
+
+  DN:Debug("DN:UpdateGuildRoster()")
+end
+
 local DNARaidMemberSorted={}
 function DN:UpdateRaidRoster()
   local k=0
@@ -829,6 +1174,7 @@ function DN:UpdateRaidRoster()
 
   DN:GetAttendanceLogs()
   DN:GetLootLogs()
+  DN:GetDKPLogs()
 
   for i=1, MAX_RAID_SLOTS do
     DNARaidMemberSorted[i] = nil
@@ -1112,6 +1458,8 @@ end
 
 function DN:ClearLootWindow()
   for i=1, MAX_CORPSE_ITEMS do
+    DNAlootWindowItemID[i]:SetText("")
+    DNAlootWindowItemID[i]:Hide()
     DNAlootWindowItem[i]:SetText("")
     DNAlootWindowItem[i]:Hide()
     DNAlootWindowItemBidBtn[i]:Hide()
@@ -1129,6 +1477,7 @@ end
 attendanceLogSlot = {}
 lootLogSlot = {}
 
+guildRosterBuild = 1
 function DN:Open()
   if (windowOpen) then
     DN:Close()
@@ -1137,6 +1486,20 @@ function DN:Open()
     DNAFrameMain:Show()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
+    --[==[
+    if (DNAGuildDataBuilder <= 0) then
+      local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
+      DNAGuildDataBuilder = numTotalMembers
+      DN:GetGuildComp()
+      for i=1, numTotalMembers do
+        guildSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
+        guildSlot[i]:Hide()
+      end
+      DN:ChatNotification("Building Guild Data [" .. numTotalMembers .. "]")
+      DN:UpdateGuildRoster()
+    end
+    DN:UpdateGuildRoster()
+    ]==]--
     DN:UpdateRaidRoster()
     DN:GetProfileVars()
 

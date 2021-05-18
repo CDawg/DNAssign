@@ -11,3 +11,220 @@ This addon is free to use and the authors hereby grants you the following rights
 All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
+
+MAX_DKP_RECORDS = 500
+
+local DNADKPScrollFrame_w = 300
+local DNADKPScrollFrame_h = 500
+local DNADKPScrollFrame = CreateFrame("Frame", DNADKPScrollFrame, page["DKP"], "InsetFrameTemplate")
+DNADKPScrollFrame:SetWidth(DNADKPScrollFrame_w+20)
+DNADKPScrollFrame:SetHeight(DNADKPScrollFrame_h)
+DNADKPScrollFrame:SetPoint("TOPLEFT", 20, -50)
+DNADKPScrollFrame:SetFrameLevel(5)
+DNADKPScrollFrame.text = DNADKPScrollFrame:CreateFontString(nil, "ARTWORK")
+DNADKPScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize -1, "OUTLINE")
+DNADKPScrollFrame.text:SetPoint("CENTER", DNADKPScrollFrame, "TOPLEFT", 100, 10)
+--DNADKPScrollFrame.text:SetText("NAME | DKP | BONUS")
+DNADKPScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNADKPScrollFrame, "UIPanelScrollFrameTemplate")
+DNADKPScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNADKPScrollFrame, "TOPLEFT", 3, -3)
+DNADKPScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNADKPScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNADKPScrollFrameScrollChildFrame = CreateFrame("Frame", DNADKPScrollFrameScrollChildFrame, DNADKPScrollFrame.ScrollFrame)
+DNADKPScrollFrameScrollChildFrame:SetSize(DNADKPScrollFrame_w, DNADKPScrollFrame_h)
+DNADKPScrollFrame.ScrollFrame:SetScrollChild(DNADKPScrollFrameScrollChildFrame)
+DNADKPScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNADKPScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNADKPScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNADKPScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNADKPScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNADKPScrollFrame.MR = DNADKPScrollFrame:CreateTexture(nil, "BACKGROUND", DNADKPScrollFrame, -2)
+DNADKPScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNADKPScrollFrame.MR:SetPoint("TOPLEFT", DNADKPScrollFrame_w-5, 0)
+DNADKPScrollFrame.MR:SetSize(24, DNADKPScrollFrame_h)
+
+local DNADKPDetailsFrame={}
+local DNADKPMemberScrollFrame={}
+local DNADKPDeleteLogBtn={}
+local DNADKPExportLogBtn={}
+
+local DKPLogDate = nil
+local DKPLogName = nil
+local DKPLogID = 0
+local sortDKPName = {}
+
+local DNADKPExportWindowScrollFrame_w = 250
+local DNADKPExportWindowScrollFrame_h = 400
+DNADKPExportWindow = CreateFrame("Frame", DNADKPExportWindow, UIParent, "BasicFrameTemplate")
+DNADKPExportWindow:SetWidth(DNADKPExportWindowScrollFrame_w+50)
+DNADKPExportWindow:SetHeight(DNADKPExportWindowScrollFrame_h+80)
+DNADKPExportWindow:SetPoint("CENTER", 0, 100)
+DNADKPExportWindow:SetFrameStrata("DIALOG")
+DNADKPExportWindow.title = DNADKPExportWindow:CreateFontString(nil, "ARTWORK")
+DNADKPExportWindow.title:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPExportWindow.title:SetPoint("TOPLEFT", DNADKPExportWindow, "TOPLEFT", 10, -6)
+DNADKPExportWindow.title:SetText("DKP Export")
+DNADKPExportWindow.text = DNADKPExportWindow:CreateFontString(nil, "ARTWORK")
+DNADKPExportWindow.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPExportWindow.text:SetPoint("TOPLEFT", DNADKPExportWindow, "TOPLEFT", 30, -DNADKPExportWindowScrollFrame_h-35)
+DNADKPExportWindow.text:SetText("Copy the data using CTRL+C")
+DNADKPExportWindow:Hide()
+DNADKPExportWindowScrollFrame = CreateFrame("Frame", DNADKPExportWindowScrollFrame, DNADKPExportWindow, "InsetFrameTemplate")
+DNADKPExportWindowScrollFrame:SetWidth(DNADKPExportWindowScrollFrame_w+20)
+DNADKPExportWindowScrollFrame:SetHeight(DNADKPExportWindowScrollFrame_h)
+DNADKPExportWindowScrollFrame:SetPoint("TOPLEFT", 15, -30)
+DNADKPExportWindowScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNADKPExportWindowScrollFrame, "UIPanelScrollFrameTemplate")
+DNADKPExportWindowScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNADKPExportWindowScrollFrame, "TOPLEFT", 3, -3)
+DNADKPExportWindowScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNADKPExportWindowScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNADKPExportWindowScrollFrameChildFrame = CreateFrame("Frame", DNADKPExportWindowScrollFrameChildFrame, DNADKPExportWindowScrollFrame.ScrollFrame)
+DNADKPExportWindowScrollFrameChildFrame:SetSize(DNADKPExportWindowScrollFrame_w, DNADKPExportWindowScrollFrame_h)
+DNADKPExportWindowScrollFrame.ScrollFrame:SetScrollChild(DNADKPExportWindowScrollFrameChildFrame)
+DNADKPExportWindowScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNADKPExportWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNADKPExportWindowScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNADKPExportWindowScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNADKPExportWindowScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNADKPExportWindowScrollFrame.MR = DNADKPExportWindowScrollFrame:CreateTexture(nil, "BACKGROUND", DNADKPExportWindowScrollFrame, -2)
+DNADKPExportWindowScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNADKPExportWindowScrollFrame.MR:SetPoint("TOPLEFT", DNADKPExportWindowScrollFrame_w-5, 0)
+DNADKPExportWindowScrollFrame.MR:SetSize(24, DNADKPExportWindowScrollFrame_h)
+DNADKPExportWindow.data = CreateFrame("EditBox", nil, DNADKPExportWindowScrollFrameChildFrame)
+DNADKPExportWindow.data:SetWidth(DNADKPExportWindowScrollFrame_w-10)
+DNADKPExportWindow.data:SetHeight(20)
+DNADKPExportWindow.data:SetFontObject(GameFontWhite)
+DNADKPExportWindow.data:SetPoint("TOPLEFT", 5, 0)
+DNADKPExportWindow.data:SetMultiLine(true)
+DNADKPExportWindow.data:SetText("There was an error pulling the log")
+
+-- export
+local DNADKPlogCloseBtn = CreateFrame("Button", nil, DNADKPExportWindow, "UIPanelButtonTemplate")
+DNADKPlogCloseBtn:SetSize(100, 24)
+DNADKPlogCloseBtn:SetPoint("TOPLEFT", 100, -DNADKPExportWindowScrollFrame_h-52)
+DNADKPlogCloseBtn.text = DNADKPlogCloseBtn:CreateFontString(nil, "ARTWORK")
+DNADKPlogCloseBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPlogCloseBtn.text:SetPoint("CENTER", DNADKPlogCloseBtn, "CENTER", 0, 0)
+DNADKPlogCloseBtn.text:SetText("Close")
+DNADKPlogCloseBtn:SetScript('OnClick', function()
+  DNADKPExportWindow:Hide()
+end)
+
+DNADKPExportLogBtn = CreateFrame("Button", nil, page["DKP"], "UIPanelButtonTemplate")
+DNADKPExportLogBtn:SetSize(DNAGlobal.btn_w, DNAGlobal.btn_h)
+DNADKPExportLogBtn:SetPoint("TOPLEFT", 680, -80)
+DNADKPExportLogBtn:SetFrameLevel(5)
+DNADKPExportLogBtn.text = DNADKPExportLogBtn:CreateFontString(nil, "ARTWORK")
+DNADKPExportLogBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPExportLogBtn.text:SetPoint("CENTER", DNADKPExportLogBtn, "TOPLEFT", 68, -13)
+DNADKPExportLogBtn.text:SetText("Export Log")
+DNADKPExportLogBtn:SetScript("OnClick", function()
+  DNADKPExportWindow:Show()
+  if ((DKPLogDate) and (DKPLogName)) then
+    DKPLogExportData = "DKP Log\n"
+    DKPLogExportData = DKPLogExportData .. "Date: " .. DKPLogDate .. "\n"
+    DKPLogExportData = DKPLogExportData .. "Raid: " .. DKPLogName .. "\n"
+    if (table.getn(sortDKPName)) then
+       DKPLogExportData = DKPLogExportData .. "Total: " .. table.getn(sortDKPName) .. "\n"
+    end
+    DKPLogExportData = DKPLogExportData .. "\n"
+    for k,v in ipairs(sortDKPName) do
+      DKPLogExportData = DKPLogExportData .. v .. "\n"
+    end
+    DKPLogExportData = DKPLogExportData .. "\n"
+    DNADKPExportWindow.data:SetText(DKPLogExportData)
+    DNADKPExportWindow.data:HighlightText()
+  end
+end)
+DNADKPExportLogBtn:Hide()
+
+--[==[
+local DNADKPMemberScrollFrame_w = 200
+local DNADKPMemberScrollFrame_h = 410
+DNADKPDetailsFrame = CreateFrame("Frame", DNADKPDetailsFrame, page["DKP"], "InsetFrameTemplate")
+DNADKPDetailsFrame:SetWidth(DNADKPMemberScrollFrame_w+20)
+DNADKPDetailsFrame:SetHeight(80)
+DNADKPDetailsFrame:SetPoint("TOPLEFT", 450, -50)
+DNADKPDetailsFrame.date = DNADKPDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNADKPDetailsFrame.date:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPDetailsFrame.date:SetPoint("TOPLEFT", 10, -10)
+DNADKPDetailsFrame.date:SetText("Select an DKP log")
+DNADKPDetailsFrame.instance = DNADKPDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNADKPDetailsFrame.instance:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPDetailsFrame.instance:SetPoint("TOPLEFT", 10, -30)
+DNADKPDetailsFrame.instance:SetText("")
+DNADKPDetailsFrame.count = DNADKPDetailsFrame:CreateFontString(nil, "ARTWORK")
+DNADKPDetailsFrame.count:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNADKPDetailsFrame.count:SetPoint("TOPLEFT", 10, -50)
+DNADKPDetailsFrame.count:SetText("")
+DNADKPDetailsFrame:Hide()
+]==]--
+
+--local DKPLogMemberUpdate={}
+--local DKPLogMemberUpdateText={}
+
+for i=1, MAX_DKP_RECORDS do
+  DKPLogMember[i] = CreateFrame("button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame)
+  DKPLogMember[i]:SetWidth(DNADKPScrollFrame_w-5)
+  DKPLogMember[i]:SetHeight(raidSlot_h)
+  DKPLogMember[i]:SetBackdrop({
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  DKPLogMember[i]:SetBackdropColor(1, 1, 1, 0.6)
+  DKPLogMember[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  DKPLogMember[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
+  DKPLogMember[i]:SetScript('OnEnter', function()
+    DKPLogMember[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  DKPLogMember[i]:SetScript('OnLeave', function()
+    DKPLogMember[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  end)
+  DKPLogMemberName[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
+  DKPLogMemberName[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DKPLogMemberName[i]:SetPoint("TOPLEFT", 5, -4)
+  DKPLogMemberName[i]:SetText("Huntingomenx")
+  DKPLogMemberDKPS[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
+  DKPLogMemberDKPS[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DKPLogMemberDKPS[i]:SetPoint("TOPLEFT", 140, -4)
+  DKPLogMemberDKPS[i]:SetText(i)
+  DKPLogMemberDKPB[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
+  DKPLogMemberDKPB[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DKPLogMemberDKPB[i]:SetPoint("TOPLEFT", 180, -4)
+  DKPLogMemberDKPB[i]:SetText(i)
+  DKPLogMemberDKPT[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
+  DKPLogMemberDKPT[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DKPLogMemberDKPT[i]:SetPoint("TOPLEFT", 220, -4)
+  DKPLogMemberDKPT[i]:SetText(i)
+  DKPLogMemberDKPT[i]:SetTextColor(0.5, 1, 0.5, 1)
+  --[==[
+  DKPLogMemberUpdate[i] = CreateFrame("button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame)
+  DKPLogMemberUpdate[i]:SetWidth(50)
+  DKPLogMemberUpdate[i]:SetHeight(raidSlot_h)
+  DKPLogMemberUpdate[i]:SetBackdrop({
+    bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  DKPLogMemberUpdate[i]:SetBackdropColor(0, 1, 0, 1)
+  DKPLogMemberUpdate[i]:SetBackdropBorderColor(0.8, 1, 0.8, 1)
+  DKPLogMemberUpdate[i]:SetPoint("TOPLEFT", 280, (-i*18)+raidSlot_h-4)
+  DKPLogMemberUpdateText[i] = DKPLogMemberUpdate[i]:CreateFontString(nil, "ARTWORK")
+  DKPLogMemberUpdateText[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
+  DKPLogMemberUpdateText[i]:SetPoint("CENTER", 0, 0)
+  DKPLogMemberUpdateText[i]:SetText("Update")
+  ]==]--
+  DKPLogMember[i]:Hide()
+end
+
+--[==[
+function setDKPSlotMemberFrame(i, member, class)
+  if (DKPLogMemberName[i]) then
+    DKPLogMemberNameText[i]:SetText(member)
+    DKPLogMemberName[i]:Show()
+    if (class) then
+      DN:ClassColorText(DKPLogMemberNameText[i], class)
+    end
+    DKPLogMemberNameInvite[i]:Show()
+    local thisMember = DKPLogMemberNameText[i]:GetText()
+    if (thisMember == player.name) then
+      DKPLogMemberNameInvite[i]:Hide()
+    end
+  end
+end
+]==]--

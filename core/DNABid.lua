@@ -140,7 +140,6 @@ end)
 local current_number = 0
 DNABidNumber:SetScript("OnKeyUp", function()
   current_number = DNABidNumber:GetText()
-  --DNABidBtnLow.text:SetText("Bid [" .. DNABidNumber:GetText() .. "]")
   if (tonumber(current_number)) then
     DNABidNumber:SetText(current_number)
   else
@@ -150,17 +149,8 @@ end)
 DNABidNumber:SetText("0")
 
 DNABidBtnLow = CreateFrame("Button", nil, DNABidControlFrame)
-DNABidBtnLow:SetWidth(110)
-DNABidBtnLow:SetHeight(28)
 DNABidBtnLow:SetPoint("TOPLEFT", 70, -20)
-DNABidBtnLow:SetBackdrop({
-  bgFile = "Interface/Buttons/GREENGRAD64",
-  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeSize = 15,
-  insets = {left=4, right=4, top=4, bottom=4},
-})
 DNABidBtnLow:SetBackdropColor(0.8, 0.8, 0.8, 1)
-DNABidBtnLow:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 DNABidBtnLow.text = DNABidBtnLow:CreateFontString(nil, "OVERLAY")
 DNABidBtnLow.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNABidBtnLow.text:SetText("Bid")
@@ -169,15 +159,9 @@ DNABidBtnLow.image = DNABidBtnLow:CreateTexture(nil, "OVERLAY", DNABidBtnLow, 7)
 DNABidBtnLow.image:SetTexture("Interface/Buttons/UI-MicroStream-Green")
 DNABidBtnLow.image:SetWidth(25)
 DNABidBtnLow.image:SetHeight(25)
-DNABidBtnLow.image:SetPoint("TOPLEFT", 70, 0)
+DNABidBtnLow.image:SetPoint("TOPLEFT", 80, 0)
 DNABidBtnLow.image:SetRotation(math.rad(180))
---DNABidBtnLow.image:SetBlendMode("ADD")
-DNABidBtnLow:SetScript("OnEnter", function()
-  DNABidBtnLow:SetBackdropBorderColor(1, 1, 1, 1)
-end)
-DNABidBtnLow:SetScript("OnLeave", function()
-  DNABidBtnLow:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-end)
+DN:ButtonFrame(DNABidBtnLow, "green")
 DNABidBtnLow:SetScript("OnClick", function()
   local bidRoll = tonumber(DNABidNumber:GetText())
   if ((bidRoll == nil) or (bidRoll == "")) then
@@ -185,7 +169,6 @@ DNABidBtnLow:SetScript("OnClick", function()
     --DNABidNumber:SetText("0")
   end
   if (tonumber(bidRoll)) then
-    local getCode = multiKeyFromValue(netCode, "lootbid")
     if (myBid == bidRoll) then
       DN:ChatNotification("|cfff00000Your bid [".. tonumber(bidRoll) .. "] was already placed!")
       return
@@ -206,7 +189,7 @@ DNABidBtnLow:SetScript("OnClick", function()
       DN:ChatNotification("|cfff00000Bid exceeds the limit!")
       return
     end
-    DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. tonumber(bidRoll), true)
+    DN:SendPacket(packetPrefix.lootbid .. player.name .. "," .. tonumber(bidRoll), true)
     DNABidNumber:SetText("")
     DNABidNumber:ClearFocus(self)
     myBid = bidRoll
@@ -217,59 +200,29 @@ end)
 
 local DNABidBtnMax = {}
 DNABidBtnMax = CreateFrame("Button", nil, DNABidControlFrame)
-DNABidBtnMax:SetWidth(110)
-DNABidBtnMax:SetHeight(28)
 DNABidBtnMax:SetPoint("TOPLEFT", 70, -50)
-DNABidBtnMax:SetBackdrop({
-  bgFile = "Interface/Buttons/REDGRAD64",
-  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeSize = 15,
-  insets = {left=4, right=4, top=4, bottom=4},
-})
-DNABidBtnMax:SetBackdropColor(0.5, 0.4, 0.4, 1)
-DNABidBtnMax:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 DNABidBtnMax.text = DNABidBtnMax:CreateFontString(nil, "OVERLAY")
 DNABidBtnMax.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNABidBtnMax.text:SetText("Max")
 DNABidBtnMax.text:SetPoint("CENTER", 0, 0)
-DNABidBtnMax:SetScript("OnEnter", function()
-  DNABidBtnMax:SetBackdropBorderColor(1, 1, 1, 1)
-end)
-DNABidBtnMax:SetScript("OnLeave", function()
-  DNABidBtnMax:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-end)
+DN:ButtonFrame(DNABidBtnMax, "red")
 DNABidBtnMax:SetScript("OnClick", function()
-  --local getCode = multiKeyFromValue(netCode, "lootbid")
-  --DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. 4, true)
+  --not yet
 end)
+DNABidBtnMax:Hide()
 
 DNABidBtnMaxBonus = {}
 DNABidBtnMaxBonus = CreateFrame("Button", nil, DNABidControlFrame)
-DNABidBtnMaxBonus:SetWidth(110)
-DNABidBtnMaxBonus:SetHeight(28)
 DNABidBtnMaxBonus:SetPoint("TOPLEFT", 70, -80)
-DNABidBtnMaxBonus:SetBackdrop({
-  bgFile = "Interface/Buttons/REDGRAD64",
-  edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-  edgeSize = 15,
-  insets = {left=4, right=4, top=4, bottom=4},
-})
-DNABidBtnMaxBonus:SetBackdropColor(0.5, 0.3, 0.3, 1)
-DNABidBtnMaxBonus:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
 DNABidBtnMaxBonus.text = DNABidBtnMaxBonus:CreateFontString(nil, "OVERLAY")
 DNABidBtnMaxBonus.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNABidBtnMaxBonus.text:SetText("Max + Bonus")
 DNABidBtnMaxBonus.text:SetPoint("CENTER", 0, 0)
-DNABidBtnMaxBonus:SetScript("OnEnter", function()
-  DNABidBtnMaxBonus:SetBackdropBorderColor(1, 1, 1, 1)
-end)
-DNABidBtnMaxBonus:SetScript("OnLeave", function()
-  DNABidBtnMaxBonus:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-end)
+DN:ButtonFrame(DNABidBtnMaxBonus, "red")
 DNABidBtnMaxBonus:SetScript("OnClick", function()
-  --local getCode = multiKeyFromValue(netCode, "lootbid")
-  --DN:SendPacket(netCode[getCode][2] .. player.name .. "," .. 4, true)
+  --not yet
 end)
+DNABidBtnMaxBonus:Hide()
 
 --progress
 local bidtimer_h = 24
