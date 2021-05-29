@@ -12,11 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
--- assignment window --
-local DNAFrameAssign_w = 400
-local DNAFrameAssign_h = 450
---local DNAFrameAssign = CreateFrame("Frame", nil, UIParent, "ButtonFrameTemplate")
-local DNAFrameAssign = CreateFrame("Frame", nil, UIParent)
+local DNAFrameAssign = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 DNAFrameAssign:SetWidth(DNAFrameAssign_w)
 DNAFrameAssign:SetHeight(DNAFrameAssign_h)
 DNAFrameAssign:SetPoint("CENTER", 0, 0)
@@ -25,7 +21,7 @@ DNAFrameAssign:EnableMouse(true)
 DNAFrameAssign:SetFrameStrata("DIALOG")
 DNAFrameAssign:SetFrameLevel(150)
 DNAFrameAssign:RegisterForDrag("LeftButton")
-local DNAFrameAssignTitle = CreateFrame("Frame", nil, DNAFrameAssign)
+local DNAFrameAssignTitle = CreateFrame("Frame", nil, DNAFrameAssign, "BackdropTemplate")
 DNAFrameAssignTitle:SetWidth(DNAFrameAssign_w)
 DNAFrameAssignTitle:SetHeight(35)
 DNAFrameAssignTitle:SetPoint("TOPLEFT", 0, 12)
@@ -38,7 +34,7 @@ DNAFrameAssignTitle:SetBackdrop({
 local DNAFrameAssignTitleText = DNAFrameAssignTitle:CreateFontString(nil, "ARTWORK")
 DNAFrameAssignTitleText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNAFrameAssignTitleText:SetPoint("TOPLEFT", DNAFrameAssignTitle, "TOPLEFT", 15, -12)
-DNAFrameAssignTitleText:SetText("Assignments            [" .. DNAGlobal.sub .. " v" .. DNAGlobal.version .. "]")
+DNAFrameAssignTitleText:SetText("Assignments   [" .. DNAGlobal.sub .. " v" .. DNAGlobal.version .. "]")
 DNAFrameAssignTitleText:SetTextColor(1.0, 1.0, 0.5)
 
 local DNAFrameAssignPage={}
@@ -60,7 +56,7 @@ DNAFrameAssignBossIcon:SetSize(90, 50)
 DNAFrameAssignBossIcon:SetPoint("TOPLEFT", 25, -20)
 DNAFrameAssignBossIcon:SetTexture("")
 
-DNAFrameAssignPersonal = CreateFrame("Frame", nil, UIParent)
+DNAFrameAssignPersonal = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 DNAFrameAssignPersonal:SetWidth(DNAFrameAssignPersonal_w)
 DNAFrameAssignPersonal:SetHeight(DNAFrameAssignPersonal_h)
 DNAFrameAssignPersonal:SetPoint("BOTTOMRIGHT", -120, 200)
@@ -82,7 +78,7 @@ DNAFrameAssignPersonal:SetScript("OnDragStop", function()
   DNA[player.combine]["CONFIG"]["PAWPOS"] = point .. "," .. xOfs .. "," .. yOfs
 end)
 DNAFrameAssignPersonal:SetBackdropColor(0, 0, 0, 1)
-DNAFrameAssignPersonal.header = CreateFrame("Frame", nil, DNAFrameAssignPersonal)
+DNAFrameAssignPersonal.header = CreateFrame("Frame", nil, DNAFrameAssignPersonal, "BackdropTemplate")
 DNAFrameAssignPersonal.header:SetWidth(DNAFrameAssignPersonal_w)
 DNAFrameAssignPersonal.header:SetHeight(18)
 DNAFrameAssignPersonal.header:SetPoint("TOPLEFT", 0, 0)
@@ -95,7 +91,7 @@ DNAFrameAssignPersonal.headerText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "O
 DNAFrameAssignPersonal.headerText:SetPoint("TOPLEFT", 5, -3)
 DNAFrameAssignPersonal.headerText:SetText(player.name .. "'s Assignment         DNA v" .. DNAGlobal.version)
 DNAFrameAssignPersonal.headerText:SetTextColor(1, 1, 0.4)
-DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal)
+DNAFrameAssignPersonal.close = CreateFrame("Button", nil, DNAFrameAssignPersonal, "BackdropTemplate")
 DNAFrameAssignPersonal.close:SetWidth(25)
 DNAFrameAssignPersonal.close:SetHeight(25)
 DNAFrameAssignPersonal.close:SetPoint("TOPLEFT", DNAFrameAssignPersonal:GetWidth()-14, 4)
@@ -190,7 +186,7 @@ for i=1, MAX_FRAME_LINES do
 end
 
 local DNAFrameAssignReady = {}
-DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign)
+DNAFrameAssignReady = CreateFrame("Button", nil, DNAFrameAssign, "BackdropTemplate")
 DNAFrameAssignReady:SetPoint("TOPLEFT", 70, -DNAFrameAssign_h+65)
 DNAFrameAssignReady:SetBackdropColor(0.8, 0.8, 0.8, 1)
 DNAFrameAssignReady:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
@@ -208,7 +204,7 @@ DNAFrameAssignReady:SetScript("OnClick", function()
 end)
 
 local DNAFrameAssignNotReady={}
-DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign)
+DNAFrameAssignNotReady = CreateFrame("Button", nil, DNAFrameAssign, "BackdropTemplate")
 DNAFrameAssignNotReady:SetPoint("TOPLEFT", 210, -DNAFrameAssign_h+65)
 DNAFrameAssignNotReady.text = DNAFrameAssignNotReady:CreateFontString(nil, "OVERLAY")
 DNAFrameAssignNotReady.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -1291,11 +1287,11 @@ function DN:GetProfileVars()
   DN:Debug("DN:GetProfileVars()")
 end
 
-DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent)
+DNAFrameMain = CreateFrame("Frame", "DNAFrameMain", UIParent, "BackdropTemplate")
 DNAFrameMain:SetWidth(DNAGlobal.width)
 DNAFrameMain:SetHeight(DNAGlobal.height)
 DNAFrameMain:SetPoint("CENTER", 20, 60)
-DNAFrameMain.title = CreateFrame("Frame", nil, DNAFrameMain)
+DNAFrameMain.title = CreateFrame("Frame", nil, DNAFrameMain, "BackdropTemplate")
 DNAFrameMain.title:SetWidth(DNAGlobal.width)
 DNAFrameMain.title:SetHeight(34)
 DNAFrameMain.title:SetPoint("TOPLEFT", 0, 5)
@@ -1352,7 +1348,7 @@ DNAFrameMain:SetScript("OnDragStop", function()
 end)
 DNAFrameMain:EnableKeyboard(true)
 tinsert(UISpecialFrames, "DNAFrameMain")
-DNAFrameMain.enter = CreateFrame("EditBox", nil, DNAFrameMain)
+DNAFrameMain.enter = CreateFrame("EditBox", nil, DNAFrameMain, "BackdropTemplate")
 DNAFrameMain.enter:SetWidth(100)
 DNAFrameMain.enter:SetHeight(20)
 DNAFrameMain.enter:SetFontObject(GameFontNormal)
@@ -1405,7 +1401,7 @@ pageBossIcon:SetTexture(DNAInstance[1][4]) --default
 pageBossIcon:SetSize(134, 70)
 pageBossIcon:SetPoint("TOPLEFT", 590, -52)
 
-local DNAFrameMainNotif = CreateFrame("Frame", nil, DNAFrameMain)
+DNAFrameMainNotif = CreateFrame("Frame", nil, DNAFrameMain, "BackdropTemplate")
 DNAFrameMainNotif:SetSize(500, 40)
 DNAFrameMainNotif:SetPoint("CENTER", 0, 300)
 DNAFrameMainNotif:SetFrameStrata("DIALOG")
@@ -1511,7 +1507,7 @@ DNAFramePresetDivider:SetPoint("TOPLEFT", 180, 0)
 function DNAFrameClassAssignTextbox(name, pos_y)
   local edit_w = 225
   local edit_h = 25
-  local DNAFrameClassAssignBorder = CreateFrame("Frame", nil, DNAFrameClassAssignView)
+  local DNAFrameClassAssignBorder = CreateFrame("Frame", nil, DNAFrameClassAssignView, "BackdropTemplate")
   DNAFrameClassAssignBorder:SetSize(edit_w, edit_h)
   DNAFrameClassAssignBorder:SetPoint("TOPLEFT", 115, -pos_y)
   DNAFrameClassAssignBorder:SetBackdrop({
@@ -1585,7 +1581,7 @@ end
 DN:FrameBorder("AUTO PROMOTE", page["Settings"], 20, 110, 350, 100)
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Settings"], 20, 80, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
 DN:CheckBox("AUTOPROMOTEC", "Auto Promote Custom", page["Settings"], 20, 100, "Auto Promote custom to raid assistants.\nMust be Raid Lead.")
-DNAFrameAutopromoteCustom = CreateFrame("EditBox", nil, page["Settings"])
+DNAFrameAutopromoteCustom = CreateFrame("EditBox", nil, page["Settings"], "BackdropTemplate")
 DNAFrameAutopromoteCustom:SetSize(150, 22)
 DNAFrameAutopromoteCustom:SetFontObject(GameFontWhite)
 DNAFrameAutopromoteCustom:SetPoint("TOPLEFT", 30, -170)
@@ -1629,17 +1625,6 @@ for i=1, 50 do
   pageRaidDetailsColTwo[i]:SetTextColor(0.9, 0.9, 0.9)
 end
 
-function DN:ClearNotifications()
-  DNAFrameMainNotifText:SetText("")
-  DNAFrameMainNotif:Hide()
-end
-
-function DN:Notification(msg)
-  DN:ClearNotifications()
-  DNAFrameMainNotifText:SetText(msg)
-  DNAFrameMainNotif:Show()
-end
-
 --send the network data, then save after
 local function updateSlotPos(role, i, name)
   if (DN:RaidPermission()) then
@@ -1661,7 +1646,7 @@ local instanceButton_x = 22
 function DN:InstanceButton(name, pos_y, longtext, icon)
   local instanceButton_w = 160
   local instanceButton_h = 70
-  DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"])
+  DNAFrameInstance[name] = CreateFrame("Frame", nil, page["Assignment"], "BackdropTemplate")
   DNAFrameInstance[name]:SetSize(instanceButton_w, instanceButton_h)
   DNAFrameInstance[name]:SetPoint("TOPLEFT", instanceButton_x, -pos_y+42)
   DNAFrameInstanceText[name] = DNAFrameInstance[name]:CreateFontString(nil, "OVERLAY")
@@ -1874,10 +1859,22 @@ ddPreBuild.text:SetPoint("TOPLEFT", ddPreBuild, "TOPLEFT", 25, -8)
 ddPreBuild.text:SetText(ddPreBuildMenu[1])
 ddPreBuild.onClick = function(self, checked)
   ddPreBuild.text:SetText(self.value)
-  print("click")
+  --print("click")
 end
 ddPreBuild.initialize = function(self, level)
-  print("init")
+  local info = UIDropDownMenu_CreateInfo()
+  local i = 0
+  for k,v in pairs(ddPreBuildMenu) do
+    info.notCheckable = 1
+    info.padding = 100
+    info.text = v
+    info.value= v
+    info.fontObject = GameFontWhite
+    info.justifyH = "LEFT"
+    info.disabled = false
+    info.func = self.onClick
+    UIDropDownMenu_AddButton(info, level)
+  end
 end
 UIDropDownMenu_SetWidth(ddPreBuild, DNARaidScrollFrame_w+4)
 
@@ -1926,7 +1923,7 @@ DNAFrameMainAuthor:SetText("Last Update:")
 DNAFrameMainAuthor:SetTextColor(0.9, 0.9, 0.9)
 DNAFrameMainAuthor:Hide()
 
-local slotDialog = CreateFrame("Frame", nil, DNAFrameMain)
+local slotDialog = CreateFrame("Frame", nil, DNAFrameMain, "BackdropTemplate")
 slotDialog:SetWidth(400)
 slotDialog:SetHeight(100)
 slotDialog:SetPoint("CENTER", 0, 50)
@@ -2022,7 +2019,7 @@ end)
 tankSlotFrameClear:Hide()
 
 for i=1, DNASlots.tank do
-  tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotFrame)
+  tankSlot[i] = CreateFrame("Button", tankSlot[i], tankSlotFrame, "BackdropTemplate")
   tankSlot[i]:SetWidth(DNARaidScrollFrame_w)
   tankSlot[i]:SetHeight(raidSlot_h)
   tankSlotOrgPoint_y[i] = (-i*18)+16 --top padding
@@ -2136,7 +2133,7 @@ healSlotFrameClear:Hide()
 DN:ToolTip(healSlotFrameClear, "Clear Healer Queue")
 
 for i=1, DNASlots.heal do
-  healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame)
+  healSlot[i] = CreateFrame("Button", healSlot[i], healSlotFrame, "BackdropTemplate")
   healSlot[i]:SetWidth(DNARaidScrollFrame_w)
   healSlot[i]:SetHeight(raidSlot_h)
   healSlotOrgPoint_y[i] = (-i*18)+16
@@ -2254,7 +2251,7 @@ end)
 ccSlotFrameClear:Hide()
 
 for i=1, DNASlots.cc do
-  ccSlot[i] = CreateFrame("Button", ccSlot[i], ccSlotFrame)
+  ccSlot[i] = CreateFrame("Button", ccSlot[i], ccSlotFrame, "BackdropTemplate")
   ccSlot[i]:SetWidth(DNARaidScrollFrame_w)
   ccSlot[i]:SetHeight(raidSlot_h)
   ccSlotOrgPoint_y[i] = (-i*18)+16 --top padding
@@ -2516,7 +2513,7 @@ local function viewFrameBottomTab(name, pos_x, text_pos_x)
   viewFrameBotBorder[name]:SetSize(100, 35)
   viewFrameBotBorder[name]:SetPoint("TOPLEFT", 0, -14)
   local viewFrameBotTabScript={}
-  viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name], "UIPanelButtonTemplate")
+  --viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name], "UIPanelButtonTemplate")
   viewFrameBotTabScript[name] = CreateFrame("Button", nil, viewFrameBotTab[name])
   viewFrameBotTabScript[name]:SetSize(85, 30)
   viewFrameBotTabScript[name]:SetPoint("CENTER", 0, 0)
@@ -2665,7 +2662,7 @@ local btnPostRaid_y = DNAGlobal.height-45
 --DN:CheckBox("READYCHECK", "Ready Check", page["Assignment"], btnPostRaid_x, DNAGlobal.height-107)
 --DNACheckbox["READYCHECK"]:SetChecked(true)
 
-btnPostRaid = CreateFrame("Button", nil, page["Assignment"])
+btnPostRaid = CreateFrame("Button", nil, page["Assignment"], "BackdropTemplate")
 btnPostRaid:SetPoint("TOPLEFT", btnPostRaid_x, -btnPostRaid_y)
 btnPostRaid.text = btnPostRaid:CreateFontString(nil, "ARTWORK")
 btnPostRaid.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -2777,7 +2774,7 @@ function DN:PresetLoad(selection)
   DN:Debug("DN:PresetLoad(".. selection ..")")
 end
 
-btnSaveRaid = CreateFrame("Button", nil, DNAFramePreset)
+btnSaveRaid = CreateFrame("Button", nil, DNAFramePreset, "BackdropTemplate")
 btnSaveRaid:SetPoint("TOPLEFT", 30, -290)
 btnSaveRaid.text = btnSaveRaid:CreateFontString(nil, "ARTWORK")
 btnSaveRaid.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -2813,7 +2810,7 @@ btnSaveRaid:SetScript("OnClick", function()
 end)
 btnSaveRaid:Hide()
 
-btnLoadRaid = CreateFrame("Button", nil, DNAFramePreset)
+btnLoadRaid = CreateFrame("Button", nil, DNAFramePreset, "BackdropTemplate")
 btnLoadRaid:SetPoint("TOPLEFT", 210, -290)
 btnLoadRaid.text = btnLoadRaid:CreateFontString(nil, "ARTWORK")
 btnLoadRaid.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")

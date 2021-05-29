@@ -156,7 +156,7 @@ DNADKPDetailsFrame:Hide()
 --local DKPLogMemberUpdateText={}
 
 for i=1, MAX_DKP_RECORDS do
-  DKPLogMember[i] = CreateFrame("button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame)
+  DKPLogMember[i] = CreateFrame("button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame, "BackdropTemplate")
   DKPLogMember[i]:SetWidth(DNADKPScrollFrame_w-5)
   DKPLogMember[i]:SetHeight(raidSlot_h)
   DKPLogMember[i]:SetBackdrop({

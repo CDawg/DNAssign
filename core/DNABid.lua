@@ -102,7 +102,7 @@ DNABidControlWinner:SetText("WEINER")
 DNABidControlWinner:SetPoint("CENTER", 0, -40)
 DNABidControlWinner:Hide()
 
-DNABidControlFrame = CreateFrame("Frame", nil, DNABidWindow)
+DNABidControlFrame = CreateFrame("Frame", nil, DNABidWindow, "BackdropTemplate")
 DNABidControlFrame:SetWidth(238)
 DNABidControlFrame:SetHeight(140)
 DNABidControlFrame:SetPoint("TOPLEFT", 5, -DNABidWindow_h+170)
@@ -114,7 +114,7 @@ DNABidControlFrame:SetBackdrop({
 })
 
 local DNABidBtnLow = {}
-local DNABidNumberBorder = CreateFrame("Frame", nil, DNABidControlFrame)
+local DNABidNumberBorder = CreateFrame("Frame", nil, DNABidControlFrame, "BackdropTemplate")
 DNABidNumberBorder:SetWidth(36)
 DNABidNumberBorder:SetHeight(25)
 DNABidNumberBorder:SetPoint("TOPLEFT", 20, -20)
@@ -148,7 +148,7 @@ DNABidNumber:SetScript("OnKeyUp", function()
 end)
 DNABidNumber:SetText("0")
 
-DNABidBtnLow = CreateFrame("Button", nil, DNABidControlFrame)
+DNABidBtnLow = CreateFrame("Button", nil, DNABidControlFrame, "BackdropTemplate")
 DNABidBtnLow:SetPoint("TOPLEFT", 70, -20)
 DNABidBtnLow:SetBackdropColor(0.8, 0.8, 0.8, 1)
 DNABidBtnLow.text = DNABidBtnLow:CreateFontString(nil, "OVERLAY")
@@ -199,7 +199,7 @@ DNABidBtnLow:SetScript("OnClick", function()
 end)
 
 local DNABidBtnMax = {}
-DNABidBtnMax = CreateFrame("Button", nil, DNABidControlFrame)
+DNABidBtnMax = CreateFrame("Button", nil, DNABidControlFrame, "BackdropTemplate")
 DNABidBtnMax:SetPoint("TOPLEFT", 70, -50)
 DNABidBtnMax.text = DNABidBtnMax:CreateFontString(nil, "OVERLAY")
 DNABidBtnMax.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -212,7 +212,7 @@ end)
 DNABidBtnMax:Hide()
 
 DNABidBtnMaxBonus = {}
-DNABidBtnMaxBonus = CreateFrame("Button", nil, DNABidControlFrame)
+DNABidBtnMaxBonus = CreateFrame("Button", nil, DNABidControlFrame, "BackdropTemplate")
 DNABidBtnMaxBonus:SetPoint("TOPLEFT", 70, -80)
 DNABidBtnMaxBonus.text = DNABidBtnMaxBonus:CreateFontString(nil, "OVERLAY")
 DNABidBtnMaxBonus.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -226,7 +226,7 @@ DNABidBtnMaxBonus:Hide()
 
 --progress
 local bidtimer_h = 24
-DNABidTimerProg = CreateFrame("Frame", nil, DNABidWindow)
+DNABidTimerProg = CreateFrame("Frame", nil, DNABidWindow, "BackdropTemplate")
 DNABidTimerProg:SetWidth(0)
 DNABidTimerProg:SetHeight(bidtimer_h)
 DNABidTimerProg:SetFrameLevel(frameZindex+2)
@@ -239,7 +239,7 @@ DNABidTimerProg:SetBackdrop({
 })
 DNABidTimerProg:SetBackdropColor(1, 1, 1, 0.8)
 
-DNABidTimerBorder = CreateFrame("Frame", nil, DNABidWindow)
+DNABidTimerBorder = CreateFrame("Frame", nil, DNABidWindow, "BackdropTemplate")
 DNABidTimerBorder:SetWidth(DNABidWindow_w-2)
 DNABidTimerBorder:SetHeight(bidtimer_h)
 DNABidTimerBorder:SetFrameLevel(frameZindex+3)
@@ -256,7 +256,7 @@ DNABidTimerCount:SetText("")
 --DNABidTimerCount:SetTextColor(1, 1, 1)
 DNABidTimerCount:SetPoint("CENTER", 0, 0)
 
-DNABidTimerBG = CreateFrame("Frame", nil, DNABidWindow)
+DNABidTimerBG = CreateFrame("Frame", nil, DNABidWindow, "BackdropTemplate")
 DNABidTimerBG:SetWidth(DNABidWindow_w-2)
 DNABidTimerBG:SetHeight(bidtimer_h)
 DNABidTimerBG:SetFrameLevel(frameZindex+1)

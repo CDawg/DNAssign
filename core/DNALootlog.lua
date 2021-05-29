@@ -50,7 +50,7 @@ DNALootlogBidItem:SetText("")
 --DNALootlogBidItem:Hide()
 
 -- ML set the timer for biddings - default at 10
-local DNABidTimerSetBorder = CreateFrame("Frame", nil, DNALootlogBidItemFrame)
+local DNABidTimerSetBorder = CreateFrame("Frame", nil, DNALootlogBidItemFrame, "BackdropTemplate")
 DNABidTimerSetBorder:SetWidth(36)
 DNABidTimerSetBorder:SetHeight(25)
 DNABidTimerSetBorder:SetPoint("TOPLEFT", 20, -35)
@@ -89,7 +89,7 @@ DNABidTimerSetText:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
 DNABidTimerSetText:SetPoint("TOPLEFT", 65, -41)
 DNABidTimerSetText:SetText("Bid Timer (Seconds)")
 
-DNALootlogOpenbidBtn = CreateFrame("Button", nil, DNALootlogBidItemFrame)
+DNALootlogOpenbidBtn = CreateFrame("Button", nil, DNALootlogBidItemFrame, "BackdropTemplate")
 DNALootlogOpenbidBtn:SetPoint("TOPLEFT", 10, -70)
 DNALootlogOpenbidBtn:SetFrameLevel(5)
 DNALootlogOpenbidBtn.text = DNALootlogOpenbidBtn:CreateFontString(nil, "ARTWORK")
@@ -107,11 +107,13 @@ DNALootlogOpenbidBtn:SetScript("OnClick", function()
         get_bid_timer_cache = 1
       end
       DN:SendPacket(packetPrefix.openbid .. _GitemName .. "," .. _GitemRarity .. "," .. player.name .. "," .. tonumber(get_bid_timer_cache), false)
+    else
+      DN:Notification("You are not the Master Looter")
     end
   end
 end)
 
-DNALootlogStopbidBtn = CreateFrame("Button", nil, DNALootlogBidItemFrame)
+DNALootlogStopbidBtn = CreateFrame("Button", nil, DNALootlogBidItemFrame, "BackdropTemplate")
 DNALootlogStopbidBtn:SetPoint("TOPLEFT", 10, -100)
 DNALootlogStopbidBtn:SetFrameLevel(5)
 DNALootlogStopbidBtn.text = DNALootlogStopbidBtn:CreateFontString(nil, "ARTWORK")
@@ -131,7 +133,7 @@ DNALootlogBidTimerText:SetPoint("TOPLEFT", 460, -120)
 DNALootlogBidTimerText:SetText("")
 DNALootlogBidTimerText:Hide()
 
-local DNADeleteAllLootlogPrompt = CreateFrame("Frame", nil, UIParent)
+local DNADeleteAllLootlogPrompt = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 DNADeleteAllLootlogPrompt:SetWidth(450)
 DNADeleteAllLootlogPrompt:SetHeight(100)
 DNADeleteAllLootlogPrompt:SetPoint("CENTER", 0, 50)
@@ -148,7 +150,7 @@ DNADeleteAllLootlogPrompt.text:SetText("Delete all Loot logs?\nThis will delete 
 DNADeleteAllLootlogPrompt:SetFrameLevel(150)
 DNADeleteAllLootlogPrompt:SetFrameStrata("FULLSCREEN_DIALOG")
 
-local DNADeleteAllLootlogPromptYes = CreateFrame("Button", nil, DNADeleteAllLootlogPrompt)
+local DNADeleteAllLootlogPromptYes = CreateFrame("Button", nil, DNADeleteAllLootlogPrompt, "BackdropTemplate")
 DNADeleteAllLootlogPromptYes:SetPoint("CENTER", 80, -20)
 DNADeleteAllLootlogPromptYes.text = DNADeleteAllLootlogPromptYes:CreateFontString(nil, "ARTWORK")
 DNADeleteAllLootlogPromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -162,7 +164,7 @@ DNADeleteAllLootlogPromptYes:SetScript('OnClick', function()
   DNA["LOOTLOG"] = {}
   ReloadUI()
 end)
-local DNADeleteAllLootlogPromptNo = CreateFrame("Button", nil, DNADeleteAllLootlogPrompt)
+local DNADeleteAllLootlogPromptNo = CreateFrame("Button", nil, DNADeleteAllLootlogPrompt, "BackdropTemplate")
 DNADeleteAllLootlogPromptNo:SetPoint("CENTER", -80, -20)
 DNADeleteAllLootlogPromptNo.text = DNADeleteAllLootlogPromptNo:CreateFontString(nil, "ARTWORK")
 DNADeleteAllLootlogPromptNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -174,7 +176,7 @@ DNADeleteAllLootlogPromptNo:SetScript('OnClick', function()
 end)
 DNADeleteAllLootlogPrompt:Hide()
 
-DNALootlogDeleteAllBtn = CreateFrame("Button", nil, DNALootlogScrollFrame)
+DNALootlogDeleteAllBtn = CreateFrame("Button", nil, DNALootlogScrollFrame, "BackdropTemplate")
 DNALootlogDeleteAllBtn:SetPoint("TOPLEFT", 35, -DNALootlogScrollFrame_h-5)
 DNALootlogDeleteAllBtn:SetFrameLevel(5)
 DNALootlogDeleteAllBtn.text = DNALootlogDeleteAllBtn:CreateFontString(nil, "ARTWORK")
@@ -196,7 +198,7 @@ local lootlogLogDate = nil
 local lootlogLogName = nil
 local lootlogLogID = 0
 local sortLootlogName = {}
-local DNADeleteSingleLootlogPrompt = CreateFrame("Frame", nil, UIParent)
+local DNADeleteSingleLootlogPrompt = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 DNADeleteSingleLootlogPrompt:SetWidth(450)
 DNADeleteSingleLootlogPrompt:SetHeight(100)
 DNADeleteSingleLootlogPrompt:SetPoint("CENTER", 0, 50)
@@ -213,7 +215,7 @@ DNADeleteSingleLootlogPrompt.text:SetText("Delete Loot Log?")
 DNADeleteSingleLootlogPrompt:SetFrameLevel(150)
 DNADeleteSingleLootlogPrompt:SetFrameStrata("FULLSCREEN_DIALOG")
 
-local DNADeleteSingleLootlogPromptYes = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt)
+local DNADeleteSingleLootlogPromptYes = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt, "BackdropTemplate")
 DNADeleteSingleLootlogPromptYes:SetPoint("CENTER", 80, -20)
 DNADeleteSingleLootlogPromptYes.text = DNADeleteSingleLootlogPromptYes:CreateFontString(nil, "ARTWORK")
 DNADeleteSingleLootlogPromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -236,7 +238,7 @@ DNADeleteSingleLootlogPromptYes:SetScript('OnClick', function()
   --DNALootlogBidItem:Hide()
   DNALootlogBidItemFrame:Hide()
 end)
-local DNADeleteSingleLootlogPromptNo = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt)
+local DNADeleteSingleLootlogPromptNo = CreateFrame("Button", nil, DNADeleteSingleLootlogPrompt, "BackdropTemplate")
 DNADeleteSingleLootlogPromptNo:SetPoint("CENTER", -80, -20)
 DNADeleteSingleLootlogPromptNo.text = DNADeleteSingleLootlogPromptNo:CreateFontString(nil, "ARTWORK")
 DNADeleteSingleLootlogPromptNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -248,7 +250,7 @@ DNADeleteSingleLootlogPromptNo:SetScript('OnClick', function()
 end)
 DNADeleteSingleLootlogPrompt:Hide()
 
-DNALootlogDeleteLogBtn = CreateFrame("Button", nil, page["Loot Log"])
+DNALootlogDeleteLogBtn = CreateFrame("Button", nil, page["Loot Log"], "BackdropTemplate")
 DNALootlogDeleteLogBtn:SetPoint("TOPLEFT", 480, -50)
 DNALootlogDeleteLogBtn:SetFrameLevel(5)
 DNALootlogDeleteLogBtn.text = DNALootlogDeleteLogBtn:CreateFontString(nil, "ARTWORK")
@@ -307,7 +309,7 @@ DNALootlogExportWindow.data:SetPoint("TOPLEFT", 5, 0)
 DNALootlogExportWindow.data:SetMultiLine(true)
 DNALootlogExportWindow.data:SetText("There was an error pulling the log")
 
-local DNALootlogCloseBtn = CreateFrame("Button", nil, DNALootlogExportWindow)
+local DNALootlogCloseBtn = CreateFrame("Button", nil, DNALootlogExportWindow, "BackdropTemplate")
 DNALootlogCloseBtn:SetPoint("TOPLEFT", 80, -DNALootlogExportWindowScrollFrame_h-52)
 DNALootlogCloseBtn.text = DNALootlogCloseBtn:CreateFontString(nil, "ARTWORK")
 DNALootlogCloseBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -318,7 +320,7 @@ DNALootlogCloseBtn:SetScript('OnClick', function()
   DNALootlogExportWindow:Hide()
 end)
 
-DNALootlogExportLogBtn = CreateFrame("Button", nil, page["Loot Log"])
+DNALootlogExportLogBtn = CreateFrame("Button", nil, page["Loot Log"], "BackdropTemplate")
 DNALootlogExportLogBtn:SetPoint("TOPLEFT", 480, -80)
 DNALootlogExportLogBtn:SetFrameLevel(5)
 DNALootlogExportLogBtn.text = DNALootlogExportLogBtn:CreateFontString(nil, "ARTWORK")
@@ -394,7 +396,7 @@ local lootlogSingleSlotText={}
 --just create the 80 frames, then occupy data into them
 for i=1, MAX_RAID_ITEMS do
   lootlogSingleSlot[i] = {}
-  lootlogSingleSlot[i] = CreateFrame("button", lootlogSingleSlot[i], DNALootlogItemScrollFrameChildFrame)
+  lootlogSingleSlot[i] = CreateFrame("button", lootlogSingleSlot[i], DNALootlogItemScrollFrameChildFrame, "BackdropTemplate")
   lootlogSingleSlot[i]:SetWidth(DNALootlogItemScrollFrame_w-5)
   lootlogSingleSlot[i]:SetHeight(raidSlot_h)
   lootlogSingleSlot[i]:SetBackdrop({
@@ -440,7 +442,7 @@ function setLootlogSlotSingleFrame(i, _item, quality)
 end
 
 function lootLogSlotFrame(i, filteredName, name)
-  lootLogSlot[i] = CreateFrame("button", lootLogSlot[i], DNALootlogScrollFrameScrollChildFrame)
+  lootLogSlot[i] = CreateFrame("button", lootLogSlot[i], DNALootlogScrollFrameScrollChildFrame, "BackdropTemplate")
   lootLogSlot[i]:SetBackdrop({
     bgFile = DNAGlobal.slotbg,
     edgeFile = DNAGlobal.slotborder,
@@ -548,7 +550,7 @@ function refreshLootLogs()
   end
 end
 
-DNALootlogRefreshBtn = CreateFrame("Button", nil, page["Loot Log"])
+DNALootlogRefreshBtn = CreateFrame("Button", nil, page["Loot Log"], "BackdropTemplate")
 DNALootlogRefreshBtn:SetWidth(22)
 DNALootlogRefreshBtn:SetHeight(22)
 DNALootlogRefreshBtn:SetPoint("TOPLEFT", 190, -30)
@@ -574,7 +576,7 @@ DNALootlogRefreshBtn:Hide()
 local DNALootWindow_w = 300
 local DNALootWindow_h = 250
 local DNALootWindow_z = 500
-DNALootWindow = CreateFrame("Frame", "DNALootWindow", UIParent)
+DNALootWindow = CreateFrame("Frame", "DNALootWindow", UIParent, "BackdropTemplate")
 DNALootWindow:SetWidth(DNALootWindow_w)
 DNALootWindow:SetHeight(DNALootWindow_h)
 DNALootWindow:SetPoint("CENTER", 200, 50)
@@ -586,7 +588,7 @@ DNALootWindow:SetBackdrop({
   insets = {left=2, right=2, top=2, bottom=2},
 })
 DNALootWindow:Hide()
-DNALootWindow.title = CreateFrame("Frame", nil, DNALootWindow)
+DNALootWindow.title = CreateFrame("Frame", nil, DNALootWindow, "BackdropTemplate")
 DNALootWindow.title:SetWidth(DNALootWindow_w)
 DNALootWindow.title:SetHeight(34)
 DNALootWindow.title:SetPoint("TOPLEFT", 0, 5)
@@ -656,7 +658,7 @@ for i=1, MAX_CORPSE_ITEMS do
   DNAlootWindowItemQuality[i]:Hide()
 
   DNAlootWindowItemBidBtn[i] = {}
-  DNAlootWindowItemBidBtn[i] = CreateFrame("button", nil, DNALootWindowScrollChildFrame)
+  DNAlootWindowItemBidBtn[i] = CreateFrame("button", nil, DNALootWindowScrollChildFrame, "BackdropTemplate")
   DNAlootWindowItemBidBtn[i]:SetWidth(75)
   DNAlootWindowItemBidBtn[i]:SetHeight(25)
   DNAlootWindowItemBidBtn[i]:SetPoint("TOPLEFT", 190, -i*40+30)

@@ -38,7 +38,7 @@ DNAAttendanceScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right
 DNAAttendanceScrollFrame.MR:SetPoint("TOPLEFT", DNAAttendanceScrollFrame_w-5, 0)
 DNAAttendanceScrollFrame.MR:SetSize(24, DNAAttendanceScrollFrame_h)
 
-local DNADeleteAllAttendancePrompt = CreateFrame("Frame", nil, UIParent)
+local DNADeleteAllAttendancePrompt = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 DNADeleteAllAttendancePrompt:SetWidth(450)
 DNADeleteAllAttendancePrompt:SetHeight(100)
 DNADeleteAllAttendancePrompt:SetPoint("CENTER", 0, 50)
@@ -55,7 +55,7 @@ DNADeleteAllAttendancePrompt.text:SetText("Delete all Attendance logs?\nThis wil
 DNADeleteAllAttendancePrompt:SetFrameLevel(150)
 DNADeleteAllAttendancePrompt:SetFrameStrata("FULLSCREEN_DIALOG")
 
-local DNADeleteAllAttendancePromptYes = CreateFrame("Button", nil, DNADeleteAllAttendancePrompt)
+local DNADeleteAllAttendancePromptYes = CreateFrame("Button", nil, DNADeleteAllAttendancePrompt, "BackdropTemplate")
 DNADeleteAllAttendancePromptYes:SetPoint("CENTER", 80, -20)
 DNADeleteAllAttendancePromptYes.text = DNADeleteAllAttendancePromptYes:CreateFontString(nil, "ARTWORK")
 DNADeleteAllAttendancePromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -69,7 +69,7 @@ DNADeleteAllAttendancePromptYes:SetScript('OnClick', function()
   DNA["ATTENDANCE"] = {}
   ReloadUI()
 end)
-local DNADeleteAllAttendancePromptNo = CreateFrame("Button", nil, DNADeleteAllAttendancePrompt)
+local DNADeleteAllAttendancePromptNo = CreateFrame("Button", nil, DNADeleteAllAttendancePrompt, "BackdropTemplate")
 DNADeleteAllAttendancePromptNo:SetPoint("CENTER", -80, -20)
 DNADeleteAllAttendancePromptNo.text = DNADeleteAllAttendancePromptNo:CreateFontString(nil, "ARTWORK")
 DNADeleteAllAttendancePromptNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -81,7 +81,7 @@ DNADeleteAllAttendancePromptNo:SetScript('OnClick', function()
 end)
 DNADeleteAllAttendancePrompt:Hide()
 
-DNAAttendanceDeleteAllBtn = CreateFrame("Button", nil, DNAAttendanceScrollFrame)
+DNAAttendanceDeleteAllBtn = CreateFrame("Button", nil, DNAAttendanceScrollFrame, "BackdropTemplate")
 DNAAttendanceDeleteAllBtn:SetPoint("TOPLEFT", 35, -DNAAttendanceScrollFrame_h-5)
 DNAAttendanceDeleteAllBtn:SetFrameLevel(5)
 DNAAttendanceDeleteAllBtn.text = DNAAttendanceDeleteAllBtn:CreateFontString(nil, "ARTWORK")
@@ -103,7 +103,7 @@ local attendanceLogDate = nil
 local attendanceLogName = nil
 local attendanceLogID = 0
 local sortAttendanceName = {}
-local DNADeleteSingleAttendancePrompt = CreateFrame("Frame", nil, UIParent)
+local DNADeleteSingleAttendancePrompt = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 DNADeleteSingleAttendancePrompt:SetWidth(450)
 DNADeleteSingleAttendancePrompt:SetHeight(100)
 DNADeleteSingleAttendancePrompt:SetPoint("CENTER", 0, 50)
@@ -120,7 +120,7 @@ DNADeleteSingleAttendancePrompt.text:SetText("Delete Attendance Log?")
 DNADeleteSingleAttendancePrompt:SetFrameLevel(150)
 DNADeleteSingleAttendancePrompt:SetFrameStrata("FULLSCREEN_DIALOG")
 
-local DNADeleteSingleAttendancePromptYes = CreateFrame("Button", nil, DNADeleteSingleAttendancePrompt)
+local DNADeleteSingleAttendancePromptYes = CreateFrame("Button", nil, DNADeleteSingleAttendancePrompt, "BackdropTemplate")
 DNADeleteSingleAttendancePromptYes:SetPoint("CENTER", 80, -20)
 DNADeleteSingleAttendancePromptYes.text = DNADeleteSingleAttendancePromptYes:CreateFontString(nil, "ARTWORK")
 DNADeleteSingleAttendancePromptYes.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -140,7 +140,7 @@ DNADeleteSingleAttendancePromptYes:SetScript('OnClick', function()
   DNAAttendanceDeleteLogBtn:Hide()
   DNAAttendanceExportLogBtn:Hide()
 end)
-local DNADeleteSingleAttendancePromptNo = CreateFrame("Button", nil, DNADeleteSingleAttendancePrompt)
+local DNADeleteSingleAttendancePromptNo = CreateFrame("Button", nil, DNADeleteSingleAttendancePrompt, "BackdropTemplate")
 DNADeleteSingleAttendancePromptNo:SetPoint("CENTER", -80, -20)
 DNADeleteSingleAttendancePromptNo.text = DNADeleteSingleAttendancePromptNo:CreateFontString(nil, "ARTWORK")
 DNADeleteSingleAttendancePromptNo.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -152,7 +152,7 @@ DNADeleteSingleAttendancePromptNo:SetScript('OnClick', function()
 end)
 DNADeleteSingleAttendancePrompt:Hide()
 
-DNAAttendanceDeleteLogBtn = CreateFrame("Button", nil, page["Attendance"])
+DNAAttendanceDeleteLogBtn = CreateFrame("Button", nil, page["Attendance"], "BackdropTemplate")
 DNAAttendanceDeleteLogBtn:SetPoint("TOPLEFT", 680, -50)
 DNAAttendanceDeleteLogBtn:SetFrameLevel(5)
 DNAAttendanceDeleteLogBtn.text = DNAAttendanceDeleteLogBtn:CreateFontString(nil, "ARTWORK")
@@ -211,7 +211,7 @@ DNAAttendanceExportWindow.data:SetPoint("TOPLEFT", 5, 0)
 DNAAttendanceExportWindow.data:SetMultiLine(true)
 DNAAttendanceExportWindow.data:SetText("There was an error pulling the log")
 
-local DNAAttendancelogCloseBtn = CreateFrame("Button", nil, DNAAttendanceExportWindow)
+local DNAAttendancelogCloseBtn = CreateFrame("Button", nil, DNAAttendanceExportWindow, "BackdropTemplate")
 DNAAttendancelogCloseBtn:SetPoint("TOPLEFT", 80, -DNAAttendanceExportWindowScrollFrame_h-52)
 DNAAttendancelogCloseBtn.text = DNAAttendancelogCloseBtn:CreateFontString(nil, "ARTWORK")
 DNAAttendancelogCloseBtn.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
@@ -222,7 +222,7 @@ DNAAttendancelogCloseBtn:SetScript('OnClick', function()
   DNAAttendanceExportWindow:Hide()
 end)
 
-DNAAttendanceExportLogBtn = CreateFrame("Button", nil, page["Attendance"])
+DNAAttendanceExportLogBtn = CreateFrame("Button", nil, page["Attendance"], "BackdropTemplate")
 DNAAttendanceExportLogBtn:SetPoint("TOPLEFT", 680, -80)
 DNAAttendanceExportLogBtn:SetFrameLevel(5)
 DNAAttendanceExportLogBtn.text = DNAAttendanceExportLogBtn:CreateFontString(nil, "ARTWORK")
@@ -296,7 +296,7 @@ local attendanceLogMemberSlotText={}
 --just create the 80 frames, then occupy data into them
 for i=1, MAX_RAID_MEMBERS*2 do
   attendanceLogMemberSlot[i] = {}
-  attendanceLogMemberSlot[i] = CreateFrame("button", attendanceLogMemberSlot[i], DNAAttendanceMemberScrollFrameChildFrame)
+  attendanceLogMemberSlot[i] = CreateFrame("button", attendanceLogMemberSlot[i], DNAAttendanceMemberScrollFrameChildFrame, "BackdropTemplate")
   attendanceLogMemberSlot[i]:SetWidth(DNAAttendanceMemberScrollFrame_w-5)
   attendanceLogMemberSlot[i]:SetHeight(raidSlot_h)
   attendanceLogMemberSlot[i]:SetBackdrop({
@@ -313,7 +313,7 @@ for i=1, MAX_RAID_MEMBERS*2 do
   attendanceLogMemberSlotText[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
   attendanceLogMemberSlotText[i]:SetPoint("TOPLEFT", 5, -4)
   attendanceLogMemberSlotText[i]:SetText("")
-  attendanceLogMemberSlotInvite[i] = CreateFrame("button", attendanceLogMemberSlotInvite[i], attendanceLogMemberSlot[i])
+  attendanceLogMemberSlotInvite[i] = CreateFrame("button", attendanceLogMemberSlotInvite[i], attendanceLogMemberSlot[i], "BackdropTemplate")
   attendanceLogMemberSlotInvite[i]:SetWidth(80)
   attendanceLogMemberSlotInvite[i]:SetHeight(raidSlot_h)
   attendanceLogMemberSlotInvite[i]:SetPoint("TOPLEFT", 114, 0)
@@ -366,7 +366,7 @@ function setAttendanceSlotMemberFrame(i, member, class)
 end
 
 function attendanceLogSlotFrame(i, filteredName, name)
-  attendanceLogSlot[i] = CreateFrame("button", attendanceLogSlot[i], DNAAttendanceScrollFrameScrollChildFrame)
+  attendanceLogSlot[i] = CreateFrame("button", attendanceLogSlot[i], DNAAttendanceScrollFrameScrollChildFrame, "BackdropTemplate")
   attendanceLogSlot[i]:SetBackdrop({
     bgFile = DNAGlobal.slotbg,
     edgeFile = DNAGlobal.slotborder,

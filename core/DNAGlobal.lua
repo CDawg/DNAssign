@@ -12,7 +12,7 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-DEBUG = true
+DEBUG = false
 
 DNAGlobal = {
   name      = GetAddOnMetadata("DNAssistant", "Title"),
@@ -29,7 +29,7 @@ DNAGlobal = {
   btn_border= "Interface/Tooltips/UI-Tooltip-Border",
   prefix    = "dnassist",
   --version   = GetAddOnMetadata("DNAssistant", "Version"), --disable the requirement to log all the ay out of wow
-  version   = 1.313,
+  version   = 2.003,
   backdrop  = "Interface/Garrison/GarrisonMissionParchment", --default
   border    = "Interface/DialogFrame/UI-DialogBox-Border",
   slotbg    = "Interface/Collections/CollectionsBackgroundTile",
@@ -169,6 +169,18 @@ end
 function DN:PromoteToAssistant(name)
   DN:ChatNotification("Auto promoted: " .. name)
   PromoteToAssistant(name)
+end
+
+function DN:ClearNotifications()
+  DNAFrameMainNotifText:SetText("")
+  DNAFrameMainNotif:Hide()
+end
+
+-- top red alert
+function DN:Notification(msg)
+  DN:ClearNotifications()
+  DNAFrameMainNotifText:SetText(msg)
+  DNAFrameMainNotif:Show()
 end
 
 function DN:SetupDefaultVars() --called only when a new profile is created
@@ -399,6 +411,9 @@ pageRaidDetailsColTwo={}
 DNARaidScrollFrame={}
 DNARaidScrollFrameScrollChildFrame={}
 
+DNAFrameAssign_w = 400
+DNAFrameAssign_h = 450
+
 DNAFrameAssignTabIcon={}
 DNAFrameAssignMapGroupID={}
 
@@ -502,14 +517,16 @@ DNATooltipFrame:SetPoint("TOPLEFT", 30, -15)
 DNATooltip.text = DNATooltipFrame:CreateFontString(nil, "OVERLAY")
 DNATooltip.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
 DNATooltip.text:SetPoint("CENTER", 0, 0)
-DNATooltip.text:SetText("Hello World")
+DNATooltip.text:SetText("")
+--[==[
 DNATooltipFrame:SetBackdrop({
   bgFile = "Interface/ToolTips/UI-Tooltip-Background",
   edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
   edgeSize = 12,
   insets = {left=2, right=2, top=2, bottom=2},
 })
-DNATooltipFrame:SetBackdropColor(0.2, 0.2, 0.2, 1)
+]==]--
+--DNATooltipFrame:SetBackdropColor(0.2, 0.2, 0.2, 1)
 DNATooltip:Hide()
 
 function DN:ToolTip(frame, msg, offset_x, offset_y)
@@ -682,7 +699,6 @@ function DN:GetRaidComp()
       if (rank > 0) then
         DNARaid["assist"][name] = 1
       end
-      rankLead = ""
       if (rank > 1) then
         raidLead = name
         DN:Debug("Raid Lead: " .. raidLead)
@@ -926,7 +942,7 @@ end
 
 local guildSlotOrgPoint_y={}
 function guildSlotFrame(parentFrame, i, y)
-  guildSlot[i] = CreateFrame("button", guildSlot[i], parentFrame)
+  guildSlot[i] = CreateFrame("button", guildSlot[i], parentFrame, "BackdropTemplate")
   guildSlot[i]:SetFrameLevel(10)
   guildSlot[i]:SetMovable(true)
   guildSlot[i]:EnableMouse(true)
@@ -983,7 +999,7 @@ end
 
 local raidSlotOrgPoint_y={}
 function raidSlotFrame(parentFrame, i, y)
-  raidSlot[i] = CreateFrame("button", raidSlot[i], parentFrame)
+  raidSlot[i] = CreateFrame("button", raidSlot[i], parentFrame, "BackdropTemplate")
   raidSlot[i]:SetFrameLevel(10)
   raidSlot[i]:SetMovable(true)
   raidSlot[i]:EnableMouse(true)
@@ -1495,7 +1511,7 @@ function DN:Open()
         guildSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
         guildSlot[i]:Hide()
       end
-      DN:ChatNotification("Building Guild Data [" .. numTotalMembers .. "]")
+      DN:Debug("Building Guild Frame Slots [" .. numTotalMembers .. "]")
       DN:UpdateGuildRoster()
     end
     DN:UpdateGuildRoster()
@@ -1533,11 +1549,11 @@ function DN:Open()
       for k,v in pairs(DNA["ATTENDANCE"]) do
         _totalAttendanceLogs = _totalAttendanceLogs +1
       end
-    end
-    if (_totalAttendanceLogs >= 1) then
-      DN:Debug(_totalAttendanceLogs)
-      --attendanceLogSlot[_totalAttendanceLogs]:Click()
-      attendanceLogSlot[1]:Click()
+      if (_totalAttendanceLogs >= 1) then
+        DN:Debug(_totalAttendanceLogs)
+        --attendanceLogSlot[_totalAttendanceLogs]:Click()
+        --attendanceLogSlot[1]:Click()
+      end
     end
 
     local _totalLootLogs = 0
