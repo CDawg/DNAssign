@@ -29,7 +29,7 @@ DNAGlobal = {
   btn_border= "Interface/Tooltips/UI-Tooltip-Border",
   prefix    = "dnassist",
   --version   = GetAddOnMetadata("DNAssistant", "Version"), --disable the requirement to log all the ay out of wow
-  version   = 2.003,
+  version   = 2.012,
   backdrop  = "Interface/Garrison/GarrisonMissionParchment", --default
   border    = "Interface/DialogFrame/UI-DialogBox-Border",
   slotbg    = "Interface/Collections/CollectionsBackgroundTile",
@@ -75,6 +75,7 @@ DNAPages = {
   "Attendance",
   "Loot Log",
   "DKP",
+  "Professions",
   "Settings",
   --"Raid Builder"
 }
@@ -137,7 +138,7 @@ DNABidWindowBidderName= {}
 DNABidWindowBidderNum = {}
 DKPLogMember={}
 DKPLogMemberName={}
-DKPLogMemberDKPS={}
+DKPLogMemberDKP={}
 DKPLogMemberDKPB={}
 DKPLogMemberDKPT={}
 
@@ -216,10 +217,10 @@ function DN:BuildGlobalVars()
     if (DNA[player.combine]["SAVECONF"] == nil) then
       DNA[player.combine]["SAVECONF"] = {}
     end
-    DN:ChatNotification("Creating Raid Profile: " .. player.combine)
+    DN:ChatNotification("Creating Raid Profile ["..player.combine.."]")
     DN:SetupDefaultVars()
   else
-    DN:ChatNotification("Loading Raid Profile: " .. player.combine)
+    DN:ChatNotification("Loading Raid Profile ["..player.combine.."]")
     --it doesn't exist, enable it for the first time
     if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == nil) then
       DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] = "ON"
@@ -308,6 +309,7 @@ packetPrefix = {
   lootbid   = "0xEFLb",
   openbid   = "0xEFOb",
   stopbid   = "0xEFBs",
+  profession= "0xEFSp",
 }
 
 function DN:ParsePacket(netpacket, code)
@@ -901,7 +903,7 @@ function DN:GetAttendanceLogs()
         end
       end
     end
-    DN:Debug("DN:GetAttendanceLogs()")
+    --DN:ChatNotification("Loading Raid Attendance Logs")
   end
 end
 
@@ -920,7 +922,7 @@ function DN:GetLootLogs()
         end
       end
     end
-    DN:Debug("DN:GetLootLogs()")
+    --DN:ChatNotification("Loading Loot Logs")
   end
 end
 
@@ -936,7 +938,7 @@ function DN:GetDKPLogs()
         end
       end
     end
-    DN:Debug("DN:GetDKPLogs()")
+    --DN:ChatNotification("Loading DKP Policies")
   end
 end
 
@@ -1566,6 +1568,8 @@ function DN:Open()
       --lootLogSlot[_totalLootLogs]:Click()
       lootLogSlot[1]:Click()
     end
+
+    DNAButtonProf[DNAProfessions[1][1]]:Click()
 
   end
 end

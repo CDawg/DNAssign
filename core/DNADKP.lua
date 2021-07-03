@@ -12,14 +12,14 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 ]==]--
 
-MAX_DKP_RECORDS = 500
+MAX_DKP_RECORDS = 800
 
-local DNADKPScrollFrame_w = 300
+local DNADKPScrollFrame_w = 400
 local DNADKPScrollFrame_h = 500
 local DNADKPScrollFrame = CreateFrame("Frame", DNADKPScrollFrame, page["DKP"], "InsetFrameTemplate")
 DNADKPScrollFrame:SetWidth(DNADKPScrollFrame_w+20)
 DNADKPScrollFrame:SetHeight(DNADKPScrollFrame_h)
-DNADKPScrollFrame:SetPoint("TOPLEFT", 20, -50)
+DNADKPScrollFrame:SetPoint("TOPLEFT", 20, -60)
 DNADKPScrollFrame:SetFrameLevel(5)
 DNADKPScrollFrame.text = DNADKPScrollFrame:CreateFontString(nil, "ARTWORK")
 DNADKPScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize -1, "OUTLINE")
@@ -155,8 +155,99 @@ DNADKPDetailsFrame:Hide()
 --local DKPLogMemberUpdate={}
 --local DKPLogMemberUpdateText={}
 
+DKPLogColumn={}
+DKPLogColumn["name"] = CreateFrame("Button", "DKPLogColumn", DNADKPScrollFrame, "BackdropTemplate")
+DKPLogColumn["name"]:SetWidth(140)
+DKPLogColumn["name"]:SetHeight(30)
+DKPLogColumn["name"]:SetPoint("TOPLEFT", 2, 0)
+DKPLogColumn["name"]:SetFrameLevel(15)
+DKPLogColumn["name"]:SetBackdrop({
+  bgFile = "Interface/HELPFRAME/DarkSandstone-Tile",
+  edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DKPLogColumn["name"]:SetBackdropColor(1,1,1,1)
+DKPLogColumn["name"]:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+DKPLogColumn["name"].text = DKPLogColumn["name"]:CreateFontString(nil, "ARTWORK")
+DKPLogColumn["name"].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DKPLogColumn["name"].text:SetPoint("CENTER", 0, 0)
+DKPLogColumn["name"].text:SetText("Name")
+
+DKPLogColumn["dkp"] = CreateFrame("Button", "DKPLogColumn", DNADKPScrollFrame, "BackdropTemplate")
+DKPLogColumn["dkp"]:SetWidth(60)
+DKPLogColumn["dkp"]:SetHeight(30)
+DKPLogColumn["dkp"]:SetPoint("TOPLEFT", 140, 0)
+DKPLogColumn["dkp"]:SetFrameLevel(15)
+DKPLogColumn["dkp"]:SetBackdrop({
+  bgFile = "Interface/HELPFRAME/DarkSandstone-Tile",
+  edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DKPLogColumn["dkp"]:SetBackdropColor(1, 1, 1, 1)
+DKPLogColumn["dkp"]:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+DKPLogColumn["dkp"].text = DKPLogColumn["dkp"]:CreateFontString(nil, "ARTWORK")
+DKPLogColumn["dkp"].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DKPLogColumn["dkp"].text:SetPoint("CENTER", 0, 0)
+DKPLogColumn["dkp"].text:SetText("DKP")
+
+DKPLogColumn["bonus"] = CreateFrame("Button", "DKPLogColumn", DNADKPScrollFrame, "BackdropTemplate")
+DKPLogColumn["bonus"]:SetWidth(60)
+DKPLogColumn["bonus"]:SetHeight(30)
+DKPLogColumn["bonus"]:SetPoint("TOPLEFT", 198, 0)
+DKPLogColumn["bonus"]:SetFrameLevel(15)
+DKPLogColumn["bonus"]:SetBackdrop({
+  bgFile = "Interface/HELPFRAME/DarkSandstone-Tile",
+  edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DKPLogColumn["bonus"]:SetBackdropColor(1,1,1,1)
+DKPLogColumn["bonus"]:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+DKPLogColumn["bonus"].text = DKPLogColumn["bonus"]:CreateFontString(nil, "ARTWORK")
+DKPLogColumn["bonus"].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DKPLogColumn["bonus"].text:SetPoint("CENTER", 0, 0)
+DKPLogColumn["bonus"].text:SetText("Bonus")
+
+DKPLogColumn["total"] = CreateFrame("Button", "DKPLogColumn", DNADKPScrollFrame, "BackdropTemplate")
+DKPLogColumn["total"]:SetWidth(60)
+DKPLogColumn["total"]:SetHeight(30)
+DKPLogColumn["total"]:SetPoint("TOPLEFT", 256, 0)
+DKPLogColumn["total"]:SetFrameLevel(15)
+DKPLogColumn["total"]:SetBackdrop({
+  bgFile = "Interface/HELPFRAME/DarkSandstone-Tile",
+  edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DKPLogColumn["total"]:SetBackdropColor(1,1,1,1)
+DKPLogColumn["total"]:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+DKPLogColumn["total"].text = DKPLogColumn["total"]:CreateFontString(nil, "ARTWORK")
+DKPLogColumn["total"].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DKPLogColumn["total"].text:SetPoint("CENTER", 0, 0)
+DKPLogColumn["total"].text:SetText("Total")
+
+DKPLogColumn["blank"] = CreateFrame("Button", "DKPLogColumn", DNADKPScrollFrame, "BackdropTemplate")
+DKPLogColumn["blank"]:SetWidth(86)
+DKPLogColumn["blank"]:SetHeight(30)
+DKPLogColumn["blank"]:SetPoint("TOPLEFT", 313, 0)
+DKPLogColumn["blank"]:SetFrameLevel(15)
+DKPLogColumn["blank"]:SetBackdrop({
+  bgFile = "Interface/HELPFRAME/DarkSandstone-Tile",
+  edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+})
+DKPLogColumn["blank"]:SetBackdropColor(1,1,1,1)
+DKPLogColumn["blank"]:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+DKPLogColumn["blank"].text = DKPLogColumn["blank"]:CreateFontString(nil, "ARTWORK")
+DKPLogColumn["blank"].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DKPLogColumn["blank"].text:SetPoint("CENTER", 0, 0)
+DKPLogColumn["blank"].text:SetText("")
+
 for i=1, MAX_DKP_RECORDS do
-  DKPLogMember[i] = CreateFrame("button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame, "BackdropTemplate")
+  DKPLogMember[i] = CreateFrame("Button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame, "BackdropTemplate")
   DKPLogMember[i]:SetWidth(DNADKPScrollFrame_w-5)
   DKPLogMember[i]:SetHeight(raidSlot_h)
   DKPLogMember[i]:SetBackdrop({
@@ -165,34 +256,36 @@ for i=1, MAX_DKP_RECORDS do
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
   })
-  DKPLogMember[i]:SetBackdropColor(1, 1, 1, 0.6)
-  DKPLogMember[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
-  DKPLogMember[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
+  DKPLogMember[i]:SetBackdropBorderColor(0.6, 0.6, 0.6, 0.6)
+  DKPLogMember[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-12)
   DKPLogMember[i]:SetScript('OnEnter', function()
-    DKPLogMember[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+    DKPLogMember[i]:SetBackdropBorderColor(1, 1, 0.4, 1)
   end)
   DKPLogMember[i]:SetScript('OnLeave', function()
-    DKPLogMember[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+    DKPLogMember[i]:SetBackdropBorderColor(0.6, 0.6, 0.6, 0.6)
   end)
+  DKPLogMember[i]:SetBackdropColor(0.4, 0.4, 0.4, 1)
   DKPLogMemberName[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
   DKPLogMemberName[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
   DKPLogMemberName[i]:SetPoint("TOPLEFT", 5, -4)
-  DKPLogMemberName[i]:SetText("Huntingomenx")
-  DKPLogMemberDKPS[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
-  DKPLogMemberDKPS[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
-  DKPLogMemberDKPS[i]:SetPoint("TOPLEFT", 140, -4)
-  DKPLogMemberDKPS[i]:SetText(i)
+  DKPLogMemberName[i]:SetText("")
+  DKPLogMemberDKP[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
+  DKPLogMemberDKP[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  DKPLogMemberDKP[i]:SetPoint("TOPLEFT", 160, -4)
+  DKPLogMemberDKP[i]:SetText(0)
   DKPLogMemberDKPB[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
   DKPLogMemberDKPB[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
-  DKPLogMemberDKPB[i]:SetPoint("TOPLEFT", 180, -4)
-  DKPLogMemberDKPB[i]:SetText(i)
+  DKPLogMemberDKPB[i]:SetPoint("TOPLEFT", 220, -4)
+  DKPLogMemberDKPB[i]:SetText(0)
   DKPLogMemberDKPT[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
   DKPLogMemberDKPT[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
-  DKPLogMemberDKPT[i]:SetPoint("TOPLEFT", 220, -4)
-  DKPLogMemberDKPT[i]:SetText(i)
+  DKPLogMemberDKPT[i]:SetPoint("TOPLEFT", 276, -4)
+  DKPLogMemberDKPT[i]:SetText(0)
   DKPLogMemberDKPT[i]:SetTextColor(0.5, 1, 0.5, 1)
+  DKPLogMember[i]:Hide()
+
   --[==[
-  DKPLogMemberUpdate[i] = CreateFrame("button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame)
+  DKPLogMemberUpdate[i] = CreateFrame("Button", DKPLogMember[i], DNADKPScrollFrameScrollChildFrame)
   DKPLogMemberUpdate[i]:SetWidth(50)
   DKPLogMemberUpdate[i]:SetHeight(raidSlot_h)
   DKPLogMemberUpdate[i]:SetBackdrop({
@@ -209,7 +302,6 @@ for i=1, MAX_DKP_RECORDS do
   DKPLogMemberUpdateText[i]:SetPoint("CENTER", 0, 0)
   DKPLogMemberUpdateText[i]:SetText("Update")
   ]==]--
-  DKPLogMember[i]:Hide()
 end
 
 --[==[
@@ -228,3 +320,27 @@ function setDKPSlotMemberFrame(i, member, class)
   end
 end
 ]==]--
+
+local guildLoad = 1
+function DN:GetGuildDKP()
+  guildLoad = guildLoad+1
+  local DKPPacketString = ""
+  if (guildLoad >= 3) then
+    local guildCount = 1
+    for i=1, GetNumGuildMembers() do
+      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
+      if (rankIndex <= 6) then
+        guildCount = guildCount +1
+        local guild_member = split(name, "-")
+        DKPLogMemberName[guildCount]:SetText(guild_member[1])
+        --DKPLogMemberDKP[guildCount]:SetText()
+        DN:ClassColorText(DKPLogMemberName[guildCount], class)
+        DKPLogMember[guildCount]:Show()
+        if (guild_member[1] == player.name) then
+          DKPLogMember[guildCount]:SetBackdropColor(1, 1, 1, 1)
+        end
+      end
+    end
+    --print("DNA: guildLoadDKP")
+  end
+end

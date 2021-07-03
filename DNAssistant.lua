@@ -657,17 +657,15 @@ local bidTimer = C_Timer.NewTicker(1, bidTimerFrame, 10)
 bidTimer:Cancel()
 
 local DNAMain = CreateFrame("Frame")
+local success = C_ChatInfo.RegisterAddonMessagePrefix(DNAGlobal.prefix)
 DNAMain:RegisterEvent("ADDON_LOADED")
 DNAMain:RegisterEvent("PLAYER_LOGIN")
 DNAMain:RegisterEvent("PLAYER_ENTERING_WORLD")
-local success = C_ChatInfo.RegisterAddonMessagePrefix(DNAGlobal.prefix)
 DNAMain:RegisterEvent("CHAT_MSG_ADDON")
 DNAMain:RegisterEvent("ZONE_CHANGED")
 DNAMain:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 DNAMain:RegisterEvent("GROUP_ROSTER_UPDATE")
 DNAMain:RegisterEvent("GUILD_ROSTER_UPDATE")
-DNAMain:RegisterEvent("PLAYER_ENTER_COMBAT")
-DNAMain:RegisterEvent("PLAYER_LEAVE_COMBAT")
 DNAMain:RegisterEvent("PLAYER_REGEN_ENABLED")
 DNAMain:RegisterEvent("PLAYER_REGEN_DISABLED")
 DNAMain:RegisterEvent("CHAT_MSG_LOOT")
@@ -688,6 +686,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     DN:GetProfileVars()
 
     DN:GetAttendanceLogs()
+    DN:ChatNotification("Loading Raid History [Attendance]")
     if (DNA["ATTENDANCE"]) then
       local sortAttendance = {}
       for k,v in pairs(attendance) do
@@ -703,6 +702,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
 
     DN:GetLootLogs()
+    DN:ChatNotification("Loading Raid History [Loot]")
     if (DNA["LOOTLOG"]) then
       local sortLoot = {}
       for k,v in pairs(lootlog) do
@@ -717,34 +717,43 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       end
     end
 
-    DN:GetDKPLogs()
-    if (DNA["DKP"]) then
-      local sortDKP = {}
-      for k,v in pairs(dnadkp) do
-        table.insert(sortDKP, k)
+    if (IsInGuild()) then
+      DN:GetDKPLogs()
+      DN:ChatNotification("Collecting Guild [DKP]")
+      if (DNA["DKP"]) then
+        local sortDKP = {}
+        for k,v in pairs(dnadkp) do
+          table.insert(sortDKP, k)
+        end
+        table.sort(sortDKP, function(a,b) return a>b end)
+        for k,v in ipairs(sortDKP) do
+          numDKPLogs = numDKPLogs + 1
+          --create the number of log frames from the log count
+          local filterLogName = string.gsub(v, "}", "")
+          --DKPLogSlotFrame(numDKPLogs, filterLogName, v)
+        end
       end
-      table.sort(sortDKP, function(a,b) return a>b end)
-      for k,v in ipairs(sortDKP) do
-        numDKPLogs = numDKPLogs + 1
-        --create the number of log frames from the log count
-        local filterLogName = string.gsub(v, "}", "")
-        --DKPLogSlotFrame(numDKPLogs, filterLogName, v)
-      end
-    end
 
-    DN:SendPacket(packetPrefix.version .. DNAGlobal.version, true, "GUILD")
+      DN:SendPacket(packetPrefix.version .. DNAGlobal.version, true, "GUILD")
 
-    --delay the guild roster from being built, then build the frames ONE time.
-    local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
-    if (DNAGuildDataBuilder) then
-      DNAGuildDataBuilder = numTotalMembers
-      DN:GetGuildComp()
-      for i=1, numTotalMembers do
-        guildSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
-        guildSlot[i]:Hide()
+      --delay the guild roster from being built, then build the frames ONE time.
+      local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
+      if (DNAGuildDataBuilder) then
+        DNAGuildDataBuilder = numTotalMembers
+        DN:GetGuildComp()
+        for i=1, numTotalMembers do
+          guildSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
+          guildSlot[i]:Hide()
+        end
+        DN:ChatNotification("Collecting Guild [Roster]")
       end
-      DN:ChatNotification("Collecting Guild Data [Roster]")
+      DN:ChatNotification("Collecting Guild [Professions]")
     end
+  end
+
+  if (event == "GUILD_ROSTER_UPDATE") then
+    DN:GetGuildDKP()
+    DN:SendMyProfessions()
   end
 
   if (event == "LOOT_OPENED") then
@@ -1053,6 +1062,15 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         tonumber(get_ml_bid_timer)
         --bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
         bidTimer = C_Timer.NewTicker(0.060, bidTimerFrame, 20*get_ml_bid_timer)
+        return true
+      end
+
+      --get tradeskills
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.profession)
+      if (getPacket) then
+        local prof_data = split(getPacket, ",")
+        DN:SaveGuildProfessions(prof_data)
+        --print("DNAPprof " .. getPacket)
         return true
       end
 
