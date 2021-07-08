@@ -170,7 +170,7 @@ DNABidBtnLow:SetScript("OnClick", function()
   end
   if (tonumber(bidRoll)) then
     if (myBid == bidRoll) then
-      DN:ChatNotification("|cfff00000Your bid [".. tonumber(bidRoll) .. "] was already placed!")
+      DN:ChatNotification("|cfff00000Your bid ["..DNAGlobal.color..tonumber(bidRoll) .. "|r] was already placed!")
       return
     end
     if ((DNABidWindowBidderNum[1]:GetText() == nil) or (DNABidWindowBidderNum[1]:GetText() == "")) then

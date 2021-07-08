@@ -340,7 +340,7 @@ for i=1, MAX_RAID_MEMBERS*2 do
     local thisMember = attendanceLogMemberSlotText[i]:GetText()
     InviteUnit(thisMember)
     if (IsInRaid()) then
-      DN:ChatNotification("Invited " .. thisMember .. " to Raid.")
+      DN:ChatNotification("Invited " ..DNAGlobal.color..thisMember .. "|r to Raid.")
     else
       DN:ChatNotification("Converted to Raid.")
       ConvertToRaid()

@@ -264,7 +264,7 @@ DNAFrameAssign:Hide()
 
 local DNAFrameAssignTab={}
 
-DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing by " .. DNAGlobal.author)
+DN:ChatNotification("v" .. DNAGlobal.version .. " Initializing by " ..DNAGlobal.color.. DNAGlobal.author)
 
 -- BUILD THE RAID PER BOSS
 local function buildRaidAssignments(packet, author, source)
@@ -686,7 +686,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     DN:GetProfileVars()
 
     DN:GetAttendanceLogs()
-    DN:ChatNotification("Loading Raid History [Attendance]")
+    DN:ChatNotification("Loading Raid History ["..DNAGlobal.color.."Attendance|r]")
     if (DNA["ATTENDANCE"]) then
       local sortAttendance = {}
       for k,v in pairs(attendance) do
@@ -702,7 +702,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
     end
 
     DN:GetLootLogs()
-    DN:ChatNotification("Loading Raid History [Loot]")
+    DN:ChatNotification("Loading Raid History ["..DNAGlobal.color.."Loot|r]")
     if (DNA["LOOTLOG"]) then
       local sortLoot = {}
       for k,v in pairs(lootlog) do
@@ -719,7 +719,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
 
     if (IsInGuild()) then
       DN:GetDKPLogs()
-      DN:ChatNotification("Collecting Guild [DKP]")
+      DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."DKP|r]")
       if (DNA["DKP"]) then
         local sortDKP = {}
         for k,v in pairs(dnadkp) do
@@ -745,15 +745,15 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
           guildSlotFrame(DNARaidScrollFrameScrollChildFrame, i, i*19)
           guildSlot[i]:Hide()
         end
-        DN:ChatNotification("Collecting Guild [Roster]")
+        DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Roster|r]")
       end
-      DN:ChatNotification("Collecting Guild [Professions]")
+      DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Professions|r]")
     end
   end
 
-  if (event == "GUILD_ROSTER_UPDATE") then
+  if (event == "GUILD_ROSTER_UPDATE") then --profrequest onload
     DN:GetGuildDKP()
-    DN:SendMyProfessions()
+    DN:SendMyProfessions(false, player.name)
   end
 
   if (event == "LOOT_OPENED") then
@@ -975,7 +975,7 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         DNABidControlWinner:Show()
         DNABidControlWinner:SetText("BIDDING PAUSED")
         DNABidControlFrame:Hide()
-        DN:ChatNotification("|cfffff000Bidding Paused by " .. get_ml)
+        DN:ChatNotification("|cfffff000Bidding Paused by " ..DNAGlobal.color.. get_ml)
         PlaySound(bidSound.expire)
         return true
       end
@@ -1070,7 +1070,30 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
       if (getPacket) then
         local prof_data = split(getPacket, ",")
         DN:SaveGuildProfessions(prof_data)
-        --print("DNAPprof " .. getPacket)
+        return true
+      end
+
+      --get tradeskills - with a notification on a sync
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.professionN)
+      if (getPacket) then
+        local prof_data = split(getPacket, ",")
+        local guild_member = prof_data[1]
+        local guild_author = prof_data[3] --whos pulling, spam only the requester
+        DN:SaveGuildProfessions(prof_data)
+        --if (guild_author == player.name) then
+        --print("guild_author " .. guild_author)
+          --DN:ChatNotification("Reading Profession Data ["..DNAGlobal.color..guild_member.."|r]")
+        --end
+        return true
+      end
+
+      --send tradeskills
+      local getPacket = DN:ParsePacket(netpacket, packetPrefix.profrequest)
+      if (getPacket) then
+        local prof_data = split(getPacket, ",")
+        if (prof_data[1] == player.name) then
+          DN:SendMyProfessions(true, prof_data[2])
+        end
         return true
       end
 
@@ -1225,9 +1248,11 @@ function DN:GetProfileVars()
     DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
   end
 
+  --[==[
   if (DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] == "ON") then
     DNACheckbox["AUTOPROMOTEC"]:SetChecked(true)
   end
+  ]==]--
 
   if (DNA[player.combine]["CONFIG"]["HIDEASSIGNCOMBAT"] == "ON") then
     DNACheckbox["HIDEASSIGNCOMBAT"]:SetChecked(true)
@@ -1350,7 +1375,18 @@ DNAFrameMainCloseX:SetPoint("TOPLEFT", 5, -5)
 DNAFrameMainClose:SetScript("OnClick", function()
   DN:Close()
 end)
---DN:ToolTip(DNAFrameMainClose, "Close")
+--[==[
+DNAButtonMainSettings = CreateFrame("Button", nil, DNAFrameMain.title, "UIPanelButtonTemplate")
+DNAButtonMainSettings:SetSize(25, 24)
+DNAButtonMainSettings:SetPoint("TOPLEFT", DNAGlobal.width-52, -4)
+DNAButtonMainSettingsIcon= DNAButtonMainSettings:CreateTexture(nil, "ARTWORK")
+DNAButtonMainSettingsIcon:SetTexture("Interface/Buttons/UI-OptionsButton")
+DNAButtonMainSettingsIcon:SetSize(14, 14)
+DNAButtonMainSettingsIcon:SetPoint("TOPLEFT", 5, -5)
+DNAButtonMainSettings:SetScript("OnClick", function()
+  DN:Close()
+end)
+]==]--
 
 DNAFrameMain:SetMovable(true)
 DNAFrameMain:EnableMouse(true)
@@ -1598,6 +1634,7 @@ end
 
 DN:FrameBorder("AUTO PROMOTE", page["Settings"], 20, 110, 350, 100)
 DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Settings"], 20, 80, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
+--[==[
 DN:CheckBox("AUTOPROMOTEC", "Auto Promote Custom", page["Settings"], 20, 100, "Auto Promote custom to raid assistants.\nMust be Raid Lead.")
 DNAFrameAutopromoteCustom = CreateFrame("EditBox", nil, page["Settings"], "BackdropTemplate")
 DNAFrameAutopromoteCustom:SetSize(150, 22)
@@ -1609,6 +1646,7 @@ DNAFrameAutopromoteCustom:SetAutoFocus(false)
 DNAFrameAutopromoteCustom:SetBackdrop(GameTooltip:GetBackdrop())
 DNAFrameAutopromoteCustom:SetBackdropColor(0, 0, 0, 0.8)
 DNAFrameAutopromoteCustom:SetText("Class Leads")
+]==]--
 
 DN:FrameBorder("RAID OPTIONS", page["Settings"], 20, 240, 350, 70)
 DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Settings"], 20, 210, "Post to Raid chat as well as the screen assignments.")
@@ -2821,7 +2859,7 @@ btnSaveRaid:SetScript("OnClick", function()
       for i=1, DNASlots.cc do
         DNA[player.combine]["SAVECONF"][raidSelection]["C" .. i] = ccSlot[i].text:GetText()
       end
-      DN:ChatNotification("Raid Comp Saved: " .. raidSelection)
+      DN:ChatNotification("Raid Comp Saved: "..DNAGlobal.color..raidSelection)
       noLoadRaidText:Hide()
     end
   end
@@ -2850,7 +2888,7 @@ btnLoadRaid:SetScript("OnClick", function()
           DN:Debug("Load Preset " .. raidSelection)
           DNA[player.combine]["ASSIGN"] = DNA[player.combine]["SAVECONF"][raidSelection]
           DN:PresetLoad(raidSelection)
-          DN:ChatNotification("Raid Comp Loaded: " .. raidSelection)
+          DN:ChatNotification("Raid Comp Loaded: " ..DNAGlobal.color.. raidSelection)
           DN:PresetDuplicate()
         end
       end
@@ -2952,7 +2990,7 @@ function DNASlashCommands(msg)
     DN:Debug("== " .. raidSelection)
     if (raidSelection) then
       DN:RaidSendAssignments()
-      DN:ChatNotification("Boss Assignment " .. raidSelection)
+      DN:ChatNotification("Boss Assignment " ..DNAGlobal.color.. raidSelection)
       DN:SendPacket(packetPrefix.posttoraid .. raidSelection .. "," .. player.name, true) --openassignments
       DoReadyCheck()
     else

@@ -173,6 +173,15 @@ DKPLogColumn["name"].text = DKPLogColumn["name"]:CreateFontString(nil, "ARTWORK"
 DKPLogColumn["name"].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
 DKPLogColumn["name"].text:SetPoint("CENTER", 0, 0)
 DKPLogColumn["name"].text:SetText("Name")
+DKPLogColumn["name"]:SetScript('OnClick', function()
+  SortGuildRoster("name")
+end)
+DKPLogColumn["name"]:SetScript('OnEnter', function(self)
+  self:SetBackdropBorderColor(1, 1, 0.8, 1)
+end)
+DKPLogColumn["name"]:SetScript('OnLeave', function(self)
+  self:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+end)
 
 DKPLogColumn["dkp"] = CreateFrame("Button", "DKPLogColumn", DNADKPScrollFrame, "BackdropTemplate")
 DKPLogColumn["dkp"]:SetWidth(60)
@@ -269,6 +278,7 @@ for i=1, MAX_DKP_RECORDS do
   DKPLogMemberName[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
   DKPLogMemberName[i]:SetPoint("TOPLEFT", 5, -4)
   DKPLogMemberName[i]:SetText("")
+  DKPLogMemberName[i]:SetTextColor(0.4, 0.4, 0.4, 1)
   DKPLogMemberDKP[i] = DKPLogMember[i]:CreateFontString(nil, "ARTWORK")
   DKPLogMemberDKP[i]:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
   DKPLogMemberDKP[i]:SetPoint("TOPLEFT", 160, -4)
@@ -328,14 +338,19 @@ function DN:GetGuildDKP()
   if (guildLoad >= 3) then
     local guildCount = 1
     for i=1, GetNumGuildMembers() do
-      local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
+      --local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
+      local name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i)
       if (rankIndex <= 6) then
         guildCount = guildCount +1
         local guild_member = split(name, "-")
         DKPLogMemberName[guildCount]:SetText(guild_member[1])
-        --DKPLogMemberDKP[guildCount]:SetText()
-        DN:ClassColorText(DKPLogMemberName[guildCount], class)
+        DN:ClassColorText(DKPLogMemberName[guildCount], "Offline")
+        if (online) then
+          DN:ClassColorText(DKPLogMemberName[guildCount], class)
+        end
+        DKPLogMemberDKP[guildCount]:SetText("0")
         DKPLogMember[guildCount]:Show()
+        DKPLogMember[guildCount]:SetBackdropColor(0.4, 0.4, 0.4, 1)
         if (guild_member[1] == player.name) then
           DKPLogMember[guildCount]:SetBackdropColor(1, 1, 1, 1)
         end

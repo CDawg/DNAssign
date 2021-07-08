@@ -17,6 +17,7 @@ DEBUG = false
 DNAGlobal = {
   name      = GetAddOnMetadata("DNAssistant", "Title"),
   sub       = "DNA",
+  color     = "|cfffaff04",
   dir       = "Interface/AddOns/DNAssistant/",
   icon      = "Interface/AddOns/DNAssistant/images/icon_dn",
   width     = 980,
@@ -28,8 +29,8 @@ DNAGlobal = {
   btn_bg    = "Interface/Buttons/GoldGradiant",
   btn_border= "Interface/Tooltips/UI-Tooltip-Border",
   prefix    = "dnassist",
-  --version   = GetAddOnMetadata("DNAssistant", "Version"), --disable the requirement to log all the ay out of wow
-  version   = 2.012,
+  --version   = GetAddOnMetadata("DNAssistant", "Version"), --disable the requirement to log all the way out of WoW.
+  version   = 2.015,
   backdrop  = "Interface/Garrison/GarrisonMissionParchment", --default
   border    = "Interface/DialogFrame/UI-DialogBox-Border",
   slotbg    = "Interface/Collections/CollectionsBackgroundTile",
@@ -168,7 +169,7 @@ function DN:ChatNotification(msg)
 end
 
 function DN:PromoteToAssistant(name)
-  DN:ChatNotification("Auto promoted: " .. name)
+  DN:ChatNotification("Auto promoted: " ..DNAGlobal.color..name)
   PromoteToAssistant(name)
 end
 
@@ -187,8 +188,10 @@ end
 function DN:SetupDefaultVars() --called only when a new profile is created
   DNACheckbox["AUTOPROMOTE"]:SetChecked(true)
   DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] = "ON"
+  --[==[
   DNACheckbox["AUTOPROMOTEC"]:SetChecked(true)
   DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] = "ON"
+  ]==]--
   DNACheckbox["RAIDCHAT"]:SetChecked(true)
   DNA[player.combine]["CONFIG"]["RAIDCHAT"] = "ON"
   DNACheckbox["LOGATTENDANCE"]:SetChecked(true)
@@ -217,10 +220,10 @@ function DN:BuildGlobalVars()
     if (DNA[player.combine]["SAVECONF"] == nil) then
       DNA[player.combine]["SAVECONF"] = {}
     end
-    DN:ChatNotification("Creating Raid Profile ["..player.combine.."]")
+    DN:ChatNotification("Creating Raid Profile ["..DNAGlobal.color..player.combine.."|r]")
     DN:SetupDefaultVars()
   else
-    DN:ChatNotification("Loading Raid Profile ["..player.combine.."]")
+    DN:ChatNotification("Loading Raid Profile ["..DNAGlobal.color..player.combine.."|r]")
     --it doesn't exist, enable it for the first time
     if (DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] == nil) then
       DNA[player.combine]["CONFIG"]["LOGATTENDANCE"] = "ON"
@@ -228,9 +231,11 @@ function DN:BuildGlobalVars()
     if (DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] == nil) then
       DNA[player.combine]["CONFIG"]["AUTOPROMOTE"] = "ON"
     end
+    --[==[
     if (DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] == nil) then
       DNA[player.combine]["CONFIG"]["AUTOPROMOTEC"] = "ON"
     end
+    ]==]--
   end
 end
 
@@ -285,31 +290,38 @@ HEAL="H"
 CC = "C"
 
 packetPrefix = {
-  tanks     = "0xEFTa",
-  healers   = "0xEFHe",
-  cc        = "0xEFCc",
+  tanks      = "0xEFTa",
+  healers    = "0xEFHe",
+  cc         = "0xEFCc",
   --class codes
-  Warrior   = "0xEFWa",
-  Hunter    = "0xEFHu",
-  Druid     = "0xEFDr",
-  Rogue     = "0xEFRo",
-  Warlock   = "0xEFLo",
-  Paladin   = "0xEFPa",
-  Shaman    = "0xEFSh",
-  Priest    = "0xEFPr",
-  Mage      = "0xEFMa",
+  Warrior    = "0xEFWa",
+  Hunter     = "0xEFHu",
+  Druid      = "0xEFDr",
+  Rogue      = "0xEFRo",
+  Warlock    = "0xEFLo",
+  Paladin    = "0xEFPa",
+  Shaman     = "0xEFSh",
+  Priest     = "0xEFPr",
+  Mage       = "0xEFMa",
   --app codes
-  posttoraid= "0xEFPo",
-  version   = "0xEFVe",
-  readyyes  = "0xEFRy",
-  readyno   = "0xEFNr",
-  postdkp   = "0xEFPd",
-  author    = "0xEFAu",
-  lootitem  = "0xEFLi",
-  lootbid   = "0xEFLb",
-  openbid   = "0xEFOb",
-  stopbid   = "0xEFBs",
-  profession= "0xEFSp",
+  posttoraid = "0xEFPo",
+  version    = "0xEFVe",
+  readyyes   = "0xEFRy",
+  readyno    = "0xEFNr",
+  postdkp    = "0xEFPd",
+  author     = "0xEFAu",
+  lootitem   = "0xEFLi",
+  lootbid    = "0xEFLb",
+  openbid    = "0xEFOb",
+  stopbid    = "0xEFBs",
+  profession = "0xEFSp",
+  professionN= "0xBFSN",
+  profrequest= "0xBFPr",
+
+  privchat1  = "0xKYsPC",
+  privchat2  = "0xKYsGC",
+  privchat3  = "0xKYsNC",
+  privchat4  = "0xLYsPF",
 }
 
 function DN:ParsePacket(netpacket, code)
@@ -449,6 +461,8 @@ function DN:ClassColorText(frame, class)
   if (class) then
     if (class == "Empty") then
       rgb={0.20, 0.20, 0.20}
+    elseif (class == "Offline") then
+      rgb={0.50, 0.50, 0.50}
     else
       local r, g, b = GetClassColor(string.upper(class))
       rgb={r, g, b}
@@ -1504,6 +1518,7 @@ function DN:Open()
     DNAFrameMain:Show()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
+    SortGuildRoster("name")
     --[==[
     if (DNAGuildDataBuilder <= 0) then
       local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()

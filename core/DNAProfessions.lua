@@ -171,11 +171,13 @@ local profCount = 0
 local profName = {}
 local profPacketString = ""
 local sentMyProfs = 1
-function DN:SendMyProfessions()
+function DN:SendMyProfessions(notification, author)
   sentMyProfs = sentMyProfs +1
   local profPacketString = ""
-  --print("guild cache: " .. sentMyProfs)
-  if (sentMyProfs == 4) then --that's right, Blizzard guild cache is so fucked up that you have to call after multiple attempts.
+  if (notification) then
+    sentMyProfs = 4
+  end
+  if (sentMyProfs == 4) then
     if (IsInGuild()) then
       local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo("player")
       for skillIndex = 1, GetNumSkillLines() do
@@ -194,7 +196,11 @@ function DN:SendMyProfessions()
 
       if (profPacketString) then
         profPacketString = profPacketString:sub(1, string.len(profPacketString) -1)
-        DN:SendPacket(packetPrefix.profession .. player.name .. "," .. guildName .. "," .. profPacketString, false, "GUILD")
+        if (notification) then
+          DN:SendPacket(packetPrefix.professionN .. player.name .. "," .. guildName .. "," .. author .. "," .. profPacketString, false, "GUILD")
+        else
+          DN:SendPacket(packetPrefix.profession .. player.name .. "," .. guildName .. "," .. author .. "," .. profPacketString, false, "GUILD")
+        end
       end
 
     end
@@ -204,16 +210,17 @@ end
 function DN:SaveGuildProfessions(prof_data)
   local member= prof_data[1]
   local guild = prof_data[2]
-  local profN1= prof_data[3]
-  local profL1= prof_data[4]
-  local profN2= prof_data[5]
-  local profL2= prof_data[6]
-  local profN3= prof_data[7]
-  local profL3= prof_data[8]
-  local profN4= prof_data[9]
-  local profL4= prof_data[10]
-  local profN5= prof_data[11]
-  local profL5= prof_data[12]
+  local author= prof_data[3]
+  local profN1= prof_data[4]
+  local profL1= prof_data[5]
+  local profN2= prof_data[6]
+  local profL2= prof_data[7]
+  local profN3= prof_data[8]
+  local profL3= prof_data[9]
+  local profN4= prof_data[10]
+  local profL4= prof_data[11]
+  local profN5= prof_data[12]
+  local profL5= prof_data[13]
   if (IsInGuild()) then
     DNAProfScrollFrame.text:SetText(guild)
   end
@@ -246,6 +253,7 @@ function DN:GetGuildProfessions(prof)
     professionSlot[i].text:SetText("")
     professionSlot[i]:Hide()
   end
+  local guildMemberSort={}
   local memberCount = 0
   if (IsInGuild()) then
     local guildName, guildRankName, guildRankIndex = GetGuildInfo("player")
@@ -259,24 +267,36 @@ function DN:GetGuildProfessions(prof)
     cachedProf = prof
     DNAProfScrollFrame.text:SetText(guildName .. " - " .. prof)
     if (DNA["PROFESSIONS"][guildName]) then
+      for k in pairs(guildMemberSort) do
+        guildMemberSort[k] = nil
+      end
       for member,v in pairs(DNA["PROFESSIONS"][guildName]) do
         --print(member)
-        for profession,v in pairs(DNA["PROFESSIONS"][guildName][member]) do
-          if (profession == prof) then
-            memberCount = memberCount +1
-            professionSlot[memberCount].text:SetText(member)
-            professionSlot[memberCount]:Show()
-            for i=1, GetNumGuildMembers() do
-              local name, rank, rankIndex, level, class, zone = GetGuildRosterInfo(i)
-              local guild_member = split(name, "-") --remove server
-              if (member == guild_member[1]) then
-                DN:ClassColorText(professionSlot[memberCount].text, class)
-              end
-            end
+        for k,v in pairs(DNA["PROFESSIONS"][guildName][member]) do
+          if (k == prof) then
+            table.insert(guildMemberSort, member)
           end
         end
       end
     end
+
+    table.sort(guildMemberSort)
+    for profession,v in ipairs(guildMemberSort) do
+      memberCount = memberCount +1
+      professionSlot[memberCount].text:SetText(v)
+      professionSlot[memberCount]:Show()
+      for i=1, GetNumGuildMembers() do
+        local name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i)
+        local guild_member = split(name, "-") --remove server
+        if (v == guild_member[1]) then
+          DN:ClassColorText(professionSlot[memberCount].text, "Offline")
+          if (online) then
+            DN:ClassColorText(professionSlot[memberCount].text, class)
+          end
+        end
+      end
+    end
+
   end
 end
 
@@ -292,3 +312,50 @@ function DN:GetMemberProf(prof, member)
     DNAMemberProfDetailFrame:Show()
   end
 end
+
+local guildRosterArray={}
+local nextGuildName=1
+local countGuildOnline = 0
+local profSendDelayTimer = 0
+function ProfDelayTimerFrame()
+  profSendDelayTimer = profSendDelayTimer+1
+  if (guildRosterArray[profSendDelayTimer]) then
+    --print(guildRosterArray[profSendDelayTimer])
+    DN:SendPacket(packetPrefix.profrequest .. guildRosterArray[profSendDelayTimer] .. "," .. player.name, false, "GUILD")
+  end
+end
+profsendDelay = C_Timer.NewTicker(1, ProfDelayTimerFrame, 1)
+profsendDelay:Cancel()
+
+function DN:ProfSendAlphaSync()
+  for k in pairs(guildRosterArray) do --clear array
+    guildRosterArray[k] = nil
+  end
+  for i=1, GetNumGuildMembers() do
+    local name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i)
+    local guild_member = split(name, "-") --remove server
+    if (online) then
+      countGuildOnline = countGuildOnline +1
+      table.insert(guildRosterArray, guild_member[1])
+    end
+  end
+  table.sort(guildRosterArray)
+  --print("DN:ProfSendAlphaSync()")
+end
+
+DNAProfSyncGuild = CreateFrame("Button", nil, page["Professions"], "UIPanelButtonTemplate")
+DNAProfSyncGuild:SetSize(150, 24)
+DNAProfSyncGuild:SetPoint("TOPLEFT", 230, -555)
+DNAProfSyncGuild.text = DNAProfSyncGuild:CreateFontString(nil, "ARTWORK")
+DNAProfSyncGuild.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNAProfSyncGuild.text:SetPoint("CENTER", 0, 0)
+DNAProfSyncGuild.text:SetText("Sync Guild")
+DNAProfSyncGuild:SetFrameLevel(5)
+DNAProfSyncGuild:SetScript('OnClick', function(self)
+  profsendDelay:Cancel()
+  DN:ProfSendAlphaSync()
+  --print(countGuildOnline)
+  profsendDelay = C_Timer.NewTicker(0.320, ProfDelayTimerFrame, countGuildOnline)
+  DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Professions|r]")
+  self:Hide()
+end)
