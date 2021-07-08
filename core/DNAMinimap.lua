@@ -109,7 +109,7 @@ end)
 DNADialogMMIReset:Hide()
 
 local DNAMiniMapRestore = CreateFrame("Button", nil, page["Settings"], "BackdropTemplate")
-DNAMiniMapRestore:SetPoint("TOPLEFT", 34, -415)
+DNAMiniMapRestore:SetPoint("TOPLEFT", 20, -DNAGlobal.height+80)
 DNAMiniMapRestore.text = DNAMiniMapRestore:CreateFontString(nil, "ARTWORK")
 DNAMiniMapRestore.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
 DNAMiniMapRestore.text:SetText("Reset Minimap Icon")

@@ -21,4 +21,5 @@ core\DNAAttendance.lua
 core\DNALootlog.lua
 core\DNADKP.lua
 core\DNAProfessions.lua
+core\DNACalendar.lua
 core\DNAMinimap.lua

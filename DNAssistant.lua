@@ -1600,7 +1600,7 @@ end
 
 function DN:CheckBox(checkID, checkName, parentFrame, posX, posY, tooltip)
   local check_static = CreateFrame("CheckButton", nil, parentFrame, "ChatConfigCheckButtonTemplate")
-  check_static:SetPoint("TOPLEFT", posX+10, -posY-40)
+  check_static:SetPoint("TOPLEFT", posX+10, -posY-5)
   check_static.text = check_static:CreateFontString(nil,"ARTWORK")
   check_static.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
   check_static.text:SetPoint("TOPLEFT", check_static, "TOPLEFT", 25, -5)
@@ -1632,30 +1632,17 @@ function DN:CheckBox(checkID, checkName, parentFrame, posX, posY, tooltip)
   end
 end
 
-DN:FrameBorder("AUTO PROMOTE", page["Settings"], 20, 110, 350, 100)
-DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers", page["Settings"], 20, 80, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
---[==[
-DN:CheckBox("AUTOPROMOTEC", "Auto Promote Custom", page["Settings"], 20, 100, "Auto Promote custom to raid assistants.\nMust be Raid Lead.")
-DNAFrameAutopromoteCustom = CreateFrame("EditBox", nil, page["Settings"], "BackdropTemplate")
-DNAFrameAutopromoteCustom:SetSize(150, 22)
-DNAFrameAutopromoteCustom:SetFontObject(GameFontWhite)
-DNAFrameAutopromoteCustom:SetPoint("TOPLEFT", 30, -170)
-DNAFrameAutopromoteCustom:EnableKeyboard(true)
-DNAFrameAutopromoteCustom:ClearFocus(self)
-DNAFrameAutopromoteCustom:SetAutoFocus(false)
-DNAFrameAutopromoteCustom:SetBackdrop(GameTooltip:GetBackdrop())
-DNAFrameAutopromoteCustom:SetBackdropColor(0, 0, 0, 0.8)
-DNAFrameAutopromoteCustom:SetText("Class Leads")
-]==]--
+local frameBorderName = "RAID OPTIONS"
+DN:FrameBorder(frameBorderName, page["Settings"], 20, 110, 350, 100)
+DN:CheckBox("AUTOPROMOTE", "Auto Promote Guild Officers in Raid", DNAFrameBackBorder[frameBorderName], 0, 0, "Auto Promote guild officers to raid assistants.\nMust be Raid Lead.")
+DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", DNAFrameBackBorder[frameBorderName], 0, 20, "Post to Raid chat as well as the screen assignments.")
+DN:CheckBox("LOGATTENDANCE", "Log Raid Attendance", DNAFrameBackBorder[frameBorderName], 0, 40, " Log Raid Attendance ")
 
-DN:FrameBorder("RAID OPTIONS", page["Settings"], 20, 240, 350, 70)
-DN:CheckBox("RAIDCHAT", "Assign Marks To Raid Chat", page["Settings"], 20, 210, "Post to Raid chat as well as the screen assignments.")
-DN:CheckBox("LOGATTENDANCE", "Log Raid Attendance", page["Settings"], 20, 230, " Log Raid Attendance ")
-
-DN:FrameBorder("DIALOG / UI", page["Settings"], 20, 340, 350, 110)
-DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", page["Settings"], 20, 310, "Hide the Personal Assignments window once combat has ended.")
-DN:CheckBox("SMALLASSIGNCOMBAT", "Small Personal Assignment Window", page["Settings"], 20, 330, "Size down the Personal Assignments window.")
-DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", page["Settings"], 20, 350, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
+local frameBorderName = "DIALOG / UI"
+DN:FrameBorder("DIALOG / UI", page["Settings"], 20, 240, 350, 110)
+DN:CheckBox("HIDEASSIGNCOMBAT", "Hide Personal Assignments After Combat", DNAFrameBackBorder[frameBorderName], 0, 0, "Hide the Personal Assignments window once combat has ended.")
+DN:CheckBox("SMALLASSIGNCOMBAT", "Small Personal Assignment Window", DNAFrameBackBorder[frameBorderName], 0, 20, "Size down the Personal Assignments window.")
+DN:CheckBox("MMICONHIDE", "Hide The Minimap Icon", DNAFrameBackBorder[frameBorderName], 0, 40, "Hide the minimap icon.\nMust use '/dna' to re-enable.")
 
 local DNAFrameRaidDetailsBG = CreateFrame("Frame", nil, page["Attendance"], "InsetFrameTemplate")
 DNAFrameRaidDetailsBG:SetSize(190, DNAGlobal.height-100)

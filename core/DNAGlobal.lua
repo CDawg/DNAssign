@@ -73,6 +73,7 @@ expansionTabs = {
 
 DNAPages = {
   "Assignment",
+  --"Calendar",
   "Attendance",
   "Loot Log",
   "DKP",
@@ -139,6 +140,7 @@ DNABidWindowBidderName= {}
 DNABidWindowBidderNum = {}
 DKPLogMember={}
 DKPLogMemberName={}
+DKPLogMemberClass={}
 DKPLogMemberDKP={}
 DKPLogMemberDKPB={}
 DKPLogMemberDKPT={}
@@ -575,26 +577,16 @@ function DN:ClearToolTip()
   DNATooltip:Hide()
 end
 
+DNAFrameBackBorder={}
 function DN:FrameBorder(title, frame, x, y, w, h)
-  local DNAFrameBackBorder={}
-  DNAFrameBackBorder = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
-  --DNAFrameBackBorder = CreateFrame("Frame", nil, frame)
-  DNAFrameBackBorder:SetSize(w, h)
-  DNAFrameBackBorder:SetPoint("TOPLEFT", x, -y)
-  DNAFrameBackBorder:SetFrameLevel(2)
-  --[==[
-  DNAFrameBackBorder:SetBackdrop({
-    bgFile = "",
-    edgeFile = "Interface/ToolTips/UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = {left=2, right=2, top=2, bottom=2},
-  })
-  ]==]--
-  DNAFrameBackBorder.text = DNAFrameBackBorder:CreateFontString(nil,"ARTWORK")
-  DNAFrameBackBorder.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
-  DNAFrameBackBorder.text:SetPoint("TOPLEFT", DNAFrameBackBorder, "TOPLEFT", 5, 13)
-  --DNAFrameBackBorder.text:SetTextColor(0.9, 0.7, 0.7)
-  DNAFrameBackBorder.text:SetText("|cffffe885" .. title)
+  DNAFrameBackBorder[title] = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
+  DNAFrameBackBorder[title]:SetSize(w, h)
+  DNAFrameBackBorder[title]:SetPoint("TOPLEFT", x, -y)
+  DNAFrameBackBorder[title]:SetFrameLevel(2)
+  DNAFrameBackBorder[title].text = DNAFrameBackBorder[title]:CreateFontString(nil,"ARTWORK")
+  DNAFrameBackBorder[title].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+  DNAFrameBackBorder[title].text:SetPoint("TOPLEFT", DNAFrameBackBorder[title], "TOPLEFT", 5, 13)
+  DNAFrameBackBorder[title].text:SetText("|cffffe885" .. title)
 end
 
 DNABossPacket = ""
@@ -1518,7 +1510,7 @@ function DN:Open()
     DNAFrameMain:Show()
     --DNAFrameAssign:Show() --DEBUG
     memberDrag = nil --bugfix
-    SortGuildRoster("name")
+    --SortGuildRoster("name")
     --[==[
     if (DNAGuildDataBuilder <= 0) then
       local numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers()
