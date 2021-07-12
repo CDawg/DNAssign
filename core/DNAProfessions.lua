@@ -14,25 +14,11 @@ the copyright holders.
 
 MAX_MEMBER_PROFESSIONS = 800
 MAX_MEMBER_RECIPES = 255 --we can't add more than the packet will allow us
+MAX_REAGENT_RECIPE = 6 --have not found anything more than 6 per recipe
+MAX_EXPANSION_CRAFT = 375
 
 local DNAProfScrollFrame_w = 200
 local DNAProfScrollFrame_h = 500
-
-DNAProfessions = {
-  {"Alchemy",       171, "trade_alchemy"},
-  {"Cooking",       185, "inv_misc_food_15"},
-  {"Engineering",   202, "trade_engineering"},
-  {"Fishing",       356, "trade_fishing"},
-  {"First Aid",     129, "spell_holy_sealofsacrifice"},
-  {"Tailoring",     197, "trade_tailoring"},
-  {"Skinning",      393, "inv_misc_pelt_wolf_01"},
-  {"Blacksmithing", 164, "trade_blacksmithing"},
-  {"Jewelcrafting", 755, "inv_misc_gem_01"},
-  {"Herbalism",     182, "spell_nature_naturetouchgrow"},
-  {"Enchanting",    333, "trade_engraving"},
-  {"Leatherworking",165, "inv_misc_armorkit_17"},
-  {"Mining",        186, "trade_mining"},
-}
 
 local cachedProf = DNAProfessions[1][1]
 
@@ -298,14 +284,15 @@ end
 function DN:GetMemberProf(prof, member)
   local guildName, guildRankName, guildRankIndex = GetGuildInfo("player")
   if (DNA["PROFESSIONS"][guildName][member][prof]) then
-    --print(DNA["PROFESSIONS"][guildName][member][prof])
-    memberProfDetailText[1]:SetText(prof .. " ".. DNA["PROFESSIONS"][guildName][member][prof] ..  "/375")
-    local skillLevel = tonumber(DNA["PROFESSIONS"][guildName][member][prof])
-    --print(skillLevel)
-    memberProfDetailBar:SetSize(skillLevel, 21)
+    local memberSkill = tonumber(DNA["PROFESSIONS"][guildName][member][prof])
+    if (memberSkill >= MAX_EXPANSION_CRAFT) then
+      memberSkill = MAX_EXPANSION_CRAFT
+    end
+    memberProfDetailText[1]:SetText(prof .. " ".. memberSkill .. "/" .. MAX_EXPANSION_CRAFT)
+    memberProfDetailBar:SetSize(memberSkill, 21)
     memberProfDetailTextName:SetText(member)
     DNAMemberProfDetailFrame:Show()
-    DN:UpdateProfessionList(prof, member, skillLevel)
+    DN:UpdateProfessionList(prof, member, memberSkill)
   end
 end
 
@@ -418,17 +405,76 @@ DNAProfRecipeScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right
 DNAProfRecipeScrollFrame.MR:SetPoint("TOPLEFT", DNAProfRecipeScrollFrame_w-5, 0)
 DNAProfRecipeScrollFrame.MR:SetSize(24, DNAProfRecipeScrollFrame_h)
 
-DNAProfRecipeMatsFrame = CreateFrame("Frame", DNAProfRecipeScrollFrame, DNAMemberProfDetailFrame, "InsetFrameTemplate")
+DNAProfRecipeMatsFrame = CreateFrame("Frame", "DNAProfRecipeMatsFrame", DNAMemberProfDetailFrame, "InsetFrameTemplate")
 DNAProfRecipeMatsFrame:SetWidth(DNAProfRecipeScrollFrame_w+20)
 DNAProfRecipeMatsFrame:SetHeight(220)
 DNAProfRecipeMatsFrame:SetPoint("TOPLEFT", 0, -DNAProfRecipeScrollFrame_h-38)
-DNAProfRecipeMatsFrame.text = DNAProfRecipeMatsFrame:CreateFontString(nil, "ARTWORK")
-DNAProfRecipeMatsFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
-DNAProfRecipeMatsFrame.text:SetPoint("TOPLEFT", 15, -10)
-DNAProfRecipeMatsFrame.text:SetText("fff")
+
+local DNAProfRecipeItem={}
+DNAProfRecipeItem = CreateFrame("Frame", "DNAProfRecipeItem", DNAProfRecipeMatsFrame)
+DNAProfRecipeItem:SetWidth(300)
+DNAProfRecipeItem:SetHeight(30)
+DNAProfRecipeItem:SetPoint("TOPLEFT", 30, -10)
+DNAProfRecipeItem.icon = DNAProfRecipeItem:CreateTexture(nil, "OVERLAY", DNAProfRecipeItem)
+DNAProfRecipeItem.icon:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAProfRecipeItem.icon:SetPoint("TOPLEFT", 0, 0)
+DNAProfRecipeItem.icon:SetSize(30, 30)
+DNAProfRecipeItem.text = DNAProfRecipeItem:CreateFontString(nil, "ARTWORK")
+DNAProfRecipeItem.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DNAProfRecipeItem.text:SetPoint("TOPLEFT", 35, -10)
+DNAProfRecipeItem.text:SetText("")
+DNAProfRecipeItem.text:SetTextColor(1, 1, 0.4, 1)
+DNAProfRecipeItem:Hide()
+
+local DNAProfReagent={}
+local DNAProfReagentBorder = {
+  bgFile = "",
+  edgeFile = DNAGlobal.slotborder,
+  edgeSize = 12,
+  insets = {left=2, right=2, top=2, bottom=2},
+}
+for i=1, MAX_REAGENT_RECIPE do
+  DNAProfReagent[i] = CreateFrame("Frame", "DNAProfReagent", DNAProfRecipeMatsFrame, "BackdropTemplate")
+  DNAProfReagent[i]:SetWidth(160)
+  DNAProfReagent[i]:SetHeight(32)
+  DNAProfReagent[i]:SetBackdrop(DNAProfReagentBorder)
+  DNAProfReagent[i]:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+  DNAProfReagent[i].text = DNAProfReagent[i]:CreateFontString(nil, "ARTWORK")
+  DNAProfReagent[i].text:SetWidth(120)
+  DNAProfReagent[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-2, "OUTLINE")
+  DNAProfReagent[i].text:SetPoint("CENTER", 15, 0)
+  DNAProfReagent[i].text:SetText("")
+  DNAProfReagent[i].icon = DNAProfReagent[i]:CreateTexture(nil, "OVERLAY", DNAProfReagent[i])
+  DNAProfReagent[i].icon:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+  DNAProfReagent[i].icon:SetPoint("TOPLEFT", 1, -1)
+  DNAProfReagent[i].icon:SetSize(29, 29)
+  DNAProfReagent[i].count = DNAProfReagent[i]:CreateFontString(nil, "OVERLAY", 7)
+  DNAProfReagent[i].count:SetFont(DNAGlobal.font, DNAGlobal.fontSize+1, "OUTLINE")
+  DNAProfReagent[i].count:SetPoint("TOPLEFT", 2, -2)
+  DNAProfReagent[i].count:SetText("1")
+  DNAProfReagent[i].count:SetTextColor(1,1,0.8,1)
+  DNAProfReagent[i]:Hide()
+end
+--row 1
+local reagentPos = 0
+for i=1, 2 do
+  reagentPos = reagentPos+1
+  DNAProfReagent[i]:SetPoint("TOPLEFT", -130+reagentPos*160, -60)
+end
+--row 2
+local reagentPos = 0
+for i=3, 4 do
+  reagentPos = reagentPos+1
+  DNAProfReagent[i]:SetPoint("TOPLEFT", -130+reagentPos*160, -100)
+end
+--row 3
+local reagentPos = 0
+for i=5, 6 do
+  reagentPos = reagentPos+1
+  DNAProfReagent[i]:SetPoint("TOPLEFT", -130+reagentPos*160, -140)
+end
 
 local recipeSlot={}
-
 local recipeCount=0
 for i=1, MAX_MEMBER_RECIPES  do
   recipeCount = recipeCount+1
@@ -437,7 +483,7 @@ for i=1, MAX_MEMBER_RECIPES  do
   recipeSlot[i]:SetWidth(DNAProfRecipeScrollFrame_w-5)
   recipeSlot[i]:SetHeight(raidSlot_h)
   recipeSlot[i]:SetBackdrop({
-    --bgFile = DNAGlobal.slotbg,
+    bgFile = "",
     edgeFile = DNAGlobal.slotborder,
     edgeSize = 12,
     insets = {left=2, right=2, top=2, bottom=2},
@@ -449,46 +495,68 @@ for i=1, MAX_MEMBER_RECIPES  do
   recipeSlot[i].text = recipeSlot[i]:CreateFontString(nil, "ARTWORK")
   recipeSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
   recipeSlot[i].text:SetPoint("TOPLEFT", 15, -4)
-  --recipeSlot[i].text:SetText(DN:LinkSkill(DNAProf.Enchanting[recipeCount]))
-  recipeSlot[i].text:SetText("fff")
-  --recipeSlot[i].text:SetTextColor(0.6, 0.6, 0.6, 1)
+  recipeSlot[i].text:SetText("-")
+
+  recipeSlot[i].id = recipeSlot[i]:CreateFontString(nil, "ARTWORK")
+  recipeSlot[i].id:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  recipeSlot[i].id:SetPoint("TOPLEFT", 115, -4)
+  recipeSlot[i].id:SetText("-")
   recipeSlot[i]:SetScript('OnEnter', function()
     recipeSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
   end)
   recipeSlot[i]:SetScript('OnLeave', function()
-    --recipeSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
     recipeSlot[i]:SetBackdropBorderColor(0, 0, 0, 0)
   end)
   recipeSlot[i]:SetScript('OnClick', function(self)
-    local prof_data = split(self.text:GetText(), " | ")
-    print(prof_data[1])
-    print(prof_data[2])
-    --local name, rank, icon, castTime, minRange, maxRange, Id = GetSpellInfo(self.text:GetText())
-    --print(DNAProf.Reagents[prof_data[2]])
-    local spellID = tonumber(prof_data[2])
-    --print(DNAProf.Reagents[spellID])
-    for k,v in pairs(DNAProf.Reagents[spellID]) do
-      --print(tonumber(v[1]))
-      --print(tonumber(v[7]))
-    end
-    local reagents = DNAProf.Reagents[spellID][6]
-    local reagentCount=DNAProf.Reagents[spellID][7]
-    print(reagents)
-    for k,v in ipairs(reagents) do
-      print(v)
-      print(reagentCount[k])
-    end
-    -- [spellID] = { createdItemID, prof, minLvl, lowLvl, highLvl, reagents{}, reagentsCount{}, numCreatedItems }
+    DN:UpdateRecipeMats(self.text:GetText())
   end)
 end
 
+function DN:UpdateRecipeMats(array)
+  local prof_data = split(array, " | ")
+  local spellID = tonumber(prof_data[2])
+  local itemID = DNAProfession.Reagents[spellID][1]
+  if (itemID) then
+  local itemIcon = GetItemIcon(itemID)
+    DNAProfRecipeItem.icon:SetTexture(itemIcon)
+  end
+  DNAProfRecipeItem.text:SetText(prof_data[1])
+  DNAProfRecipeItem:Show()
+  local reagents = DNAProfession.Reagents[spellID][6]
+  local reagentCount=DNAProfession.Reagents[spellID][7]
+  for i=1, MAX_REAGENT_RECIPE do
+    DNAProfReagent[i]:Hide()
+  end
+  for k,v in ipairs(reagents) do
+    DNAProfReagent[k].text:SetText("Loading...")
+    DNAProfReagent[k]:Show()
+    if (v) then
+      local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(v)
+      local icon = GetItemIcon(v)
+      --print(itemName)
+      DNAProfReagent[k].text:SetText(itemName)
+      --print("icon " .. icon)
+      DNAProfReagent[k].icon:SetTexture(icon)
+      --print("count " .. reagentCount[k])
+      DNAProfReagent[k].count:SetText(reagentCount[k])
+    end
+  end
+  -- [spellID] = { createdItemID, prof, minLvl, lowLvl, highLvl, reagents{}, reagentsCount{}, numCreatedItems }
+end
+
 function DN:UpdateProfessionList(prof, member, skillLevel)
-  print("prof: " .. prof)
-  print("member: " .. member)
-  print("skillLevel: " .. skillLevel)
+  --print("prof: " .. prof)
+  --print("member: " .. member)
+  --print("skillLevel: " .. skillLevel)
+  DNAProfRecipeItem:Hide()
   for i=1, MAX_MEMBER_RECIPES  do
     recipeSlot[i].text:SetText("")
+    recipeSlot[i].id:SetText("")
     recipeSlot[i]:Hide()
+  end
+
+  for i=1, MAX_REAGENT_RECIPE do
+    DNAProfReagent[i]:Hide()
   end
 
   --prediction recipes based off of their skill level
@@ -497,7 +565,7 @@ function DN:UpdateProfessionList(prof, member, skillLevel)
   for k in pairs(recipeAlpha) do
     recipeAlpha[k] = nil
   end
-  for k,v in ipairs(DNAProf[prof]) do
+  for k,v in ipairs(DNAProfession[prof]) do
     if (v[2] <= skillLevel) then
       recipeCount = recipeCount+1
       local spellName = GetSpellInfo(v[1]) .. " | " .. v[1]
@@ -506,7 +574,9 @@ function DN:UpdateProfessionList(prof, member, skillLevel)
   end
   table.sort(recipeAlpha)
   for k,v in ipairs(recipeAlpha) do
+    --local prof_data = split(array, " | ")
     recipeSlot[k].text:SetText(v)
+    --recipeSlot[k].id:SetText(v)
     recipeSlot[k]:Show()
   end
 end

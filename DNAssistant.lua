@@ -748,6 +748,9 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Roster|r]")
       end
       DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Professions|r]")
+      for k,v in ipairs(DNAProfession.Reagents) do
+        print(v)
+      end
     end
   end
 
