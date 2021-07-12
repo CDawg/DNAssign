@@ -30,7 +30,7 @@ DNAGlobal = {
   btn_border= "Interface/Tooltips/UI-Tooltip-Border",
   prefix    = "dnassist",
   --version   = GetAddOnMetadata("DNAssistant", "Version"), --disable the requirement to log all the way out of WoW.
-  version   = 2.015,
+  version   = 2.018,
   backdrop  = "Interface/Garrison/GarrisonMissionParchment", --default
   border    = "Interface/DialogFrame/UI-DialogBox-Border",
   slotbg    = "Interface/Collections/CollectionsBackgroundTile",
@@ -1532,6 +1532,8 @@ function DN:Open()
     DN:RaidDetails()
     DN:ResetQueueTransposing() --sanity check on queues
     --DN:HideGlobalReadyCheck()
+    --CastSpellByName("Blacksmithing") --using this as a test example
+    --GetSpellLink("Tailoring")
 
     --clean up old values
     if (DNA[player.combine]["CONFIG"]["UNLOCKICON"]) then
@@ -1577,6 +1579,8 @@ function DN:Open()
     end
 
     DNAButtonProf[DNAProfessions[1][1]]:Click()
+
+    DN:HasSkill(20020)
 
   end
 end

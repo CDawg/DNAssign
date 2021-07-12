@@ -13,6 +13,7 @@ the copyright holders.
 ]==]--
 
 MAX_MEMBER_PROFESSIONS = 800
+MAX_MEMBER_RECIPES = 255 --we can't add more than the packet will allow us
 
 local DNAProfScrollFrame_w = 200
 local DNAProfScrollFrame_h = 500
@@ -57,14 +58,12 @@ for k,v in ipairs(DNAProfessions) do
     insets = {left=2, right=2, top=2, bottom=2},
   })
   DNAButtonProf[v[1]]:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
-  --[==[
   DNAButtonProf[v[1]]:SetScript("OnEnter", function(self)
     self:SetBackdropBorderColor(1,1,1,1)
   end)
   DNAButtonProf[v[1]]:SetScript("OnLeave", function(self)
     self:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
   end)
-  ]==]--
   DNAButtonProf[v[1]]:SetScript("OnClick", function()
     DN:GetGuildProfessions(v[1])
   end)
@@ -100,15 +99,9 @@ DNAMemberProfDetailFrame:SetHeight(100)
 DNAMemberProfDetailFrame:SetFrameLevel(5)
 DNAMemberProfDetailFrame:Hide()
 local memberProfDetailBar = {}
-memberProfDetailBarBack =  CreateFrame("Button", nil, DNAMemberProfDetailFrame, "BackdropTemplate")
+memberProfDetailBarBack =  CreateFrame("Frame", nil, DNAMemberProfDetailFrame, "InsetFrameTemplate")
 memberProfDetailBarBack:SetPoint("TOPLEFT", 0, -10)
 memberProfDetailBarBack:SetSize(378, 24)
-memberProfDetailBarBack:SetBackdrop({
-  --bgFile = "Interface/ToolTips/UI-Tooltip-Background",
-  edgeFile = DNAGlobal.slotborder,
-  edgeSize = 12,
-  insets = {left=2, right=2, top=2, bottom=2},
-})
 memberProfDetailBar = CreateFrame("Button", nil, memberProfDetailBarBack, "BackdropTemplate")
 memberProfDetailBar:SetPoint("TOPLEFT", 2, -1)
 memberProfDetailBar:SetSize(1, 21)
@@ -119,7 +112,7 @@ memberProfDetailBar:SetBackdrop({
   insets = {left=2, right=2, top=2, bottom=2},
 })
 memberProfDetailBar:SetFrameLevel(6)
-memberProfDetailBar:SetBackdropColor(0.1, 0.1, 0.4, 1)
+memberProfDetailBar:SetBackdropColor(0.2, 0.2, 0.5, 1)
 
 --bar text
 local memberProfDetailText = {}
@@ -260,9 +253,11 @@ function DN:GetGuildProfessions(prof)
     --print("clicking " .. prof)
     --print("guild " .. guildName)
     for k,v in ipairs(DNAProfessions) do
-      DNAButtonProf[v[1]]:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+      --DNAButtonProf[v[1]]:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+      DNAButtonProf[v[1]]:SetBackdropColor(0.7, 0.7, 0.7, 1)
     end
-    DNAButtonProf[prof]:SetBackdropBorderColor(1, 1, 0.5, 1)
+    --DNAButtonProf[prof]:SetBackdropBorderColor(1, 1, 0.5, 1)
+    DNAButtonProf[prof]:SetBackdropColor(1, 1, 0.2, 1)
     DNAMemberProfDetailFrame:Hide()
     cachedProf = prof
     DNAProfScrollFrame.text:SetText(guildName .. " - " .. prof)
@@ -310,6 +305,7 @@ function DN:GetMemberProf(prof, member)
     memberProfDetailBar:SetSize(skillLevel, 21)
     memberProfDetailTextName:SetText(member)
     DNAMemberProfDetailFrame:Show()
+    DN:UpdateProfessionList(prof, member, skillLevel)
   end
 end
 
@@ -363,3 +359,154 @@ DNAProfSyncGuild:SetScript('OnClick', function(self)
     print("|cfffaff04You are not in a guild.")
   end
 end)
+
+--local spellID = 26746 -- NW Bag
+--local spellID = 22757 --Ele Sharpening stone
+--local spellID = 12046 --simple kilt
+--local spellID = 20020 --ench greater stam
+
+function DN:HasSkill(spellID)
+  --local spellName = GetSpellInfo(spellID)
+  local hasSpell = IsPlayerSpell(spellID)
+  --[==[
+  if (spellName) then
+    print("|Hspell:" .. spellID .."|h|r|cfffaff04[" .. spellName .. "]|r|h")
+    print(hasSpell)
+  else
+    print("unknown spell")
+  end
+  ]==]--
+  return hasSpell
+end
+
+function DN:LinkSkill(spellID)
+  --[==[
+  local spellName = GetSpellInfo(spellID)
+  if (spellName) then
+    return "|Hspell:" .. spellID .."|h|r|cfffaff04[" .. spellName .. "]|r|h"
+  else
+    return "unknown"
+  end
+  ]==]--
+end
+
+local DNAProfRecipeScrollFrame_w = 358
+local DNAProfRecipeScrollFrame_h = 230
+
+DNAProfRecipeScrollFrame = CreateFrame("Frame", DNAProfRecipeScrollFrame, DNAMemberProfDetailFrame, "InsetFrameTemplate")
+DNAProfRecipeScrollFrame:SetWidth(DNAProfRecipeScrollFrame_w+20)
+DNAProfRecipeScrollFrame:SetHeight(DNAProfRecipeScrollFrame_h)
+DNAProfRecipeScrollFrame:SetPoint("TOPLEFT", 0, -36)
+--DNAProfRecipeScrollFrame:SetFrameLevel(5)
+--[==[
+DNAProfRecipeScrollFrame.text = DNAProfRecipeScrollFrame:CreateFontString(nil, "ARTWORK")
+DNAProfRecipeScrollFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize, "OUTLINE")
+DNAProfRecipeScrollFrame.text:SetPoint("TOPLEFT", DNAProfRecipeScrollFrame, "TOPLEFT", 0, 15)
+DNAProfRecipeScrollFrame.text:SetText("Recipes")
+]==]--
+DNAProfRecipeScrollFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DNAProfRecipeScrollFrame, "UIPanelScrollFrameTemplate")
+DNAProfRecipeScrollFrame.ScrollFrame:SetPoint("TOPLEFT", DNAProfRecipeScrollFrame, "TOPLEFT", 3, -3)
+DNAProfRecipeScrollFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DNAProfRecipeScrollFrame, "BOTTOMRIGHT", 10, 4)
+local DNAProfRecipeScrollFrameScrollChildFrame = CreateFrame("Frame", DNAProfRecipeScrollFrameScrollChildFrame, DNAProfRecipeScrollFrame.ScrollFrame)
+DNAProfRecipeScrollFrameScrollChildFrame:SetSize(DNAProfRecipeScrollFrame_w, DNAProfRecipeScrollFrame_h)
+DNAProfRecipeScrollFrame.ScrollFrame:SetScrollChild(DNAProfRecipeScrollFrameScrollChildFrame)
+DNAProfRecipeScrollFrame.ScrollFrame.ScrollBar:ClearAllPoints()
+DNAProfRecipeScrollFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DNAProfRecipeScrollFrame.ScrollFrame, "TOPRIGHT", 0, -17)
+DNAProfRecipeScrollFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMRIGHT", DNAProfRecipeScrollFrame.ScrollFrame, "BOTTOMRIGHT", -42, 14)
+DNAProfRecipeScrollFrame.MR = DNAProfRecipeScrollFrame:CreateTexture(nil, "BACKGROUND", DNAProfRecipeScrollFrame, -2)
+DNAProfRecipeScrollFrame.MR:SetTexture(DNAGlobal.dir .. "images/scroll-mid-right")
+DNAProfRecipeScrollFrame.MR:SetPoint("TOPLEFT", DNAProfRecipeScrollFrame_w-5, 0)
+DNAProfRecipeScrollFrame.MR:SetSize(24, DNAProfRecipeScrollFrame_h)
+
+DNAProfRecipeMatsFrame = CreateFrame("Frame", DNAProfRecipeScrollFrame, DNAMemberProfDetailFrame, "InsetFrameTemplate")
+DNAProfRecipeMatsFrame:SetWidth(DNAProfRecipeScrollFrame_w+20)
+DNAProfRecipeMatsFrame:SetHeight(220)
+DNAProfRecipeMatsFrame:SetPoint("TOPLEFT", 0, -DNAProfRecipeScrollFrame_h-38)
+DNAProfRecipeMatsFrame.text = DNAProfRecipeMatsFrame:CreateFontString(nil, "ARTWORK")
+DNAProfRecipeMatsFrame.text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+DNAProfRecipeMatsFrame.text:SetPoint("TOPLEFT", 15, -10)
+DNAProfRecipeMatsFrame.text:SetText("fff")
+
+local recipeSlot={}
+
+local recipeCount=0
+for i=1, MAX_MEMBER_RECIPES  do
+  recipeCount = recipeCount+1
+  recipeSlot[i] = {}
+  recipeSlot[i] = CreateFrame("button", recipeSlot[i], DNAProfRecipeScrollFrameScrollChildFrame, "BackdropTemplate")
+  recipeSlot[i]:SetWidth(DNAProfRecipeScrollFrame_w-5)
+  recipeSlot[i]:SetHeight(raidSlot_h)
+  recipeSlot[i]:SetBackdrop({
+    --bgFile = DNAGlobal.slotbg,
+    edgeFile = DNAGlobal.slotborder,
+    edgeSize = 12,
+    insets = {left=2, right=2, top=2, bottom=2},
+  })
+  recipeSlot[i]:SetBackdropColor(1, 1, 1, 0.3)
+  --recipeSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+  recipeSlot[i]:SetBackdropBorderColor(0, 0, 0, 0)
+  recipeSlot[i]:SetPoint("TOPLEFT", 0, (-i*18)+raidSlot_h-4)
+  recipeSlot[i].text = recipeSlot[i]:CreateFontString(nil, "ARTWORK")
+  recipeSlot[i].text:SetFont(DNAGlobal.font, DNAGlobal.fontSize-1, "OUTLINE")
+  recipeSlot[i].text:SetPoint("TOPLEFT", 15, -4)
+  --recipeSlot[i].text:SetText(DN:LinkSkill(DNAProf.Enchanting[recipeCount]))
+  recipeSlot[i].text:SetText("fff")
+  --recipeSlot[i].text:SetTextColor(0.6, 0.6, 0.6, 1)
+  recipeSlot[i]:SetScript('OnEnter', function()
+    recipeSlot[i]:SetBackdropBorderColor(1, 1, 0.6, 1)
+  end)
+  recipeSlot[i]:SetScript('OnLeave', function()
+    --recipeSlot[i]:SetBackdropBorderColor(1, 0.98, 0.98, 0.30)
+    recipeSlot[i]:SetBackdropBorderColor(0, 0, 0, 0)
+  end)
+  recipeSlot[i]:SetScript('OnClick', function(self)
+    local prof_data = split(self.text:GetText(), " | ")
+    print(prof_data[1])
+    print(prof_data[2])
+    --local name, rank, icon, castTime, minRange, maxRange, Id = GetSpellInfo(self.text:GetText())
+    --print(DNAProf.Reagents[prof_data[2]])
+    local spellID = tonumber(prof_data[2])
+    --print(DNAProf.Reagents[spellID])
+    for k,v in pairs(DNAProf.Reagents[spellID]) do
+      --print(tonumber(v[1]))
+      --print(tonumber(v[7]))
+    end
+    local reagents = DNAProf.Reagents[spellID][6]
+    local reagentCount=DNAProf.Reagents[spellID][7]
+    print(reagents)
+    for k,v in ipairs(reagents) do
+      print(v)
+      print(reagentCount[k])
+    end
+    -- [spellID] = { createdItemID, prof, minLvl, lowLvl, highLvl, reagents{}, reagentsCount{}, numCreatedItems }
+  end)
+end
+
+function DN:UpdateProfessionList(prof, member, skillLevel)
+  print("prof: " .. prof)
+  print("member: " .. member)
+  print("skillLevel: " .. skillLevel)
+  for i=1, MAX_MEMBER_RECIPES  do
+    recipeSlot[i].text:SetText("")
+    recipeSlot[i]:Hide()
+  end
+
+  --prediction recipes based off of their skill level
+  local recipeCount=0
+  local recipeAlpha={}
+  for k in pairs(recipeAlpha) do
+    recipeAlpha[k] = nil
+  end
+  for k,v in ipairs(DNAProf[prof]) do
+    if (v[2] <= skillLevel) then
+      recipeCount = recipeCount+1
+      local spellName = GetSpellInfo(v[1]) .. " | " .. v[1]
+      table.insert(recipeAlpha, spellName)
+    end
+  end
+  table.sort(recipeAlpha)
+  for k,v in ipairs(recipeAlpha) do
+    recipeSlot[k].text:SetText(v)
+    recipeSlot[k]:Show()
+  end
+end
