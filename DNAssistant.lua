@@ -748,9 +748,18 @@ DNAMain:SetScript("OnEvent", function(self, event, prefix, netpacket)
         DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Roster|r]")
       end
       DN:ChatNotification("Collecting Guild ["..DNAGlobal.color.."Professions|r]")
-      for k,v in ipairs(DNAProfession.Reagents) do
-        print(v)
+
+      --cache to memory
+      for k,v in pairs(DNAProfession.Reagents) do
+        local reagents = v[6]
+        for i=1, 6 do
+          if (reagents[i]) then
+            local itemName = GetItemInfo(reagents[i])
+            local icon = GetItemIcon(reagents[i])
+          end
+        end
       end
+
     end
   end
 
