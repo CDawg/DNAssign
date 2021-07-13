@@ -110,6 +110,8 @@ DNALootlogOpenbidBtn:SetScript("OnClick", function()
     else
       DN:Notification("You are not the Master Looter")
     end
+  else
+    DN:Notification("You are not the Master Looter")
   end
 end)
 

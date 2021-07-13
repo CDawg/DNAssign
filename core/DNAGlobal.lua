@@ -260,6 +260,7 @@ function DN:SendPacket(packet, filtered, rec)
   else
   ]==]--
     C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, msg_to)
+    --C_ChatInfo.SendAddonMessage(DNAGlobal.prefix, filteredPacket, "WHISPER", player.name)
   --end
 end
 
@@ -1020,10 +1021,11 @@ function raidSlotFrame(parentFrame, i, y)
     memberDrag = raidSlot[i].text:GetText()
     DN:ResetQueueTransposing()
   end)
-  raidSlot[i]:SetScript("OnDragStop", function()
-    raidSlot[i]:StopMovingOrSizing()
-    raidSlot[i]:SetParent(parentFrame)
-    raidSlot[i]:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
+  raidSlot[i]:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    self:SetParent(parentFrame)
+    self:ClearAllPoints()
+    self:SetPoint("TOPLEFT", 0, raidSlotOrgPoint_y[i])
     DN:ResetQueueTransposing()
   end)
   raidSlot[i]:SetBackdrop({

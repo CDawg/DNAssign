@@ -2114,9 +2114,10 @@ for i=1, DNASlots.tank do
       swapQueue[TANK] = i
     end
   end)
-  tankSlot[i]:SetScript("OnDragStop", function()
-    tankSlot[i]:StopMovingOrSizing()
-    tankSlot[i]:SetPoint("TOPLEFT", 3, tankSlotOrgPoint_y[i])
+  tankSlot[i]:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    self:ClearAllPoints()
+    self:SetPoint("TOPLEFT", 3, tankSlotOrgPoint_y[i])
     updateSlotPos(TANK, i, "Empty")
   end)
   tankSlot[i]:SetScript('OnEnter', function()
@@ -2252,9 +2253,10 @@ for i=1, DNASlots.heal do
       memberDrag = healSlot[i].text:GetText()
     end
   end)
-  healSlot[i]:SetScript("OnDragStop", function()
-    healSlot[i]:StopMovingOrSizing()
-    healSlot[i]:SetPoint("TOPLEFT", 3, healSlotOrgPoint_y[i])
+  healSlot[i]:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    self:ClearAllPoints()
+    self:SetPoint("TOPLEFT", 3, healSlotOrgPoint_y[i])
     updateSlotPos(HEAL, i, "Empty")
   end)
   healSlot[i]:SetScript('OnEnter', function()
@@ -2346,9 +2348,10 @@ for i=1, DNASlots.cc do
       swapQueue[CC] = i
     end
   end)
-  ccSlot[i]:SetScript("OnDragStop", function()
-    ccSlot[i]:StopMovingOrSizing()
-    ccSlot[i]:SetPoint("TOPLEFT", 3, ccSlotOrgPoint_y[i])
+  ccSlot[i]:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    self:ClearAllPoints()
+    self:SetPoint("TOPLEFT", 3, ccSlotOrgPoint_y[i])
     updateSlotPos(CC, i, "Empty")
   end)
   ccSlot[i]:SetScript('OnEnter', function()
